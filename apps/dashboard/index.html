@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- TODO: Set the document title to the name of your application -->
+  <title>CaseFlow - Legal Dashboard</title>
+  <meta name="description" content="Professional Legal Case Management and Administrative Dashboard" />
+  <meta name="author" content="Amjat" />
+
+  <!-- Mobile PWA Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CaseFlow" />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="apple-touch-icon" href="/app-icon.svg" />
+  <link rel="icon" type="image/svg+xml" href="/app-icon.svg" />
+
+  <!-- Social Meta Tags -->
+  <meta property="og:title" content="CaseFlow - Legal Dashboard" />
+  <meta property="og:description" content="Streamline your legal practice with CaseFlow." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/placeholder.svg" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@CaseFlow" />
+  <meta name="twitter:image" content="/placeholder.svg" />
+</head>
+
+<body>
+  <div id="root"></div>
+  <script>
+    // Global error handler — catches errors BEFORE React mounts
+    window.onerror = function (msg, src, line, col, err) {
+      var el = document.getElementById('root');
+      if (el) el.innerHTML = '<div style="padding:24px;font-family:monospace;font-size:13px;background:#1a1a2e;color:#e94560;min-height:100vh"><h2 style="color:#fff">⚠️ JS Error</h2><div style="background:#16213e;padding:16px;border-radius:8px;word-break:break-word;margin:8px 0"><b>' + msg + '</b><br/><br/>File: ' + src + '<br/>Line: ' + line + ':' + col + '</div><pre style="background:#16213e;padding:16px;border-radius:8px;overflow:auto;color:#a5a5c0;font-size:11px;white-space:pre-wrap">' + (err && err.stack ? err.stack : 'No stack') + '</pre></div>';
+    };
+    window.addEventListener('unhandledrejection', function (e) {
+      var el = document.getElementById('root');
+      if (el && !el.innerHTML.includes('JS Error')) el.innerHTML = '<div style="padding:24px;font-family:monospace;font-size:13px;background:#1a1a2e;color:#e94560;min-height:100vh"><h2 style="color:#fff">⚠️ Promise Error</h2><pre style="background:#16213e;padding:16px;border-radius:8px;overflow:auto;color:#fff;font-size:12px;white-space:pre-wrap">' + (e.reason && e.reason.stack ? e.reason.stack : String(e.reason)) + '</pre></div>';
+    });
+    // Unregister stale service workers (PWA conflicts with Capacitor)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (r) { r.unregister(); });
+      });
+    }
+  </script>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>

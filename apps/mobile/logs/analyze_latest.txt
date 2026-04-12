@@ -1,0 +1,24 @@
+Analyzing caseflow_flutter...                                   
+
+warning - Unused import: 'upgrade_plan_dialog.dart' - lib\components\dialogs\new_case_dialog.dart:7:8 - unused_import
+warning - The operand can't be 'null', so the condition is always 'true' - lib\pages\case_detail_screen.dart:638:49 - unnecessary_null_comparison
+warning - The '!' will have no effect because the receiver can't be null - lib\pages\case_detail_screen.dart:642:60 - unnecessary_non_null_assertion
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\pages\case_detail_screen.dart:647:50 - use_build_context_synchronously
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\pages\complete_profile_screen.dart:206:19 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\pages\complete_profile_screen.dart:227:19 - deprecated_member_use
+  error - The argument type 'String?' can't be assigned to the parameter type 'Object'.  - lib\pages\tools\advocate_directory_screen.dart:15:40 - argument_type_not_assignable
+  error - The argument type 'String?' can't be assigned to the parameter type 'Object'.  - lib\pages\tools\advocate_directory_screen.dart:19:43 - argument_type_not_assignable
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\pages\tools\advocate_directory_screen.dart:152:19 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\pages\tools\advocate_directory_screen.dart:175:19 - deprecated_member_use
+warning - Unused import: 'package:google_fonts/google_fonts.dart' - lib\pages\tools\broadcast_node.dart:3:8 - unused_import
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\pages\tools\broadcast_node.dart:191:41 - use_build_context_synchronously
+warning - The value of the local variable 'isPro' isn't used - lib\pages\tools_screen.dart:354:11 - unused_local_variable
+warning - The value of the local variable 'isBiz' isn't used - lib\pages\tools_screen.dart:355:11 - unused_local_variable
+warning - The value of the local variable 'isCompletingProfile' isn't used - lib\router\app_router.dart:47:11 - unused_local_variable
+warning - The value of the local variable 'yourAdvocate' isn't used - lib\services\case_import_service.dart:239:15 - unused_local_variable
+warning - The value of the local variable 'yourAdvocatePhone' isn't used - lib\services\case_import_service.dart:240:15 - unused_local_variable
+warning - The value of the local variable 'theirAdvocate' isn't used - lib\services\case_import_service.dart:241:15 - unused_local_variable
+warning - The value of the local variable 'theirAdvocatePhone' isn't used - lib\services\case_import_service.dart:242:15 - unused_local_variable
+   info - Don't invoke 'print' in production code - lib\services\supabase_service.dart:642:9 - avoid_print
+
+20 issues found. (ran in 30.9s)

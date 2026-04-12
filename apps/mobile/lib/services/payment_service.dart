@@ -1,0 +1,68 @@
+import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:flutter/material.dart';
+import '../utils/app_config.dart';
+
+class PaymentService {
+  late Razorpay _razorpay;
+  final Function(PaymentSuccessResponse)? onSuccess;
+  final Function(PaymentFailureResponse)? onFailure;
+  final Function(ExternalWalletResponse)? onExternalWallet;
+
+  PaymentService({
+    this.onSuccess,
+    this.onFailure,
+    this.onExternalWallet,
+  }) {
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+  }
+
+  void dispose() {
+    _razorpay.clear();
+  }
+
+  void openCheckout({
+    required double amount,
+    required String name,
+    required String description,
+    required String userEmail,
+    required String userContact,
+  }) {
+    var options = {
+      'key': AppConfig.razorpayKeyId,
+      'amount': (amount * 100).toInt(), // Razorpay expects amount in paise
+      'name': name,
+      'description': description,
+      'prefill': {
+        'contact': userContact,
+        'email': userEmail,
+      },
+      'external': {
+        'wallets': ['paytm']
+      }
+    };
+
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      debugPrint("Error opening Razorpay checkout: $e");
+    }
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    debugPrint("Payment Successful: ${response.paymentId}");
+    onSuccess?.call(response);
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    debugPrint("Payment Error: ${response.code} - ${response.message}");
+    onFailure?.call(response);
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    debugPrint("External Wallet selected: ${response.walletName}");
+    onExternalWallet?.call(response);
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "caseflow-backend-tools",
+  "version": "1.0.0",
+  "description": "Utility scripts for CaseFlow legal data management and database administration.",
+  "main": "index.js",
+  "scripts": {
+    "list-admins": "node scripts/tools/list_admins.js",
+    "upload-bnss": "node scripts/tools/upload_bnss_all.cjs",
+    "upload-personal-laws": "node scripts/tools/upload_personal_laws.cjs",
+    "upload-constitution": "node scripts/tools/upload_constitution.js",
+    "verify-import": "node scripts/tools/verify_import.cjs",
+    "verify-permissions": "node scripts/tools/verify_permissions.js",
+    "find-user": "node scripts/tools/find_amjath.js",
+    "sync-monitor": "supabase functions serve sync-case-monitor",
+    "dashboard:dev": "npm --prefix apps/dashboard run dev",
+    "dashboard:build": "npm --prefix apps/dashboard run build",
+    "mobile:clean": "cd apps/mobile && flutter clean",
+    "mobile:get": "cd apps/mobile && flutter pub get"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.7",
+    "dotenv": "^16.4.5",
+    "fs": "0.0.1-security"
+  }
+}

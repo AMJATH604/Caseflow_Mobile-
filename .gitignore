@@ -1,0 +1,68 @@
+# General
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.idea/
+.vscode/
+*.swp
+*.bak
+*.tmp
+*.temp
+
+# Flutter / Dart
+build/
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+/packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+/lib/generated/
+/analysis_options.yaml
+
+# Android
+*.keystore
+*.jks
+*.properties
+android/app/key.properties
+android/app/src/main/res/raw/google_services.json
+android/.gradle/
+android/local.properties
+android/out/
+android/app/build/
+android/app/debug/
+android/app/release/
+
+# iOS
+ios/.generated/
+ios/.tags/
+ios/Pods/
+ios/Runner/GeneratedPluginRegistrant.*
+ios/Runner/Info.plist
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+
+# Node / React
+node_modules/
+dist/
+coverage/
+.next/
+out/
+build/
+
+# Project Specific
+/temp/
+/releases/
+
+# Local APKs
+*.apk
+*.aab

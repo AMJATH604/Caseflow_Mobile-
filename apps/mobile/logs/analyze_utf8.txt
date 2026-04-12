@@ -1,0 +1,40 @@
+﻿Analyzing caseflow_flutter...                                   
+
+warning - Unused import: 'upgrade_plan_dialog.dart' - lib\components\dialogs\new_case_dialog.dart:7:8 - unused_import
+  error - Classes can only extend other classes - lib\pages\app_shell.dart:11:24 - extends_non_class
+  error - No associated named super constructor parameter - lib\pages\app_shell.dart:14:25 - super_formal_parameter_without_associated_named
+warning - The method doesn't override an inherited method - lib\pages\app_shell.dart:17:10 - override_on_non_overriding_member
+  error - Undefined class 'WidgetRef' - lib\pages\app_shell.dart:17:38 - undefined_class
+  error - The name 'AsyncValue' isn't a type, so it can't be used as a type argument - lib\pages\app_shell.dart:19:16 - non_type_as_type_argument
+warning - The operand can't be 'null', so the condition is always 'true' - lib\pages\case_detail_screen.dart:638:49 - unnecessary_null_comparison
+warning - The '!' will have no effect because the receiver can't be null - lib\pages\case_detail_screen.dart:642:60 - unnecessary_non_null_assertion
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\pages\case_detail_screen.dart:647:50 - use_build_context_synchronously
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\pages\complete_profile_screen.dart:206:19 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\pages\complete_profile_screen.dart:227:19 - deprecated_member_use
+  error - The argument type 'List<DropdownMenuItem<Object>>' can't be assigned to the parameter type 'List<DropdownMenuItem<String>>?'.  - lib\pages\complete_profile_screen.dart:233:26 - argument_type_not_assignable
+  error - The method 'eq' isn't defined for the type 'PostgrestTransformBuilder' - lib\pages\tools\advocate_directory_screen.dart:16:19 - undefined_method
+  error - The method 'eq' isn't defined for the type 'PostgrestTransformBuilder' - lib\pages\tools\advocate_directory_screen.dart:20:19 - undefined_method
+  error - The method 'ilike' isn't defined for the type 'PostgrestTransformBuilder' - lib\pages\tools\advocate_directory_screen.dart:24:19 - undefined_method
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\pages\tools\advocate_directory_screen.dart:153:19 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\pages\tools\advocate_directory_screen.dart:176:19 - deprecated_member_use
+warning - Unused import: 'package:google_fonts/google_fonts.dart' - lib\pages\tools\broadcast_node.dart:3:8 - unused_import
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\pages\tools\broadcast_node.dart:191:41 - use_build_context_synchronously
+warning - The value of the local variable 'isPro' isn't used - lib\pages\tools_screen.dart:354:11 - unused_local_variable
+warning - The value of the local variable 'isBiz' isn't used - lib\pages\tools_screen.dart:355:11 - unused_local_variable
+warning - The value of the local variable 'isCompletingProfile' isn't used - lib\router\app_router.dart:47:11 - unused_local_variable
+  error - The returned type 'AppShell' isn't returnable from a 'Widget' function, as required by the closure's context - lib\router\app_router.dart:78:43 - return_of_invalid_type_from_closure
+warning - The value of the local variable 'yourAdvocate' isn't used - lib\services\case_import_service.dart:239:15 - unused_local_variable
+warning - The value of the local variable 'yourAdvocatePhone' isn't used - lib\services\case_import_service.dart:240:15 - unused_local_variable
+warning - The value of the local variable 'theirAdvocate' isn't used - lib\services\case_import_service.dart:241:15 - unused_local_variable
+warning - The value of the local variable 'theirAdvocatePhone' isn't used - lib\services\case_import_service.dart:242:15 - unused_local_variable
+   info - Don't invoke 'print' in production code - lib\services\supabase_service.dart:642:9 - avoid_print
+
+C:\flutter\bin\flutter.bat : 28 issues found. (ran in 
+169.0s)
+At line:1 char:1
++ C:\flutter\bin\flutter.bat analyze > analyze.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (28 issues fo 
+   und. (ran in 169.0s):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
