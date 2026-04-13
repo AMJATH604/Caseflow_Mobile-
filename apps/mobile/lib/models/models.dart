@@ -27,8 +27,6 @@ class CaseModel {
   final String? opposingAdvocatePhone;
   final String? petitionerAdvocate;
   final String? petitionerAdvocatePhone;
-  final bool isAutoSyncEnabled;
-  final DateTime? lastAutoSyncAt;
 
   CaseModel({
     required this.id,
@@ -56,8 +54,6 @@ class CaseModel {
     this.opposingAdvocatePhone,
     this.petitionerAdvocate,
     this.petitionerAdvocatePhone,
-    this.isAutoSyncEnabled = true,
-    this.lastAutoSyncAt,
   });
 
   factory CaseModel.fromJson(Map<String, dynamic> json) => CaseModel(
@@ -90,8 +86,6 @@ class CaseModel {
         opposingAdvocatePhone: json['opposing_advocate_phone'],
         petitionerAdvocate: json['petitioner_advocate'],
         petitionerAdvocatePhone: json['petitioner_advocate_phone'],
-        isAutoSyncEnabled: json['is_auto_sync_enabled'] ?? true,
-        lastAutoSyncAt: json['last_auto_sync_at'] != null ? DateTime.parse(json['last_auto_sync_at']) : null,
       );
 
   bool isTeamCase(String userId) {

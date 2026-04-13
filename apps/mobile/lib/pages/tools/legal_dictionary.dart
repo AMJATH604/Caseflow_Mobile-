@@ -17,7 +17,7 @@ class _LegalDictionaryState extends State<LegalDictionary> {
   List<LegalTerm> _filteredTerms = [];
   int? _expandedIndex;
 
-  final List<String> _categories = ['All', 'Latin', 'Legal English', 'Criminal', 'Evidence', 'Property', 'Constitutional'];
+  final List<String> _categories = ['All', 'Latin', 'Legal English', 'Criminal', 'Evidence', 'Property', 'Constitutional', 'Family', 'Contract', 'Corporate', 'Taxation', 'Cyber', 'Environmental', 'Labour', 'Consumer', 'Administrative', 'International'];
 
   @override
   void initState() {
@@ -267,6 +267,16 @@ class _LegalDictionaryState extends State<LegalDictionary> {
       case 'Evidence': return Colors.teal;
       case 'Property': return Colors.orange;
       case 'Constitutional': return Colors.green;
+      case 'Family': return Colors.pink;
+      case 'Contract': return Colors.indigo;
+      case 'Corporate': return Colors.blueGrey;
+      case 'Taxation': return Colors.amber.shade800;
+      case 'Cyber': return Colors.cyan;
+      case 'Environmental': return Colors.lightGreen;
+      case 'Labour': return Colors.brown;
+      case 'Consumer': return Colors.deepOrange;
+      case 'Administrative': return Colors.purple;
+      case 'International': return Colors.blue.shade800;
       default: return AppTheme.accent;
     }
   }

@@ -27,53 +27,12 @@ class CaseDossierTab extends ConsumerStatefulWidget {
 
 class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
   final fmt = DateFormat('dd MMM yyyy');
-  Map<String, dynamic>? _lastSync;
-  List<Map<String, dynamic>> _ecourtHistory = [];
-  bool _loadingSync = true;
 
   @override
   void initState() {
     super.initState();
-    _loadEcourtData();
   }
 
-  Future<void> _loadEcourtData() async {
-    try {
-      final sync = await SupabaseService.fetchLatestEcourtSync(widget.caseId);
-      final history = await SupabaseService.fetchEcourtHearingHistory(widget.caseId);
-      if (mounted) {
-        setState(() {
-          _lastSync = sync;
-          _ecourtHistory = history;
-          _loadingSync = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) setState(() => _loadingSync = false);
-    }
-  }
-
-  void _toggleAutoSync() async {
-    final newState = !widget.caseData.isAutoSyncEnabled;
-    try {
-      await SupabaseService.updateCaseAutoSync(widget.caseId, newState);
-      ref.invalidate(caseDetailProvider(widget.caseId));
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(newState ? "Auto-monitoring activated." : "Auto-monitoring paused."),
-            backgroundColor: newState ? const Color(0xFF16A34A) : Colors.orange,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Action failed. Check connection."), backgroundColor: Colors.red),
-        );
-      }
-    }
-  }
 
   void _addCnrNumber() async {
     final controller = TextEditingController(text: widget.caseData.cnrNumber);
@@ -84,7 +43,6 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text("This 16-digit number allows us to check for updates automatically at 3 AM daily.", style: TextStyle(fontSize: 12, color: Colors.grey)),
             const SizedBox(height: 16),
             TextField(
               controller: controller,
@@ -112,7 +70,7 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
                 }
               }
             },
-            child: const Text("START TRACKING"),
+            child: const Text("LINK CNR"),
           ),
         ],
       ),
@@ -132,9 +90,6 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
       child: Column(
         children: [
-          // ─── eCOURT SYNC BANNER ─────────────────────
-          _buildEcourtSyncBanner(),
-          const SizedBox(height: 10),
 
           // ─── 1. CASE DETAILS ─────────────────────────
           _DossierSection(
@@ -208,11 +163,6 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
 
           const SizedBox(height: 10),
 
-          // ─── 7b. eCOURT HEARING HISTORY ──────────────
-          if (_ecourtHistory.isNotEmpty) ...[
-            _buildEcourtHistorySection(),
-            const SizedBox(height: 10),
-          ],
 
           // ─── 8. INTERIM ORDERS ───────────────────────
           _buildInterimOrdersSection(ordersAsync),
@@ -277,284 +227,6 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
     );
   }
 
-  // ─── eCOURT SYNC BANNER ─────────────────────────────
-  Widget _buildEcourtSyncBanner() {
-    final caseData = widget.caseData;
-    final hasCnr = caseData.cnrNumber != null && caseData.cnrNumber!.isNotEmpty;
-    final isAutoSync = caseData.isAutoSyncEnabled;
-    final syncTime = caseData.lastAutoSyncAt != null
-        ? DateFormat('dd MMM, hh:mm a').format(caseData.lastAutoSyncAt!.toLocal())
-        : "Never";
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isAutoSync
-              ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
-              : [const Color(0xFFF8FAFC), const Color(0xFFF1F5F9)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isAutoSync ? Colors.white10 : Colors.black12,
-        ),
-        boxShadow: isAutoSync ? [
-          BoxShadow(
-            color: const Color(0xFF6366F1).withValues(alpha: 0.15),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          )
-        ] : [],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: isAutoSync ? const Color(0xFF6366F1).withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  isAutoSync ? Icons.auto_mode_rounded : Icons.sync_disabled_rounded,
-                  size: 20,
-                  color: isAutoSync ? const Color(0xFF818CF8) : const Color(0xFF64748B),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      isAutoSync ? "24/7 AUTO-MONITORING ACTIVE" : "AUTO-SYNC DISABLED",
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.5,
-                        color: isAutoSync ? const Color(0xFF818CF8) : const Color(0xFF64748B),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      isAutoSync
-                          ? "Last checked: $syncTime"
-                          : "CaseFlow is not monitoring this case.",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: isAutoSync ? Colors.white70 : const Color(0xFF64748B),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (hasCnr)
-                Switch.adaptive(
-                  value: isAutoSync,
-                  onChanged: (val) => _toggleAutoSync(),
-                  activeColor: const Color(0xFF818CF8),
-                ),
-            ],
-          ),
-          if (!hasCnr) ...[
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              height: 44,
-              child: ElevatedButton.icon(
-                onPressed: _addCnrNumber,
-                icon: const Icon(Icons.add_rounded, size: 20),
-                label: const Text("LINK CNR FOR AUTO-TRACKING"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6366F1),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-            ),
-          ] else if (!isAutoSync) ...[
-            const SizedBox(height: 12),
-            const Text(
-              "Enable auto-monitoring to receive instant push notifications for new hearing dates and orders.",
-              style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _syncChip(IconData icon, String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withValues(alpha: 0.15)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 10, color: color),
-          const SizedBox(width: 4),
-          Text(
-            text,
-            style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: color, letterSpacing: 0.3),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─── eCOURT HEARING HISTORY ──────────────────────────
-  Widget _buildEcourtHistorySection() {
-    final df = DateFormat('dd-MM-yyyy');
-    return _DossierSection(
-      icon: Icons.history_edu_rounded,
-      title: "eCourt Sync: History",
-      color: const Color(0xFF3B82F6),
-      initiallyExpanded: true,
-      children: [
-        if (_ecourtHistory.isEmpty)
-          _emptyHint("Sync complete, but no history found.")
-        else
-          Column(
-            children: _ecourtHistory.map((h) {
-              final dateStr = h['hearing_date']?.toString() ?? '';
-              DateTime? date;
-              try { date = DateTime.parse(dateStr); } catch (_) {}
-
-              final nextDateStr = h['next_date']?.toString() ?? '';
-              DateTime? nextDate;
-              try { if (nextDateStr.isNotEmpty) nextDate = DateTime.parse(nextDateStr); } catch (_) {}
-
-              final judge = h['judge_name']?.toString() ?? '—';
-              final business = h['business_done']?.toString() ?? '—';
-              final purpose = (h['purpose'] ?? h['purpose_of_hearing'] ?? 'Standard Hearing').toString();
-
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.darkBorder),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 4, offset: const Offset(0, 2)),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 1. JUDGE NAME
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.gavel_rounded, size: 14, color: Color(0xFF64748B)),
-                            const SizedBox(width: 6),
-                            Text(
-                              judge.toUpperCase(),
-                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B), letterSpacing: 0.5),
-                            ),
-                          ],
-                        ),
-                        _syncChip(Icons.verified_rounded, "SYNCED", const Color(0xFF10B981)),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    
-                    // 2. TODAY'S HEARING DATE (Interactive for Business Done)
-                    GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            title: Text("eCourt Proceedings: ${date != null ? df.format(date) : dateStr}"),
-                            content: SingleChildScrollView(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text("BUSINESS DONE", style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
-                                  const SizedBox(height: 8),
-                                  Text(business.isNotEmpty ? business : "No business recorded.", style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B))),
-                                  const SizedBox(height: 16),
-                                  const Text("PURPOSE", style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
-                                  const SizedBox(height: 8),
-                                  Text(purpose, style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B))),
-                                ],
-                              ),
-                            ),
-                            actions: [
-                              TextButton(onPressed: () => Navigator.pop(context), child: const Text("CLOSE")),
-                            ],
-                          ),
-                        );
-                      },
-                      child: Row(
-                        children: [
-                          Text(
-                            date != null ? df.format(date) : dateStr,
-                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFF3B82F6)),
-                        ],
-                      ),
-                    ),
-                    
-                    // 4. PURPOSE OF HEARING
-                    const SizedBox(height: 4),
-                    Text(
-                      purpose.toUpperCase(),
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF3B82F6), letterSpacing: 0.5),
-                    ),
-                    
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Divider(height: 1, color: Color(0xFFF1F5F9)),
-                    ),
-                    
-                    // 5. NEXT HEARING DATE
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("NEXT HEARING DATE", style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Color(0xFF94A3B8))),
-                          ],
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFEFF6FF),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            nextDate != null ? df.format(nextDate) : "—",
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF2563EB)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-      ],
-    );
-  }
 
   Widget _dossierRowMini(String label, String value) {
     return Padding(

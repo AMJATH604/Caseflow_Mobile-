@@ -212,7 +212,11 @@ Deno.serve(async (req: Request) => {
       const caseNumber = hearing.cases?.case_number || "";
 
       const title = `⚖️ Court Hearing ${reminderLabel}`;
-      const body = `${caseTitle}${caseNumber ? ` (${caseNumber})` : ""}\n${purpose}${courtName ? ` • ${courtName}` : ""}`;
+      const motivation = reminder_type === 'morning_9am' 
+        ? "☕ Good Morning! Safe travels to the court." 
+        : "🌙 Good Evening! Preparation is the key to success.";
+
+      const body = `📁 Case: ${caseTitle}\n🔢 No: ${caseNumber || 'N/A'}\n⚖️ Stage: ${purpose}\n🏛️ Court: ${courtName || 'District Court'}\n🚀 Action: Prepare for ${reminderLabel.toLowerCase()}'s hearing\n${motivation}`;
 
       for (const userId of targetUserIds) {
         const userTokens = tokenMap[userId];

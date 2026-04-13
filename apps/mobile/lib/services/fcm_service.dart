@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 /// Handles Firebase Cloud Messaging (FCM) for server-side push notifications.
 /// Manages device token registration, refresh, and removal.
@@ -10,12 +11,32 @@ class FcmService {
   FcmService._internal();
 
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   String? _currentToken;
 
   /// Initialize FCM: request permission, get token, store in Supabase.
   /// Call this after the user is authenticated.
   Future<void> initialize() async {
     try {
+      // Initialize local notifications for foreground popups
+      const androidInit = AndroidInitializationSettings('ic_launcher');
+      const iosInit = DarwinInitializationSettings();
+      const initSettings = InitializationSettings(android: androidInit, iOS: iosInit);
+      await _localNotificationsPlugin.initialize(settings: initSettings);
+
+      // Create the Android Notification Channel (must match AndroidManifest)
+      const channel = AndroidNotificationChannel(
+        'hearing_reminders', // id
+        'Hearing Reminders', // title
+        description: 'Notifications for upcoming court hearings', // description
+        importance: Importance.high,
+      );
+      await _localNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(channel);
+
       // Request notification permission (required for Android 13+)
       final settings = await _messaging.requestPermission(
         alert: true,
@@ -23,6 +44,12 @@ class FcmService {
         sound: true,
         provisional: false,
       );
+
+      // Explicitly request permissions for flutter_local_notifications on Android 13+
+      await _localNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
 
       if (settings.authorizationStatus == AuthorizationStatus.denied) {
         debugPrint('FCM: User denied notification permission');
@@ -124,8 +151,27 @@ class FcmService {
   /// Handle a notification received while the app is in the foreground.
   void _handleForegroundMessage(RemoteMessage message) {
     debugPrint('FCM: Foreground message: ${message.notification?.title}');
-    // The notification will automatically show as a system notification
-    // because we set up a notification channel in AndroidManifest
+    
+    // Manually trigger the local notification banner when app is open
+    final notification = message.notification;
+
+    if (notification != null) {
+      _localNotificationsPlugin.show(
+        id: notification.hashCode,
+        title: notification.title,
+        body: notification.body,
+        notificationDetails: const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'hearing_reminders',
+            'Hearing Reminders',
+            channelDescription: 'Notifications for upcoming court hearings',
+            importance: Importance.high,
+            priority: Priority.high,
+            icon: 'ic_launcher',
+          ),
+        ),
+      );
+    }
   }
 
   /// Handle when user taps on a notification (from background/terminated).

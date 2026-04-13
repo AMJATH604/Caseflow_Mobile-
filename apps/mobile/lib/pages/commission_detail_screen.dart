@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -289,21 +293,45 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   // ─── EVIDENCE TAB ────────────────────────────────────────
   Widget _evidenceTab(bool dk) {
     if (_evidence.isEmpty) return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.photo_library_outlined, size: 48, color: dk ? Colors.white24 : Colors.black26), const SizedBox(height: 12), Text('No evidence captured', style: GoogleFonts.inter(color: dk ? Colors.white38 : Colors.black38)), const SizedBox(height: 12), ElevatedButton.icon(onPressed: _captureEvidence, icon: const Icon(Icons.camera_alt, size: 18), label: const Text('Capture Photo'))]));
-    return GridView.builder(padding: const EdgeInsets.all(16), gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.8), itemCount: _evidence.length + 1, itemBuilder: (_, i) {
-      if (i == 0) return Material(color: dk ? const Color(0xFF1E1E2E) : Colors.black.withValues(alpha: 0.04), borderRadius: BorderRadius.circular(14), child: InkWell(onTap: _captureEvidence, borderRadius: BorderRadius.circular(14), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.add_a_photo, size: 32, color: AppTheme.accent), const SizedBox(height: 8), Text('Add Photo', style: GoogleFonts.inter(fontSize: 13, color: AppTheme.accent, fontWeight: FontWeight.w600))])));
-      final ev = _evidence[i - 1];
-      return Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), border: Border.all(color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight)),
-        child: Column(children: [
-          Expanded(child: ClipRRect(borderRadius: const BorderRadius.vertical(top: Radius.circular(13)), child: Image.network(ev.fileUrl, fit: BoxFit.cover, width: double.infinity, errorBuilder: (_, __, ___) => Container(color: dk ? Colors.white10 : Colors.black.withValues(alpha: 0.05), child: const Icon(Icons.broken_image, size: 32))))),
-          Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: dk ? const Color(0xFF1E1E2E) : Colors.white, borderRadius: const BorderRadius.vertical(bottom: Radius.circular(13))),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('#${ev.sequenceNumber}${ev.caption != null ? ' - ${ev.caption}' : ''}', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: dk ? Colors.white70 : Colors.black54), maxLines: 1, overflow: TextOverflow.ellipsis),
-              Text(ev.locationText, style: GoogleFonts.jetBrainsMono(fontSize: 9, color: dk ? Colors.white38 : Colors.black38)),
-            ]),
+    return Column(
+      children: [
+        if (_evidence.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _downloadAllPhotos,
+                icon: const Icon(Icons.download_for_offline, size: 18),
+                label: Text('Download All Photos for Print', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600)),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTheme.info,
+                  side: BorderSide(color: AppTheme.info.withValues(alpha: 0.5)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
           ),
-        ]),
-      );
-    });
+        Expanded(
+          child: GridView.builder(padding: const EdgeInsets.all(16), gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 0.8), itemCount: _evidence.length + 1, itemBuilder: (_, i) {
+            if (i == 0) return Material(color: dk ? const Color(0xFF1E1E2E) : Colors.black.withValues(alpha: 0.04), borderRadius: BorderRadius.circular(14), child: InkWell(onTap: _captureEvidence, borderRadius: BorderRadius.circular(14), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.add_a_photo, size: 32, color: AppTheme.accent), const SizedBox(height: 8), Text('Add Photo', style: GoogleFonts.inter(fontSize: 13, color: AppTheme.accent, fontWeight: FontWeight.w600))])));
+            final ev = _evidence[i - 1];
+            return Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), border: Border.all(color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight)),
+              child: Column(children: [
+                Expanded(child: ClipRRect(borderRadius: const BorderRadius.vertical(top: Radius.circular(13)), child: Image.network(ev.fileUrl, fit: BoxFit.cover, width: double.infinity, errorBuilder: (_, __, ___) => Container(color: dk ? Colors.white10 : Colors.black.withValues(alpha: 0.05), child: const Icon(Icons.broken_image, size: 32))))),
+                Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: dk ? const Color(0xFF1E1E2E) : Colors.white, borderRadius: const BorderRadius.vertical(bottom: Radius.circular(13))),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('#${ev.sequenceNumber}${ev.caption != null ? ' - ${ev.caption}' : ''}', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: dk ? Colors.white70 : Colors.black54), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(ev.locationText, style: GoogleFonts.jetBrainsMono(fontSize: 9, color: dk ? Colors.white38 : Colors.black38)),
+                  ]),
+                ),
+              ]),
+            );
+          }),
+        ),
+      ],
+    );
   }
 
   // ─── NOTES TAB ───────────────────────────────────────────
@@ -391,19 +419,28 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
       final sk = _sketches[i - 1];
       return GestureDetector(
         onTap: () => _editSketch(sk),
+        onLongPress: () => _deleteSketch(sk),
         child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), border: Border.all(color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight)),
-          child: Column(children: [
-            Expanded(child: ClipRRect(borderRadius: const BorderRadius.vertical(top: Radius.circular(13)),
-              child: sk.sketchImageUrl != null
-                ? Image.network(sk.sketchImageUrl!, fit: BoxFit.contain, width: double.infinity, errorBuilder: (_, __, ___) => _sketchPlaceholder(dk))
-                : _sketchPlaceholder(dk),
+          child: Stack(children: [
+            Column(children: [
+              Expanded(child: ClipRRect(borderRadius: const BorderRadius.vertical(top: Radius.circular(13)),
+                child: sk.sketchImageUrl != null
+                  ? Image.network(sk.sketchImageUrl!, fit: BoxFit.contain, width: double.infinity, errorBuilder: (_, __, ___) => _sketchPlaceholder(dk))
+                  : _sketchPlaceholder(dk),
+              )),
+              Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: dk ? const Color(0xFF1E1E2E) : Colors.white, borderRadius: const BorderRadius.vertical(bottom: Radius.circular(13))),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(sk.title, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: dk ? Colors.white70 : const Color(0xFF1E293B)), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(sk.sketchTypeLabel, style: GoogleFonts.inter(fontSize: 10, color: dk ? Colors.white38 : Colors.black38)),
+                ]),
+              ),
+            ]),
+            // Delete button in corner
+            Positioned(top: 4, right: 4, child: GestureDetector(
+              onTap: () => _deleteSketch(sk),
+              child: Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
+                child: const Icon(Icons.delete_outline, size: 16, color: Colors.white)),
             )),
-            Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: dk ? const Color(0xFF1E1E2E) : Colors.white, borderRadius: const BorderRadius.vertical(bottom: Radius.circular(13))),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(sk.title, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: dk ? Colors.white70 : const Color(0xFF1E293B)), maxLines: 1, overflow: TextOverflow.ellipsis),
-                Text(sk.sketchTypeLabel, style: GoogleFonts.inter(fontSize: 10, color: dk ? Colors.white38 : Colors.black38)),
-              ]),
-            ),
           ]),
         ),
       );
@@ -493,6 +530,27 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
     String? visitId = _activeVisitId;
     if (visitId == null && _visits.isNotEmpty) visitId = _visits.first.id;
     if (visitId == null) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please check in first before capturing evidence'))); return; }
+
+    // Explicitly request GPS permissions and position BEFORE opening camera
+    bool gpsAvailable = false;
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('⚠️ Please turn on Location/GPS for evidence tagging'), backgroundColor: Colors.orange));
+      }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission != LocationPermission.denied && permission != LocationPermission.deniedForever && serviceEnabled) {
+        gpsAvailable = true;
+      }
+    } catch (_) {}
+
+    if (!gpsAvailable && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('⚠️ GPS unavailable — photo will be saved without coordinates'), backgroundColor: Colors.orange));
+    }
+
     final photo = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 85);
     if (photo == null) return;
     try {
@@ -500,8 +558,39 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
       final name = 'evidence_${DateTime.now().millisecondsSinceEpoch}.jpg';
       await CommissionService.uploadEvidence(commissionId: widget.commissionId, visitId: visitId, fileBytes: bytes, fileName: name, caption: 'Photo #${_evidence.length + 1}');
       _load();
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('📸 Evidence captured with GPS'), backgroundColor: AppTheme.success));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(gpsAvailable ? '📸 Evidence captured with GPS' : '📸 Evidence captured (no GPS)'), backgroundColor: AppTheme.success));
     } catch (e) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload error: $e'), backgroundColor: AppTheme.error)); }
+  }
+
+  Future<void> _downloadAllPhotos() async {
+    if (_evidence.isEmpty) return;
+    
+    setState(() => _loading = true);
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Preparing photos for download...'), duration: Duration(seconds: 2)));
+    
+    try {
+      final tempDir = await getTemporaryDirectory();
+      final List<XFile> filesToShare = [];
+      
+      for (final ev in _evidence) {
+        final bytes = await CommissionService.downloadFile('commission-evidence', ev.fileUrl);
+        if (bytes != null) {
+          final file = File('${tempDir.path}/evidence_${ev.sequenceNumber}.jpg');
+          await file.writeAsBytes(bytes);
+          filesToShare.add(XFile(file.path));
+        }
+      }
+      
+      if (filesToShare.isNotEmpty) {
+        await Share.shareXFiles(filesToShare, text: 'Commission Evidence Photos - ${widget.commissionId}');
+      } else {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to download photos'), backgroundColor: AppTheme.error));
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error downloading photos: $e'), backgroundColor: AppTheme.error));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   void _addNote() {
@@ -607,6 +696,22 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   }
 
   void _editSketch(CommissionSketch sketch) => _openSketchPad(sketch: sketch);
+
+  void _deleteSketch(CommissionSketch sketch) {
+    showDialog(context: context, builder: (ctx) => AlertDialog(
+      title: const Text('Delete Sketch?'),
+      content: Text('Are you sure you want to delete "${sketch.title}"? This cannot be undone.'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+        TextButton(onPressed: () async {
+          Navigator.pop(ctx);
+          await CommissionService.deleteSketch(sketch.id);
+          _load();
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Sketch deleted'), backgroundColor: AppTheme.success));
+        }, child: const Text('Delete', style: TextStyle(color: Colors.red))),
+      ],
+    ));
+  }
 
   void _handleAction(String action, Commission c) async {
     if (action == 'delete') {

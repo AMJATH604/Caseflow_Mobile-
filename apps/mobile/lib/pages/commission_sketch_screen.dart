@@ -469,7 +469,7 @@ class _SketchPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round
         ..style = PaintingStyle.stroke
-        ..blendMode = stroke.isEraser ? BlendMode.clear : BlendMode.srcOver;
+        ..blendMode = BlendMode.srcOver;
 
       final path = Path()..moveTo(stroke.points[0].dx, stroke.points[0].dy);
       for (int i = 1; i < stroke.points.length; i++) {

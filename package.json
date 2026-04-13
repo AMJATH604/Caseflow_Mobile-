@@ -14,6 +14,7 @@
     "sync-monitor": "supabase functions serve sync-case-monitor",
     "dashboard:dev": "npm --prefix apps/dashboard run dev",
     "dashboard:build": "npm --prefix apps/dashboard run build",
+    "mobile:release": "cd apps/mobile && flutter build apk --release",
     "mobile:clean": "cd apps/mobile && flutter clean",
     "mobile:get": "cd apps/mobile && flutter pub get"
   },

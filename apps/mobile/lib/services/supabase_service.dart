@@ -202,14 +202,10 @@ class SupabaseService {
     await client.from('cases').delete().eq('id', id);
   }
 
-  static Future<void> updateCaseAutoSync(String id, bool enabled) async {
-    await client.from('cases').update({'is_auto_sync_enabled': enabled}).eq('id', id);
-  }
 
   static Future<void> updateCaseCnr(String id, String cnr) async {
     await client.from('cases').update({
       'cnr_number': cnr,
-      'is_auto_sync_enabled': true, // Auto-enable tracking when CNR is added
     }).eq('id', id);
   }
 
@@ -969,90 +965,6 @@ class SupabaseService {
 
   // ─── eCourt Sync ───────────────────────────────────
 
-  /// Save an eCourt sync record (each time user imports data)
-  static Future<void> saveEcourtSync({
-    required String caseId,
-    String? cnrNumber,
-    String? rawData,
-    Map<String, dynamic>? parsedData,
-    String? caseStatus,
-    String? nextHearingDate,
-    String? judgeName,
-    String? courtNumber,
-    String syncSource = 'ecourts_webview',
-  }) async {
-    final user = client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
-
-    await client.from('ecourt_sync_records').insert({
-      'case_id': caseId,
-      'cnr_number': cnrNumber,
-      'raw_data': rawData,
-      'parsed_data': parsedData,
-      'case_status': caseStatus,
-      'next_hearing_date': nextHearingDate,
-      'judge_name': judgeName,
-      'court_number': courtNumber,
-      'sync_source': syncSource,
-      'synced_by': user.id,
-      'synced_at': DateTime.now().toUtc().toIso8601String(),
-    });
-  }
-
-  /// Fetch most recent sync record for a case
-  static Future<Map<String, dynamic>?> fetchLatestEcourtSync(String caseId) async {
-    final response = await client
-        .from('ecourt_sync_records')
-        .select()
-        .eq('case_id', caseId)
-        .order('synced_at', ascending: false)
-        .limit(1)
-        .maybeSingle();
-    return response;
-  }
-
-  /// Save a single hearing history record from eCourts
-  static Future<void> saveEcourtHearing({
-    required String caseId,
-    String? cnrNumber,
-    required String hearingDate,
-    String? purpose,
-    String? businessDone,
-    String? nextDate,
-    String? judgeName,
-    String? courtNumber,
-    String source = 'ecourts_import',
-  }) async {
-    final user = client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
-
-    // Normalize date to YYYY-MM-DD
-    String? normalizedDate = _normalizeDateStr(hearingDate);
-    if (normalizedDate == null) return; // Skip invalid dates
-
-    await client.from('ecourt_hearing_history').upsert({
-      'case_id': caseId,
-      'cnr_number': cnrNumber,
-      'hearing_date': normalizedDate,
-      'purpose': purpose,
-      'business_done': businessDone,
-      'next_date': _normalizeDateStr(nextDate),
-      'judge_name': judgeName,
-      'court_number': courtNumber,
-      'source': source,
-      'created_by': user.id,
-    }, onConflict: 'case_id,hearing_date,purpose');
-  }
-
-  /// Fetch eCourt hearing history for a case
-  static Future<List<Map<String, dynamic>>> fetchEcourtHearingHistory(String caseId) async {
-    final response = await client
-        .from('ecourt_hearing_history')
-        .select()
-        .eq('case_id', caseId)
-        .order('hearing_date', ascending: true);
-    return List<Map<String, dynamic>>.from(response);
-  }
 
   /// Normalize date strings: DD-MM-YYYY or DD/MM/YYYY → YYYY-MM-DD
   static String? _normalizeDateStr(String? dateStr) {

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -270,15 +271,35 @@ class _CommissionFieldVisitScreenState extends ConsumerState<CommissionFieldVisi
   // ─── Actions ──────────────────────────────────────────
 
   Future<void> _capturePhoto() async {
+    // Explicitly request GPS permissions BEFORE opening camera
+    bool gpsAvailable = false;
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('⚠️ Turn on Location for GPS-tagged evidence'), backgroundColor: Colors.orange, duration: Duration(seconds: 2)));
+      }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission != LocationPermission.denied && permission != LocationPermission.deniedForever && serviceEnabled) {
+        gpsAvailable = true;
+      }
+    } catch (_) {}
+
+    if (!gpsAvailable && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('⚠️ GPS unavailable — photo saved without coordinates'), backgroundColor: Colors.orange, duration: Duration(seconds: 2)));
+    }
+
     final photo = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 85);
     if (photo == null) return;
     try {
       final bytes = await photo.readAsBytes();
       final name = 'evidence_${DateTime.now().millisecondsSinceEpoch}.jpg';
       await CommissionService.uploadEvidence(commissionId: widget.commissionId, visitId: widget.visitId, fileBytes: bytes, fileName: name, caption: 'Photo #${_evidence.length + 1}');
-      setState(() => _feed.add(_ActivityItem(time: DateTime.now(), icon: Icons.camera_alt, text: 'Photo #${_evidence.length + 1} captured', color: AppTheme.info)));
+      setState(() => _feed.add(_ActivityItem(time: DateTime.now(), icon: Icons.camera_alt, text: 'Photo #${_evidence.length + 1} captured${gpsAvailable ? ' (GPS ✓)' : ''}', color: AppTheme.info)));
       _load();
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('📸 Photo captured with GPS'), backgroundColor: AppTheme.success, duration: const Duration(seconds: 1)));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(gpsAvailable ? '📸 Photo captured with GPS' : '📸 Photo captured (no GPS)'), backgroundColor: AppTheme.success, duration: const Duration(seconds: 1)));
     } catch (e) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error)); }
   }
 
