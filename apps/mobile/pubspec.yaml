@@ -77,7 +77,7 @@ flutter:
 
 flutter_launcher_icons:
   android: true
-  ios: false
+  ios: true
   image_path: "assets/icon/caseflow_logo.png"
   adaptive_icon_background: "#1a237e"
   adaptive_icon_foreground: "assets/icon/caseflow_logo.png"
