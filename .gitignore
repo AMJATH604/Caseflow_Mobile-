@@ -47,7 +47,7 @@ ios/.generated/
 ios/.tags/
 ios/Pods/
 ios/Runner/GeneratedPluginRegistrant.*
-ios/Runner/Info.plist
+# ios/Runner/Info.plist (removed from ignore)
 ios/Flutter/Generated.xcconfig
 ios/Flutter/flutter_export_environment.sh
 
