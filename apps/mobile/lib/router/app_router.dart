@@ -23,6 +23,7 @@ import '../pages/tools/advocate_directory_screen.dart';
 import '../pages/commissions_screen.dart';
 import '../pages/commission_detail_screen.dart';
 import '../pages/ai_chat_screen.dart';
+import '../pages/notification_diagnostic_screen.dart';
 
 
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -148,6 +149,10 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/ai-chat',
           builder: (context, state) => const AiChatScreen(),
+        ),
+        GoRoute(
+          path: '/notification-diagnostics',
+          builder: (context, state) => const NotificationDiagnosticScreen(),
         ),
 
       ],

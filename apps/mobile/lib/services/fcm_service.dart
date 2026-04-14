@@ -60,8 +60,11 @@ class FcmService {
       final token = await _messaging.getToken();
       if (token != null) {
         _currentToken = token;
+        // We always try to store the token on initialization to ensure it's fresh
         await _storeToken(token);
-        debugPrint('FCM: Token registered successfully');
+        debugPrint('FCM: Initial token registered: ${token.substring(0, 8)}...');
+      } else {
+        debugPrint('FCM: Failed to get token on initialization');
       }
 
       // Listen for token refresh (happens when app is reinstalled, etc.)

@@ -70,7 +70,34 @@ async function getAccessToken(serviceAccount: any): Promise<string> {
 
 Deno.serve(async (req: Request) => {
   try {
-    const { reminder_type } = await req.json();
+    // Read body once as it can only be consumed once
+    let body: any = {};
+    try {
+      body = await req.json();
+    } catch (e) {
+      // Body might be empty or not JSON
+    }
+
+    // Handle both JSON body and Query Parameters
+    let reminder_type: string | null = body.reminder_type;
+    
+    // fallback to query parameter if not in body
+    if (!reminder_type) {
+      const url = new URL(req.url);
+      reminder_type = url.searchParams.get("type") || url.searchParams.get("reminder_type");
+    }
+
+    // Map legacy names to internal constants
+    if (reminder_type === "morning") reminder_type = "morning_9am";
+    if (reminder_type === "evening") reminder_type = "evening_7pm";
+    if (reminder_type === "night") reminder_type = "evening_9pm";
+
+    if (!reminder_type) {
+      return new Response(
+        JSON.stringify({ error: "Missing reminder_type in body or query param" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
     // Initialize Supabase client with service role key
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -82,7 +109,7 @@ Deno.serve(async (req: Request) => {
 
     // Determine which date to query based on reminder type
     const now = new Date();
-    // Convert to IST for date calculation
+    // Convert to IST for date calculation (UTC + 5:30)
     const istOffset = 5.5 * 60 * 60 * 1000;
     const istNow = new Date(now.getTime() + istOffset);
 
@@ -96,9 +123,12 @@ Deno.serve(async (req: Request) => {
     } else if (reminder_type === "morning_9am") {
       // Morning reminder → we notify about TODAY's hearings
       targetDate = istNow.toISOString().split("T")[0];
+    } else if (reminder_type === "test") {
+      // Test reminder → sends a static message immediately
+      targetDate = istNow.toISOString().split("T")[0];
     } else {
       return new Response(
-        JSON.stringify({ error: "Invalid reminder_type" }),
+        JSON.stringify({ error: `Invalid reminder_type: ${reminder_type}. Supported: morning_9am, evening_7pm, evening_9pm (or legacy morning, evening, night)` }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -161,10 +191,12 @@ Deno.serve(async (req: Request) => {
     const userIds = Array.from(allUniqueUsers);
 
     // Fetch FCM tokens for those users
+    const queryUserId = reminder_type === "test" ? (await req.json().catch(() => ({}))).userId || userIds : userIds;
+    
     const { data: tokens, error: tokensError } = await supabase
       .from("fcm_tokens")
       .select("user_id, token")
-      .in("user_id", userIds);
+      .in("user_id", Array.isArray(queryUserId) ? queryUserId : [queryUserId]);
 
     if (tokensError) {
       throw new Error(`Token query failed: ${tokensError.message}`);

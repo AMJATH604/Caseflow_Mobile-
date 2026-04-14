@@ -57,12 +57,38 @@ void main() async {
   );
 }
 
-
-class CaseFlowApp extends ConsumerWidget {
+class CaseFlowApp extends ConsumerStatefulWidget {
   const CaseFlowApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CaseFlowApp> createState() => _CaseFlowAppState();
+}
+
+class _CaseFlowAppState extends ConsumerState<CaseFlowApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Refresh FCM token when app comes back to foreground
+    if (state == AppLifecycleState.resumed) {
+      if (Supabase.instance.client.auth.currentSession != null) {
+        FcmService().initialize();
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp.router(
