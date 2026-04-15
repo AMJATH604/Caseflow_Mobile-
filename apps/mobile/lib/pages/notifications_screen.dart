@@ -33,11 +33,6 @@ class NotificationsScreen extends ConsumerWidget {
                     const Text("Recent activity across your practice", style: TextStyle(color: Colors.grey)),
                   ],
                 ),
-                IconButton(
-                  onPressed: () => context.push('/notification-diagnostics'),
-                  icon: Icon(Icons.troubleshoot, color: AppTheme.primary),
-                  tooltip: "Notification Diagnostics",
-                ),
               ],
             ),
           ),
