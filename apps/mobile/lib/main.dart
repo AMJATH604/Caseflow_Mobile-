@@ -40,13 +40,17 @@ void main() async {
 
   // Initialize FCM if user is already signed in (app restart scenario)
   if (Supabase.instance.client.auth.currentSession != null) {
-    await FcmService().initialize();
+    Future.delayed(const Duration(seconds: 2), () {
+      FcmService().initialize();
+    });
   }
 
   // Listen for future auth changes to init/cleanup FCM
   Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
     if (data.event == AuthChangeEvent.signedIn) {
-      await FcmService().initialize();
+      Future.delayed(const Duration(seconds: 2), () {
+        FcmService().initialize();
+      });
     }
   });
 

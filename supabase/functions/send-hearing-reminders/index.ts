@@ -69,22 +69,36 @@ async function getAccessToken(serviceAccount: any): Promise<string> {
 }
 
 Deno.serve(async (req: Request) => {
+  const url = new URL(req.url);
+  const executionId = crypto.randomUUID().substring(0, 8);
+  console.log(`[${executionId}] Request received: ${req.method} ${url.pathname}${url.search}`);
+
   try {
-    // Read body once as it can only be consumed once
+    // Read body carefully
     let body: any = {};
-    try {
-      body = await req.json();
-    } catch (e) {
-      // Body might be empty or not JSON
+    const contentType = req.headers.get("content-type") || "";
+    
+    if (req.method === "POST") {
+      try {
+        const text = await req.text();
+        if (text) {
+          try {
+            body = JSON.parse(text);
+          } catch (e) {
+            console.warn(`[${executionId}] Failed to parse body as JSON:`, text.substring(0, 100));
+            // Try to handle cases where pg_net might send it wrapped or double-escaped
+          }
+        }
+      } catch (e) {
+        console.warn(`[${executionId}] Failed to read request text:`, e.message);
+      }
     }
 
-    // Handle both JSON body and Query Parameters
-    let reminder_type: string | null = body.reminder_type;
+    // Determine reminder_type (Highest priority: Query Param -> Body -> Fallback)
+    let reminder_type: string | null = url.searchParams.get("type") || url.searchParams.get("reminder_type");
     
-    // fallback to query parameter if not in body
-    if (!reminder_type) {
-      const url = new URL(req.url);
-      reminder_type = url.searchParams.get("type") || url.searchParams.get("reminder_type");
+    if (!reminder_type && body) {
+      reminder_type = body.reminder_type || body.type;
     }
 
     // Map legacy names to internal constants
@@ -92,9 +106,12 @@ Deno.serve(async (req: Request) => {
     if (reminder_type === "evening") reminder_type = "evening_7pm";
     if (reminder_type === "night") reminder_type = "evening_9pm";
 
+    console.log(`[${executionId}] Effective reminder_type: ${reminder_type}`);
+
     if (!reminder_type) {
+      console.error(`[${executionId}] Missing reminder_type. Body was:`, JSON.stringify(body));
       return new Response(
-        JSON.stringify({ error: "Missing reminder_type in body or query param" }),
+        JSON.stringify({ error: "Missing reminder_type in body or query param", body_received: body }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -133,11 +150,15 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    console.log(`[${executionId}] Target date for query: ${targetDate}`);
+
     // Query hearings on the target date, joined with case info
     const { data: hearings, error: hearingsError } = await supabase
       .from("hearings")
       .select("id, case_id, hearing_date, stage, purpose, created_by, cases(case_title, court_name, case_number, created_by, assigned_to, firm_id)")
       .eq("hearing_date", targetDate);
+
+    console.log(`[${executionId}] Hearings found in DB: ${hearings?.length || 0}`);
 
     if (hearingsError) {
       throw new Error(`Hearings query failed: ${hearingsError.message}`);
@@ -191,7 +212,8 @@ Deno.serve(async (req: Request) => {
     const userIds = Array.from(allUniqueUsers);
 
     // Fetch FCM tokens for those users
-    const queryUserId = reminder_type === "test" ? (await req.json().catch(() => ({}))).userId || userIds : userIds;
+    // Note: 'body' was already parsed above; don't re-read req.json() as it can only be consumed once
+    const queryUserId = reminder_type === "test" ? (body.userId ? [body.userId] : userIds) : userIds;
     
     const { data: tokens, error: tokensError } = await supabase
       .from("fcm_tokens")
@@ -202,9 +224,16 @@ Deno.serve(async (req: Request) => {
       throw new Error(`Token query failed: ${tokensError.message}`);
     }
 
+    console.log(`[${executionId}] Tokens found in DB: ${tokens?.length || 0}`);
+
     if (!tokens || tokens.length === 0) {
+      console.log(`[${executionId}] No active FCM tokens. Exiting.`);
       return new Response(
-        JSON.stringify({ message: "No FCM tokens found for hearing users" }),
+        JSON.stringify({ 
+          message: "No FCM tokens found for hearing users", 
+          usersSearched: Array.isArray(queryUserId) ? queryUserId.length : 1,
+          hearingsProcessed: hearings.length 
+        }),
         { headers: { "Content-Type": "application/json" } }
       );
     }
@@ -234,7 +263,7 @@ Deno.serve(async (req: Request) => {
     let failCount = 0;
     const errors: string[] = [];
 
-    // Send notifications
+    console.log(`[${executionId}] Sending complete. Sent: ${sentCount}, Failed: ${failCount}`);
     for (const hearing of hearings) {
       const targetUserIds = hearingUserMap[hearing.id] || [];
       

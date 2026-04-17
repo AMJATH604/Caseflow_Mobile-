@@ -21,6 +21,7 @@ import 'tools/partition_calculator.dart';
 import 'tools/mact_calculator.dart';
 import 'tools/maintenance_calculator.dart';
 import 'tools/legal_dictionary.dart';
+import 'tools/english_dictionary.dart';
 import '../components/dialogs/upgrade_plan_dialog.dart';
 
 class ToolsScreen extends ConsumerStatefulWidget {
@@ -191,9 +192,17 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
     {
       "id": "legal_dictionary",
       "title": "Legal Dictionary",
-      "desc": "500+ Latin & English terms",
+      "desc": "500+ Latin & Legal terms",
       "icon": Icons.import_contacts_rounded,
       "color": Colors.orange,
+      "plan": "free",
+    },
+    {
+      "id": "english_dictionary",
+      "title": "English Dictionary",
+      "desc": "Curated A-Z Vocabulary",
+      "icon": Icons.spellcheck_rounded,
+      "color": Colors.teal,
       "plan": "free",
     },
     {
@@ -714,6 +723,9 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
           break;
         case 'legal_dictionary':
           toolWidget = const LegalDictionary();
+          break;
+        case 'english_dictionary':
+          toolWidget = const EnglishDictionary();
           break;
         case 'bare_acts':
           toolWidget = const BareActsLibraryScreen();

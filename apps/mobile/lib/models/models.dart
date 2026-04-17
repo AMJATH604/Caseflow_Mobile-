@@ -463,14 +463,53 @@ class UserProfile {
         isPublicDirectoryEnabled: json['is_public_directory_enabled'] ?? true,
       );
 
-  // Feature gating: Based ONLY on the user's own subscription tier.
-  // Members do NOT inherit premium access from their firm owner.
-  bool get isPro => true;
-  bool get isBusiness => true;
+  /// Feature gating: Based on subscription tier from the database.
+  /// Respects trial periods and subscription expiration.
+  bool get isPro {
+    if (subscriptionTier == 'pro' || subscriptionTier == 'business') {
+      // Check if subscription is still active
+      if (currentPeriodEnd != null && currentPeriodEnd!.isBefore(DateTime.now())) {
+        return false; // Subscription expired
+      }
+      return true;
+    }
+    // Check trial period
+    if (trialEndsAt != null && trialEndsAt!.isAfter(DateTime.now())) {
+      return true; // Still in trial
+    }
+    return false;
+  }
+
+  bool get isBusiness {
+    if (subscriptionTier == 'business') {
+      if (currentPeriodEnd != null && currentPeriodEnd!.isBefore(DateTime.now())) {
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
   bool get isFirmOwner => firmId == null;
 
-  // Data visibility: true if the user has joined someone else's firm (read-only access to team data)
+  // Data visibility: true if the user has joined someone else's firm
   bool get isFirmMember => firmId != null;
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'full_name': fullName,
+    'subscription_tier': subscriptionTier,
+    'trial_ends_at': trialEndsAt?.toIso8601String(),
+    'current_period_end': currentPeriodEnd?.toIso8601String(),
+    'firm_id': firmId,
+    'email': email,
+    'mobile_number': mobileNumber,
+    'registration_number': registrationNumber,
+    'practice_state': practiceState,
+    'practice_district': practiceDistrict,
+    'office_address': officeAddress,
+    'is_public_directory_enabled': isPublicDirectoryEnabled,
+  };
 }
 
 

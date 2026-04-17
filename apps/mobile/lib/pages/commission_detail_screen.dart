@@ -5,6 +5,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -318,14 +320,22 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
             if (i == 0) return Material(color: dk ? const Color(0xFF1E1E2E) : Colors.black.withValues(alpha: 0.04), borderRadius: BorderRadius.circular(14), child: InkWell(onTap: _captureEvidence, borderRadius: BorderRadius.circular(14), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.add_a_photo, size: 32, color: AppTheme.accent), const SizedBox(height: 8), Text('Add Photo', style: GoogleFonts.inter(fontSize: 13, color: AppTheme.accent, fontWeight: FontWeight.w600))])));
             final ev = _evidence[i - 1];
             return Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), border: Border.all(color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight)),
-              child: Column(children: [
-                Expanded(child: ClipRRect(borderRadius: const BorderRadius.vertical(top: Radius.circular(13)), child: Image.network(ev.fileUrl, fit: BoxFit.cover, width: double.infinity, errorBuilder: (_, __, ___) => Container(color: dk ? Colors.white10 : Colors.black.withValues(alpha: 0.05), child: const Icon(Icons.broken_image, size: 32))))),
-                Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: dk ? const Color(0xFF1E1E2E) : Colors.white, borderRadius: const BorderRadius.vertical(bottom: Radius.circular(13))),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('#${ev.sequenceNumber}${ev.caption != null ? ' - ${ev.caption}' : ''}', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: dk ? Colors.white70 : Colors.black54), maxLines: 1, overflow: TextOverflow.ellipsis),
-                    Text(ev.locationText, style: GoogleFonts.jetBrainsMono(fontSize: 9, color: dk ? Colors.white38 : Colors.black38)),
-                  ]),
-                ),
+              child: Stack(children: [
+                Column(children: [
+                  Expanded(child: ClipRRect(borderRadius: const BorderRadius.vertical(top: Radius.circular(13)), child: Image.network(ev.fileUrl, fit: BoxFit.cover, width: double.infinity, errorBuilder: (_, __, ___) => Container(color: dk ? Colors.white10 : Colors.black.withValues(alpha: 0.05), child: const Icon(Icons.broken_image, size: 32))))),
+                  Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: dk ? const Color(0xFF1E1E2E) : Colors.white, borderRadius: const BorderRadius.vertical(bottom: Radius.circular(13))),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('#${ev.sequenceNumber}${ev.caption != null ? ' - ${ev.caption}' : ''}', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: dk ? Colors.white70 : Colors.black54), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text(ev.locationText, style: GoogleFonts.jetBrainsMono(fontSize: 9, color: dk ? Colors.white38 : Colors.black38)),
+                    ]),
+                  ),
+                ]),
+                // Download button overlay
+                Positioned(top: 6, right: 6, child: GestureDetector(
+                  onTap: () => _downloadSinglePhoto(ev),
+                  child: Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.6), shape: BoxShape.circle),
+                    child: const Icon(Icons.download_rounded, size: 18, color: Colors.white)),
+                )),
               ]),
             );
           }),
@@ -435,6 +445,12 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                 ]),
               ),
             ]),
+            // Download button
+            if (sk.sketchImageUrl != null) Positioned(top: 4, left: 4, child: GestureDetector(
+              onTap: () => _downloadSingleSketch(sk),
+              child: Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.6), shape: BoxShape.circle),
+                child: const Icon(Icons.download_rounded, size: 16, color: Colors.white)),
+            )),
             // Delete button in corner
             Positioned(top: 4, right: 4, child: GestureDetector(
               onTap: () => _deleteSketch(sk),
@@ -562,34 +578,106 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
     } catch (e) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload error: $e'), backgroundColor: AppTheme.error)); }
   }
 
+  Future<void> _ensureStoragePermission() async {
+    if (Platform.isAndroid) {
+      final status = await Permission.storage.status;
+      if (!status.isGranted) {
+        await Permission.storage.request();
+      }
+      // For Android 13+ (API 33+), use photos permission
+      final photosStatus = await Permission.photos.status;
+      if (!photosStatus.isGranted) {
+        await Permission.photos.request();
+      }
+    }
+  }
+
   Future<void> _downloadAllPhotos() async {
     if (_evidence.isEmpty) return;
     
+    await _ensureStoragePermission();
     setState(() => _loading = true);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Preparing photos for download...'), duration: Duration(seconds: 2)));
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('📥 Saving photos to CaseFlow/Evidence...'), duration: Duration(seconds: 2)));
     
     try {
-      final tempDir = await getTemporaryDirectory();
-      final List<XFile> filesToShare = [];
-      
+      int saved = 0;
       for (final ev in _evidence) {
         final bytes = await CommissionService.downloadFile('commission-evidence', ev.fileUrl);
         if (bytes != null) {
-          final file = File('${tempDir.path}/evidence_${ev.sequenceNumber}.jpg');
-          await file.writeAsBytes(bytes);
-          filesToShare.add(XFile(file.path));
+          final result = await ImageGallerySaverPlus.saveImage(
+            bytes,
+            quality: 100,
+            name: 'CaseFlow_Evidence_${ev.sequenceNumber}_${DateTime.now().millisecondsSinceEpoch}',
+          );
+          if (result['isSuccess'] == true) saved++;
         }
       }
       
-      if (filesToShare.isNotEmpty) {
-        await Share.shareXFiles(filesToShare, text: 'Commission Evidence Photos - ${widget.commissionId}');
-      } else {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to download photos'), backgroundColor: AppTheme.error));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('✅ $saved/${_evidence.length} photos saved to gallery'),
+          backgroundColor: AppTheme.success,
+          action: SnackBarAction(label: 'Share', textColor: Colors.white, onPressed: () async {
+            // Also offer share option
+            final tempDir = await getTemporaryDirectory();
+            final List<XFile> files = [];
+            for (final ev in _evidence) {
+              final bytes = await CommissionService.downloadFile('commission-evidence', ev.fileUrl);
+              if (bytes != null) {
+                final file = File('${tempDir.path}/evidence_${ev.sequenceNumber}.jpg');
+                await file.writeAsBytes(bytes);
+                files.add(XFile(file.path));
+              }
+            }
+            if (files.isNotEmpty) Share.shareXFiles(files, text: 'Commission Evidence Photos');
+          }),
+        ));
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error downloading photos: $e'), backgroundColor: AppTheme.error));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error));
     } finally {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _downloadSinglePhoto(CommissionEvidence ev) async {
+    await _ensureStoragePermission();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('📥 Downloading photo #${ev.sequenceNumber}...'), duration: const Duration(seconds: 1)));
+    try {
+      final bytes = await CommissionService.downloadFile('commission-evidence', ev.fileUrl);
+      if (bytes != null) {
+        await ImageGallerySaverPlus.saveImage(
+          bytes,
+          quality: 100,
+          name: 'CaseFlow_Evidence_${ev.sequenceNumber}_${DateTime.now().millisecondsSinceEpoch}',
+        );
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('✅ Photo #${ev.sequenceNumber} saved to gallery'), backgroundColor: AppTheme.success));
+      } else {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to download photo'), backgroundColor: AppTheme.error));
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error));
+    }
+  }
+
+  Future<void> _downloadSingleSketch(CommissionSketch sk) async {
+    if (sk.sketchImageUrl == null) return;
+    await _ensureStoragePermission();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('📥 Downloading sketch: ${sk.title}...'), duration: const Duration(seconds: 1)));
+    try {
+      final bytes = await CommissionService.downloadFile('commission-sketches', sk.sketchImageUrl!);
+      if (bytes != null) {
+        await ImageGallerySaverPlus.saveImage(
+          bytes,
+          quality: 100,
+          name: 'CaseFlow_Sketch_${sk.title.replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}',
+        );
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('✅ "${sk.title}" saved to gallery'), backgroundColor: AppTheme.success));
+      } else {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to download sketch'), backgroundColor: AppTheme.error));
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error));
     }
   }
 

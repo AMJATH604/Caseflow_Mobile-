@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'supabase_service.dart';
 import 'retry_helper.dart';
+import 'repositories/base_repository.dart';
 import '../models/models.dart';
 import '../models/case_dossier_models.dart';
 
@@ -22,8 +23,20 @@ final userProvider = Provider<User?>((ref) {
   return Supabase.instance.client.auth.currentUser;
 });
 
+/// **Performance fix:** Profile is now cached with keepAlive.
+/// Previously, `fetchProfile()` was called inside EVERY data-fetching method
+/// (fetchCases, fetchClients, fetchHearings, etc.) causing 5-7 redundant
+/// DB calls per screen load.
+///
+/// Now the profile is fetched ONCE and cached for 5 minutes via
+/// [BaseRepository.getCachedProfile()]. The cache is invalidated on:
+/// - Sign in / sign out
+/// - Auth state change (watched below)
+/// - Manual refresh via `ref.invalidate(userProfileProvider)`
 final userProfileProvider = FutureProvider<UserProfile>((ref) async {
   ref.watch(authStateProvider);
+  // Invalidate the static cache when auth state changes
+  BaseRepository.invalidateProfileCache();
   return RetryHelper.retry(() => SupabaseService.fetchProfile());
 });
 
