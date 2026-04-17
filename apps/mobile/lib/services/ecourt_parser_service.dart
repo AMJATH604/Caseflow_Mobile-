@@ -1,13 +1,12 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'app_constants.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Parses raw text from eCourts/eFiling portal into structured case data
-/// using the Gemini AI API.
+/// using the Gemini AI via Edge Function proxy.
+///
+/// **Security:** All AI calls are routed through the `gemini-proxy` Edge Function.
+/// No API keys are present in the client binary.
 class EcourtParserService {
-  static const String _baseUrl =
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent';
-
   static const String _parserPrompt = '''You are a legal data parser for Indian court records.
 Parse the following text copied/extracted from the eCourts India or eFiling portal and extract structured data.
 
@@ -101,97 +100,58 @@ Return this exact JSON structure:
   ]
 }''';
 
-  /// Parse raw eCourt page text into structured JSON using Gemini AI
+  /// Parse raw eCourt page text into structured JSON using Gemini AI proxy.
   static Future<Map<String, dynamic>?> parseEcourtText(String rawText) async {
-    final apiKey = AppConstants.geminiApiKey;
-    if (apiKey.isEmpty) return null;
-
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl?key=$apiKey'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'contents': [
-            {
-              'role': 'user',
-              'parts': [
-                {'text': '$_parserPrompt\n\nTEXT TO PARSE:\n---\n$rawText\n---'}
-              ]
-            }
-          ],
-          'generationConfig': {
-            'temperature': 0.1,
-            'topK': 1,
-            'topP': 0.95,
-            'maxOutputTokens': 4096,
-            'responseMimeType': 'application/json',
-          },
-        }),
+      final response = await Supabase.instance.client.functions.invoke(
+        'gemini-proxy',
+        body: {
+          'prompt': '$_parserPrompt\n\nTEXT TO PARSE:\n---\n$rawText\n---',
+        },
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final text = data['candidates']?[0]?['content']?['parts']?[0]?['text'];
-        if (text == null) return null;
+      if (response.status != 200) return _fallbackExtract(rawText);
 
-        // Clean JSON — remove markdown fences if present
-        String cleanJson = text.trim();
-        if (cleanJson.startsWith('```')) {
-          cleanJson = cleanJson.replaceAll(RegExp(r'^```json?\s*'), '');
-          cleanJson = cleanJson.replaceAll(RegExp(r'\s*```$'), '');
-        }
+      final text = response.data?['text'];
+      if (text == null) return null;
 
-        return jsonDecode(cleanJson) as Map<String, dynamic>;
+      // Clean JSON — remove markdown fences if present
+      String cleanJson = text.trim();
+      if (cleanJson.startsWith('```')) {
+        cleanJson = cleanJson.replaceAll(RegExp(r'^```json?\s*'), '');
+        cleanJson = cleanJson.replaceAll(RegExp(r'\s*```$'), '');
       }
-      return null;
+
+      return jsonDecode(cleanJson) as Map<String, dynamic>;
     } catch (e) {
-      // If Gemini JSON parsing fails, try a simpler extraction
       return _fallbackExtract(rawText);
     }
   }
 
-  /// Parse raw advocate dashboard text into a structured list of cases
-  static Future<Map<String, dynamic>?> parsePortalDashboard(String rawText) async {
-    final apiKey = AppConstants.geminiApiKey;
-    if (apiKey.isEmpty) return null;
-
+  /// Parse raw advocate dashboard text into a structured list of cases.
+  static Future<Map<String, dynamic>?> parsePortalDashboard(
+      String rawText) async {
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl?key=$apiKey'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'contents': [
-            {
-              'role': 'user',
-              'parts': [
-                {'text': '$_dashboardPrompt\n\nTEXT TO PARSE:\n---\n$rawText\n---'}
-              ]
-            }
-          ],
-          'generationConfig': {
-            'temperature': 0.1,
-            'topK': 1,
-            'topP': 0.95,
-            'maxOutputTokens': 4096,
-            'responseMimeType': 'application/json',
-          },
-        }),
+      final response = await Supabase.instance.client.functions.invoke(
+        'gemini-proxy',
+        body: {
+          'prompt':
+              '$_dashboardPrompt\n\nTEXT TO PARSE:\n---\n$rawText\n---',
+        },
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final text = data['candidates']?[0]?['content']?['parts']?[0]?['text'];
-        if (text == null) return null;
+      if (response.status != 200) return null;
 
-        String cleanJson = text.trim();
-        if (cleanJson.startsWith('```')) {
-          cleanJson = cleanJson.replaceAll(RegExp(r'^```json?\s*'), '');
-          cleanJson = cleanJson.replaceAll(RegExp(r'\s*```$'), '');
-        }
+      final text = response.data?['text'];
+      if (text == null) return null;
 
-        return jsonDecode(cleanJson) as Map<String, dynamic>;
+      String cleanJson = text.trim();
+      if (cleanJson.startsWith('```')) {
+        cleanJson = cleanJson.replaceAll(RegExp(r'^```json?\s*'), '');
+        cleanJson = cleanJson.replaceAll(RegExp(r'\s*```$'), '');
       }
-      return null;
+
+      return jsonDecode(cleanJson) as Map<String, dynamic>;
     } catch (_) {
       return null;
     }
@@ -207,7 +167,8 @@ Return this exact JSON structure:
       if (cnrMatch != null) result['cnr_number'] = cnrMatch.group(0);
 
       // Try to extract dates (DD-MM-YYYY or DD/MM/YYYY)
-      final dateMatches = RegExp(r'(\d{2}[-/]\d{2}[-/]\d{4})').allMatches(text);
+      final dateMatches =
+          RegExp(r'(\d{2}[-/]\d{2}[-/]\d{4})').allMatches(text);
       final dates = dateMatches.map((m) {
         final parts = m.group(1)!.split(RegExp(r'[-/]'));
         return '${parts[2]}-${parts[1]}-${parts[0]}';
@@ -219,9 +180,11 @@ Return this exact JSON structure:
 
       // Try to extract case status
       final statusLower = text.toLowerCase();
-      if (statusLower.contains('disposed') || statusLower.contains('closed')) {
+      if (statusLower.contains('disposed') ||
+          statusLower.contains('closed')) {
         result['case_status'] = 'disposed';
-      } else if (statusLower.contains('pending') || statusLower.contains('listed')) {
+      } else if (statusLower.contains('pending') ||
+          statusLower.contains('listed')) {
         result['case_status'] = 'pending';
       } else if (statusLower.contains('transferred')) {
         result['case_status'] = 'transferred';

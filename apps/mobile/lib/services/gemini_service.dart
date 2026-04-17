@@ -1,6 +1,5 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'app_constants.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ChatMessage {
   final String role; // 'user' or 'model'
@@ -16,10 +15,13 @@ class ChatMessage {
   }) : timestamp = timestamp ?? DateTime.now();
 }
 
+/// AI-powered legal assistant using Gemini via Edge Function proxy.
+///
+/// **Security:** All requests are routed through `gemini-proxy` Edge Function.
+/// The API key is stored as a Supabase secret and never reaches the client.
+/// The proxy also validates the user's JWT, ensuring only authenticated
+/// CaseFlow users can access the AI.
 class GeminiService {
-  static const String _baseUrl =
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent';
-
   static const String _systemPrompt = '''You are **CaseFlow AI** — an expert Indian legal assistant built into the CaseFlow legal practice management app.
 
 Your expertise covers:
@@ -53,14 +55,11 @@ Guidelines:
 
   List<ChatMessage> get history => List.unmodifiable(_history);
 
-  /// Send a message to Gemini and get a response
+  /// Send a message to Gemini via the secure Edge Function proxy.
+  ///
+  /// The proxy (`supabase/functions/gemini-proxy`) holds the GEMINI_API_KEY
+  /// as a server-side secret and validates the user's auth token.
   Future<String> sendMessage(String userMessage) async {
-    final apiKey = AppConstants.geminiApiKey;
-
-    if (apiKey.isEmpty) {
-      return '⚠️ Gemini API key not configured. Please add GEMINI_API_KEY to your environment variables.';
-    }
-
     // Add user message to history
     _history.add(ChatMessage(role: 'user', text: userMessage));
 
@@ -68,17 +67,19 @@ Guidelines:
     _history.add(ChatMessage(role: 'model', text: '', isLoading: true));
 
     try {
-      // Build conversation history for context
-      final contents = <Map<String, dynamic>>[];
+      // Build conversation history for context (last 20 messages)
+      final recentHistory = _history.length > 22
+          ? _history.sublist(_history.length - 22, _history.length - 1)
+          : _history.sublist(0, _history.length - 1);
 
-      // Add system instruction as first user turn for context
-      contents.add({
+      final historyPayload = <Map<String, dynamic>>[];
+
+      // Add system prompt context as first exchange
+      historyPayload.add({
         'role': 'user',
-        'parts': [
-          {'text': _systemPrompt}
-        ]
+        'parts': [{'text': _systemPrompt}]
       });
-      contents.add({
+      historyPayload.add({
         'role': 'model',
         'parts': [
           {
@@ -88,14 +89,9 @@ Guidelines:
         ]
       });
 
-      // Add conversation history (last 20 messages for context window)
-      final recentHistory = _history.length > 22
-          ? _history.sublist(_history.length - 22, _history.length - 1)
-          : _history.sublist(0, _history.length - 1);
-
       for (final msg in recentHistory) {
         if (msg.isLoading) continue;
-        contents.add({
+        historyPayload.add({
           'role': msg.role,
           'parts': [
             {'text': msg.text}
@@ -103,70 +99,32 @@ Guidelines:
         });
       }
 
-      final response = await http.post(
-        Uri.parse('$_baseUrl?key=$apiKey'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'contents': contents,
-          'generationConfig': {
-            'temperature': 0.7,
-            'topK': 40,
-            'topP': 0.95,
-            'maxOutputTokens': 2048,
-          },
-          'safetySettings': [
-            {
-              'category': 'HARM_CATEGORY_HARASSMENT',
-              'threshold': 'BLOCK_ONLY_HIGH'
-            },
-            {
-              'category': 'HARM_CATEGORY_HATE_SPEECH',
-              'threshold': 'BLOCK_ONLY_HIGH'
-            },
-            {
-              'category': 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-              'threshold': 'BLOCK_ONLY_HIGH'
-            },
-            {
-              'category': 'HARM_CATEGORY_DANGEROUS_CONTENT',
-              'threshold': 'BLOCK_ONLY_HIGH'
-            },
-          ],
-        }),
+      // Call the Edge Function proxy (API key stays server-side)
+      final response = await Supabase.instance.client.functions.invoke(
+        'gemini-proxy',
+        body: {
+          'prompt': userMessage,
+          'history': historyPayload,
+        },
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['candidates'] == null || data['candidates'].isEmpty) {
-          print('Gemini API Error (No Candidates): ${response.body}');
-          final text = 'I apologize, I could not generate a response. (No candidates found)';
-          _history.removeLast();
-          _history.add(ChatMessage(role: 'model', text: text, isLoading: false));
-          return text;
-        }
-        
-        final text = data['candidates'][0]['content']?['parts']?[0]
-                ?['text'] ??
-            'I apologize, I could not generate a response. Please try again.';
-
-        // Replace loading message with actual response
+      if (response.status != 200) {
+        final errorMsg = response.data?['error'] ?? 'Unknown error';
         _history.removeLast();
-        _history.add(ChatMessage(role: 'model', text: text, isLoading: false));
-
-        return text;
-      } else {
-        print('Gemini API HTTP Error Status: ${response.statusCode}');
-        print('Gemini API Error Body: ${response.body}');
-        
-        final errorBody = jsonDecode(response.body);
-        final errorMsg = errorBody['error']?['message'] ?? 'Unknown error occurred';
-        final statusCode = errorBody['error']?['status'] ?? 'ERROR';
-        
-        _history.removeLast();
-        final displayError = '⚠️ API Error ($statusCode): $errorMsg';
-        _history.add(ChatMessage(role: 'model', text: displayError, isLoading: false));
+        final displayError = '⚠️ AI Error: $errorMsg';
+        _history
+            .add(ChatMessage(role: 'model', text: displayError, isLoading: false));
         return displayError;
       }
+
+      final text = response.data?['text'] ??
+          'I apologize, I could not generate a response. Please try again.';
+
+      // Replace loading message with actual response
+      _history.removeLast();
+      _history.add(ChatMessage(role: 'model', text: text, isLoading: false));
+
+      return text;
     } catch (e) {
       _history.removeLast();
       _history.add(ChatMessage(
