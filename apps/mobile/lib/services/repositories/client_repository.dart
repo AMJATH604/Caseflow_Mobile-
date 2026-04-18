@@ -18,14 +18,16 @@ class ClientRepository {
 
     var query = _client.from('clients').select().or(orFilter);
 
+    // Apply pagination and ordering in a single chain to avoid type mismatch
+    final List response;
     if (limit != null && offset != null) {
-      query = query.range(offset, offset + limit - 1);
+      response = await query.order('created_at', ascending: false).range(offset, offset + limit - 1);
     } else if (limit != null) {
-      query = query.limit(limit);
+      response = await query.order('created_at', ascending: false).limit(limit);
+    } else {
+      response = await query.order('created_at', ascending: false);
     }
-
-    final response = await query.order('created_at', ascending: false);
-    return (response as List)
+    return response
         .map((json) => ClientModel.fromJson(json))
         .toList();
   }

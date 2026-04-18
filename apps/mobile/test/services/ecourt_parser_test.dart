@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:caseflow/services/ecourt_parser_service.dart';
 
 /// Unit tests for EcourtParserService fallback extraction.
 /// Tests the offline regex-based parser that runs when Gemini is unavailable.

@@ -1,8 +1,4 @@
-import 'env_config.dart';
-
 class AppConfig {
-  // Razorpay Key ID
-  static const String razorpayKeyId = EnvConfig.razorpayKeyId;
   static const String currency = "INR";
 
   // ─── Free Plan ──────────────────────────────────────

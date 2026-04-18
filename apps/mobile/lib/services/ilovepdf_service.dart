@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -17,7 +17,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// 3. Client calls `pdf-proxy` with action='forward' to process
 /// 4. Client downloads result directly from iLovePDF server
 class ILovePdfService {
-  static final Dio _dio = Dio();
+  static final dio.Dio _dio = dio.Dio();
 
   /// Step 1: Start a task via the secure Edge Function proxy.
   /// The proxy authenticates with iLovePDF and returns a session token.
@@ -49,16 +49,16 @@ class ILovePdfService {
       String server, String taskId, String token, File file) async {
     try {
       final String uploadUrl = 'https://$server/v1/upload';
-      final formData = FormData.fromMap({
+      final formData = dio.FormData.fromMap({
         'task': taskId,
-        'file': await MultipartFile.fromFile(file.path,
+        'file': await dio.MultipartFile.fromFile(file.path,
             filename: p.basename(file.path)),
       });
 
       await _dio.post(
         uploadUrl,
         data: formData,
-        options: Options(
+        options: dio.Options(
           headers: {
             'Authorization': 'Bearer $token',
           },
@@ -110,7 +110,7 @@ class ILovePdfService {
       await _dio.download(
         downloadUrl,
         filePath,
-        options: Options(
+        options: dio.Options(
           headers: {
             'Authorization': 'Bearer $token',
           },

@@ -1,6 +1,5 @@
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:flutter/material.dart';
-import '../utils/app_config.dart';
 
 class PaymentService {
   late Razorpay _razorpay;
@@ -31,7 +30,7 @@ class PaymentService {
     required String userContact,
   }) {
     var options = {
-      'key': AppConfig.razorpayKeyId,
+      'key': '', // Fetch from configuration or secure endpoint
       'amount': (amount * 100).toInt(), // Razorpay expects amount in paise
       'name': name,
       'description': description,

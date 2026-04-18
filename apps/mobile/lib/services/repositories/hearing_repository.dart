@@ -28,14 +28,16 @@ class HearingRepository {
       query = query.inFilter('case_id', visibleCaseIds);
     }
 
+    // Apply pagination and ordering in a single chain to avoid type mismatch
+    final List response;
     if (limit != null && offset != null) {
-      query = query.range(offset, offset + limit - 1);
+      response = await query.order('hearing_date').range(offset, offset + limit - 1);
     } else if (limit != null) {
-      query = query.limit(limit);
+      response = await query.order('hearing_date').limit(limit);
+    } else {
+      response = await query.order('hearing_date');
     }
-
-    final response = await query.order('hearing_date');
-    return (response as List).map((json) => Hearing.fromJson(json)).toList();
+    return response.map((json) => Hearing.fromJson(json)).toList();
   }
 
   static Future<Hearing> createHearing(

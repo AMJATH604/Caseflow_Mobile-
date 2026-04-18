@@ -1,4 +1,3 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/models.dart';
 import '../../models/case_dossier_models.dart';
 import 'base_repository.dart';
@@ -41,14 +40,16 @@ class CaseRepository {
       query = query.or(fullFilter);
     }
 
+    // Apply pagination and ordering in a single chain to avoid type mismatch
+    final List response;
     if (limit != null && offset != null) {
-      query = query.range(offset, offset + limit - 1);
+      response = await query.order('created_at', ascending: false).range(offset, offset + limit - 1);
     } else if (limit != null) {
-      query = query.limit(limit);
+      response = await query.order('created_at', ascending: false).limit(limit);
+    } else {
+      response = await query.order('created_at', ascending: false);
     }
-
-    final response = await query.order('created_at', ascending: false);
-    return (response as List).map((json) => CaseModel.fromJson(json)).toList();
+    return response.map((json) => CaseModel.fromJson(json)).toList();
   }
 
   static Future<CaseModel> fetchCaseById(String id) async {
