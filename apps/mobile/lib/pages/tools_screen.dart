@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/providers.dart';
 import '../theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
+import '../components/epay_court_fee_sheet.dart';
 import 'tools/court_fee_calculator.dart';
 import 'tools/interest_calculator.dart';
 import 'tools/delay_calculator.dart';
@@ -22,7 +23,7 @@ import 'tools/mact_calculator.dart';
 import 'tools/maintenance_calculator.dart';
 import 'tools/legal_dictionary.dart';
 import 'tools/english_dictionary.dart';
-import '../components/dialogs/upgrade_plan_dialog.dart';
+
 
 class ToolsScreen extends ConsumerStatefulWidget {
   const ToolsScreen({super.key});
@@ -166,6 +167,14 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       "plan": "free",
     },
     {
+      "id": "legal_pulse",
+      "title": "Legal Pulse",
+      "desc": "Live legal news feed",
+      "icon": Icons.newspaper_rounded,
+      "color": const Color(0xFFDC2626),
+      "plan": "free",
+    },
+    {
       "id": "partition_calculator",
       "title": "Partition Share",
       "desc": "Hindu & Muslim Law",
@@ -211,6 +220,14 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       "desc": "Calculate fees",
       "icon": Icons.calculate,
       "color": Colors.orange,
+      "plan": "free",
+    },
+    {
+      "id": "epay_court_fee",
+      "title": "eCourts ePay",
+      "desc": "Pay court fees online",
+      "icon": Icons.account_balance_rounded,
+      "color": const Color(0xFF2563EB),
       "plan": "free",
     },
     {
@@ -487,197 +504,20 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
   }
 
   void _onToolTap(Map<String, dynamic> tool) {
-    final profileAsync = ref.read(userProfileProvider);
-
-    profileAsync.when(
-      data: (profile) {
-        final requiredPlan = tool['plan'] ?? 'free';
-
-        // Check if user has access
-        if (requiredPlan == 'pro' && !profile.isPro) {
-          _showUpgradeDialog("Pro");
-          return;
-        }
-        if (requiredPlan == 'business' && !profile.isBusiness) {
-          _showUpgradeDialog("Business");
-          return;
-        }
-
-        // User has access — open the tool
-        if (tool['id'] == 'ai_chat') {
-          context.push('/ai-chat');
-        } else if (tool['id'] == 'advocate_directory') {
-          context.push('/advocate-directory');
-        } else {
-          setState(() => _activeToolId = tool['id']);
-        }
-      },
-      loading: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Loading profile..."),
-            duration: Duration(seconds: 1),
-          ),
-        );
-      },
-      error: (_, __) {
-        // If profile can't load, let them use it (graceful degradation)
-        setState(() => _activeToolId = tool['id']);
-      },
-    );
+    if (tool['id'] == 'ai_chat') {
+      context.push('/ai-chat');
+    } else if (tool['id'] == 'advocate_directory') {
+      context.push('/advocate-directory');
+    } else if (tool['id'] == 'epay_court_fee') {
+      EPayCourtFeeSheet.show(context);
+    } else if (tool['id'] == 'legal_pulse') {
+      context.push('/legal-pulse');
+    } else {
+      setState(() => _activeToolId = tool['id']);
+    }
   }
 
-  void _showUpgradeDialog(String planName) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-            ),
-            contentPadding: const EdgeInsets.all(32),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.lock_open_rounded,
-                    color: Color(0xFF1E293B),
-                    size: 36,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  "Upgrade to $planName",
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  planName == "Pro"
-                      ? "Unlock PDF tools, OCR, unlimited cases, and more with CaseFlow Pro."
-                      : "Create your law firm, invite juniors, team chat, and more with CaseFlow Business.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 13,
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                // Feature list
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    children:
-                        planName == "Pro"
-                            ? [
-                              _featureRow(
-                                Icons.all_inclusive,
-                                "Unlimited Cases",
-                              ),
-                              _featureRow(
-                                Icons.picture_as_pdf,
-                                "All PDF & Document Tools",
-                              ),
-                              _featureRow(
-                                Icons.document_scanner,
-                                "OCR Text Extraction",
-                              ),
-                              _featureRow(
-                                Icons.notifications_active,
-                                "Smart Hearing Notifications",
-                              ),
-                            ]
-                            : [
-                              _featureRow(
-                                Icons.business,
-                                "Create Your Law Firm",
-                              ),
-                              _featureRow(
-                                Icons.person_add,
-                                "Invite Junior Advocates",
-                              ),
-                              _featureRow(
-                                Icons.chat,
-                                "Case Chat & Notice Board",
-                              ),
-                              _featureRow(
-                                Icons.assignment_ind,
-                                "Assign Cases to Team",
-                              ),
-                            ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      // Open the full upgrade dialog
-                      showDialog(
-                        context: context,
-                        builder: (context) => const UpgradePlanDialog(),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.accent,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      "Upgrade to $planName",
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text(
-                    "Maybe Later",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ),
-              ],
-            ),
-          ),
-    );
-  }
 
-  Widget _featureRow(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: AppTheme.primary),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-            ),
-          ),
-          const Icon(Icons.check_circle, size: 14, color: Colors.green),
-        ],
-      ),
-    );
-  }
 
   Widget _buildToolView() {
     final allTools = [..._documentTools, ..._legalTools, ..._chambersTools];

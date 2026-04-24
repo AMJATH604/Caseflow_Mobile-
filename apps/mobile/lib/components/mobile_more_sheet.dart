@@ -62,6 +62,8 @@ class MobileMoreSheet extends ConsumerWidget {
               _buildMenuItem(context, Icons.credit_card, "Payments", Colors.purple, "/payments"),
               _buildMenuItem(context, Icons.handyman_rounded, "Tools", Colors.teal, "/tools"),
               _buildMenuItem(context, Icons.assignment_ind_rounded, "Commissioner", const Color(0xFF7C3AED), "/commissions"),
+              _buildMenuItem(context, Icons.gavel_rounded, "Caveats", const Color(0xFFEA580C), "/caveats"),
+              _buildMenuItem(context, Icons.newspaper_rounded, "Legal Pulse", const Color(0xFFDC2626), "/legal-pulse"),
               _buildMenuItem(context, Icons.notifications, "Updates", Colors.pink, "/notifications"),
             ],
           ),

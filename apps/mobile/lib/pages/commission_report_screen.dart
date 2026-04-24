@@ -251,7 +251,7 @@ class _CommissionReportScreenState extends ConsumerState<CommissionReportScreen>
         )
       ));
 
-      // PAGE 3+: MAIN REPORT BODY
+      // PAGE 3+: MAIN REPORT BODY (continuous flow — all sections + annexures)
       pdf.addPage(pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.symmetric(horizontal: 50, vertical: 40),
@@ -264,7 +264,7 @@ class _CommissionReportScreenState extends ConsumerState<CommissionReportScreen>
           child: pw.Text('Page ${ctx.pageNumber}', style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey500)),
         ),
         build: (ctx) => [
-          // SECTION 1: COMMISSION DETAILS
+          // ─── SECTION 1: COMMISSION DETAILS ─────────────────
           _courtSectionHeader('1. COMMISSION DETAILS & BACKGROUND', sectionHeaderStyle),
           pw.Text('The undersigned was appointed as Advocate Commissioner by the Honourable Court vide order dated ${c.warrantDate != null ? fmt.format(c.warrantDate!) : "[Date]"} to carry out the commission for ${c.commissionType.label}.', style: bodyStyle, textAlign: pw.TextAlign.justify),
           pw.SizedBox(height: 10),
@@ -281,7 +281,7 @@ class _CommissionReportScreenState extends ConsumerState<CommissionReportScreen>
           
           pw.SizedBox(height: 20),
 
-          // SECTION 2: MEMO OF INSPECTION
+          // ─── SECTION 2: MEMO OF INSPECTION ─────────────────
           _courtSectionHeader('2. MEMO OF INSPECTION / SITE VISITS', sectionHeaderStyle),
           if (_visits.isEmpty) pw.Text('No site visits were recorded for this commission.', style: bodyStyle),
           ..._visits.asMap().entries.map((entry) {
@@ -311,7 +311,7 @@ class _CommissionReportScreenState extends ConsumerState<CommissionReportScreen>
 
           pw.SizedBox(height: 20),
 
-          // SECTION 3: OBSERVATIONS & FINDINGS
+          // ─── SECTION 3: OBSERVATIONS & FINDINGS ────────────
           _courtSectionHeader('3. OBSERVATIONS & FINDINGS', sectionHeaderStyle),
           if (_observations.isEmpty) pw.Text('No specific observations were recorded.', style: bodyStyle),
           ..._observations.asMap().entries.map((entry) {
@@ -325,43 +325,12 @@ class _CommissionReportScreenState extends ConsumerState<CommissionReportScreen>
             );
           }),
 
-          pw.SizedBox(height: 30),
+          pw.SizedBox(height: 20),
 
-          // SECTION 4: CERTIFICATION & OATH
-          _courtSectionHeader('4. CERTIFICATION & OATH', sectionHeaderStyle),
-          pw.Text('I, Advocate Commissioner, do hereby solemnly affirm and state as follows:', style: labelStyle),
-          pw.SizedBox(height: 10),
-          pw.Text('4.1. Accuracy: I certify that the inspection was conducted in a fair and transparent manner, providing equal opportunity to all parties present.', style: bodyStyle),
-          pw.SizedBox(height: 6),
-          pw.Text('4.2. Neutrality: That I have no interest, direct or indirect, in the subject matter or in the parties to the litigation.', style: bodyStyle),
-          pw.SizedBox(height: 6),
-          pw.Text('4.3. Verified Data: That the photographic evidence, sketches, and statements attached herewith as Annexures were captured/recorded by me or under my direct supervision during the execution of the commission.', style: bodyStyle),
-          pw.SizedBox(height: 6),
-          pw.Text('4.4. Integrity: That this report is a true and faithful representation of the facts as observed at the site.', style: bodyStyle),
-          
-          pw.SizedBox(height: 50),
-          pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
-            pw.Column(children: [
-              pw.SizedBox(height: 40, width: 150, child: pw.Divider(thickness: 1)),
-              pw.Text('DATE & PLACE', style: smallBold),
-            ]),
-            pw.Column(children: [
-              pw.SizedBox(height: 40, width: 200, child: pw.Divider(thickness: 1)),
-              pw.Text('ADVOCATE COMMISSIONER', style: smallBold),
-              pw.Text('(Signature & Seal)', style: const pw.TextStyle(fontSize: 8)),
-            ]),
-          ]),
-        ]
-      ));
-
-      // ANNEXURE A: PHOTOS
-      if (_evidence.isNotEmpty) {
-        pdf.addPage(pw.MultiPage(
-          pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.symmetric(horizontal: 50, vertical: 40),
-          header: (ctx) => pw.Center(child: pw.Text('ANNEXURE - A: PHOTOGRAPHIC EVIDENCE', style: sectionHeaderStyle)),
-          build: (ctx) => [
-            pw.SizedBox(height: 20),
+          // ─── ANNEXURE A: PHOTOGRAPHIC EVIDENCE (continuous) ─
+          if (_evidence.isNotEmpty) ...[
+            _courtSectionHeader('ANNEXURE - A: PHOTOGRAPHIC EVIDENCE', sectionHeaderStyle),
+            pw.SizedBox(height: 10),
             pw.Wrap(
               spacing: 20,
               runSpacing: 20,
@@ -380,18 +349,13 @@ class _CommissionReportScreenState extends ConsumerState<CommissionReportScreen>
                 );
               }).toList(),
             ),
-          ]
-        ));
-      }
-
-      // ANNEXURE B: SKETCHES
-      if (_sketches.isNotEmpty) {
-        pdf.addPage(pw.MultiPage(
-          pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.symmetric(horizontal: 50, vertical: 40),
-          header: (ctx) => pw.Center(child: pw.Text('ANNEXURE - B: DRAWINGS & SKETCHES', style: sectionHeaderStyle)),
-          build: (ctx) => [
             pw.SizedBox(height: 20),
+          ],
+
+          // ─── ANNEXURE B: DRAWINGS & SKETCHES (continuous) ───
+          if (_sketches.isNotEmpty) ...[
+            _courtSectionHeader('ANNEXURE - B: DRAWINGS & SKETCHES', sectionHeaderStyle),
+            pw.SizedBox(height: 10),
             ..._sketches.map((sk) => pw.Container(
               margin: const pw.EdgeInsets.only(bottom: 30),
               child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
@@ -399,21 +363,16 @@ class _CommissionReportScreenState extends ConsumerState<CommissionReportScreen>
                 pw.SizedBox(height: 5),
                 if (sketchData.containsKey(sk.id)) pw.Center(child: pw.Image(pw.MemoryImage(sketchData[sk.id]!), height: 350)),
                 pw.SizedBox(height: 5),
-                pw.Text('Annotations: ${sk.annotations.length} key points identifies', style: const pw.TextStyle(fontSize: 8)),
+                pw.Text('Annotations: ${sk.annotations.length} key points identified', style: const pw.TextStyle(fontSize: 8)),
               ]),
             )),
-          ]
-        ));
-      }
-
-      // ANNEXURE C: WITNESS STATEMENTS
-      if (_witnesses.isNotEmpty) {
-        pdf.addPage(pw.MultiPage(
-          pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.symmetric(horizontal: 50, vertical: 40),
-          header: (ctx) => pw.Center(child: pw.Text('ANNEXURE - C: WITNESS STATEMENTS', style: sectionHeaderStyle)),
-          build: (ctx) => [
             pw.SizedBox(height: 20),
+          ],
+
+          // ─── ANNEXURE C: WITNESS STATEMENTS (continuous) ────
+          if (_witnesses.isNotEmpty) ...[
+            _courtSectionHeader('ANNEXURE - C: WITNESS STATEMENTS', sectionHeaderStyle),
+            pw.SizedBox(height: 10),
             ..._witnesses.map((w) => pw.Container(
               margin: const pw.EdgeInsets.only(bottom: 20),
               padding: const pw.EdgeInsets.all(12),
@@ -436,18 +395,13 @@ class _CommissionReportScreenState extends ConsumerState<CommissionReportScreen>
                 ]),
               ]),
             )),
-          ]
-        ));
-      }
-
-      // ANNEXURE D: EXPENSES
-      if (_expenses.isNotEmpty) {
-        pdf.addPage(pw.MultiPage(
-          pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.symmetric(horizontal: 50, vertical: 40),
-          header: (ctx) => pw.Center(child: pw.Text('ANNEXURE - D: MEMO OF EXPENSES', style: sectionHeaderStyle)),
-          build: (ctx) => [
             pw.SizedBox(height: 20),
+          ],
+
+          // ─── ANNEXURE D: MEMO OF EXPENSES (continuous) ──────
+          if (_expenses.isNotEmpty) ...[
+            _courtSectionHeader('ANNEXURE - D: MEMO OF EXPENSES', sectionHeaderStyle),
+            pw.SizedBox(height: 10),
             pw.TableHelper.fromTextArray(
               headers: ['Sl No', 'Expense Type', 'Description', 'Amount (INR)'],
               data: [
@@ -463,9 +417,35 @@ class _CommissionReportScreenState extends ConsumerState<CommissionReportScreen>
               headerStyle: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
               border: pw.TableBorder.all(width: 0.5),
             ),
-          ]
-        ));
-      }
+            pw.SizedBox(height: 20),
+          ],
+
+          // ─── SECTION 4: CERTIFICATION & OATH (at the end) ──
+          _courtSectionHeader('CERTIFICATION & OATH', sectionHeaderStyle),
+          pw.Text('I, Advocate Commissioner, do hereby solemnly affirm and state as follows:', style: labelStyle),
+          pw.SizedBox(height: 10),
+          pw.Text('1. Accuracy: I certify that the inspection was conducted in a fair and transparent manner, providing equal opportunity to all parties present.', style: bodyStyle),
+          pw.SizedBox(height: 6),
+          pw.Text('2. Neutrality: That I have no interest, direct or indirect, in the subject matter or in the parties to the litigation.', style: bodyStyle),
+          pw.SizedBox(height: 6),
+          pw.Text('3. Verified Data: That the photographic evidence, sketches, and statements attached herewith as Annexures were captured/recorded by me or under my direct supervision during the execution of the commission.', style: bodyStyle),
+          pw.SizedBox(height: 6),
+          pw.Text('4. Integrity: That this report is a true and faithful representation of the facts as observed at the site.', style: bodyStyle),
+          
+          pw.SizedBox(height: 50),
+          pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
+            pw.Column(children: [
+              pw.SizedBox(height: 40, width: 150, child: pw.Divider(thickness: 1)),
+              pw.Text('DATE & PLACE', style: smallBold),
+            ]),
+            pw.Column(children: [
+              pw.SizedBox(height: 40, width: 200, child: pw.Divider(thickness: 1)),
+              pw.Text('ADVOCATE COMMISSIONER', style: smallBold),
+              pw.Text('(Signature & Seal)', style: const pw.TextStyle(fontSize: 8)),
+            ]),
+          ]),
+        ]
+      ));
 
       // ── Show PDF preview ──
       await Printing.layoutPdf(onLayout: (format) async => pdf.save());

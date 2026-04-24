@@ -7,6 +7,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -36,6 +38,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   List<CommissionExpense> _expenses = [];
   List<CommissionWitness> _witnesses = [];
   List<CommissionSketch> _sketches = [];
+  List<Map<String, dynamic>> _documents = [];
   bool _loading = true;
   String? _activeVisitId;
 
@@ -48,7 +51,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   String? _currentlyPlayingId;
 
   @override
-  void initState() { super.initState(); _tabs = TabController(length: 7, vsync: this); _load(); _initSpeech(); }
+  void initState() { super.initState(); _tabs = TabController(length: 8, vsync: this); _load(); _initSpeech(); }
   @override
   void dispose() { 
     _tabs.dispose(); 
@@ -72,8 +75,9 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
       final ex = await CommissionService.fetchExpenses(widget.commissionId);
       final w = await CommissionService.fetchWitnesses(widget.commissionId);
       final sk = await CommissionService.fetchSketches(widget.commissionId);
+      final docs = await CommissionService.fetchCommissionDocuments(widget.commissionId);
       final active = v.where((vi) => vi.visitStatus == VisitStatus.checkedIn).toList();
-      setState(() { _commission = c; _visits = v; _observations = o; _evidence = e; _expenses = ex; _witnesses = w; _sketches = sk; _activeVisitId = active.isNotEmpty ? active.first.id : null; _loading = false; });
+      setState(() { _commission = c; _visits = v; _observations = o; _evidence = e; _expenses = ex; _witnesses = w; _sketches = sk; _documents = docs; _activeVisitId = active.isNotEmpty ? active.first.id : null; _loading = false; });
     } catch (e) { setState(() => _loading = false); }
   }
 
@@ -113,6 +117,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
             const Tab(text: 'Notes'),
             Tab(text: 'Witnesses (${_witnesses.length})'),
             Tab(text: 'Sketches (${_sketches.length})'),
+            Tab(text: 'Documents (${_documents.length})'),
             const Tab(text: 'Expenses'),
           ],
         ),
@@ -124,6 +129,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
         _notesTab(dk),
         _witnessesTab(dk),
         _sketchesTab(dk),
+        _documentsTab(dk),
         _expensesTab(dk),
       ]),
     );
@@ -464,6 +470,151 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   }
 
   Widget _sketchPlaceholder(bool dk) => Container(color: dk ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.02), child: Center(child: Icon(Icons.draw, size: 32, color: dk ? Colors.white12 : Colors.black12)));
+
+  // ─── DOCUMENTS TAB (Vault) ───────────────────────────────
+  Widget _documentsTab(bool dk) {
+    return Stack(
+      children: [
+        if (_documents.isEmpty)
+          Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Icon(Icons.folder_open, size: 56, color: dk ? Colors.white24 : Colors.black12),
+            const SizedBox(height: 16),
+            Text('DOCUMENT VAULT EMPTY', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w900, color: dk ? Colors.white24 : Colors.black26, letterSpacing: 2)),
+            const SizedBox(height: 8),
+            Text('Upload court warrants, orders, maps, etc.', style: GoogleFonts.inter(fontSize: 12, color: dk ? Colors.white38 : Colors.black38)),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: _uploadDocument,
+              icon: const Icon(Icons.upload_file, size: 18),
+              label: const Text('Upload Document'),
+              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accent, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+            ),
+          ]))
+        else
+          ListView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+            itemCount: _documents.length,
+            itemBuilder: (_, i) {
+              final doc = _documents[i];
+              final name = doc['name'] as String? ?? 'Unknown';
+              return Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: dk ? const Color(0xFF1E1E2E) : Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight),
+                ),
+                child: Row(children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: _docColor(name).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(_docIcon(name), color: _docColor(name), size: 22),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(name, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: dk ? Colors.white : const Color(0xFF1E293B)), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 3),
+                    Text('SECURE VAULT', style: GoogleFonts.jetBrainsMono(fontSize: 9, fontWeight: FontWeight.w800, color: dk ? Colors.white24 : Colors.black26, letterSpacing: 1)),
+                  ])),
+                  IconButton(
+                    icon: Icon(Icons.download_rounded, color: AppTheme.info, size: 22),
+                    tooltip: 'Download',
+                    onPressed: () async {
+                      final url = doc['url'] as String?;
+                      if (url != null) {
+                        final uri = Uri.parse(url);
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        }
+                      }
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete_outline, color: AppTheme.error.withValues(alpha: 0.6), size: 20),
+                    tooltip: 'Delete',
+                    onPressed: () => _deleteDocument(name),
+                  ),
+                ]),
+              );
+            },
+          ),
+        // FAB for upload
+        Positioned(
+          bottom: 24, right: 24,
+          child: FloatingActionButton(
+            heroTag: 'upload_comm_doc',
+            onPressed: _uploadDocument,
+            backgroundColor: AppTheme.accent,
+            foregroundColor: Colors.white,
+            elevation: 8,
+            child: const Icon(Icons.add_rounded, size: 28),
+          ),
+        ),
+      ],
+    );
+  }
+
+  IconData _docIcon(String name) {
+    final ext = name.split('.').last.toLowerCase();
+    if (ext == 'pdf') return Icons.picture_as_pdf;
+    if (['jpg', 'jpeg', 'png', 'webp'].contains(ext)) return Icons.image;
+    if (['doc', 'docx'].contains(ext)) return Icons.description;
+    if (['xls', 'xlsx'].contains(ext)) return Icons.table_chart;
+    return Icons.insert_drive_file;
+  }
+
+  Color _docColor(String name) {
+    final ext = name.split('.').last.toLowerCase();
+    if (ext == 'pdf') return AppTheme.error;
+    if (['jpg', 'jpeg', 'png', 'webp'].contains(ext)) return AppTheme.info;
+    if (['doc', 'docx'].contains(ext)) return AppTheme.accent;
+    return AppTheme.warning;
+  }
+
+  Future<void> _uploadDocument() async {
+    final result = await FilePicker.platform.pickFiles(withData: true);
+    if (result == null || result.files.isEmpty) return;
+    final file = result.files.first;
+    if (file.bytes == null) return;
+
+    try {
+      setState(() => _loading = true);
+      await CommissionService.uploadCommissionDocument(
+        commissionId: widget.commissionId,
+        fileBytes: file.bytes!,
+        fileName: file.name,
+      );
+      _load();
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('✅ "${file.name}" uploaded to vault'), backgroundColor: AppTheme.success));
+    } catch (e) {
+      setState(() => _loading = false);
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e'), backgroundColor: AppTheme.error));
+    }
+  }
+
+  Future<void> _deleteDocument(String fileName) async {
+    final confirm = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
+      title: const Text('Delete Document?'),
+      content: Text('Are you sure you want to delete "$fileName"? This cannot be undone.'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
+      ],
+    ));
+    if (confirm != true) return;
+
+    try {
+      await CommissionService.deleteCommissionDocument(widget.commissionId, fileName);
+      _load();
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('"$fileName" deleted'), backgroundColor: AppTheme.success));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Delete failed: $e'), backgroundColor: AppTheme.error));
+    }
+  }
 
   // ─── EXPENSES TAB ────────────────────────────────────────
   Widget _expensesTab(bool dk) {

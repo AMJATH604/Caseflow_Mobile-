@@ -1,20 +1,11 @@
-// Supabase Edge Function: gemini-proxy
-// Proxies Gemini API calls to keep the API key server-side.
-//
-// Deploy: supabase functions deploy gemini-proxy
-// Set secret: supabase secrets set GEMINI_API_KEY=your_key_here
-//
-// Client calls this function instead of Google directly,
-// so the API key never leaves the server.
-
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY")!;
-const GEMINI_MODEL = "gemini-2.0-flash";
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "AIzaSyDRgOpQ3L-Y72VZY4kKUNH_vOKQPKaaO3g";
+// Using Gemini 2.5 Flash for state-of-the-art vision support
+const GEMINI_MODEL = "gemini-2.5-flash";
 
 Deno.serve(async (req: Request) => {
-  // CORS headers for Flutter client
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -26,17 +17,15 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    // Verify the user is authenticated via Supabase JWT
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: "Missing authorization header" }),
-        { status: 401, headers: corsHeaders }
-      );
+      return new Response(JSON.stringify({ error: "Missing authorization header" }), { status: 401, headers: corsHeaders });
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    
+    // Create Supabase client with the user's JWT to ensure authentication
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -44,82 +33,90 @@ Deno.serve(async (req: Request) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
+        JSON.stringify({ 
+          error: "Authentication Failed", 
+          details: authError?.message || "User session invalid" 
+        }), 
         { status: 401, headers: corsHeaders }
       );
     }
 
-    // Parse request body
     const body = await req.json();
-    const { prompt, systemInstruction, history } = body;
+    const { prompt, history, image, mimeType } = body;
 
-    if (!prompt) {
-      return new Response(
-        JSON.stringify({ error: "Missing 'prompt' in request body" }),
-        { status: 400, headers: corsHeaders }
-      );
+    if (!prompt && !image) {
+      return new Response(JSON.stringify({ error: "Missing 'prompt' or 'image' in request body" }), { status: 400, headers: corsHeaders });
     }
 
-    // Build Gemini API request
-    const contents: any[] = [];
-
-    // Add conversation history if provided
-    if (history && Array.isArray(history)) {
-      contents.push(...history);
+    if (!GEMINI_API_KEY) {
+      return new Response(JSON.stringify({ error: "GEMINI_API_KEY not configured in Supabase secrets" }), { status: 500, headers: corsHeaders });
     }
 
-    // Add current user message
-    contents.push({
-      role: "user",
-      parts: [{ text: prompt }],
-    });
+    console.log(`Processing multimodal request for user: ${user.id}`);
 
-    const geminiBody: any = { contents };
+    // Build the request contents
+    const contents = [...(history || [])];
 
-    // Add system instruction if provided
-    if (systemInstruction) {
-      geminiBody.systemInstruction = {
-        parts: [{ text: systemInstruction }],
-      };
+    // Current message parts
+    const currentParts: any[] = [];
+    
+    // Add image if provided (Multimodal)
+    if (image && mimeType) {
+      currentParts.push({
+        inlineData: {
+          mimeType: mimeType,
+          data: image // Expected to be base64 string
+        }
+      });
     }
 
-    // Call Gemini API
-    const geminiResponse = await fetch(
+    // Add text prompt
+    currentParts.push({ text: prompt || "Analyze this image" });
+
+    // Append to contents
+    contents.push({ role: "user", parts: currentParts });
+
+    // Call Google Gemini API (v1beta for advanced models)
+    const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(geminiBody),
+        body: JSON.stringify({ 
+          contents, 
+          generationConfig: { 
+            temperature: 0.15,
+            topP: 0.95,
+            topK: 40,
+            maxOutputTokens: 2048,
+          } 
+        }),
       }
     );
 
-    if (!geminiResponse.ok) {
-      const errorText = await geminiResponse.text();
-      console.error(`Gemini API error: ${geminiResponse.status} - ${errorText}`);
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(`Gemini API Error: ${response.status} - ${errText}`);
       return new Response(
-        JSON.stringify({ error: "Gemini API request failed", details: errorText }),
-        { status: geminiResponse.status, headers: corsHeaders }
+        JSON.stringify({ error: "Gemini API failure", details: errText }), 
+        { status: 500, headers: corsHeaders }
       );
     }
 
-    const geminiData = await geminiResponse.json();
-
-    // Extract the text response
-    const text = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "I apologize, I could not generate a response.";
+    
     return new Response(
-      JSON.stringify({
-        text,
+      JSON.stringify({ 
+        text, 
         model: GEMINI_MODEL,
-        usage: geminiData?.usageMetadata,
+        usage: data.usageMetadata 
       }),
       { headers: corsHeaders }
     );
+
   } catch (error) {
-    console.error("Error:", error.message);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    console.error("Critical Proxy Error:", error.message);
+    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
   }
 });

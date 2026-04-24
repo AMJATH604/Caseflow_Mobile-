@@ -29,25 +29,8 @@ class PaymentService {
     required String userEmail,
     required String userContact,
   }) {
-    var options = {
-      'key': '', // Fetch from configuration or secure endpoint
-      'amount': (amount * 100).toInt(), // Razorpay expects amount in paise
-      'name': name,
-      'description': description,
-      'prefill': {
-        'contact': userContact,
-        'email': userEmail,
-      },
-      'external': {
-        'wallets': ['paytm']
-      }
-    };
-
-    try {
-      _razorpay.open(options);
-    } catch (e) {
-      debugPrint("Error opening Razorpay checkout: $e");
-    }
+    debugPrint("Bypassing Razorpay checkout: App is in Free-for-All mode.");
+    // In a real "test" bypass, we could trigger onSuccess here if needed.
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {

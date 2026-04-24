@@ -7,6 +7,7 @@ import '../services/supabase_service.dart';
 import '../models/models.dart';
 import '../components/error_state_widget.dart';
 import '../components/dialogs/log_cc_dialog.dart';
+import '../components/dialogs/payment_capture_overlay.dart';
 import '../theme/app_theme.dart';
 
 class CertifiedCopiesScreen extends ConsumerWidget {
@@ -279,6 +280,28 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                     style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: statusColor, letterSpacing: 0.3),
                   ),
                 ),
+                // NEW: Paid Badge
+                if (c.paidAmount != null) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF059669).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFF059669).withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle_rounded, size: 12, color: Color(0xFF059669)),
+                        const SizedBox(width: 4),
+                        Text(
+                          "PAID",
+                          style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w900, color: const Color(0xFF059669), letterSpacing: 0.5),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 _buildActionsMenu(context, ref, c),
               ],
             ),
@@ -420,6 +443,35 @@ class CertifiedCopiesScreen extends ConsumerWidget {
               if (expectedDate == null || c.status == "collected") const Spacer(),
             ],
           ),
+          // Link Payment Button (NEW — Manual Fix)
+          if (c.paidAmount == null) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  PaymentCaptureOverlay.show(
+                    context,
+                    caseId: c.caseId,
+                    caseTitle: c.caseTitle ?? "CC Application",
+                    purpose: "Certified Copy Fee",
+                    certifiedCopyId: c.id,
+                  );
+                },
+                icon: const Icon(Icons.link_rounded, size: 18),
+                label: Text(
+                  "Link Payment & Update Ledger",
+                  style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF059669),
+                  side: BorderSide(color: const Color(0xFF059669).withValues(alpha: 0.4)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+              ),
+            ),
+          ],
           // Update Stage Button
           if (c.status != "collected") ...[
             const SizedBox(height: 12),

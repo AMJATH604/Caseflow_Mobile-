@@ -97,11 +97,12 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
       _calculationSteps.add("Rule: Under Section 8, Class I heirs of a Hindu male take the property simultaneously and in equal shares per capita.");
       _calculationSteps.add("");
       
-      // Under Hindu Succession Act, each widow gets ONE equal share (not combined)
-      int widowShares = _wifeCount;
+      // Under Hindu Succession Act, all widows COLLECTIVELY share ONE unit
+      // (not one share each). They split one share equally among themselves.
+      int widowUnit = _wifeCount > 0 ? 1 : 0;
       int mother = _motherAlive ? 1 : 0;
       
-      totalShares = widowShares + mother + _sonCount + _daughterCount;
+      totalShares = widowUnit + mother + _sonCount + _daughterCount;
       
       if (totalShares == 0) {
         _calculationSteps.add("⚠️ No Class I heirs selected. Please add heirs or refer to Class II schedule.");
@@ -109,18 +110,32 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
       }
 
       double valuePerShare = netEstate / totalShares;
-      _calculationSteps.add("Step 1: Count Class I heirs:");
-      if (widowShares > 0) _calculationSteps.add("  Widow(s): $widowShares");
+      _calculationSteps.add("Step 1: Count Class I heirs (per capita):");
+      if (widowUnit > 0) {
+        _calculationSteps.add("  Widow(s): $_wifeCount widow${_wifeCount > 1 ? 's' : ''} share 1 unit collectively");
+        if (_wifeCount > 1) {
+          _calculationSteps.add("  (Multiple widows under §8 take ONE share together, then split equally)");
+        }
+      }
       if (mother > 0) _calculationSteps.add("  Mother: 1");
       if (_sonCount > 0) _calculationSteps.add("  Son(s): $_sonCount");
       if (_daughterCount > 0) _calculationSteps.add("  Daughter(s): $_daughterCount");
-      _calculationSteps.add("  Total heirs = $totalShares");
+      _calculationSteps.add("  Total units = $totalShares");
       _calculationSteps.add("");
-      _calculationSteps.add("Step 2: Each heir gets an equal share:");
-      _calculationSteps.add("  ${formatCurrency.format(netEstate)} ÷ $totalShares = ${formatCurrency.format(valuePerShare)} per heir");
+      _calculationSteps.add("Step 2: Each unit gets an equal share:");
+      _calculationSteps.add("  ${formatCurrency.format(netEstate)} ÷ $totalShares = ${formatCurrency.format(valuePerShare)} per unit");
       
-      for (int i = 1; i <= widowShares; i++) {
-        _results.add({'heir': widowShares == 1 ? 'Widow' : 'Widow $i', 'fraction': '1/$totalShares', 'amount': valuePerShare});
+      if (widowUnit > 0) {
+        double widowTotal = valuePerShare;
+        double perWidow = widowTotal / _wifeCount;
+        if (_wifeCount > 1) {
+          _calculationSteps.add("");
+          _calculationSteps.add("Step 3: Widow share subdivision:");
+          _calculationSteps.add("  ${formatCurrency.format(widowTotal)} ÷ $_wifeCount widows = ${formatCurrency.format(perWidow)} each");
+        }
+        for (int i = 1; i <= _wifeCount; i++) {
+          _results.add({'heir': _wifeCount == 1 ? 'Widow' : 'Widow $i', 'fraction': _wifeCount == 1 ? '1/$totalShares' : '1/${totalShares * _wifeCount}', 'amount': perWidow});
+        }
       }
       if (mother > 0) {
          _results.add({'heir': 'Mother', 'fraction': '1/$totalShares', 'amount': valuePerShare});
@@ -205,9 +220,29 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
 
     double motherFraction = 0.0;
     if (_motherAlive) {
-      motherFraction = hasChildren ? (1/6) : (1/3);
+      if (hasChildren) {
+        motherFraction = 1/6;
+      } else {
+        // Umariyyatain rule: when spouse exists + no children,
+        // mother gets 1/3 of RESIDUE (not 1/3 of estate)
+        bool hasSpouse = (_deceasedGender == 'Male' && _wifeCount > 0) ||
+                         (_deceasedGender == 'Female' && _husbandCount > 0);
+        if (hasSpouse && _fatherAlive) {
+          // Mother gets 1/3 of residue after spouse's share
+          double spouseFrac = 0;
+          if (_deceasedGender == 'Male' && _wifeCount > 0) spouseFrac = 1/4;
+          if (_deceasedGender == 'Female' && _husbandCount > 0) spouseFrac = 1/2;
+          double residue = 1.0 - spouseFrac;
+          motherFraction = residue / 3;
+          _calculationSteps.add("  Mother → Umariyyatain rule: 1/3 of residue after spouse = ${(motherFraction * 100).toStringAsFixed(2)}% = ${formatCurrency.format(netEstate * motherFraction)}");
+        } else {
+          motherFraction = 1/3;
+        }
+      }
       totalFixedFractions += motherFraction;
-      _calculationSteps.add("  Mother → ${hasChildren ? '1/6 (children exist)' : '1/3 (no children)'} = ${formatCurrency.format(netEstate * motherFraction)}");
+      if (!(_fatherAlive && !hasChildren && ((_deceasedGender == 'Male' && _wifeCount > 0) || (_deceasedGender == 'Female' && _husbandCount > 0)))) {
+        _calculationSteps.add("  Mother → ${hasChildren ? '1/6 (children exist)' : '1/3 (no children)'} = ${formatCurrency.format(netEstate * motherFraction)}");
+      }
     }
 
     // Check for Aul (Oversubscription)

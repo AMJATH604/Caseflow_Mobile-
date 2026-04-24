@@ -6,6 +6,8 @@ import 'retry_helper.dart';
 import 'repositories/base_repository.dart';
 import '../models/models.dart';
 import '../models/case_dossier_models.dart';
+import '../models/caveat_models.dart';
+import 'caveat_service.dart';
 
 // ─── Auth State ─────────────────────────────────────
 
@@ -173,6 +175,14 @@ final caseInterimOrdersProvider = FutureProvider.family<List<CaseInterimOrder>, 
   ref.watch(authStateProvider);
   ref.watch(dataRefreshProvider);
   return RetryHelper.retry(() => SupabaseService.fetchInterimOrders(caseId));
+});
+
+// ─── Caveats ─────────────────────────────────────────
+
+final caveatsProvider = FutureProvider<List<Caveat>>((ref) async {
+  ref.watch(authStateProvider);
+  ref.watch(dataRefreshProvider);
+  return RetryHelper.retry(() => CaveatService.fetchCaveats());
 });
 
 // ─── UI State ────────────────────────────────────────

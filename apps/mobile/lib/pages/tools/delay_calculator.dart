@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
 
 class DelayCalculator extends StatefulWidget {
@@ -11,124 +12,305 @@ class DelayCalculator extends StatefulWidget {
 }
 
 class _DelayCalculatorState extends State<DelayCalculator> {
-  DateTime? _orderDate;
-  DateTime? _filingDate = DateTime.now();
-  String _limitationDays = "30";
-  final TextEditingController _customDaysController = TextEditingController();
+  DateTime? _dateOfOrder;
+  DateTime? _dateOfFiling;
+
+  String? _selectedPreset;
+
+  // Expanded legal-specific presets with statutory references
+  final List<Map<String, dynamic>> _presets = [
+    {"days": 30, "label": "30 days", "desc": "First Appeal (CPC O.41 R.1)", "icon": Icons.looks_one_outlined},
+    {"days": 30, "label": "30 days", "desc": "NI Act §138 Complaint", "icon": Icons.credit_card},
+    {"days": 60, "label": "60 days", "desc": "Family Court Appeal", "icon": Icons.family_restroom},
+    {"days": 90, "label": "90 days", "desc": "Second Appeal (CPC §100)", "icon": Icons.looks_two_outlined},
+    {"days": 90, "label": "90 days", "desc": "Revision (CPC §115)", "icon": Icons.replay},
+    {"days": 120, "label": "120 days", "desc": "Suit (Specific Relief)", "icon": Icons.article},
+  ];
 
   Map<String, dynamic>? _result;
 
-  @override
-  void initState() {
-    super.initState();
-    _customDaysController.addListener(_calculate);
-  }
-
-  @override
-  void dispose() {
-    _customDaysController.dispose();
-    super.dispose();
-  }
-
   void _calculate() {
-    if (_orderDate == null || _filingDate == null) return;
+    if (_dateOfOrder == null || _dateOfFiling == null) return;
 
-    final int days = _limitationDays == "custom" 
-        ? int.tryParse(_customDaysController.text) ?? 0 
-        : int.parse(_limitationDays);
-
-    final dueDate = _orderDate!.add(Duration(days: days));
-    final isDelayed = _filingDate!.isAfter(dueDate);
-    final delayDays = isDelayed ? _filingDate!.difference(dueDate).inDays : 0;
-
-    final fmt = DateFormat('dd.MM.yyyy');
-    final formattedOrder = fmt.format(_orderDate!);
-    final formattedDue = fmt.format(dueDate);
-    final formattedFiling = fmt.format(_filingDate!);
-
-    String text = "";
-    if (isDelayed) {
-      text = "The order was passed on $formattedOrder. The limitation of $days days expired on $formattedDue. However, the petition is being filed on $formattedFiling. Accordingly, there is a delay of $delayDays days in filing the above petition.";
-    } else {
-      text = "The order was passed on $formattedOrder. The limitation of $days days expires on $formattedDue. The petition is being filed on $formattedFiling, which is within the period of limitation.";
+    // Get the limitation days from selected preset or custom
+    int limitationDays = 0;
+    if (_selectedPreset != null) {
+      final parts = _selectedPreset!.split('|');
+      limitationDays = int.parse(parts[0]);
     }
+
+    final dueDate = _dateOfOrder!.add(Duration(days: limitationDays));
+    final delay = _dateOfFiling!.difference(dueDate).inDays;
+    final totalDays = _dateOfFiling!.difference(_dateOfOrder!).inDays;
+
+    final fmtOrder = DateFormat('dd-MM-yyyy (EEEE)').format(_dateOfOrder!);
+    final fmtFiling = DateFormat('dd-MM-yyyy (EEEE)').format(_dateOfFiling!);
+    final fmtDue = DateFormat('dd-MM-yyyy (EEEE)').format(dueDate);
+
+    String status;
+    Color statusColor;
+    IconData statusIcon;
+    if (delay <= 0) {
+      status = "WITHIN TIME — No condonation needed";
+      statusColor = const Color(0xFF059669);
+      statusIcon = Icons.check_circle_rounded;
+    } else {
+      status = "DELAYED by $delay DAY${delay == 1 ? '' : 'S'}";
+      statusColor = const Color(0xFFDC2626);
+      statusIcon = Icons.warning_rounded;
+    }
+
+    // Affidavit text
+    final presetLabel = _selectedPreset != null ? _presets.firstWhere((p) => "${p['days']}|${p['desc']}" == _selectedPreset)['desc'] : 'prescribed period';
+    final affidavitText = """AFFIDAVIT IN SUPPORT OF APPLICATION U/S 5 OF THE LIMITATION ACT, 1963
+
+I, _____________ S/o/D/o/W/o _____________, aged about ___ years, residing at _____________, do hereby solemnly affirm and state as follows:
+
+1. The impugned order/judgment was passed on $fmtOrder.
+
+2. The limitation for filing the appeal/petition ($presetLabel) expired on $fmtDue.
+
+3. The present appeal/petition is being filed on $fmtFiling, i.e., after a delay of ${delay > 0 ? delay : 0} day${delay != 1 ? 's' : ''}.
+
+4. The delay of ${delay > 0 ? delay : 0} day${delay != 1 ? 's' : ''} in filing the present appeal/petition was due to _____________ [state sufficient cause].
+
+5. The delay was not intentional or deliberate and the petitioner had a bona fide intention to file the appeal/petition within the prescribed time.
+
+PRAYER: The petitioner therefore prays that this Honourable Court may be pleased to condone the delay of ${delay > 0 ? delay : 0} day${delay != 1 ? 's' : ''} in filing the present appeal/petition and admit the same for adjudication on merits.
+
+VERIFICATION: Verified at _____________ on this the ___ day of _____________ that the contents of the above affidavit are true and correct to the best of my knowledge and belief.
+
+DEPONENT""";
 
     setState(() {
       _result = {
-        "dueDate": dueDate,
-        "delayDays": delayDays,
-        "isDelayed": isDelayed,
-        "text": text,
+        "delay": delay > 0 ? delay : 0,
+        "totalDays": totalDays,
+        "limitationDays": limitationDays,
+        "dueDate": fmtDue,
+        "status": status,
+        "statusColor": statusColor,
+        "statusIcon": statusIcon,
+        "isDelayed": delay > 0,
+        "affidavitText": affidavitText,
       };
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          _buildParamCard(),
-          const SizedBox(height: 24),
-          if (_result != null) _buildResultCard(),
-        ],
-      ),
-    );
-  }
+          // ─── Input Card ──
+          _buildCard(isDark, icon: Icons.schedule_rounded, iconColor: Colors.red, title: "Delay Parameters", children: [
+            Text("Select the limitation period and dates to calculate delay under Section 5, Limitation Act 1963",
+                style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+            const Divider(height: 20),
 
-  Widget _buildParamCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.border)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text("Delay Parameters", style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary)),
-          const SizedBox(height: 16),
-          _buildDatePicker("Date of Order / Judgment", _orderDate, (d) => setState(() { _orderDate = d; _calculate(); })),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(child: _buildLimitationSelector()),
-              if (_limitationDays == "custom") ...[
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _customDaysController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: "Enter Days", border: OutlineInputBorder()),
+            // Limitation Period Presets
+            Text("LIMITATION PERIOD", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey[500], letterSpacing: 0.5)),
+            const SizedBox(height: 10),
+            ...(_presets.map((p) {
+              final key = "${p['days']}|${p['desc']}";
+              final isSelected = _selectedPreset == key;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: InkWell(
+                  onTap: () { setState(() => _selectedPreset = key); _calculate(); },
+                  borderRadius: BorderRadius.circular(10),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppTheme.accent.withValues(alpha: 0.08) : (isDark ? Colors.white.withValues(alpha: 0.04) : Colors.grey[50]),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isSelected ? AppTheme.accent.withValues(alpha: 0.4) : (isDark ? Colors.white10 : Colors.grey[200]!),
+                        width: isSelected ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(p['icon'] as IconData, size: 18, color: isSelected ? AppTheme.accent : Colors.grey[400]),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(p['desc'], style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: isSelected ? AppTheme.accent : (isDark ? Colors.white : Colors.black87))),
+                              Text(p['label'], style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                            ],
+                          ),
+                        ),
+                        if (isSelected) Icon(Icons.check_circle_rounded, size: 18, color: AppTheme.accent),
+                      ],
+                    ),
                   ),
                 ),
+              );
+            })),
+
+            const SizedBox(height: 20),
+
+            // Date pickers
+            Row(
+              children: [
+                Expanded(child: _buildDatePicker("Date of Order/Judgment", _dateOfOrder, isDark, (d) => setState(() { _dateOfOrder = d; _calculate(); }))),
+                const SizedBox(width: 12),
+                Expanded(child: _buildDatePicker("Date of Filing", _dateOfFiling, isDark, (d) => setState(() { _dateOfFiling = d; _calculate(); }))),
               ],
+            ),
+
+            // Section 4 note
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline, size: 16, color: Colors.amber[700]),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(
+                    "If the due date falls on a day when the court is closed, the period is extended to the next working day under §4, Limitation Act.",
+                    style: TextStyle(fontSize: 11, color: Colors.amber[800], fontWeight: FontWeight.w500, height: 1.4),
+                  )),
+                ],
+              ),
+            ),
+          ]),
+
+          // ─── Result Card ──
+          if (_result != null) ...[
+            const SizedBox(height: 16),
+
+            // Status banner
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: (_result!['statusColor'] as Color).withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: (_result!['statusColor'] as Color).withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(_result!['statusIcon'], color: _result!['statusColor'], size: 28),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(_result!['status'], style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: _result!['statusColor'])),
+                        const SizedBox(height: 4),
+                        Text("Last date: ${_result!['dueDate']}", style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Stats
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(child: _buildStatBlock("Limitation", "${_result!['limitationDays']} days", Colors.blue, isDark)),
+                const SizedBox(width: 8),
+                Expanded(child: _buildStatBlock("Elapsed", "${_result!['totalDays']} days", Colors.orange, isDark)),
+                const SizedBox(width: 8),
+                Expanded(child: _buildStatBlock("Delay", "${_result!['delay']} days", _result!['isDelayed'] ? Colors.red : Colors.green, isDark)),
+              ],
+            ),
+
+            // Affidavit text (only show if delayed)
+            if (_result!['isDelayed']) ...[
+              const SizedBox(height: 16),
+              _buildCard(isDark, icon: Icons.description_rounded, iconColor: Colors.indigo, title: "Affidavit Draft",
+                  trailing: TextButton.icon(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: _result!['affidavitText']));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Affidavit text copied!")));
+                    },
+                    icon: const Icon(Icons.copy_rounded, size: 14),
+                    label: const Text("Copy", style: TextStyle(fontSize: 12)),
+                  ),
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: isDark ? Colors.white10 : const Color(0xFFE2E8F0)),
+                      ),
+                      child: Text(
+                        _result!['affidavitText'],
+                        style: GoogleFonts.sourceCodePro(fontSize: 11, height: 1.6, color: isDark ? Colors.grey[300] : Colors.grey[700]),
+                      ),
+                    ),
+                  ]),
             ],
-          ),
-          const SizedBox(height: 16),
-          _buildDatePicker("Actual / Proposed Filing Date", _filingDate, (d) => setState(() { _filingDate = d; _calculate(); })),
+          ],
+
+          const SizedBox(height: 100),
         ],
       ),
     );
   }
 
-  Widget _buildDatePicker(String label, DateTime? value, ValueChanged<DateTime?> onChanged) {
+  Widget _buildStatBlock(String label, String value, Color color, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
+      ),
+      child: Column(
+        children: [
+          Text(label.toUpperCase(), style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.grey[500], letterSpacing: 0.5)),
+          const SizedBox(height: 6),
+          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: color)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDatePicker(String label, DateTime? value, bool isDark, ValueChanged<DateTime?> onChanged) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey[500], letterSpacing: 0.5)),
         const SizedBox(height: 8),
         InkWell(
           onTap: () async {
             final picked = await showDatePicker(context: context, initialDate: value ?? DateTime.now(), firstDate: DateTime(1900), lastDate: DateTime(2100));
             onChanged(picked);
           },
+          borderRadius: BorderRadius.circular(10),
           child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(border: Border.all(color: AppTheme.border), borderRadius: BorderRadius.circular(12)),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            decoration: BoxDecoration(
+              border: Border.all(color: isDark ? Colors.white12 : Colors.grey[300]!),
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: Row(
               children: [
-                const Icon(Icons.calendar_month, size: 16, color: Colors.grey),
+                Icon(Icons.calendar_today_rounded, size: 16, color: AppTheme.accent),
                 const SizedBox(width: 8),
-                Text(value == null ? "Select Date" : DateFormat('dd MMM yyyy').format(value)),
+                Text(
+                  value == null ? "Select" : DateFormat('dd MMM yyyy').format(value),
+                  style: TextStyle(fontSize: 13, fontWeight: value != null ? FontWeight.w600 : FontWeight.w400, color: value != null ? null : Colors.grey[400]),
+                ),
               ],
             ),
           ),
@@ -137,89 +319,29 @@ class _DelayCalculatorState extends State<DelayCalculator> {
     );
   }
 
-  Widget _buildLimitationSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text("Limitation Period", style: TextStyle(fontSize: 12, color: Colors.grey)),
-        const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          initialValue: _limitationDays,
-          decoration: const InputDecoration(border: OutlineInputBorder()),
-          items: const [
-            DropdownMenuItem(value: "30", child: Text("30 Days")),
-            DropdownMenuItem(value: "60", child: Text("60 Days")),
-            DropdownMenuItem(value: "90", child: Text("90 Days")),
-            DropdownMenuItem(value: "custom", child: Text("Custom")),
-          ],
-          onChanged: (v) => setState(() { _limitationDays = v!; _calculate(); }),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildResultCard() {
-    bool delayed = _result!['isDelayed'];
-    Color color = delayed ? Colors.red : Colors.green;
+  Widget _buildCard(bool isDark, {required IconData icon, required Color iconColor, required String title, Widget? trailing, required List<Widget> children}) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.2), width: 2),
-      ),
+      padding: const EdgeInsets.all(20),
+      decoration: AppTheme.cardDecoration(isDark: isDark),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(delayed ? Icons.error_outline : Icons.check_circle_outline, color: color),
-              const SizedBox(width: 8),
-              Text(delayed ? "Delay Detected" : "Within Limitation", style: TextStyle(fontWeight: FontWeight.bold, color: color)),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                child: Icon(icon, color: iconColor, size: 18),
+              ),
+              const SizedBox(width: 10),
+              Expanded(child: Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
+              if (trailing != null) trailing,
             ],
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(child: _buildInfoItem("Due Date", DateFormat('dd MMM yyyy').format(_result!['dueDate']))),
-              Expanded(child: _buildInfoItem("Days of Delay", "${_result!['delayDays']} Days", valueColor: color)),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Divider(),
-          const SizedBox(height: 8),
-          const Align(alignment: Alignment.centerLeft, child: Text("Affidavit Text", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey))),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(8), border: Border.all(color: AppTheme.border)),
-            child: Text(_result!['text'], style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: _result!['text']));
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Copied to clipboard")));
-              },
-              icon: const Icon(Icons.copy),
-              label: const Text("Copy Affidavit Text"),
-              style: ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.white),
-            ),
-          ),
+          ...children,
         ],
       ),
-    );
-  }
-
-  Widget _buildInfoItem(String label, String value, {Color? valueColor}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-        const SizedBox(height: 4),
-        Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: valueColor)),
-      ],
     );
   }
 }

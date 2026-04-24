@@ -1,4 +1,4 @@
-
+import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
@@ -381,25 +381,67 @@ class CommissionService {
     return _client.storage.from('commission-witnesses').getPublicUrl(storagePath);
   }
 
-  /// Download file from storage for PDF embedding (NEW)
+  /// Download file from storage for PDF embedding / gallery save
   static Future<Uint8List?> downloadFile(String bucket, String path) async {
     try {
-      final sanitizedPath = path.contains('public/') ? path.split('public/').last : path;
-      // If path is a full URL, extract the relative path
-      String relativePath = sanitizedPath;
-      if (sanitizedPath.startsWith('http')) {
-         final uri = Uri.parse(sanitizedPath);
-         final segments = uri.pathSegments;
-         // Usually: storage/v1/object/public/bucket/path...
-         final publicIdx = segments.indexOf('public');
-         if (publicIdx != -1 && segments.length > publicIdx + 2) {
-           relativePath = segments.sublist(publicIdx + 2).join('/');
-         }
+      String relativePath = path;
+
+      // If path is a full URL, extract the relative path after the bucket name
+      if (path.startsWith('http')) {
+        final uri = Uri.parse(path);
+        final segments = uri.pathSegments;
+        // URL format: .../storage/v1/object/public/{bucket}/{relative/path}
+        final publicIdx = segments.indexOf('public');
+        if (publicIdx != -1 && segments.length > publicIdx + 2) {
+          // segments[publicIdx+1] = bucket name, skip it
+          relativePath = segments.sublist(publicIdx + 2).join('/');
+        }
+      } else if (path.contains('public/')) {
+        // Handle partial paths like "public/bucket/path..."
+        final afterPublic = path.split('public/').last;
+        // Strip the bucket prefix if it matches
+        if (afterPublic.startsWith('$bucket/')) {
+          relativePath = afterPublic.substring(bucket.length + 1);
+        } else {
+          relativePath = afterPublic;
+        }
       }
 
+      // URL-decode the path (handles %20 spaces, special chars)
+      relativePath = Uri.decodeComponent(relativePath);
+
+      debugPrint('Downloading from $bucket: $relativePath');
       return await _client.storage.from(bucket).download(relativePath);
     } catch (e) {
-      debugPrint('Download error ($bucket/$path): $e');
+      debugPrint('Storage download error ($bucket/$path): $e');
+
+      // Fallback: if it's a public URL, try direct HTTP download
+      if (path.startsWith('http')) {
+        try {
+          debugPrint('Trying HTTP fallback for: $path');
+          final response = await _httpGetBytes(path);
+          if (response != null) return response;
+        } catch (e2) {
+          debugPrint('HTTP fallback also failed: $e2');
+        }
+      }
+      return null;
+    }
+  }
+
+  /// HTTP fallback to download bytes from a public URL
+  static Future<Uint8List?> _httpGetBytes(String url) async {
+    try {
+      final uri = Uri.parse(url);
+      final httpClient = HttpClient();
+      final request = await httpClient.getUrl(uri);
+      final response = await request.close();
+      if (response.statusCode == 200) {
+        final bytes = await consolidateHttpClientResponseBytes(response);
+        return Uint8List.fromList(bytes);
+      }
+      return null;
+    } catch (e) {
       return null;
     }
   }
@@ -465,5 +507,51 @@ class CommissionService {
       'completed': all.where((c) => c.status == CommissionStatus.submitted || c.status == CommissionStatus.closed).length,
       'overdue': all.where((c) => c.isOverdue).length,
     };
+  }
+
+  // ─── Document Vault (Commission Documents) ─────────────────
+
+  /// Fetch all documents stored for a commission
+  static Future<List<Map<String, dynamic>>> fetchCommissionDocuments(String commissionId) async {
+    try {
+      final files = await _client.storage
+          .from('commission-evidence')
+          .list(path: '$commissionId/documents');
+      return files.map((f) => {
+        'name': f.name,
+        'size': f.metadata?['size'] ?? 0,
+        'created_at': f.createdAt ?? '',
+        'url': _client.storage
+            .from('commission-evidence')
+            .getPublicUrl('$commissionId/documents/${f.name}'),
+      }).toList();
+    } catch (e) {
+      debugPrint('Fetch commission documents error: $e');
+      return [];
+    }
+  }
+
+  /// Upload a document to the commission vault
+  static Future<void> uploadCommissionDocument({
+    required String commissionId,
+    required Uint8List fileBytes,
+    required String fileName,
+  }) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('Not authenticated');
+
+    final storagePath = '$commissionId/documents/$fileName';
+    await _client.storage.from('commission-evidence').uploadBinary(
+      storagePath,
+      fileBytes,
+      fileOptions: const FileOptions(upsert: true),
+    );
+  }
+
+  /// Delete a document from the commission vault
+  static Future<void> deleteCommissionDocument(String commissionId, String fileName) async {
+    await _client.storage
+        .from('commission-evidence')
+        .remove(['$commissionId/documents/$fileName']);
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/supabase_service.dart';
+import '../components/epay_court_fee_sheet.dart';
 import '../theme/app_theme.dart';
 
 class PortalsScreen extends StatefulWidget {
@@ -43,6 +44,12 @@ class _PortalsScreenState extends State<PortalsScreen> {
   }
 
   Future<void> _handleRedirect() async {
+    // Court Fee Payment opens the ePay sheet directly (no state/district needed)
+    if (_selectedType == 'court_fee_payment') {
+      EPayCourtFeeSheet.show(context);
+      return;
+    }
+
     if (_selectedState == null || _selectedDistrict == null) return;
 
     setState(() => _isRedirecting = true);
@@ -225,7 +232,12 @@ class _PortalsScreenState extends State<PortalsScreen> {
               "Official court holidays",
             ),
             const SizedBox(width: 12),
-            const Expanded(child: SizedBox()), // Spacer for alignment
+            _buildServiceCard(
+              'court_fee_payment',
+              Icons.account_balance_rounded,
+              "Court Fee",
+              "eCourts ePay",
+            ),
           ],
         ),
       ],
@@ -276,7 +288,9 @@ class _PortalsScreenState extends State<PortalsScreen> {
   }
 
   Widget _buildActionButton() {
-    final canProceed = _selectedState != null && _selectedDistrict != null && !_isRedirecting;
+    // Court fee payment doesn't need state/district selection
+    final isEPay = _selectedType == 'court_fee_payment';
+    final canProceed = isEPay || (_selectedState != null && _selectedDistrict != null && !_isRedirecting);
     return SizedBox(
       width: double.infinity,
       height: 56,

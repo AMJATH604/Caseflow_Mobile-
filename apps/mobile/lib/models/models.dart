@@ -280,6 +280,8 @@ class CertifiedCopy {
   final String createdBy;
   final String? caseTitle;
   final String? firmId;
+  final double? paidAmount;
+  final String? portalReceiptUrl;
 
   CertifiedCopy({
     required this.id,
@@ -293,6 +295,8 @@ class CertifiedCopy {
     required this.createdBy,
     this.caseTitle,
     this.firmId,
+    this.paidAmount,
+    this.portalReceiptUrl,
   });
 
   factory CertifiedCopy.fromJson(Map<String, dynamic> json) => CertifiedCopy(
@@ -307,6 +311,8 @@ class CertifiedCopy {
         createdBy: json['created_by'] ?? '',
         caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
         firmId: json['cases'] != null ? json['cases']['firm_id'] : null,
+        paidAmount: json['paid_amount'] != null ? (json['paid_amount'] as num).toDouble() : null,
+        portalReceiptUrl: json['portal_receipt_url'],
       );
 
   bool isTeamCase(String userId) => firmId != null && firmId != userId;
@@ -465,30 +471,9 @@ class UserProfile {
 
   /// Feature gating: Based on subscription tier from the database.
   /// Respects trial periods and subscription expiration.
-  bool get isPro {
-    if (subscriptionTier == 'pro' || subscriptionTier == 'business') {
-      // Check if subscription is still active
-      if (currentPeriodEnd != null && currentPeriodEnd!.isBefore(DateTime.now())) {
-        return false; // Subscription expired
-      }
-      return true;
-    }
-    // Check trial period
-    if (trialEndsAt != null && trialEndsAt!.isAfter(DateTime.now())) {
-      return true; // Still in trial
-    }
-    return false;
-  }
+  bool get isPro => true; // Unlocked: Free for all mode enabled
 
-  bool get isBusiness {
-    if (subscriptionTier == 'business') {
-      if (currentPeriodEnd != null && currentPeriodEnd!.isBefore(DateTime.now())) {
-        return false;
-      }
-      return true;
-    }
-    return false;
-  }
+  bool get isBusiness => true; // Unlocked: Free for all mode enabled
 
   bool get isFirmOwner => firmId == null;
 
@@ -558,6 +543,8 @@ class CaseComment {
   final bool isSystem;
   final DateTime createdAt;
   final String? senderName;
+  final String? attachmentUrl;
+  final String? attachmentType; // 'image', 'document', 'file'
 
   CaseComment({
     required this.id,
@@ -568,6 +555,8 @@ class CaseComment {
     this.isSystem = false,
     required this.createdAt,
     this.senderName,
+    this.attachmentUrl,
+    this.attachmentType,
   });
 
   factory CaseComment.fromJson(Map<String, dynamic> json) => CaseComment(
@@ -579,7 +568,12 @@ class CaseComment {
         isSystem: json['is_system'] ?? false,
         createdAt: _parseUtc(json['created_at']),
         senderName: json['sender_name'] ?? (json['profiles'] != null ? json['profiles']['full_name'] : null),
+        attachmentUrl: json['attachment_url'],
+        attachmentType: json['attachment_type'],
       );
+
+  bool get hasAttachment => attachmentUrl != null && attachmentUrl!.isNotEmpty;
+  bool get isImage => attachmentType == 'image';
 
   static DateTime _parseUtc(dynamic value) {
     if (value == null) return DateTime.now().toUtc();

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../components/status_badge.dart';
+import '../components/epay_court_fee_sheet.dart';
 
 class CaseHeader extends StatelessWidget {
   final CaseModel caseData;
@@ -81,9 +82,55 @@ class CaseHeader extends StatelessWidget {
               children: [
                 _headerChip(context, Icons.tag_rounded, caseData.caseNumber ?? 'NO IDENTIFIER'),
                 _headerChip(context, Icons.account_balance_rounded, caseData.courtName ?? 'UNSPECIFIED FORUM'),
+                _buildPayCourtFeeChip(context),
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPayCourtFeeChip(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => EPayCourtFeeSheet.show(
+          context,
+          caseTitle: caseData.caseTitle,
+          courtName: caseData.courtName,
+        ),
+        borderRadius: BorderRadius.circular(6),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                const Color(0xFF2563EB).withValues(alpha: 0.1),
+                const Color(0xFF3B82F6).withValues(alpha: 0.05),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: const Color(0xFF2563EB).withValues(alpha: 0.25)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.payment_rounded, size: 12, color: const Color(0xFF2563EB).withValues(alpha: 0.8)),
+              const SizedBox(width: 6),
+              const Text(
+                "PAY COURT FEE",
+                style: TextStyle(
+                  color: Color(0xFF2563EB),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(Icons.open_in_new_rounded, size: 10, color: const Color(0xFF2563EB).withValues(alpha: 0.6)),
+            ],
+          ),
         ),
       ),
     );

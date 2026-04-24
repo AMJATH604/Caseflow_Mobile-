@@ -14,15 +14,18 @@ import '../pages/certified_copies_screen.dart';
 import '../pages/portals_screen.dart';
 import '../pages/tools_screen.dart';
 import '../pages/notifications_screen.dart';
-import '../pages/upgrade_screen.dart';
+
 import '../pages/login_screen.dart';
 import '../pages/splash_screen.dart';
+import '../pages/onboarding_screen.dart';
 import '../pages/collaborator_invitations_screen.dart';
 import '../pages/firm_management_screen.dart';
 import '../pages/tools/advocate_directory_screen.dart';
 import '../pages/commissions_screen.dart';
 import '../pages/commission_detail_screen.dart';
 import '../pages/ai_chat_screen.dart';
+import '../pages/caveats_screen.dart';
+import '../pages/legal_pulse_screen.dart';
 
 
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -48,17 +51,16 @@ final appRouter = GoRouter(
     final session = Supabase.instance.client.auth.currentSession;
     final isLoggingIn = state.matchedLocation == '/login';
     final isSplash = state.matchedLocation == '/splash';
+    final isOnboarding = state.matchedLocation == '/onboarding';
 
-    // Allow splash screen to finish its animation
-    if (isSplash) return null;
+    // Allow splash and onboarding screens to run without redirect
+    if (isSplash || isOnboarding) return null;
 
     if (session == null) {
       return isLoggingIn ? null : '/login';
     }
 
-    if (isLoggingIn || isSplash) {
-      // Usually after login, go to Dashboard. But if they need to complete profile,
-      // the AppShell listener handles it. Let's redirect to / initially.
+    if (isLoggingIn) {
       return '/';
     }
 
@@ -68,6 +70,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/splash',
       builder: (context, state) => const SplashScreen(),
+    ),
+    GoRoute(
+      path: '/onboarding',
+      builder: (context, state) => const OnboardingScreen(),
     ),
     GoRoute(
       path: '/login',
@@ -121,10 +127,7 @@ final appRouter = GoRouter(
           path: '/notifications',
           builder: (context, state) => const NotificationsScreen(),
         ),
-        GoRoute(
-          path: '/upgrade',
-          builder: (context, state) => const UpgradeScreen(),
-        ),
+
         GoRoute(
           path: '/firm',
           builder: (context, state) => const FirmManagementScreen(),
@@ -148,6 +151,14 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/ai-chat',
           builder: (context, state) => const AiChatScreen(),
+        ),
+        GoRoute(
+          path: '/caveats',
+          builder: (context, state) => const CaveatsScreen(),
+        ),
+        GoRoute(
+          path: '/legal-pulse',
+          builder: (context, state) => const LegalPulseScreen(),
         ),
       ],
     ),

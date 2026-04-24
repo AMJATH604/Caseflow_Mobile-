@@ -9,7 +9,12 @@ Write-Host "Output being logged to: build_diagnostic.log" -ForegroundColor Gray
 
 # Using full path to ensure it runs even if PATH is missing
 # Redirecting both output (1) and errors (2) to build_diagnostic.log
-& C:\flutter\bin\flutter.bat build apk --release > build_diagnostic.log 2>&1
+# Run Flutter build with environment variables correctly injected
+Write-Host "Building Release APK v1.4.1+8..." -ForegroundColor Cyan
+& C:\flutter\bin\flutter.bat build apk --release `
+    --dart-define=SUPABASE_URL=$SUPABASE_URL `
+    --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY `
+    > build_diagnostic.log 2>&1
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "Build Successful!" -ForegroundColor Green

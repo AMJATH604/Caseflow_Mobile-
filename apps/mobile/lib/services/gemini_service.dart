@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ChatMessage {
@@ -6,13 +8,19 @@ class ChatMessage {
   final String text;
   final DateTime timestamp;
   bool isLoading;
+  final String? imagePath; // Local file path for user-sent images
+  final String? imageBase64; // Base64 encoded image data
 
   ChatMessage({
     required this.role,
     required this.text,
     DateTime? timestamp,
     this.isLoading = false,
+    this.imagePath,
+    this.imageBase64,
   }) : timestamp = timestamp ?? DateTime.now();
+
+  bool get hasImage => imagePath != null || imageBase64 != null;
 }
 
 /// AI-powered legal assistant using Gemini via Edge Function proxy.
@@ -21,6 +29,8 @@ class ChatMessage {
 /// The API key is stored as a Supabase secret and never reaches the client.
 /// The proxy also validates the user's JWT, ensuring only authenticated
 /// CaseFlow users can access the AI.
+///
+/// **Multimodal:** Supports image analysis via Gemini Vision.
 class GeminiService {
   static const String _systemPrompt = '''You are **CaseFlow AI** — an expert Indian legal assistant built into the CaseFlow legal practice management app.
 
@@ -49,19 +59,36 @@ Guidelines:
 6. Always add a disclaimer: responses are for reference only, not formal legal advice
 7. When relevant, mention landmark Supreme Court / High Court judgments
 8. Format currency in ₹ (Indian Rupees)
-9. Respond in English by default, but support Hindi legal terminology when asked''';
+9. Respond in English by default, but support Hindi legal terminology when asked
+10. When analyzing images of legal documents, extract all relevant text and provide legal interpretation''';
 
   final List<ChatMessage> _history = [];
 
   List<ChatMessage> get history => List.unmodifiable(_history);
 
   /// Send a message to Gemini via the secure Edge Function proxy.
-  ///
-  /// The proxy (`supabase/functions/gemini-proxy`) holds the GEMINI_API_KEY
-  /// as a server-side secret and validates the user's auth token.
-  Future<String> sendMessage(String userMessage) async {
+  /// Optionally include an image file for multimodal analysis.
+  Future<String> sendMessage(String userMessage, {File? imageFile}) async {
+    // Encode image to base64 if provided
+    String? imageBase64;
+    String? imagePath;
+    if (imageFile != null) {
+      try {
+        final bytes = await imageFile.readAsBytes();
+        imageBase64 = base64Encode(bytes);
+        imagePath = imageFile.path;
+      } catch (e) {
+        debugPrint('Image encoding error: $e');
+      }
+    }
+
     // Add user message to history
-    _history.add(ChatMessage(role: 'user', text: userMessage));
+    _history.add(ChatMessage(
+      role: 'user',
+      text: userMessage,
+      imagePath: imagePath,
+      imageBase64: imageBase64,
+    ));
 
     // Add loading placeholder
     _history.add(ChatMessage(role: 'model', text: '', isLoading: true));
@@ -91,29 +118,40 @@ Guidelines:
 
       for (final msg in recentHistory) {
         if (msg.isLoading) continue;
+
+        final parts = <Map<String, dynamic>>[];
+        parts.add({'text': msg.text});
+
+        // Don't include images in history (too large), only in current message
         historyPayload.add({
           'role': msg.role,
-          'parts': [
-            {'text': msg.text}
-          ]
+          'parts': parts,
         });
       }
 
-      // Call the Edge Function proxy (API key stays server-side)
+      // Build request body
+      final body = <String, dynamic>{
+        'prompt': userMessage,
+        'history': historyPayload,
+      };
+
+      // Add image if present (for current message only)
+      if (imageBase64 != null) {
+        body['image'] = imageBase64;
+        body['mimeType'] = _getMimeType(imageFile!.path);
+      }
+
+      // Call the Edge Function proxy
       final response = await Supabase.instance.client.functions.invoke(
         'gemini-proxy',
-        body: {
-          'prompt': userMessage,
-          'history': historyPayload,
-        },
+        body: body,
       );
 
       if (response.status != 200) {
         final errorMsg = response.data?['error'] ?? 'Unknown error';
         _history.removeLast();
         final displayError = '⚠️ AI Error: $errorMsg';
-        _history
-            .add(ChatMessage(role: 'model', text: displayError, isLoading: false));
+        _history.add(ChatMessage(role: 'model', text: displayError, isLoading: false));
         return displayError;
       }
 
@@ -125,13 +163,35 @@ Guidelines:
       _history.add(ChatMessage(role: 'model', text: text, isLoading: false));
 
       return text;
+    } on FunctionException catch (e) {
+      _history.removeLast();
+      String errorMessage = '⚠️ AI Error: Something went wrong.';
+      if (e.status == 429) {
+        errorMessage = '⚠️ AI Quota Exceeded: It looks like your Gemini API key has run out of its free quota. Please check your Google AI Studio billing.';
+      } else if (e.status == 401) {
+        errorMessage = '⚠️ AI Error: Unauthorized. Please check your GEMINI_API_KEY in Supabase dashboard.';
+      } else {
+        final Map<String, dynamic>? details = e.details as Map<String, dynamic>?;
+        errorMessage = '⚠️ AI Error (${e.status}): ${details?['error'] ?? e.reasonPhrase ?? 'Unknown API error.'}';
+      }
+      _history.add(ChatMessage(role: 'model', text: errorMessage, isLoading: false));
+      return errorMessage;
     } catch (e) {
       _history.removeLast();
       _history.add(ChatMessage(
           role: 'model',
-          text:
-              '⚠️ Connection error. Please check your internet and try again.'));
+          text: '⚠️ Connection error. Please check your internet and try again.'));
       return '⚠️ Connection error: $e';
+    }
+  }
+
+  String _getMimeType(String path) {
+    final ext = path.split('.').last.toLowerCase();
+    switch (ext) {
+      case 'png': return 'image/png';
+      case 'gif': return 'image/gif';
+      case 'webp': return 'image/webp';
+      default: return 'image/jpeg';
     }
   }
 
