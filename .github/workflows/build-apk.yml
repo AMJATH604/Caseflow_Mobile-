@@ -46,11 +46,11 @@ jobs:
         working-directory: apps/mobile
         run: flutter analyze --no-fatal-infos --no-fatal-warnings || true
 
-      - name: Clear Gradle Cache and Configure Daemon
+      - name: Configure Gradle Memory
         working-directory: apps/mobile/android
         run: |
           rm -rf ~/.gradle
-          echo "org.gradle.daemon=false" >> gradle.properties
+          echo "org.gradle.jvmargs=-Xmx3072m -XX:MaxMetaspaceSize=1024m -Dfile.encoding=UTF-8" >> gradle.properties
           echo "android.useAndroidX=true" >> gradle.properties
           echo "android.enableJetifier=true" >> gradle.properties
 
