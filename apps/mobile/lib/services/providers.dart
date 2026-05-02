@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'supabase_service.dart';
 import 'retry_helper.dart';
+import 'offline_cache_service.dart';
 import 'repositories/base_repository.dart';
 import '../models/models.dart';
 import '../models/case_dossier_models.dart';
@@ -53,14 +54,38 @@ final dataRefreshProvider = StateProvider<int>((ref) => 0);
 
 final clientsProvider = FutureProvider<List<ClientModel>>((ref) async {
   ref.watch(authStateProvider);
-  ref.watch(dataRefreshProvider); // ← watches refresh trigger
-  return RetryHelper.retry(() => SupabaseService.fetchClients());
+  ref.watch(dataRefreshProvider);
+  try {
+    final clients = await RetryHelper.retry(() => SupabaseService.fetchClients());
+    OfflineCacheService.cacheClients(clients.map((c) => c.toJson()).toList());
+    return clients;
+  } catch (e) {
+    final cached = await OfflineCacheService.getCachedClients();
+    if (cached.isNotEmpty) {
+      debugPrint('Offline: Returning ${cached.length} cached clients');
+      return cached.map((json) => ClientModel.fromJson(json)).toList();
+    }
+    rethrow;
+  }
 });
 
 final casesProvider = FutureProvider<List<CaseModel>>((ref) async {
   ref.watch(authStateProvider);
-  ref.watch(dataRefreshProvider); // ← watches refresh trigger
-  return RetryHelper.retry(() => SupabaseService.fetchCases());
+  ref.watch(dataRefreshProvider);
+  try {
+    final cases = await RetryHelper.retry(() => SupabaseService.fetchCases());
+    // Cache for offline use (fire-and-forget)
+    OfflineCacheService.cacheCases(cases.map((c) => c.toJson()).toList());
+    return cases;
+  } catch (e) {
+    // If offline, return cached data
+    final cached = await OfflineCacheService.getCachedCases();
+    if (cached.isNotEmpty) {
+      debugPrint('Offline: Returning ${cached.length} cached cases');
+      return cached.map((json) => CaseModel.fromJson(json)).toList();
+    }
+    rethrow;
+  }
 });
 
 final caseDetailProvider = FutureProvider.family<CaseModel?, String>((ref, id) async {
@@ -71,8 +96,19 @@ final caseDetailProvider = FutureProvider.family<CaseModel?, String>((ref, id) a
 
 final hearingsProvider = FutureProvider<List<Hearing>>((ref) async {
   ref.watch(authStateProvider);
-  ref.watch(dataRefreshProvider); // ← watches refresh trigger
-  return RetryHelper.retry(() => SupabaseService.fetchHearings());
+  ref.watch(dataRefreshProvider);
+  try {
+    final hearings = await RetryHelper.retry(() => SupabaseService.fetchHearings());
+    OfflineCacheService.cacheHearings(hearings.map((h) => h.toJson()).toList());
+    return hearings;
+  } catch (e) {
+    final cached = await OfflineCacheService.getCachedHearings();
+    if (cached.isNotEmpty) {
+      debugPrint('Offline: Returning ${cached.length} cached hearings');
+      return cached.map((json) => Hearing.fromJson(json)).toList();
+    }
+    rethrow;
+  }
 });
 
 final caseHearingsProvider = FutureProvider.family<List<Hearing>, String>((ref, caseId) async {

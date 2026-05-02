@@ -15,12 +15,15 @@ import '../components/dialogs/log_cc_dialog.dart';
 import '../components/dashboard_court_diary.dart';
 import '../components/daily_board_widget.dart';
 import '../components/error_state_widget.dart';
+import '../services/analytics_service.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Track dashboard view
+    AnalyticsService.logScreenView('Dashboard');
     final isMobile = MediaQuery.of(context).size.width < 768;
     final statsAsync = ref.watch(dashboardStatsProvider);
     final profileAsync = ref.watch(userProfileProvider);
@@ -61,60 +64,101 @@ class DashboardScreen extends ConsumerWidget {
   // ─── MOBILE DASHBOARD ────────────────────────────────
 
   Widget _buildMobileDashboard(BuildContext context, WidgetRef ref, Map<String, dynamic> stats, String userName, AsyncValue<UserProfile> profileAsync) {
+    final todayHearings = stats['todayHearings'] as List<Hearing>? ?? [];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Premium Header Card (Teal to Green Gradient)
+        // Premium Header Card (Navy → Deep Indigo Gradient)
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: AppTheme.glassGradient,
-              borderRadius: BorderRadius.circular(30),
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFF0F172A), // Navy
+                  Color(0xFF1E3A5F), // Deep Blue
+                  Color(0xFF312E81), // Deep Indigo
+                ],
+                stops: [0.0, 0.5, 1.0],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF312E81).withValues(alpha: 0.3),
+                  blurRadius: 24,
+                  offset: const Offset(0, 12),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Hello, $userName 👋",
-                  style: GoogleFonts.outfit(
-                    color: const Color(0xFF1E293B),
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  DateFormat('EEEE, d MMMM y').format(DateTime.now()),
-                  style: GoogleFonts.inter(
-                    color: const Color(0xFF1E293B).withValues(alpha: 0.7),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Hello, $userName 👋",
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 26,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            DateFormat('EEEE, d MMMM y').format(DateTime.now()),
+                            style: GoogleFonts.inter(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Mini profile badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 6, height: 6,
+                            decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            "ONLINE",
+                            style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.w800, color: const Color(0xFF10B981), letterSpacing: 1),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
-                Column(
+                // Compact stats inside header
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        _buildInCardStat("Active", stats['activeCasesCount'] ?? 0),
-                        const SizedBox(width: 8),
-                        _buildInCardStat("Hearings", stats['upcomingHearingsCount'] ?? 0),
-                        const SizedBox(width: 8),
-                        _buildInCardStat("Filings", stats['filingsCount'] ?? 0),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        _buildInCardStat("Clients", stats['clientsCount'] ?? 0),
-                        const SizedBox(width: 8),
-                        _buildInCardStat("Disposed", stats['disposedCasesCount'] ?? 0),
-                        const SizedBox(width: 8),
-                        _buildInCardStat("Closed", stats['dismissedCasesCount'] ?? 0),
-                      ],
-                    ),
+                    _buildHeaderStat("${stats['activeCasesCount'] ?? 0}", "Active", const Color(0xFF818CF8)),
+                    const SizedBox(width: 8),
+                    _buildHeaderStat("${todayHearings.length}", "Today", const Color(0xFFFBBF24)),
+                    const SizedBox(width: 8),
+                    _buildHeaderStat("${stats['clientsCount'] ?? 0}", "Clients", const Color(0xFF34D399)),
                   ],
                 ),
               ],
@@ -122,7 +166,98 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
 
+        // ─── Hero KPI Cards (2x2 Grid) ────────────────────
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: KpiCard(
+                      title: "Active Cases",
+                      value: "${stats['activeCasesCount'] ?? 0}",
+                      icon: Icons.folder_open_rounded,
+                      accentColor: const Color(0xFF6366F1),
+                      onTap: () => context.go('/cases'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: KpiCard(
+                      title: "Today's Hearings",
+                      value: "${todayHearings.length}",
+                      icon: Icons.gavel_rounded,
+                      accentColor: const Color(0xFFF59E0B),
+                      showPulse: true,
+                      onTap: () => context.go('/hearings'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: KpiCard(
+                      title: "Upcoming Hearings",
+                      value: "${stats['upcomingHearingsCount'] ?? 0}",
+                      icon: Icons.calendar_month_rounded,
+                      accentColor: const Color(0xFF0EA5E9),
+                      onTap: () => context.go('/hearings'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: KpiCard(
+                      title: "Total Clients",
+                      value: "${stats['clientsCount'] ?? 0}",
+                      icon: Icons.people_rounded,
+                      accentColor: const Color(0xFF10B981),
+                      onTap: () => context.go('/clients'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
 
+        // ─── Secondary Stats Row ──────────────────────────
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          child: Row(
+            children: [
+              StatChip(
+                label: "Disposed",
+                value: stats['disposedCasesCount'] ?? 0,
+                color: const Color(0xFF14B8A6),
+                icon: Icons.done_all_rounded,
+              ),
+              const SizedBox(width: 8),
+              StatChip(
+                label: "Closed",
+                value: stats['dismissedCasesCount'] ?? 0,
+                color: const Color(0xFF64748B),
+                icon: Icons.close_rounded,
+              ),
+              const SizedBox(width: 8),
+              StatChip(
+                label: "E-Filings",
+                value: stats['filingsCount'] ?? 0,
+                color: const Color(0xFF3B82F6),
+                icon: Icons.file_present_rounded,
+              ),
+              const SizedBox(width: 8),
+              StatChip(
+                label: "Pending ₹",
+                value: stats['pendingPaymentsCount'] ?? 0,
+                color: const Color(0xFFF97316),
+                icon: Icons.account_balance_wallet_rounded,
+              ),
+            ],
+          ),
+        ),
 
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -130,7 +265,6 @@ class DashboardScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const DailyBoardWidget(),
-              const SizedBox(height: 32),
               const SizedBox(height: 32),
               Text(
                 "Jump To",
@@ -201,6 +335,8 @@ class DashboardScreen extends ConsumerWidget {
   // ─── DESKTOP DASHBOARD ───────────────────────────────
 
   Widget _buildDesktopDashboard(BuildContext context, WidgetRef ref, Map<String, dynamic> stats, String userName, AsyncValue<UserProfile> profileAsync) {
+    final todayHearings = stats['todayHearings'] as List<Hearing>? ?? [];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -237,12 +373,23 @@ class DashboardScreen extends ConsumerWidget {
           spacing: 20,
           runSpacing: 20,
           children: [
-            SizedBox(width: 280, child: KpiCard(title: "Active Cases", value: "${stats['activeCasesCount']}", icon: Icons.folder_rounded, accentColor: AppTheme.accent)),
-            SizedBox(width: 280, child: KpiCard(title: "Upcoming Hearings", value: "${stats['upcomingHearingsCount']}", icon: Icons.calendar_month_rounded, accentColor: AppTheme.accentViolet)),
-            SizedBox(width: 280, child: KpiCard(title: "Digital Files", value: "${stats['filingsCount']}", icon: Icons.file_present_rounded, accentColor: const Color(0xFF10B981))),
-            SizedBox(width: 280, child: KpiCard(title: "Total Clients", value: "${stats['clientsCount']}", icon: Icons.groups_rounded, accentColor: Colors.blueAccent)),
-            SizedBox(width: 280, child: KpiCard(title: "Disposed Cases", value: "${stats['disposedCasesCount']}", icon: Icons.done_all_rounded, accentColor: Colors.teal)),
-            SizedBox(width: 280, child: KpiCard(title: "Dismissed/Closed", value: "${stats['dismissedCasesCount']}", icon: Icons.close_rounded, accentColor: Colors.redAccent)),
+            SizedBox(width: 280, child: KpiCard(title: "Active Cases", value: "${stats['activeCasesCount']}", icon: Icons.folder_open_rounded, accentColor: const Color(0xFF6366F1), onTap: () => context.go('/cases'))),
+            SizedBox(width: 280, child: KpiCard(title: "Today's Hearings", value: "${todayHearings.length}", icon: Icons.gavel_rounded, accentColor: const Color(0xFFF59E0B), showPulse: true, onTap: () => context.go('/hearings'))),
+            SizedBox(width: 280, child: KpiCard(title: "Upcoming Hearings", value: "${stats['upcomingHearingsCount']}", icon: Icons.calendar_month_rounded, accentColor: const Color(0xFF0EA5E9), onTap: () => context.go('/hearings'))),
+            SizedBox(width: 280, child: KpiCard(title: "Total Clients", value: "${stats['clientsCount']}", icon: Icons.people_rounded, accentColor: const Color(0xFF10B981), onTap: () => context.go('/clients'))),
+          ],
+        ),
+        const SizedBox(height: 20),
+        // Secondary stats row
+        Row(
+          children: [
+            StatChip(label: "Disposed", value: stats['disposedCasesCount'] ?? 0, color: const Color(0xFF14B8A6), icon: Icons.done_all_rounded),
+            const SizedBox(width: 10),
+            StatChip(label: "Closed", value: stats['dismissedCasesCount'] ?? 0, color: const Color(0xFF64748B), icon: Icons.close_rounded),
+            const SizedBox(width: 10),
+            StatChip(label: "E-Filings", value: stats['filingsCount'] ?? 0, color: const Color(0xFF3B82F6), icon: Icons.file_present_rounded),
+            const SizedBox(width: 10),
+            StatChip(label: "Pending ₹", value: stats['pendingPaymentsCount'] ?? 0, color: const Color(0xFFF97316), icon: Icons.account_balance_wallet_rounded),
           ],
         ),
         const SizedBox(height: 40),
@@ -278,32 +425,33 @@ class DashboardScreen extends ConsumerWidget {
 
   // ─── HELPERS ─────────────────────────────────────────
 
-  Widget _buildInCardStat(String label, int value) {
+  Widget _buildHeaderStat(String value, String label, Color color) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          color: Colors.white.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
         ),
         child: Column(
           children: [
             Text(
-              "$value",
+              value,
               style: GoogleFonts.outfit(
-                color: const Color(0xFF1E293B),
-                fontSize: 20,
+                color: color,
+                fontSize: 22,
                 fontWeight: FontWeight.w700,
               ),
             ),
+            const SizedBox(height: 2),
             Text(
-              label,
+              label.toUpperCase(),
               style: GoogleFonts.inter(
-                color: const Color(0xFF1E293B).withValues(alpha: 0.6),
+                color: Colors.white.withValues(alpha: 0.5),
                 fontSize: 9,
                 fontWeight: FontWeight.w700,
-                letterSpacing: 0.5,
+                letterSpacing: 1,
               ),
             ),
           ],

@@ -10,7 +10,7 @@ Write-Host "Output being logged to: build_diagnostic.log" -ForegroundColor Gray
 # Using full path to ensure it runs even if PATH is missing
 # Redirecting both output (1) and errors (2) to build_diagnostic.log
 # Run Flutter build with environment variables correctly injected
-Write-Host "Building Release APK v1.4.1+8..." -ForegroundColor Cyan
+Write-Host "Building Release APK v1.5.0+14..." -ForegroundColor Cyan
 & C:\flutter\bin\flutter.bat build apk --release `
     --dart-define=SUPABASE_URL=$SUPABASE_URL `
     --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY `
@@ -19,8 +19,8 @@ Write-Host "Building Release APK v1.4.1+8..." -ForegroundColor Cyan
 if ($LASTEXITCODE -eq 0) {
     Write-Host "Build Successful!" -ForegroundColor Green
     Write-Host "Moving APK to project root..." -ForegroundColor Gray
-    Copy-Item "build\app\outputs\flutter-apk\app-release.apk" "..\CaseFlow-Dossier-FINAL.apk"
-    Write-Host "Final APK: CaseFlow-Dossier-FINAL.apk" -ForegroundColor Green
+    Copy-Item "build\app\outputs\flutter-apk\app-release.apk" "..\CaseFlow-v1.5.0-14.apk"
+    Write-Host "Final APK: CaseFlow-v1.5.0-14.apk" -ForegroundColor Green
 } else {
     Write-Host "Build Failed. Check the errors above." -ForegroundColor Red
 }

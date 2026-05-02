@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/providers.dart';
+import '../services/analytics_service.dart';
 import '../theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import '../components/epay_court_fee_sheet.dart';
@@ -504,6 +505,9 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
   }
 
   void _onToolTap(Map<String, dynamic> tool) {
+    // Track tool usage in Firebase Analytics
+    AnalyticsService.logToolUsed(tool['id'].toString());
+
     if (tool['id'] == 'ai_chat') {
       context.push('/ai-chat');
     } else if (tool['id'] == 'advocate_directory') {

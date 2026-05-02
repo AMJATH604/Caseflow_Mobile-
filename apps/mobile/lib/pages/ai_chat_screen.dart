@@ -4,8 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path/path.dart' as p;
 import '../theme/app_theme.dart';
 import '../services/gemini_service.dart';
+import '../services/analytics_service.dart';
 
 class AiChatScreen extends StatefulWidget {
   const AiChatScreen({super.key});
@@ -21,7 +23,22 @@ class _AiChatScreenState extends State<AiChatScreen>
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   bool _isSending = false;
-  File? _pendingImage; // Image queued for sending
+  File? _pendingFile; // File queued for sending (image or document)
+  bool _isLoadingHistory = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadChatHistory();
+  }
+
+  Future<void> _loadChatHistory() async {
+    await _gemini.loadHistory();
+    if (mounted) {
+      setState(() => _isLoadingHistory = false);
+      _scrollToBottom();
+    }
+  }
 
   @override
   void dispose() {
@@ -32,21 +49,35 @@ class _AiChatScreenState extends State<AiChatScreen>
   }
 
   Future<void> _sendMessage(String text) async {
-    if (text.trim().isEmpty && _pendingImage == null) return;
+    if (text.trim().isEmpty && _pendingFile == null) return;
     if (_isSending) return;
 
-    final imageToSend = _pendingImage;
+    final fileToSend = _pendingFile;
     _controller.clear();
     setState(() {
       _isSending = true;
-      _pendingImage = null;
+      _pendingFile = null;
     });
     _scrollToBottom();
 
-    await _gemini.sendMessage(
-      text.trim().isEmpty ? "Analyze this image" : text.trim(),
-      imageFile: imageToSend,
+    final prompt = text.trim().isEmpty
+        ? (fileToSend != null && !_isImageFile(fileToSend.path) ? "Analyze this document" : "Analyze this image")
+        : text.trim();
+
+    // Use streaming for a ChatGPT-like word-by-word experience
+    await _gemini.sendMessageStream(
+      prompt,
+      imageFile: fileToSend,
+      onChunk: (fullText) {
+        if (mounted) {
+          setState(() {});
+          _scrollToBottom();
+        }
+      },
     );
+
+    // Track AI query in analytics
+    AnalyticsService.logAIQuerySent(hasAttachment: fileToSend != null);
 
     if (mounted) {
       setState(() => _isSending = false);
@@ -73,18 +104,30 @@ class _AiChatScreenState extends State<AiChatScreen>
       maxWidth: 1024,
     );
     if (picked != null && mounted) {
-      setState(() => _pendingImage = File(picked.path));
+      setState(() => _pendingFile = File(picked.path));
     }
   }
 
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+      allowedExtensions: [
+        'jpg', 'jpeg', 'png', 'webp', 'gif',       // Images
+        'pdf',                                       // PDF documents
+        'doc', 'docx',                               // Word documents
+        'xls', 'xlsx',                               // Excel files
+        'txt', 'csv',                                // Text files
+        'ppt', 'pptx',                               // Presentations
+      ],
     );
     if (result != null && result.files.isNotEmpty && mounted) {
-      setState(() => _pendingImage = File(result.files.first.path!));
+      setState(() => _pendingFile = File(result.files.first.path!));
     }
+  }
+
+  bool _isImageFile(String path) {
+    final ext = p.extension(path).toLowerCase().replaceAll('.', '');
+    return ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic'].contains(ext);
   }
 
   void _showAttachmentOptions() {
@@ -101,11 +144,11 @@ class _AiChatScreenState extends State<AiChatScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text("Attach Image",
+                Text("Attach File",
                     style: GoogleFonts.outfit(
                         fontSize: 18, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 8),
-                Text("Send an image for AI analysis",
+                Text("Send images or documents for AI analysis",
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: isDark
@@ -135,8 +178,8 @@ class _AiChatScreenState extends State<AiChatScreen>
                       },
                     ),
                     _buildAttachOption(
-                      Icons.folder_rounded,
-                      "Files",
+                      Icons.description_rounded,
+                      "Documents",
                       const Color(0xFF3B82F6),
                       () {
                         Navigator.pop(ctx);
@@ -198,7 +241,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                   : _buildChatList(isDark, messages),
             ),
             // Pending image preview
-            if (_pendingImage != null) _buildImagePreview(isDark),
+            if (_pendingFile != null) _buildFilePreview(isDark),
             _buildInputBar(isDark),
           ],
         ),
@@ -276,15 +319,16 @@ class _AiChatScreenState extends State<AiChatScreen>
                         borderRadius: BorderRadius.circular(20)),
                     title: const Text("Clear Chat?"),
                     content: const Text(
-                        "This will delete all messages in this session."),
+                        "This will permanently delete all your AI chat history."),
                     actions: [
                       TextButton(
                           onPressed: () => Navigator.pop(ctx),
                           child: const Text("Cancel")),
                       TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           Navigator.pop(ctx);
-                          setState(() => _gemini.clearHistory());
+                          await _gemini.clearHistory();
+                          if (mounted) setState(() {});
                         },
                         child: const Text("Clear",
                             style: TextStyle(color: Colors.red)),
@@ -675,8 +719,10 @@ class _AiChatScreenState extends State<AiChatScreen>
     );
   }
 
-  // Pending image preview strip
-  Widget _buildImagePreview(bool isDark) {
+  // Pending file preview strip (images + documents)
+  Widget _buildFilePreview(bool isDark) {
+    final isImage = _isImageFile(_pendingFile!.path);
+    final fileName = p.basename(_pendingFile!.path);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -692,20 +738,46 @@ class _AiChatScreenState extends State<AiChatScreen>
         children: [
           Stack(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.file(
-                  _pendingImage!,
+              if (isImage)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.file(
+                    _pendingFile!,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                  ),
+                )
+              else
+                Container(
                   width: 60,
                   height: 60,
-                  fit: BoxFit.cover,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.2)),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        _getFileIcon(fileName),
+                        color: const Color(0xFF6366F1),
+                        size: 24,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        p.extension(fileName).toUpperCase().replaceAll('.', ''),
+                        style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.w800, color: const Color(0xFF6366F1)),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
               Positioned(
                 top: -4,
                 right: -4,
                 child: InkWell(
-                  onTap: () => setState(() => _pendingImage = null),
+                  onTap: () => setState(() => _pendingFile = null),
                   child: Container(
                     width: 22,
                     height: 22,
@@ -721,19 +793,48 @@ class _AiChatScreenState extends State<AiChatScreen>
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              "Image attached — add a message or tap send",
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: isDark
-                    ? const Color(0xFF94A3B8)
-                    : const Color(0xFF64748B),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  isImage ? "Image attached" : fileName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  isImage ? "Add a message or tap send" : "Document ready — add a message or tap send",
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  IconData _getFileIcon(String fileName) {
+    final ext = p.extension(fileName).toLowerCase().replaceAll('.', '');
+    switch (ext) {
+      case 'pdf': return Icons.picture_as_pdf_rounded;
+      case 'doc': case 'docx': return Icons.article_rounded;
+      case 'xls': case 'xlsx': case 'csv': return Icons.table_chart_rounded;
+      case 'ppt': case 'pptx': return Icons.slideshow_rounded;
+      case 'txt': return Icons.text_snippet_rounded;
+      default: return Icons.insert_drive_file_rounded;
+    }
   }
 
   Widget _buildInputBar(bool isDark) {
@@ -766,7 +867,7 @@ class _AiChatScreenState extends State<AiChatScreen>
             onPressed: _isSending ? null : _showAttachmentOptions,
             icon: Icon(
               Icons.add_circle_outline_rounded,
-              color: _pendingImage != null
+              color: _pendingFile != null
                   ? const Color(0xFF6366F1)
                   : isDark
                       ? const Color(0xFF475569)
@@ -799,7 +900,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
                 decoration: InputDecoration(
-                  hintText: _pendingImage != null
+                  hintText: _pendingFile != null
                       ? "Describe what to analyze..."
                       : "Ask about any Indian law...",
                   hintStyle: GoogleFonts.inter(

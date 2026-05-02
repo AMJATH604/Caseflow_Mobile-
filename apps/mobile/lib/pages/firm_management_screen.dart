@@ -9,7 +9,6 @@ import 'package:file_picker/file_picker.dart';
 import '../services/firm_service.dart';
 import '../services/supabase_service.dart';
 import '../services/repositories/discussion_repository.dart';
-import '../services/providers.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 
@@ -340,186 +339,56 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
     );
   }
 
-  // ─── NOTICE BOARD (WhatsApp-style) ──────────────────
+  // ─── CHAMBERS CHAT ENTRY CARD ──────────────────────
   Widget _buildNoticeBoard() {
-    return Consumer(
-      builder: (context, ref, _) {
-        final firmId = _profile?.firmId ?? _profile?.id;
-        if (firmId == null) return const SizedBox.shrink();
-
-        final noticesAsync = ref.watch(firmNoticesProvider(firmId));
-
-        return Container(
-          height: 420,
-          decoration: BoxDecoration(
-            color: AppTheme.darkCard,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.darkBorder),
-          ),
-          child: Column(
-            children: [
-              // Chat header
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppTheme.accent.withValues(alpha: 0.05),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  border: Border(bottom: BorderSide(color: AppTheme.darkBorder)),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.forum_rounded, size: 16, color: AppTheme.accent),
-                    const SizedBox(width: 8),
-                    Text("Chambers Chat", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AppTheme.accent, letterSpacing: 0.5)),
-                    const Spacer(),
-                    if (_isUploading)
-                      SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.accent)),
-                  ],
-                ),
-              ),
-              // Messages
-              Expanded(
-                child: noticesAsync.when(
-                  data: (streamNotices) {
-                    final pendingOptimistic = _optimisticNotices.where(
-                      (opt) => !streamNotices.any((s) => s.message == opt.message && s.senderId == opt.senderId),
-                    ).toList();
-                    final allNotices = [...streamNotices, ...pendingOptimistic];
-                    if (pendingOptimistic.length < _optimisticNotices.length) {
-                      _optimisticNotices.removeWhere((opt) =>
-                        streamNotices.any((s) => s.message == opt.message && s.senderId == opt.senderId),
-                      );
-                    }
-
-                    if (allNotices.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.chat_bubble_outline_rounded, size: 40, color: Colors.grey[300]),
-                            const SizedBox(height: 12),
-                            Text("No messages yet.\nSay hello to your team! 👋", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey[400], fontSize: 13, height: 1.5)),
-                          ],
-                        ),
-                      );
-                    }
-
-                    // Auto-scroll on new messages
-                    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-
-                    return ListView.builder(
-                      controller: _chatScrollController,
-                      padding: const EdgeInsets.all(12),
-                      itemCount: allNotices.length,
-                      itemBuilder: (context, index) {
-                        final msg = allNotices[index];
-                        final isMe = msg.senderId == _profile?.id;
-                        return _buildNoticeBubble(msg, isMe);
-                      },
-                    );
-                  },
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (e, s) => Center(child: Text("Error: $e", style: const TextStyle(fontSize: 12))),
-                ),
-              ),
-              // Input bar
-              _buildNoticeInput(),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildNoticeBubble(CaseComment msg, bool isMe) {
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+    return InkWell(
+      onTap: () => context.push('/chambers-chat'),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        constraints: const BoxConstraints(maxWidth: 280),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isMe ? AppTheme.accent : const Color(0xFFE2E8F0),
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
-            bottomLeft: Radius.circular(isMe ? 16 : 4),
-            bottomRight: Radius.circular(isMe ? 4 : 16),
+          gradient: LinearGradient(
+            colors: [AppTheme.accent, AppTheme.accent.withValues(alpha: 0.85)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [BoxShadow(color: AppTheme.accent.withValues(alpha: 0.25), blurRadius: 16, offset: const Offset(0, 4))],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
+        child: Row(
           children: [
-            if (!isMe)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Text(msg.senderName ?? "Team Member",
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: isMe ? Colors.black54 : AppTheme.accent, letterSpacing: 0.3)),
+            Container(
+              width: 52, height: 52,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(14),
               ),
-
-            // Attachment rendering
-            if (msg.hasAttachment) ...[
-              if (msg.isImage)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.network(
-                    msg.attachmentUrl!,
-                    width: 220,
-                    height: 160,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (_, child, progress) {
-                      if (progress == null) return child;
-                      return Container(
-                        width: 220, height: 160,
-                        decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(10)),
-                        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                      );
-                    },
-                    errorBuilder: (_, __, ___) => Container(
-                      width: 220, height: 60,
-                      decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(10)),
-                      child: const Center(child: Icon(Icons.broken_image_rounded, color: Colors.grey)),
-                    ),
+              child: const Icon(Icons.forum_rounded, color: Colors.white, size: 26),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Chambers Chat",
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.3),
                   ),
-                )
-              else
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: (isMe ? Colors.black : Colors.white).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Tap to open full conversation",
+                    style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.7), fontWeight: FontWeight.w500),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.insert_drive_file_rounded, size: 20, color: isMe ? Colors.black87 : AppTheme.accent),
-                      const SizedBox(width: 8),
-                      Flexible(child: Text(msg.message, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: isMe ? Colors.black87 : const Color(0xFF334155)))),
-                    ],
-                  ),
-                ),
-              const SizedBox(height: 4),
-            ],
-
-            // Text message (hide if it's just the attachment label)
-            if (!msg.hasAttachment)
-              Text(msg.message, style: TextStyle(color: isMe ? Colors.black : const Color(0xFF334155), fontSize: 13, fontWeight: FontWeight.w500)),
-
-            const SizedBox(height: 4),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  DateFormat('HH:mm').format(msg.createdAt.toLocal()),
-                  style: TextStyle(fontSize: 9, color: (isMe ? Colors.black : const Color(0xFF334155)).withValues(alpha: 0.4)),
-                ),
-                if (isMe) ...[
-                  const SizedBox(width: 4),
-                  Icon(Icons.done_all_rounded, size: 12,
-                    color: msg.id.startsWith('temp_') ? Colors.black38 : Colors.black54),
                 ],
-              ],
+              ),
+            ),
+            Container(
+              width: 36, height: 36,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 16),
             ),
           ],
         ),
@@ -527,61 +396,6 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
     );
   }
 
-  Widget _buildNoticeInput() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
-        border: Border(top: BorderSide(color: Colors.grey[200]!)),
-      ),
-      child: Row(
-        children: [
-          // Attachment button
-          IconButton(
-            icon: Icon(Icons.add_circle_outline_rounded, size: 24, color: AppTheme.accent),
-            onPressed: _isUploading ? null : _showAttachmentSheet,
-          ),
-          // Text input
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.grey[200]!),
-              ),
-              child: TextField(
-                controller: _noticeController,
-                style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B)),
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) => _sendMessage(),
-                decoration: const InputDecoration(
-                  hintText: "Type a message...",
-                  hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 10),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 4),
-          // Send button
-          Container(
-            width: 40, height: 40,
-            decoration: BoxDecoration(
-              color: AppTheme.accent,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.send_rounded, size: 18, color: Colors.black),
-              onPressed: _sendMessage,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   // ─── REMAINING WIDGETS (unchanged logic, preserved) ──
 

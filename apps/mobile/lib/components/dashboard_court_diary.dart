@@ -168,61 +168,185 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
       itemCount: hearings.length,
       itemBuilder: (context, index) {
         final h = hearings[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 8),
-          elevation: 0,
-          color: AppTheme.background,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: AppTheme.border),
+        final statusColor = _hearingStatusColor(h.status);
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          decoration: BoxDecoration(
+            color: AppTheme.darkCard,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppTheme.darkBorder),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
           ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            title: Text(
-              h.caseTitle ?? "Unknown Case",
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          child: IntrinsicHeight(
+            child: Row(
               children: [
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Expanded(child: Text(h.purpose ?? 'Hearing', style: const TextStyle(color: Colors.black87, fontSize: 13))),
-                    if (h.isTeamCase(ref.read(userProvider)?.id ?? ''))
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.indigo.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: Colors.indigo.withValues(alpha: 0.2)),
-                        ),
-                        child: const Text(
-                          "TEAM",
-                          style: TextStyle(color: Colors.indigo, fontSize: 9, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(h.stage ?? "Hearing phase", style: const TextStyle(color: Colors.grey, fontSize: 12)),
-              ],
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                StatusBadge(status: h.status),
-                if (h.status != 'adjourned' && h.status != 'closed' && h.status != 'disposed')
-                  IconButton(
-                    icon: const Icon(Icons.event_repeat, size: 20, color: Colors.blue),
-                    onPressed: () => _showAdjournDialog(context, h),
+                // ── Left color strip ──
+                Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    color: statusColor,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(14),
+                      bottomLeft: Radius.circular(14),
+                    ),
                   ),
+                ),
+                // ── Content ──
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ── Title row ──
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                h.caseTitle ?? "Unknown Case",
+                                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Color(0xFF1E293B)),
+                                maxLines: 1, overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            StatusBadge(status: h.status),
+                          ],
+                        ),
+
+                        // ── Case No + Court Name (prominent) ──
+                        if (h.caseNumber != null || h.courtName != null) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (h.caseNumber != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.tag_rounded, size: 14, color: Color(0xFF64748B)),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          h.caseNumber!,
+                                          style: const TextStyle(color: Color(0xFF334155), fontSize: 13, fontWeight: FontWeight.w700),
+                                          maxLines: 1, overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                if (h.caseNumber != null && h.courtName != null)
+                                  const SizedBox(height: 4),
+                                if (h.courtName != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.account_balance_rounded, size: 14, color: Color(0xFF64748B)),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          h.courtName!,
+                                          style: const TextStyle(color: Color(0xFF475569), fontSize: 12, fontWeight: FontWeight.w600),
+                                          maxLines: 1, overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+
+                        const SizedBox(height: 8),
+
+                        // ── Purpose / Stage row ──
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: AppTheme.accent.withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                (h.purpose ?? 'Hearing').toUpperCase(),
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: AppTheme.accent, letterSpacing: 0.3),
+                              ),
+                            ),
+                            if (h.stage != null) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.withValues(alpha: 0.08),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  h.stage!,
+                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
+                                ),
+                              ),
+                            ],
+                            if (h.isTeamCase(ref.read(userProvider)?.id ?? '')) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: Colors.indigo.withValues(alpha: 0.08),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: Colors.indigo.withValues(alpha: 0.15)),
+                                ),
+                                child: const Text("TEAM", style: TextStyle(color: Colors.indigo, fontSize: 8, fontWeight: FontWeight.w900)),
+                              ),
+                            ],
+                            const Spacer(),
+                            if (h.status != 'adjourned' && h.status != 'closed' && h.status != 'disposed')
+                              InkWell(
+                                onTap: () => _showAdjournDialog(context, h),
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.withValues(alpha: 0.08),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.blue.withValues(alpha: 0.15)),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.event_repeat_rounded, size: 13, color: Colors.blue),
+                                      SizedBox(width: 4),
+                                      Text("ADJOURN", style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Colors.blue)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
         );
       },
     );
+  }
+
+  Color _hearingStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'scheduled': return AppTheme.success;
+      case 'adjourned': return AppTheme.warning;
+      case 'disposed': case 'closed': case 'dismissed': return AppTheme.error;
+      default: return AppTheme.accent;
+    }
   }
 
   void _showAdjournDialog(BuildContext context, Hearing hearing) {

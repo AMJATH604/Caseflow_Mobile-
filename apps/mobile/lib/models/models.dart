@@ -92,6 +92,34 @@ class CaseModel {
     // If firmId exists and it's NOT the user's ID, it's a team case
     return firmId != null && firmId != userId;
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'case_title': caseTitle,
+    'case_number': caseNumber,
+    'case_type': caseType,
+    'court_name': courtName,
+    'client_id': clientId,
+    'status': status.name,
+    'stage': stage.name,
+    'filing_date': filingDate?.toIso8601String(),
+    'next_hearing_date': nextHearingDate?.toIso8601String(),
+    'created_by': createdBy,
+    'created_at': createdAt.toIso8601String(),
+    'state': state,
+    'district': district,
+    'cnr_number': cnrNumber,
+    'firm_id': firmId,
+    'assigned_to': assignedTo,
+    'representation_type': representationType.name,
+    'court_type': courtType.name,
+    'opposing_party': opposingParty,
+    'opposing_advocate': opposingAdvocate,
+    'opposing_advocate_phone': opposingAdvocatePhone,
+    'petitioner_advocate': petitionerAdvocate,
+    'petitioner_advocate_phone': petitionerAdvocatePhone,
+    if (clientName != null) 'clients': {'name': clientName},
+  };
 }
 
 class ClientModel {
@@ -100,8 +128,12 @@ class ClientModel {
   final String? email;
   final String? phone;
   final String? address;
+  final String? state;
+  final String? district;
   final String createdBy;
-  final String createdAt;
+  final DateTime createdAt;
+  final String? firmId;
+  final int caseCount; // Joined count from cases table
 
   ClientModel({
     required this.id,
@@ -109,8 +141,12 @@ class ClientModel {
     this.email,
     this.phone,
     this.address,
+    this.state,
+    this.district,
     required this.createdBy,
     required this.createdAt,
+    this.firmId,
+    this.caseCount = 0,
   });
 
   factory ClientModel.fromJson(Map<String, dynamic> json) => ClientModel(
@@ -119,9 +155,31 @@ class ClientModel {
         email: json['email'],
         phone: json['phone'],
         address: json['address'],
+        state: json['state'],
+        district: json['district'],
         createdBy: json['created_by'] ?? '',
-        createdAt: json['created_at'] ?? '',
+        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+        firmId: json['firm_id'],
+        caseCount: json['case_count'] is int
+            ? json['case_count']
+            : (json['cases'] is List ? (json['cases'] as List).length : 0),
       );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'email': email,
+    'phone': phone,
+    'address': address,
+    'state': state,
+    'district': district,
+    'created_by': createdBy,
+    'created_at': createdAt.toIso8601String(),
+    'firm_id': firmId,
+  };
+
+  /// Whether this client has any active cases
+  bool get hasActiveCases => caseCount > 0;
 }
 
 class Hearing {
@@ -181,6 +239,28 @@ class Hearing {
       );
 
   bool isTeamCase(String userId) => firmId != null && firmId != userId;
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'case_id': caseId,
+    'hearing_date': hearingDate.toIso8601String(),
+    'stage': stage,
+    'notes': notes,
+    'next_action': nextAction,
+    'created_by': createdBy,
+    'status': status,
+    'purpose': purpose,
+    'judge_name': judgeName,
+    'next_date': nextDate?.toIso8601String(),
+    'business_done': businessDone,
+    if (caseTitle != null || caseNumber != null || firmId != null)
+      'cases': {
+        'case_title': caseTitle,
+        'case_number': caseNumber,
+        'court_name': courtName,
+        'firm_id': firmId,
+      },
+  };
 }
 
 class EFilingRecord {

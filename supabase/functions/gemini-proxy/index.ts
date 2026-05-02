@@ -9,17 +9,16 @@ Deno.serve(async (req: Request) => {
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-    "Content-Type": "application/json",
   };
 
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Missing authorization header" }), { status: 401, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: "Missing authorization header" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -37,22 +36,22 @@ Deno.serve(async (req: Request) => {
           error: "Authentication Failed", 
           details: authError?.message || "User session invalid" 
         }), 
-        { status: 401, headers: corsHeaders }
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const body = await req.json();
-    const { prompt, history, image, mimeType } = body;
+    const { prompt, history, image, mimeType, stream: useStream } = body;
 
     if (!prompt && !image) {
-      return new Response(JSON.stringify({ error: "Missing 'prompt' or 'image' in request body" }), { status: 400, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: "Missing 'prompt' or 'image' in request body" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     if (!GEMINI_API_KEY) {
-      return new Response(JSON.stringify({ error: "GEMINI_API_KEY not configured in Supabase secrets" }), { status: 500, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: "GEMINI_API_KEY not configured in Supabase secrets" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    console.log(`Processing multimodal request for user: ${user.id}`);
+    console.log(`Processing ${useStream ? 'streaming' : 'standard'} request for user: ${user.id}`);
 
     // Build the request contents
     const contents = [...(history || [])];
@@ -76,21 +75,53 @@ Deno.serve(async (req: Request) => {
     // Append to contents
     contents.push({ role: "user", parts: currentParts });
 
-    // Call Google Gemini API (v1beta for advanced models)
+    const requestBody = JSON.stringify({ 
+      contents, 
+      generationConfig: { 
+        temperature: 0.15,
+        topP: 0.95,
+        topK: 40,
+        maxOutputTokens: 2048,
+      } 
+    });
+
+    // ─── STREAMING MODE ─────────────────────────────────────
+    if (useStream) {
+      const streamUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
+      
+      const geminiResponse = await fetch(streamUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: requestBody,
+      });
+
+      if (!geminiResponse.ok) {
+        const errText = await geminiResponse.text();
+        console.error(`Gemini Stream API Error: ${geminiResponse.status} - ${errText}`);
+        return new Response(
+          JSON.stringify({ error: "Gemini API failure", details: errText }), 
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Forward the SSE stream directly to the client
+      return new Response(geminiResponse.body, {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "Connection": "keep-alive",
+        },
+      });
+    }
+
+    // ─── STANDARD (NON-STREAMING) MODE ──────────────────────
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          contents, 
-          generationConfig: { 
-            temperature: 0.15,
-            topP: 0.95,
-            topK: 40,
-            maxOutputTokens: 2048,
-          } 
-        }),
+        body: requestBody,
       }
     );
 
@@ -99,7 +130,7 @@ Deno.serve(async (req: Request) => {
       console.error(`Gemini API Error: ${response.status} - ${errText}`);
       return new Response(
         JSON.stringify({ error: "Gemini API failure", details: errText }), 
-        { status: 500, headers: corsHeaders }
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -112,11 +143,11 @@ Deno.serve(async (req: Request) => {
         model: GEMINI_MODEL,
         usage: data.usageMetadata 
       }),
-      { headers: corsHeaders }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
   } catch (error) {
     console.error("Critical Proxy Error:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
+    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 });

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -35,8 +36,8 @@ class _AppShellState extends ConsumerState<AppShell> {
           final now = DateTime.now();
           if (_lastBackPress != null &&
               now.difference(_lastBackPress!) < const Duration(seconds: 2)) {
-            // Actually exit
-            Navigator.of(context).maybePop();
+            // Actually exit the app
+            SystemNavigator.pop();
             return;
           }
           _lastBackPress = now;

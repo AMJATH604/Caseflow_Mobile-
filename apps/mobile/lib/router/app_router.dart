@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../main.dart'; // Import rootNavigatorKey
 import '../pages/app_shell.dart';
 import '../pages/dashboard_screen.dart';
 import '../pages/cases_screen.dart';
@@ -26,6 +27,7 @@ import '../pages/commission_detail_screen.dart';
 import '../pages/ai_chat_screen.dart';
 import '../pages/caveats_screen.dart';
 import '../pages/legal_pulse_screen.dart';
+import '../pages/chambers_chat_screen.dart';
 
 
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -44,7 +46,10 @@ class GoRouterRefreshStream extends ChangeNotifier {
   }
 }
 
+
+
 final appRouter = GoRouter(
+  navigatorKey: rootNavigatorKey,
   initialLocation: '/splash',
   refreshListenable: GoRouterRefreshStream(Supabase.instance.client.auth.onAuthStateChange),
   redirect: (context, state) {
@@ -159,6 +164,10 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/legal-pulse',
           builder: (context, state) => const LegalPulseScreen(),
+        ),
+        GoRoute(
+          path: '/chambers-chat',
+          builder: (context, state) => const ChambersChatScreen(),
         ),
       ],
     ),

@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/models.dart';
 import '../models/case_dossier_models.dart';
 import 'fcm_service.dart';
+import 'offline_cache_service.dart';
 import 'repositories/base_repository.dart';
 import 'repositories/case_repository.dart';
 import 'repositories/client_repository.dart';
@@ -50,6 +51,7 @@ class SupabaseService {
   static Future<void> signOut() async {
     await FcmService().removeToken();
     BaseRepository.invalidateProfileCache();
+    await OfflineCacheService.clearAll(); // Clear offline cache on logout
     await client.auth.signOut();
   }
 
@@ -232,6 +234,10 @@ class SupabaseService {
 
     final int activeCount =
         casesList.where((c) => c['status'] == 'active').length;
+    final int disposedCount =
+        casesList.where((c) => c['status'] == 'disposed').length;
+    final int dismissedCount =
+        casesList.where((c) => c['status'] == 'dismissed' || c['status'] == 'closed').length;
 
     // Step 2: Parallel fetch — was serial before, now 3x faster
     final results = await Future.wait([
@@ -252,7 +258,14 @@ class SupabaseService {
           .inFilter('case_id', visibleCaseIds)
           .order('created_at', ascending: false)
           .limit(5),
+      client
+          .from('payments')
+          .select('id, balance_amount')
+          .gt('balance_amount', 0)
+          .inFilter('case_id', visibleCaseIds),
     ]);
+
+    final pendingPayments = results[4] as List;
 
     return {
       'activeCasesCount': activeCount,
@@ -260,6 +273,9 @@ class SupabaseService {
       'upcomingHearingsCount': (results[0] as List).length,
       'filingsCount': (results[1] as List).length,
       'clientsCount': (results[2] as List).length,
+      'disposedCasesCount': disposedCount,
+      'dismissedCasesCount': dismissedCount,
+      'pendingPaymentsCount': pendingPayments.length,
       'todayHearings': (results[3] as List)
           .map((json) => Hearing.fromJson(json))
           .toList(),

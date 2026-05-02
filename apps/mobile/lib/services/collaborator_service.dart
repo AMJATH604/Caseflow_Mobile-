@@ -50,11 +50,11 @@ class CollaboratorService {
     }).eq('id', invitationId);
   }
 
-  /// Fetches collaborators for a specific case.
+  /// Fetches collaborators for a specific case (includes who shared it).
   static Future<List<Map<String, dynamic>>> fetchCaseCollaborators(String caseId) async {
     final response = await _client
         .from('case_collaborations')
-        .select('*, profiles:collaborator_id(full_name, email)')
+        .select('*, profiles:collaborator_id(full_name, email), owner:owner_id(full_name, email)')
         .eq('case_id', caseId);
         
     return List<Map<String, dynamic>>.from(response);

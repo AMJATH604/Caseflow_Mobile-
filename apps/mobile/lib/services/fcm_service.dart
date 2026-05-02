@@ -1,6 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import '../main.dart'; // For rootNavigatorKey
 
 /// Handles Firebase Cloud Messaging (FCM) for server-side push notifications.
 /// Manages device token registration, refresh, and removal.
@@ -90,9 +92,20 @@ class FcmService {
       debugPrint('FCM: ✅ Token refreshed and stored');
     });
 
-    // Handle foreground messages
+    // Handle foreground messages — show in-app notification banner
     FirebaseMessaging.onMessage.listen((message) {
       debugPrint('FCM: Foreground message: ${message.notification?.title}');
+      final title = message.notification?.title;
+      final body = message.notification?.body;
+      final data = message.data;
+
+      if (title != null) {
+        _showInAppNotification(
+          title: title,
+          body: body ?? '',
+          data: data,
+        );
+      }
     });
 
     // Handle background/terminated tap
@@ -197,5 +210,206 @@ class FcmService {
   /// Handle when user taps on a notification.
   void _handleMessageTap(RemoteMessage message) {
     debugPrint('FCM: Message tap: ${message.data}');
+    // Future: deep-link to specific chat/case based on message.data
+  }
+
+  // ─── In-App Notification Banner ─────────────────────────────
+  /// Shows a WhatsApp-style notification banner at the top of the screen
+  /// when a message arrives while the app is in the foreground.
+  static OverlayEntry? _currentOverlay;
+
+  void _showInAppNotification({
+    required String title,
+    required String body,
+    Map<String, dynamic>? data,
+  }) {
+    final ctx = rootNavigatorKey.currentContext;
+    if (ctx == null || !ctx.mounted) return;
+
+    final overlay = Overlay.of(ctx);
+
+    // Remove existing notification if any
+    _currentOverlay?.remove();
+    _currentOverlay = null;
+
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (context) => _NotificationBanner(
+        title: title,
+        body: body,
+        channelContext: data?['channel'] ?? '',
+        onDismiss: () {
+          entry.remove();
+          if (_currentOverlay == entry) _currentOverlay = null;
+        },
+      ),
+    );
+
+    _currentOverlay = entry;
+    overlay.insert(entry);
+
+    // Auto-dismiss after 4 seconds
+    Future.delayed(const Duration(seconds: 4), () {
+      if (_currentOverlay == entry) {
+        entry.remove();
+        _currentOverlay = null;
+      }
+    });
   }
 }
+
+/// A WhatsApp-style notification banner widget with slide-in animation.
+class _NotificationBanner extends StatefulWidget {
+  final String title;
+  final String body;
+  final String channelContext;
+  final VoidCallback onDismiss;
+
+  const _NotificationBanner({
+    required this.title,
+    required this.body,
+    required this.channelContext,
+    required this.onDismiss,
+  });
+
+  @override
+  State<_NotificationBanner> createState() => _NotificationBannerState();
+}
+
+class _NotificationBannerState extends State<_NotificationBanner>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, -1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    ));
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final topPadding = MediaQuery.of(context).padding.top;
+
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: GestureDetector(
+          onTap: widget.onDismiss,
+          onVerticalDragEnd: (details) {
+            if (details.primaryVelocity != null && details.primaryVelocity! < 0) {
+              widget.onDismiss();
+            }
+          },
+          child: Container(
+            margin: EdgeInsets.only(top: topPadding, left: 8, right: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E293B) : Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // App icon
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.chat_bubble_rounded,
+                      color: Colors.white, size: 20),
+                ),
+                const SizedBox(width: 12),
+                // Text content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.title,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (widget.channelContext.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                widget.channelContext,
+                                style: const TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF6366F1),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        widget.body,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+

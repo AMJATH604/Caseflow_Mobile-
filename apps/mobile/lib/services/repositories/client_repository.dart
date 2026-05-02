@@ -16,7 +16,7 @@ class ClientRepository {
       userField: 'created_by',
     );
 
-    var query = _client.from('clients').select().or(orFilter);
+    var query = _client.from('clients').select('*, cases(id)').or(orFilter);
 
     // Apply pagination and ordering in a single chain to avoid type mismatch
     final List response;

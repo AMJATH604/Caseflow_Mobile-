@@ -70,6 +70,28 @@ export default function BareActs() {
         }
     };
 
+    const updatePdf = async (act: any, file: File) => {
+        setUploading(true);
+        const fileName = `${act.short_title}_${Date.now()}.pdf`;
+        const { error: uploadError } = await supabase.storage.from("bare_acts").upload(fileName, file);
+        if (uploadError) {
+            toast.error("PDF Upload Failed: " + uploadError.message);
+            setUploading(false);
+            return;
+        }
+        const { data: urlData } = supabase.storage.from("bare_acts").getPublicUrl(fileName);
+        const pdf_url = urlData.publicUrl;
+
+        const { error } = await supabase.from("bare_acts").update({ pdf_url }).eq("id", act.id);
+        if (error) {
+            toast.error("Failed to update act: " + error.message);
+        } else {
+            toast.success("PDF attached successfully");
+            fetchActs();
+        }
+        setUploading(false);
+    };
+
     const deleteAct = async (id: string) => {
         if (!confirm("Are you sure? This will delete all sections under this act.")) return;
         const { error } = await supabase.from("bare_acts").delete().eq("id", id);
@@ -224,6 +246,15 @@ export default function BareActs() {
                                                     >
                                                         <File className="h-3.5 w-3.5" />
                                                     </Button>
+                                                )}
+                                                {!act.pdf_url && (
+                                                    <label className="cursor-pointer inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-blue-100 bg-transparent hover:bg-blue-50 text-blue-600 h-9 px-3">
+                                                        <input type="file" accept=".pdf" className="hidden" onChange={(e) => {
+                                                            if (e.target.files?.[0]) updatePdf(act, e.target.files[0]);
+                                                        }} />
+                                                        <Upload className="h-3.5 w-3.5 mr-1" />
+                                                        Attach PDF
+                                                    </label>
                                                 )}
                                                 <Button
                                                     variant="outline"

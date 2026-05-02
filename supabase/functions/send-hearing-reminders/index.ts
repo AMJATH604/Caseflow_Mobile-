@@ -185,6 +185,12 @@ Deno.serve(async (req: Request) => {
       .in("case_id", caseIds)
       .eq("status", "accepted");
 
+    // Fetch all invited firm members (accepted status)
+    const { data: invitedFirmMembers } = await supabase.from("firm_members")
+      .select("member_id, owner_id")
+      .in("owner_id", firmIds)
+      .eq("status", "accepted");
+
     // Build map of hearing_id -> array of user_ids who should get notified
     const hearingUserMap: Record<string, string[]> = {};
     const allUniqueUsers = new Set<string>();
@@ -203,6 +209,13 @@ Deno.serve(async (req: Request) => {
       collaborations?.forEach((col: any) => {
         if (col.case_id === h.case_id && col.collaborator_id) uSet.add(col.collaborator_id);
       });
+
+      // Add invited firm members
+      if (h.cases?.firm_id) {
+        invitedFirmMembers?.forEach((m: any) => {
+          if (m.owner_id === h.cases.firm_id && m.member_id) uSet.add(m.member_id);
+        });
+      }
       
       const usersForThisHearing = Array.from(uSet);
       hearingUserMap[h.id] = usersForThisHearing;
@@ -263,7 +276,7 @@ Deno.serve(async (req: Request) => {
     let failCount = 0;
     const errors: string[] = [];
 
-    console.log(`[${executionId}] Sending complete. Sent: ${sentCount}, Failed: ${failCount}`);
+    console.log(`[${executionId}] Starting delivery for ${hearings.length} hearings to ${userIds.length} users...`);
     for (const hearing of hearings) {
       const targetUserIds = hearingUserMap[hearing.id] || [];
       

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/models.dart';
-import '../../models/case_dossier_models.dart';
+
 import '../../services/collaborator_service.dart';
 import '../../services/firm_service.dart';
 import '../../services/providers.dart';
@@ -107,27 +107,106 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
       future: CollaboratorService.fetchCaseCollaborators(widget.caseId),
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data!.isEmpty) return const SizedBox();
+        final profile = ref.watch(userProfileProvider).value;
+        final isOwner = profile != null && (profile.id == widget.caseData.createdBy);
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text("COLLABORATORS", style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Color(0xFF64748B), letterSpacing: 1)),
             const SizedBox(height: 8),
-            ...snapshot.data!.map((c) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  const Icon(Icons.person_outline_rounded, size: 14, color: Color(0xFF94A3B8)),
-                  const SizedBox(width: 8),
-                  Text(c['profiles']?['full_name'] ?? c['collaborator_email'], style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(color: (c['status'] == 'accepted' ? Colors.green : Colors.orange).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
-                    child: Text(c['status'].toUpperCase(), style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: c['status'] == 'accepted' ? Colors.green : Colors.orange)),
-                  ),
-                ],
-              ),
-            )),
+            ...snapshot.data!.map((c) {
+              final collaboratorName = c['profiles']?['full_name'] ?? c['collaborator_email'];
+              final ownerName = c['owner']?['full_name'] ?? 'Unknown';
+              final createdAt = c['created_at'] != null
+                  ? DateTime.tryParse(c['created_at'])
+                  : null;
+              final dateStr = createdAt != null
+                  ? '${createdAt.day}/${createdAt.month}/${createdAt.year}'
+                  : '';
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 32, height: 32,
+                      decoration: BoxDecoration(
+                        color: AppTheme.accent.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.person_outline_rounded, size: 16, color: AppTheme.accent),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(collaboratorName, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
+                          const SizedBox(height: 2),
+                          Text(
+                            "Shared by $ownerName${dateStr.isNotEmpty ? ' · $dateStr' : ''}",
+                            style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFF94A3B8)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: (c['status'] == 'accepted' ? Colors.green : Colors.orange).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        (c['status'] ?? 'pending').toString().toUpperCase(),
+                        style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: c['status'] == 'accepted' ? Colors.green : Colors.orange),
+                      ),
+                    ),
+                    if (isOwner) ...[
+                      const SizedBox(width: 4),
+                      InkWell(
+                        onTap: () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text("Revoke Access?"),
+                              content: Text("Remove $collaboratorName from this case?"),
+                              actions: [
+                                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Cancel")),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx, true),
+                                  child: const Text("Revoke", style: TextStyle(color: Colors.red)),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirm == true) {
+                            await CollaboratorService.deleteCollaboration(c['id']);
+                            if (mounted) {
+                              setState(() {}); // Rebuild to refresh list
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Access revoked")),
+                              );
+                            }
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(6),
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Icon(Icons.close_rounded, size: 16, color: Colors.red.withValues(alpha: 0.5)),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              );
+            }),
           ],
         );
       },

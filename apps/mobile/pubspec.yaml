@@ -1,7 +1,7 @@
 name: caseflow
 description: CaseFlow - Legal Case Management App
 publish_to: 'none'
-version: 1.4.1+8
+version: 1.6.0+15
 
 environment:
   sdk: ^3.7.0
@@ -9,6 +9,8 @@ environment:
 
 dependencies:
   flutter:
+    sdk: flutter
+  flutter_localizations:
     sdk: flutter
   cupertino_icons: ^1.0.8
 
@@ -24,7 +26,7 @@ dependencies:
 
   # UI Tools
   shimmer: ^3.0.0
-  intl: ^0.19.0
+  intl: ^0.20.2
   google_fonts: ^6.2.1
   flutter_svg: ^2.0.17
   cached_network_image: ^3.4.1
@@ -49,12 +51,15 @@ dependencies:
   path: ^1.9.1
   crypto: ^3.0.6
   dart_jsonwebtoken: ^2.1.2
-  syncfusion_flutter_pdf: ^27.2.5
+  syncfusion_flutter_pdf: ^33.2.4
   google_mlkit_text_recognition: ^0.14.0
   pdfx: ^2.7.0
   google_sign_in: ^7.2.0
   firebase_core: ^3.13.0
   firebase_messaging: ^15.2.5
+  firebase_crashlytics: ^4.3.5
+  firebase_analytics: ^11.4.5
+  sqflite: ^2.4.2
   geolocator: ^13.0.2
   record: ^6.1.1
   audioplayers: ^6.1.0

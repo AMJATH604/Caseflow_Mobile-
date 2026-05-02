@@ -28,10 +28,13 @@ class RetryHelper {
           rethrow;
         }
         
-        // If it's an auth-related timeout, try to recover the session
+        // If it's an auth-related error, try to recover the session
         if (_isAuthError(e)) {
           await _tryRecoverSession();
         }
+        
+        // If it's a network error but NOT specifically auth, 
+        // we just wait for the backoff delay below.
         
         // Exponential backoff: 1s, 2s, 4s...
         final delay = initialDelay * (1 << (attempt - 1));
@@ -40,13 +43,20 @@ class RetryHelper {
     }
   }
   
-  /// Check if the error is an auth-related timeout
+  /// Check if the error is an auth-related timeout or network issue
   static bool _isAuthError(Object e) {
     final errorStr = e.toString().toLowerCase();
     return errorStr.contains('authretryablefetchexception') ||
-           errorStr.contains('refresh_token') ||
+           errorStr.contains('refresh_token');
+  }
+
+  /// Check if it's a connectivity error (DNS, Socket, etc)
+  static bool _isNetworkError(Object e) {
+    final errorStr = e.toString().toLowerCase();
+    return errorStr.contains('socketexception') ||
+           errorStr.contains('failed host lookup') ||
            errorStr.contains('connection timed out') ||
-           errorStr.contains('socketexception');
+           errorStr.contains('handshake');
   }
   
   /// Attempt to recover the session by refreshing it
