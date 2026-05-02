@@ -46,6 +46,13 @@ jobs:
         working-directory: apps/mobile
         run: flutter analyze --no-fatal-infos --no-fatal-warnings || true
 
+      - name: Clear Gradle Cache and Disable Daemon
+        run: |
+          rm -rf ~/.gradle
+          mkdir -p ~/.gradle
+          echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+          echo "org.gradle.jvmargs=-Xmx4096m" >> ~/.gradle/gradle.properties
+
       - name: Build Release APK
         working-directory: apps/mobile
         run: |
