@@ -9,6 +9,7 @@ import '../components/citizen_bottom_nav.dart';
 import '../components/app_sidebar.dart';
 import '../components/global_search_delegate.dart';
 import '../services/providers.dart';
+import '../services/supabase_service.dart';
 
 class AppShell extends ConsumerStatefulWidget {
   final Widget child;
