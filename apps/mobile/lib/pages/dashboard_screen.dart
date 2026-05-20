@@ -16,6 +16,7 @@ import '../components/dashboard_court_diary.dart';
 import '../components/daily_board_widget.dart';
 import '../components/error_state_widget.dart';
 import '../services/analytics_service.dart';
+import 'citizen_home_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -24,10 +25,26 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Track dashboard view
     AnalyticsService.logScreenView('Dashboard');
-    final isMobile = MediaQuery.of(context).size.width < 768;
-    final statsAsync = ref.watch(dashboardStatsProvider);
+    
     final profileAsync = ref.watch(userProfileProvider);
     final profile = profileAsync.valueOrNull;
+    
+    // If the profile is loading, show a general loading indicator
+    if (profileAsync.isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: AppTheme.accent),
+        ),
+      );
+    }
+    
+    // If logged in user is a citizen, show the Citizen Home Screen directly
+    if (profile != null && profile.isCitizen) {
+      return const CitizenHomeScreen();
+    }
+
+    final isMobile = MediaQuery.of(context).size.width < 768;
+    final statsAsync = ref.watch(dashboardStatsProvider);
     final firstName = profile?.fullName?.split(' ').first;
     final userName = firstName != null && firstName.isNotEmpty 
         ? "Advocate $firstName" 

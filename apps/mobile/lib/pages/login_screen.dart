@@ -8,7 +8,8 @@ import '../services/fcm_service.dart';
 import '../models/geo_data.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  final String initialRole;
+  const LoginScreen({super.key, this.initialRole = 'advocate'});
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -31,6 +32,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   int _signupStep = 0; // 0 = Credentials, 1 = Professional, 2 = Location
   String? _selectedState;
   String? _selectedDistrict;
+  late String _userRole; // 'advocate' or 'citizen'
 
   // Animations
   late AnimationController _bgController;
@@ -53,6 +55,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   void initState() {
     super.initState();
+    _userRole = widget.initialRole;
 
     _bgController = AnimationController(
       vsync: this,
@@ -200,11 +203,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           data: {
             'full_name': _nameController.text.trim(),
             'mobile_number': _mobileController.text.trim(),
-            'registration_number': _regNoController.text.trim(),
+            'registration_number': _userRole == 'advocate' ? _regNoController.text.trim() : '',
             'practice_state': _selectedState,
             'practice_district': _selectedDistrict,
-            'office_address': _addressController.text.trim(),
-            'is_public_directory_enabled': true,
+            'office_address': _userRole == 'advocate' ? _addressController.text.trim() : '',
+            'is_public_directory_enabled': _userRole == 'advocate',
+            'user_role': _userRole,
           },
         ).timeout(const Duration(seconds: 15));
 
@@ -696,16 +700,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           },
           child: _signupStep == 0
               ? _buildStep0()
-              : _signupStep == 1
-                  ? _buildStep1()
-                  : _buildStep2(),
+              : (_userRole == 'citizen')
+                  ? _buildCitizenStep1()
+                  : _signupStep == 1
+                      ? _buildStep1()
+                      : _buildStep2(),
         ),
       ],
     );
   }
 
   Widget _buildStepIndicator() {
-    final steps = ["Account", "Professional", "Location"];
+    final steps = _userRole == 'citizen'
+        ? ["Account", "Location"]
+        : ["Account", "Professional", "Location"];
     return Row(
       children: List.generate(steps.length, (i) {
         final isActive = _signupStep == i;
@@ -929,6 +937,99 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   onPressed: () {
                     if (_step1FormKey.currentState!.validate()) {
                       setState(() => _signupStep = 2);
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Citizen Step 1 - Simplified: Name, Mobile, State, District → Submit
+  Widget _buildCitizenStep1() {
+    return Form(
+      key: _step2FormKey, // reuse step2 form key
+      child: Column(
+        key: const ValueKey('citizen_step1'),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildStepTitle("Your Details", "Tell us about yourself"),
+          const SizedBox(height: 20),
+
+          _buildTextField(
+            controller: _nameController,
+            label: "Full Name",
+            hint: "Enter your full name",
+            icon: Icons.person_outlined,
+            validator: (v) => (v == null || v.trim().isEmpty) ? "Enter your name" : null,
+          ),
+          const SizedBox(height: 16),
+
+          _buildTextField(
+            controller: _mobileController,
+            label: "Mobile Number",
+            hint: "10-digit mobile number",
+            icon: Icons.phone_android_outlined,
+            keyboardType: TextInputType.phone,
+            validator: (v) {
+              if (v == null || v.trim().isEmpty) return "Enter mobile number";
+              if (v.trim().length != 10) return "Enter a valid 10-digit number";
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+
+          // State dropdown
+          _buildDropdown(
+            label: "State",
+            value: _selectedState,
+            icon: Icons.location_on_outlined,
+            items: stateDistricts.keys.toList(),
+            onChanged: (val) {
+              setState(() {
+                _selectedState = val;
+                _selectedDistrict = null;
+              });
+            },
+          ),
+          const SizedBox(height: 16),
+
+          // District dropdown
+          _buildDropdown(
+            label: "District",
+            value: _selectedDistrict,
+            icon: Icons.my_location_outlined,
+            items: _selectedState != null
+                ? stateDistricts[_selectedState]!
+                : <String>[],
+            onChanged: (val) => setState(() => _selectedDistrict = val),
+          ),
+
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: _buildSecondaryButton(
+                  label: "Back",
+                  onPressed: () => setState(() => _signupStep = 0),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: _buildPrimaryButton(
+                  label: "Create Account",
+                  icon: Icons.check_circle_outline_rounded,
+                  onPressed: () {
+                    if (_step2FormKey.currentState!.validate() &&
+                        _selectedState != null &&
+                        _selectedDistrict != null) {
+                      _handleSignUp();
+                    } else if (_selectedState == null || _selectedDistrict == null) {
+                      _showError("Please select your state and district.");
                     }
                   },
                 ),

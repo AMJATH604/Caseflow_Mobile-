@@ -5,13 +5,16 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../components/mobile_bottom_nav.dart';
+import '../components/citizen_bottom_nav.dart';
 import '../components/app_sidebar.dart';
 import '../components/global_search_delegate.dart';
+import '../services/providers.dart';
 
 class AppShell extends ConsumerStatefulWidget {
   final Widget child;
+  final bool isGuest;
 
-  const AppShell({super.key, required this.child});
+  const AppShell({super.key, required this.child, this.isGuest = false});
 
   @override
   ConsumerState<AppShell> createState() => _AppShellState();
@@ -23,6 +26,20 @@ class _AppShellState extends ConsumerState<AppShell> {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 768;
+    
+    // Determine if user is a citizen (guest or logged-in citizen)
+    final bool isCitizenMode;
+    if (widget.isGuest) {
+      isCitizenMode = true;
+    } else {
+      final profileAsync = ref.watch(userProfileProvider);
+      isCitizenMode = profileAsync.whenOrNull(
+        data: (profile) => profile.isCitizen,
+      ) ?? false;
+    }
+    
+    final appTitle = isCitizenMode ? "CaseFlow" : "CaseFlow";
+    final homeRoute = widget.isGuest ? '/guest-home' : (isCitizenMode ? '/citizen-home' : '/');
 
     return PopScope(
       canPop: false,
@@ -32,7 +49,7 @@ class _AppShellState extends ConsumerState<AppShell> {
         final location = GoRouterState.of(context).matchedLocation;
 
         // If on dashboard, double-tap to exit
-        if (location == '/') {
+        if (location == '/' || location == '/citizen-home' || location == '/guest-home') {
           final now = DateTime.now();
           if (_lastBackPress != null &&
               now.difference(_lastBackPress!) < const Duration(seconds: 2)) {
@@ -60,8 +77,8 @@ class _AppShellState extends ConsumerState<AppShell> {
           return;
         }
 
-        // For any sub-page, navigate back to dashboard
-        context.go('/');
+        // For any sub-page, navigate back to home
+        context.go(homeRoute);
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -80,13 +97,31 @@ class _AppShellState extends ConsumerState<AppShell> {
                   ),
                 ),
                 actions: [
-                  IconButton(
-                    icon: const Icon(Icons.search_rounded, color: Color(0xFF6B7280)),
-                    onPressed: () {
-                      showSearch(context: context, delegate: GlobalSearchDelegate());
-                    },
-                  ),
-                  const SizedBox(width: 4),
+                  if (!widget.isGuest) ...[
+                    if (isCitizenMode)
+                      IconButton(
+                        icon: const Icon(Icons.logout_rounded, color: Color(0xFFE11D48)),
+                        tooltip: "Sign Out",
+                        onPressed: () async {
+                          await SupabaseService.signOut();
+                        },
+                      )
+                    else
+                      IconButton(
+                        icon: const Icon(Icons.search_rounded, color: Color(0xFF6B7280)),
+                        onPressed: () {
+                          showSearch(context: context, delegate: GlobalSearchDelegate());
+                        },
+                      ),
+                    const SizedBox(width: 4),
+                  ] else ...[
+                    TextButton.icon(
+                      onPressed: () => context.go('/role-selection'),
+                      icon: const Icon(Icons.login_rounded, size: 16, color: Color(0xFF10B981)),
+                      label: Text("Sign Up", style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF10B981))),
+                    ),
+                    const SizedBox(width: 4),
+                  ],
                 ],
                 bottom: PreferredSize(
                   preferredSize: const Size.fromHeight(1),
@@ -96,7 +131,7 @@ class _AppShellState extends ConsumerState<AppShell> {
             : null,
         body: Row(
           children: [
-            if (!isMobile) const AppSidebar(),
+            if (!isMobile && !isCitizenMode) const AppSidebar(),
             Expanded(
               child: Column(
                 children: [
@@ -156,7 +191,9 @@ class _AppShellState extends ConsumerState<AppShell> {
             ),
           ],
         ),
-        bottomNavigationBar: isMobile ? const MobileBottomNav() : null,
+        bottomNavigationBar: isMobile 
+            ? (isCitizenMode ? const CitizenBottomNav() : const MobileBottomNav()) 
+            : null,
       ),
     );
   }

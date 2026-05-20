@@ -289,12 +289,12 @@ class _SplashScreenState extends State<SplashScreen>
                         builder: (context, _) => Opacity(
                           opacity: _taglineOpacity.value,
                           child: Text(
-                            "Your Practice, Perfected",
+                            "Empowering Justice, Streamlining Law",
                             style: GoogleFonts.inter(
-                              fontSize: 15,
+                              fontSize: 14,
                               fontWeight: FontWeight.w300,
                               color: const Color(0xFFD4AF37).withValues(alpha: 0.9),
-                              letterSpacing: 3,
+                              letterSpacing: 2,
                             ),
                           ),
                         ),

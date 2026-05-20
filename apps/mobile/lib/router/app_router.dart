@@ -19,6 +19,10 @@ import '../pages/notifications_screen.dart';
 import '../pages/login_screen.dart';
 import '../pages/splash_screen.dart';
 import '../pages/onboarding_screen.dart';
+import '../pages/role_selection_screen.dart';
+import '../pages/citizen_home_screen.dart';
+import '../pages/citizen_tools_screen.dart';
+import '../pages/track_case_screen.dart';
 import '../pages/collaborator_invitations_screen.dart';
 import '../pages/firm_management_screen.dart';
 import '../pages/tools/advocate_directory_screen.dart';
@@ -46,6 +50,11 @@ class GoRouterRefreshStream extends ChangeNotifier {
   }
 }
 
+/// Tracks whether the app is in guest mode (browsing without login).
+/// This is set by RoleSelectionScreen and checked by the router redirect.
+class GuestModeService {
+  static bool isGuestMode = false;
+}
 
 
 final appRouter = GoRouter(
@@ -57,12 +66,19 @@ final appRouter = GoRouter(
     final isLoggingIn = state.matchedLocation == '/login';
     final isSplash = state.matchedLocation == '/splash';
     final isOnboarding = state.matchedLocation == '/onboarding';
+    final isRoleSelection = state.matchedLocation == '/role-selection';
+    final isGuestRoute = state.matchedLocation.startsWith('/guest');
 
-    // Allow splash and onboarding screens to run without redirect
-    if (isSplash || isOnboarding) return null;
+    // Allow splash, onboarding, and role selection screens without redirect
+    if (isSplash || isOnboarding || isRoleSelection) return null;
+
+    // Allow guest mode routes without authentication
+    if (GuestModeService.isGuestMode && isGuestRoute) return null;
 
     if (session == null) {
-      return isLoggingIn ? null : '/login';
+      // If in guest mode, allow guest routes
+      if (GuestModeService.isGuestMode && isGuestRoute) return null;
+      return isLoggingIn ? null : '/role-selection';
     }
 
     if (isLoggingIn) {
@@ -81,10 +97,40 @@ final appRouter = GoRouter(
       builder: (context, state) => const OnboardingScreen(),
     ),
     GoRoute(
+      path: '/role-selection',
+      builder: (context, state) => const RoleSelectionScreen(),
+    ),
+    GoRoute(
       path: '/login',
-      builder: (context, state) => const LoginScreen(),
+      builder: (context, state) {
+        final role = state.uri.queryParameters['role'] ?? 'advocate';
+        return LoginScreen(initialRole: role);
+      },
     ),
 
+    // ─── Guest Mode Routes (no auth required) ────────────────
+    ShellRoute(
+      builder: (context, state, child) => AppShell(isGuest: true, child: child),
+      routes: [
+        GoRoute(
+          path: '/guest-home',
+          builder: (context, state) => const CitizenHomeScreen(),
+        ),
+        GoRoute(
+          path: '/guest-tools',
+          builder: (context, state) {
+            final toolId = state.uri.queryParameters['tool'];
+            return CitizenToolsScreen(initialToolId: toolId);
+          },
+        ),
+        GoRoute(
+          path: '/guest-track-case',
+          builder: (context, state) => const TrackCaseScreen(),
+        ),
+      ],
+    ),
+
+    // ─── Authenticated Routes ────────────────────────────────
     ShellRoute(
       builder: (context, state, child) => AppShell(child: child),
       routes: [
@@ -132,7 +178,6 @@ final appRouter = GoRouter(
           path: '/notifications',
           builder: (context, state) => const NotificationsScreen(),
         ),
-
         GoRoute(
           path: '/firm',
           builder: (context, state) => const FirmManagementScreen(),
@@ -168,6 +213,22 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/chambers-chat',
           builder: (context, state) => const ChambersChatScreen(),
+        ),
+        // ─── Citizen-specific authenticated routes ─────────
+        GoRoute(
+          path: '/citizen-home',
+          builder: (context, state) => const CitizenHomeScreen(),
+        ),
+        GoRoute(
+          path: '/citizen-tools',
+          builder: (context, state) {
+            final toolId = state.uri.queryParameters['tool'];
+            return CitizenToolsScreen(initialToolId: toolId);
+          },
+        ),
+        GoRoute(
+          path: '/track-case',
+          builder: (context, state) => const TrackCaseScreen(),
         ),
       ],
     ),

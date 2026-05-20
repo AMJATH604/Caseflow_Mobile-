@@ -504,6 +504,7 @@ class UserProfile {
   final String id;
   final String? fullName;
   final String subscriptionTier;
+  final String userRole; // 'advocate' or 'citizen'
   final DateTime? trialEndsAt;
   final DateTime? currentPeriodEnd;
   final String? firmId;
@@ -521,6 +522,7 @@ class UserProfile {
     required this.id,
     this.fullName,
     this.subscriptionTier = 'free',
+    this.userRole = 'advocate',
     this.trialEndsAt,
     this.currentPeriodEnd,
     this.firmId,
@@ -537,6 +539,7 @@ class UserProfile {
         id: json['id'] ?? '',
         fullName: json['full_name'],
         subscriptionTier: json['subscription_tier'] ?? 'free',
+        userRole: json['user_role'] ?? 'advocate',
         trialEndsAt: json['trial_ends_at'] != null ? DateTime.parse(json['trial_ends_at']) : null,
         currentPeriodEnd: json['current_period_end'] != null ? DateTime.parse(json['current_period_end']) : null,
         firmId: json['firm_id'],
@@ -551,6 +554,10 @@ class UserProfile {
 
   /// Feature gating: Based on subscription tier from the database.
   /// Respects trial periods and subscription expiration.
+  /// Role-based access helpers
+  bool get isAdvocate => userRole == 'advocate';
+  bool get isCitizen => userRole == 'citizen';
+
   bool get isPro => true; // Unlocked: Free for all mode enabled
 
   bool get isBusiness => true; // Unlocked: Free for all mode enabled
@@ -564,6 +571,7 @@ class UserProfile {
     'id': id,
     'full_name': fullName,
     'subscription_tier': subscriptionTier,
+    'user_role': userRole,
     'trial_ends_at': trialEndsAt?.toIso8601String(),
     'current_period_end': currentPeriodEnd?.toIso8601String(),
     'firm_id': firmId,

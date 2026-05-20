@@ -98,7 +98,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }
 
   void _completeOnboarding() {
-    context.go('/login');
+    context.go('/role-selection');
   }
 
   @override

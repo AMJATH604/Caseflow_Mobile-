@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app_constants.dart';
+import 'repositories/base_repository.dart';
 
 class ChatMessage {
   final String role; // 'user' or 'model'
@@ -37,7 +38,7 @@ class ChatMessage {
 /// **Multimodal:** Supports image analysis via Gemini Vision.
 /// **Persistence:** Chat history is saved to Supabase for cross-session continuity.
 class GeminiService {
-  static const String _systemPrompt = '''You are **CaseFlow AI** — an expert Indian legal assistant built into the CaseFlow legal practice management app.
+  static const String _advocateSystemPrompt = '''You are **CaseFlow AI** — an expert Indian legal assistant built into the CaseFlow legal practice management app.
 
 Your expertise covers:
 • Indian Penal Code (IPC) / Bharatiya Nyaya Sanhita (BNS) 2023
@@ -66,6 +67,27 @@ Guidelines:
 8. Format currency in ₹ (Indian Rupees)
 9. Respond in English by default, but support Hindi legal terminology when asked
 10. When analyzing images of legal documents, extract all relevant text and provide legal interpretation''';
+
+  static const String _citizenSystemPrompt = '''You are **CaseFlow AI** — a helpful Indian legal assistant for citizens. 
+
+Your goals:
+1. Explain basic legal rights, definitions, and procedures in simple, layman terms.
+2. Direct citizens to the CaseFlow tools (e.g. Bare Acts, Calculators, Legal Dictionary).
+3. If they enter a CNR number, show them how to track it using the CaseFlow case tracking tool.
+
+CRITICAL DIRECTIVES:
+- Do NOT provide specific, actionable legal advice for a user's personal case.
+- You must always advise the user to consult a professional human advocate for any serious legal representation or specific legal advice.
+- When asked for specific advice, explain that you are an AI assistant and steer them to the **CaseFlow Advocate Directory** (route: `/advocate-directory`) to connect with qualified legal professionals.
+- Do NOT encourage self-representation in complex court cases.
+- Always include a clear disclaimer at the end of your response: "Disclaimer: This information is for educational purposes only. I am an AI, not a lawyer. Please consult a qualified advocate for legal representation."
+
+Guidelines:
+1. Keep explanations very easy to understand (avoid heavy legal jargon, or explain it if used).
+2. Cite general Acts/Sections if helpful, but emphasize that application of law depends on facts.
+3. Use bullet points and structured formatting.
+4. Format currency in ₹ (Indian Rupees).
+5. Respond in English by default, but support Hindi legal terms if asked.''';
 
   final List<ChatMessage> _history = [];
   bool _historyLoaded = false;
@@ -159,6 +181,16 @@ Guidelines:
     _history.add(ChatMessage(role: 'model', text: '', isLoading: true));
 
     try {
+      String activePrompt = _advocateSystemPrompt;
+      try {
+        final profile = await BaseRepository.getCachedProfile();
+        if (profile.isCitizen) {
+          activePrompt = _citizenSystemPrompt;
+        }
+      } catch (_) {
+        activePrompt = _citizenSystemPrompt;
+      }
+
       // Build conversation history for context (last 20 messages)
       final recentHistory = _history.length > 22
           ? _history.sublist(_history.length - 22, _history.length - 1)
@@ -169,14 +201,14 @@ Guidelines:
       // Add system prompt context as first exchange
       historyPayload.add({
         'role': 'user',
-        'parts': [{'text': _systemPrompt}]
+        'parts': [{'text': activePrompt}]
       });
       historyPayload.add({
         'role': 'model',
         'parts': [
           {
             'text':
-                'Understood. I am CaseFlow AI, your expert Indian legal assistant. I will provide accurate legal information with proper citations. How can I help you today?'
+                'Understood. I am CaseFlow AI, your expert Indian legal assistant. How can I help you today?'
           }
         ]
       });
@@ -290,13 +322,23 @@ Guidelines:
     _history.add(ChatMessage(role: 'model', text: '', isLoading: true));
 
     try {
+      String activePrompt = _advocateSystemPrompt;
+      try {
+        final profile = await BaseRepository.getCachedProfile();
+        if (profile.isCitizen) {
+          activePrompt = _citizenSystemPrompt;
+        }
+      } catch (_) {
+        activePrompt = _citizenSystemPrompt;
+      }
+
       // Build conversation history for context
       final recentHistory = _history.length > 22
           ? _history.sublist(_history.length - 22, _history.length - 1)
           : _history.sublist(0, _history.length - 1);
 
       final historyPayload = <Map<String, dynamic>>[];
-      historyPayload.add({'role': 'user', 'parts': [{'text': _systemPrompt}]});
+      historyPayload.add({'role': 'user', 'parts': [{'text': activePrompt}]});
       historyPayload.add({
         'role': 'model',
         'parts': [{'text': 'Understood. I am CaseFlow AI, your expert Indian legal assistant. How can I help you today?'}]

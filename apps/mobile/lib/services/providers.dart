@@ -43,6 +43,11 @@ final userProfileProvider = FutureProvider<UserProfile>((ref) async {
   return RetryHelper.retry(() => SupabaseService.fetchProfile());
 });
 
+final userRoleProvider = Provider<String>((ref) {
+  final profileAsync = ref.watch(userProfileProvider);
+  return profileAsync.valueOrNull?.userRole ?? 'advocate';
+});
+
 // ─── GLOBAL REFRESH TRIGGER ────────────────────────────────────
 // When this counter changes, ALL data providers that watch it
 // will automatically re-fetch fresh data from Supabase.
