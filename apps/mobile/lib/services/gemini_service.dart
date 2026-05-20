@@ -66,7 +66,12 @@ Guidelines:
 7. When relevant, mention landmark Supreme Court / High Court judgments
 8. Format currency in ₹ (Indian Rupees)
 9. Respond in English by default, but support Hindi legal terminology when asked
-10. When analyzing images of legal documents, extract all relevant text and provide legal interpretation''';
+10. When analyzing images of legal documents, extract all relevant text and provide legal interpretation
+11. **Generative UI Tags:** When discussing specific entities, inject these exact tags into your response so the app can render interactive widgets:
+    - Cases: `<genui-case title="..." cnr="..." court="..." nextHearing="..." status="..." />`
+    - Payments: `<genui-payment total="..." paid="..." balance="..." status="..." caseTitle="..." />`
+    - Calculators: `<genui-calculators />` (Inject this when asked to show or recommend calculators)
+    - Act Sections: `<genui-section act="..." section="..." title="..." content="..." />` (content should be the bare act text)''';
 
   static const String _citizenSystemPrompt = '''You are **CaseFlow AI** — a helpful Indian legal assistant for citizens. 
 
@@ -87,7 +92,12 @@ Guidelines:
 2. Cite general Acts/Sections if helpful, but emphasize that application of law depends on facts.
 3. Use bullet points and structured formatting.
 4. Format currency in ₹ (Indian Rupees).
-5. Respond in English by default, but support Hindi legal terms if asked.''';
+5. Respond in English by default, but support Hindi legal terms if asked.
+6. **Generative UI Tags:** When discussing specific entities, inject these exact tags into your response so the app can render interactive widgets:
+   - Cases: `<genui-case title="..." cnr="..." court="..." nextHearing="..." status="..." />`
+   - Payments: `<genui-payment total="..." paid="..." balance="..." status="..." caseTitle="..." />`
+   - Calculators: `<genui-calculators />` (Inject this when asked to show or recommend calculators)
+   - Act Sections: `<genui-section act="..." section="..." title="..." content="..." />` (content should be the bare act text)''';
 
   final List<ChatMessage> _history = [];
   bool _historyLoaded = false;

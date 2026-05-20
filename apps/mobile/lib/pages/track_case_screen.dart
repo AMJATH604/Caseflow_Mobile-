@@ -7,7 +7,8 @@ import 'package:intl/intl.dart';
 import '../services/ecourt_parser_service.dart';
 
 class TrackCaseScreen extends ConsumerStatefulWidget {
-  const TrackCaseScreen({super.key});
+  final String? initialText;
+  const TrackCaseScreen({super.key, this.initialText});
 
   @override
   ConsumerState<TrackCaseScreen> createState() => _TrackCaseScreenState();
@@ -19,6 +20,18 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
   Map<String, dynamic>? _result;
   String? _error;
   final _fmt = DateFormat('dd MMM yyyy');
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialText != null && widget.initialText!.trim().isNotEmpty) {
+      _textController.text = widget.initialText!;
+      // Delaying the auto-search slightly so the UI can build first
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _trackCase();
+      });
+    }
+  }
 
   @override
   void dispose() {

@@ -586,18 +586,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                           ),
                           const SizedBox(height: 8),
                         ],
-                        SelectableText(
-                          msg.text,
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            height: 1.6,
-                            color: isUser
-                                ? Colors.white
-                                : isDark
-                                    ? const Color(0xFFE2E8F0)
-                                    : const Color(0xFF334155),
-                          ),
-                        ),
+                        _buildMessageContent(msg, isUser, isDark),
                         if (!isUser) ...[
                           const SizedBox(height: 8),
                           Row(
@@ -678,6 +667,340 @@ class _AiChatScreenState extends State<AiChatScreen>
                 )),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildMessageContent(ChatMessage msg, bool isUser, bool isDark) {
+    if (isUser) {
+      return SelectableText(
+        msg.text,
+        style: GoogleFonts.inter(
+          fontSize: 14, height: 1.6, color: Colors.white,
+        ),
+      );
+    }
+
+    // Parse Gen UI tags: <genui-([a-z0-9\-]+)([^>]*)\/>
+    final regex = RegExp(r'<genui-([a-z0-9\-]+)\s*([^>]*)\/>');
+    final matches = regex.allMatches(msg.text);
+
+    if (matches.isEmpty) {
+      return SelectableText(
+        msg.text,
+        style: GoogleFonts.inter(
+          fontSize: 14, height: 1.6, color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+        ),
+      );
+    }
+
+    final children = <Widget>[];
+    int lastEnd = 0;
+
+    for (final match in matches) {
+      if (match.start > lastEnd) {
+        final textBefore = msg.text.substring(lastEnd, match.start).trim();
+        if (textBefore.isNotEmpty) {
+          children.add(SelectableText(
+            textBefore,
+            style: GoogleFonts.inter(
+              fontSize: 14, height: 1.6, color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+            ),
+          ));
+          children.add(const SizedBox(height: 12));
+        }
+      }
+
+      final tagType = match.group(1);
+      final attrString = match.group(2) ?? '';
+      final attrs = _parseAttributes(attrString);
+
+      switch (tagType) {
+        case 'case':
+          children.add(_buildGenUiCaseCard(attrs, isDark));
+          break;
+        case 'payment':
+          children.add(_buildGenUiPaymentCard(attrs, isDark));
+          break;
+        case 'calculators':
+          children.add(_buildGenUiCalculatorsCard(isDark));
+          break;
+        case 'section':
+          children.add(_buildGenUiSectionCard(attrs, isDark));
+          break;
+        default:
+          children.add(Text("[Unknown Gen UI Widget: $tagType]", style: TextStyle(color: Colors.red)));
+      }
+
+      children.add(const SizedBox(height: 12));
+      lastEnd = match.end;
+    }
+
+    if (lastEnd < msg.text.length) {
+      final textAfter = msg.text.substring(lastEnd).trim();
+      if (textAfter.isNotEmpty) {
+        children.add(SelectableText(
+          textAfter,
+          style: GoogleFonts.inter(
+            fontSize: 14, height: 1.6, color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+          ),
+        ));
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
+    );
+  }
+
+  Map<String, String> _parseAttributes(String attrString) {
+    final Map<String, String> attrs = {};
+    final regex = RegExp(r'([a-zA-Z0-9_]+)="([^"]*)"');
+    for (final match in regex.allMatches(attrString)) {
+      attrs[match.group(1)!] = match.group(2)!;
+    }
+    return attrs;
+  }
+
+  Widget _buildGenUiCaseCard(Map<String, String> attrs, bool isDark) {
+    final title = attrs['title'] ?? 'Unknown Case';
+    final cnr = attrs['cnr'] ?? 'N/A';
+    final court = attrs['court'] ?? 'Unknown Court';
+    final nextHearing = attrs['nextHearing'] ?? '';
+    final status = attrs['status'] ?? '';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161620) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(color: const Color(0xFF3B82F6).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                child: const Icon(Icons.gavel_rounded, size: 16, color: Color(0xFF3B82F6)),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text("CNR: $cnr", style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))),
+          const SizedBox(height: 4),
+          Text("Court: $court", style: GoogleFonts.inter(fontSize: 12, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                if (cnr != 'N/A') {
+                  context.go('/track-case?text=$cnr');
+                }
+              },
+              icon: const Icon(Icons.search_rounded, size: 14),
+              label: const Text("Track this Case"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF3B82F6),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGenUiPaymentCard(Map<String, String> attrs, bool isDark) {
+    final title = attrs['caseTitle'] ?? 'Payment';
+    final total = attrs['total'] ?? '0';
+    final paid = attrs['paid'] ?? '0';
+    final balance = attrs['balance'] ?? '0';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161620) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                child: const Icon(Icons.currency_rupee_rounded, size: 16, color: Color(0xFF10B981)),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Paid", style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF10B981))),
+                  Text("₹$paid", style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: isDark ? Colors.white : const Color(0xFF0F172A))),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text("Balance", style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFFEF4444))),
+                  Text("₹$balance", style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: isDark ? Colors.white : const Color(0xFF0F172A))),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGenUiCalculatorsCard(bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161620) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Popular Calculators", style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A))),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildCalcChip("Court Fee", Icons.account_balance_rounded, isDark, "court-fee"),
+              _buildCalcChip("Limitation", Icons.timer_rounded, isDark, "limitation"),
+              _buildCalcChip("Maintenance", Icons.family_restroom_rounded, isDark, "maintenance_calculator"),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCalcChip(String label, IconData icon, bool isDark, String toolId) {
+    return InkWell(
+      onTap: () {
+        context.go('/citizen-tools?tool=$toolId');
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: const Color(0xFF6366F1)),
+            const SizedBox(width: 6),
+            Text(label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGenUiSectionCard(Map<String, String> attrs, bool isDark) {
+    final act = attrs['act'] ?? 'Bare Act';
+    final section = attrs['section'] ?? '';
+    final title = attrs['title'] ?? '';
+    final content = attrs['content'] ?? '';
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.menu_book_rounded, size: 14, color: Color(0xFFD4AF37)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    "$act - Section $section",
+                    style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (title.isNotEmpty) ...[
+                  Text(title, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A))),
+                  const SizedBox(height: 8),
+                ],
+                Text(
+                  content,
+                  style: GoogleFonts.inter(fontSize: 13, height: 1.5, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

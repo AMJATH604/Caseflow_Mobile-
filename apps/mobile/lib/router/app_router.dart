@@ -125,7 +125,10 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: '/guest-track-case',
-          builder: (context, state) => const TrackCaseScreen(),
+          builder: (context, state) {
+            final text = state.uri.queryParameters['text'];
+            return TrackCaseScreen(initialText: text);
+          },
         ),
       ],
     ),
@@ -228,7 +231,10 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: '/track-case',
-          builder: (context, state) => const TrackCaseScreen(),
+          builder: (context, state) {
+            final text = state.uri.queryParameters['text'];
+            return TrackCaseScreen(initialText: text);
+          },
         ),
       ],
     ),
