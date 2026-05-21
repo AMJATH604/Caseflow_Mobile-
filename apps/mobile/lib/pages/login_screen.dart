@@ -152,6 +152,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           _passwordController.text.trim(),
         ).timeout(const Duration(seconds: 15));
 
+        // Fetch user profile immediately to perform strict role check
+        final profile = await SupabaseService.fetchProfile();
+        if (profile.userRole != _userRole) {
+          await SupabaseService.signOut();
+          if (mounted) {
+            setState(() => _isLoading = false);
+            final capitalizedDbRole = profile.userRole == 'advocate' ? 'an Advocate' : 'a Citizen';
+            _showError(
+              "This account is registered as $capitalizedDbRole. Please go back and sign in through the correct portal.",
+            );
+          }
+          return;
+        }
+
         ref.invalidate(userProfileProvider);
         await FcmService().initialize();
         if (mounted) setState(() => _isLoading = false);
