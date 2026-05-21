@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as p;
+import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
 import '../services/gemini_service.dart';
 import '../services/analytics_service.dart';
