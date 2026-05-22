@@ -161,6 +161,8 @@ class DiscussionRepository {
     final ext = filePath.split('.').last.toLowerCase();
     if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic'].contains(ext)) {
       return 'image';
+    } else if (['mp4', 'mov', 'avi', 'mkv', '3gp'].contains(ext)) {
+      return 'video';
     } else if (['pdf', 'doc', 'docx', 'xls', 'xlsx'].contains(ext)) {
       return 'document';
     }

@@ -632,7 +632,10 @@ class CaseComment {
   final DateTime createdAt;
   final String? senderName;
   final String? attachmentUrl;
-  final String? attachmentType; // 'image', 'document', 'file'
+  final String? attachmentType; // 'image', 'document', 'file', 'video'
+  final String? replyToId;
+  final String? replyToMessage;
+  final String? replyToSender;
 
   CaseComment({
     required this.id,
@@ -645,6 +648,9 @@ class CaseComment {
     this.senderName,
     this.attachmentUrl,
     this.attachmentType,
+    this.replyToId,
+    this.replyToMessage,
+    this.replyToSender,
   });
 
   factory CaseComment.fromJson(Map<String, dynamic> json) => CaseComment(
@@ -658,10 +664,15 @@ class CaseComment {
         senderName: json['sender_name'] ?? (json['profiles'] != null ? json['profiles']['full_name'] : null),
         attachmentUrl: json['attachment_url'],
         attachmentType: json['attachment_type'],
+        replyToId: json['reply_to_id'],
+        replyToMessage: json['reply_to_message'],
+        replyToSender: json['reply_to_sender'],
       );
 
   bool get hasAttachment => attachmentUrl != null && attachmentUrl!.isNotEmpty;
   bool get isImage => attachmentType == 'image';
+  bool get isVideo => attachmentType == 'video';
+  bool get hasReply => replyToId != null && replyToId!.isNotEmpty;
 
   static DateTime _parseUtc(dynamic value) {
     if (value == null) return DateTime.now().toUtc();

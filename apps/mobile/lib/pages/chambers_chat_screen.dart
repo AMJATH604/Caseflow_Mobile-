@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +9,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import '../services/supabase_service.dart';
 import '../services/repositories/discussion_repository.dart';
 import '../services/providers.dart';
@@ -28,6 +31,8 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
   bool _isUploading = false;
   UserProfile? _profile;
   final List<CaseComment> _optimisticNotices = [];
+  CaseComment? _replyingTo;
+  List<CaseComment> _currentMessagesList = [];
 
   // Download tracking: attachmentUrl -> progress (0.0..1.0) or null
   final Map<String, double> _downloadProgress = {};
@@ -70,6 +75,14 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     if (text.isEmpty || _firmId == null) return;
     final senderName = _profile?.fullName ?? "Team Member";
 
+    final replyId = _replyingTo?.id;
+    final replyMessage = _replyingTo?.hasAttachment == true
+        ? (_replyingTo!.attachmentType == 'image'
+            ? '📷 Photo'
+            : (_replyingTo!.attachmentType == 'video' ? '🎥 Video' : '📄 Document'))
+        : _replyingTo?.message;
+    final replySender = _replyingTo?.senderName;
+
     setState(() {
       _optimisticNotices.add(CaseComment(
         id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
@@ -78,7 +91,11 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
         message: text,
         senderName: senderName,
         createdAt: DateTime.now(),
+        replyToId: replyId,
+        replyToMessage: replyMessage,
+        replyToSender: replySender,
       ));
+      _replyingTo = null; // Clear reply context
     });
     _msgController.clear();
     _scrollToBottom();
@@ -88,6 +105,9 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
       'message': text,
       'case_id': null,
       'sender_name': senderName,
+      'reply_to_id': replyId,
+      'reply_to_message': replyMessage,
+      'reply_to_sender': replySender,
     });
   }
 
@@ -108,6 +128,11 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
       if (picked == null) return;
       file = File(picked.path);
       attachmentType = 'image';
+    } else if (type == 'video') {
+      final picked = await ImagePicker().pickVideo(source: ImageSource.gallery);
+      if (picked == null) return;
+      file = File(picked.path);
+      attachmentType = 'video';
     } else if (type == 'file') {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -130,13 +155,31 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     if (url != null) {
       final senderName = _profile?.fullName ?? "Team Member";
       final fileName = file.path.split(Platform.pathSeparator).last;
+      
+      final replyId = _replyingTo?.id;
+      final replyMessage = _replyingTo?.hasAttachment == true
+          ? (_replyingTo!.attachmentType == 'image'
+              ? '📷 Photo'
+              : (_replyingTo!.attachmentType == 'video' ? '🎥 Video' : '📄 Document'))
+          : _replyingTo?.message;
+      final replySender = _replyingTo?.senderName;
+
+      setState(() {
+        _replyingTo = null; // Clear reply context
+      });
+
       await SupabaseService.postDiscussion({
         'firm_id': _firmId,
-        'message': attachmentType == 'image' ? '📷 Photo' : '📎 $fileName',
+        'message': attachmentType == 'image'
+            ? '📷 Photo'
+            : (attachmentType == 'video' ? '🎥 Video' : '📎 $fileName'),
         'case_id': null,
         'sender_name': senderName,
         'attachment_url': url,
         'attachment_type': attachmentType,
+        'reply_to_id': replyId,
+        'reply_to_message': replyMessage,
+        'reply_to_sender': replySender,
       });
       _scrollToBottom();
     } else {
@@ -213,6 +256,482 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     ));
   }
 
+  // ─── Save Attachment to Device ──────────────────────
+  Future<void> _saveAttachmentToDevice(CaseComment msg) async {
+    if (msg.attachmentUrl == null) return;
+    final url = msg.attachmentUrl!;
+    final fileName = msg.message.replaceFirst('📷 Photo', 'Image').replaceFirst('🎥 Video', 'Video').replaceFirst('📎 ', '');
+    final ext = url.split('.').last.split('?').first.toLowerCase();
+
+    try {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Downloading to save to device...")),
+      );
+
+      if (Platform.isAndroid || Platform.isIOS) {
+        if (msg.attachmentType == 'image' || msg.attachmentType == 'video') {
+          final status = await Permission.photos.request();
+          if (!status.isGranted) {
+            final storageStatus = await Permission.storage.request();
+            if (!storageStatus.isGranted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Permission denied to save media to gallery.")),
+              );
+              return;
+            }
+          }
+        } else {
+          final status = await Permission.storage.request();
+          if (!status.isGranted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Permission denied to write to storage.")),
+            );
+            return;
+          }
+        }
+      }
+
+      final tempDir = await getTemporaryDirectory();
+      final tempPath = '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}_$fileName${!fileName.contains('.') ? '.$ext' : ''}';
+      
+      await Dio().download(url, tempPath);
+
+      if (msg.attachmentType == 'image' || msg.attachmentType == 'video') {
+        final result = await ImageGallerySaverPlus.saveFile(tempPath);
+        if (result != null && (result['isSuccess'] == true || result == true)) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Saved successfully to Gallery! 📥")),
+            );
+          }
+        } else {
+          throw Exception("Gallery saving failed");
+        }
+      } else {
+        Directory? downloadDir;
+        if (Platform.isAndroid) {
+          downloadDir = Directory('/storage/emulated/0/Download');
+          if (!await downloadDir.exists()) {
+            downloadDir = await getExternalStorageDirectory();
+          }
+        } else {
+          downloadDir = await getApplicationDocumentsDirectory();
+        }
+
+        if (downloadDir != null) {
+          final destPath = '${downloadDir.path}/$fileName${!fileName.contains('.') ? '.$ext' : ''}';
+          await File(tempPath).copy(destPath);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Saved successfully to Downloads! 📂")),
+            );
+          }
+        } else {
+          throw Exception("Could not resolve downloads directory");
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to save: $e")),
+        );
+      }
+    }
+  }
+
+  // ─── Long-press message options sheet ───────────────
+  void _showMessageOptions(CaseComment msg, bool isMe) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: isDark ? const Color(0xFF1F2C34) : Colors.white,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 36, height: 4,
+              decoration: BoxDecoration(color: Colors.grey[isDark ? 700 : 300], borderRadius: BorderRadius.circular(2)),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: Icon(Icons.reply_rounded, color: isDark ? Colors.white70 : Colors.black80),
+              title: Text("Reply", style: TextStyle(color: isDark ? Colors.white : Colors.black80)),
+              onTap: () {
+                Navigator.pop(ctx);
+                setState(() {
+                  _replyingTo = msg;
+                });
+              },
+            ),
+            if (!msg.hasAttachment)
+              ListTile(
+                leading: Icon(Icons.copy_rounded, color: isDark ? Colors.white70 : Colors.black80),
+                title: Text("Copy Text", style: TextStyle(color: isDark ? Colors.white : Colors.black80)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  Clipboard.setData(ClipboardData(text: msg.message));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Copied to clipboard")),
+                  );
+                },
+              ),
+            if (msg.hasAttachment)
+              ListTile(
+                leading: Icon(Icons.download_rounded, color: isDark ? Colors.white70 : Colors.black80),
+                title: Text("Save to Device", style: TextStyle(color: isDark ? Colors.white : Colors.black80)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _saveAttachmentToDevice(msg);
+                },
+              ),
+            if (isMe && !msg.id.startsWith('temp_'))
+              ListTile(
+                leading: const Icon(Icons.delete_rounded, color: Colors.redAccent),
+                title: const Text("Delete for Everyone", style: TextStyle(color: Colors.redAccent)),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (dial) => AlertDialog(
+                      backgroundColor: isDark ? const Color(0xFF1F2C34) : Colors.white,
+                      title: Text("Delete Message?", style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+                      content: Text("Are you sure you want to delete this message for everyone?", style: TextStyle(color: isDark ? Colors.white70 : Colors.black80)),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(dial, false),
+                          child: const Text("Cancel"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(dial, true),
+                          child: const Text("Delete", style: TextStyle(color: Colors.redAccent)),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm == true) {
+                    try {
+                      await DiscussionRepository.deleteDiscussion(msg.id);
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Message deleted")),
+                        );
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Delete failed: $e")),
+                        );
+                      }
+                    }
+                  }
+                },
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── Reply Preview Bar above Text Input ──────────────
+  Widget _buildReplyPreviewBar(bool isDark) {
+    if (_replyingTo == null) return const SizedBox.shrink();
+
+    final previewMsg = _replyingTo!;
+    final previewText = previewMsg.hasAttachment
+        ? (previewMsg.attachmentType == 'image'
+            ? '📷 Photo'
+            : (previewMsg.attachmentType == 'video' ? '🎥 Video' : '📄 Document'))
+        : previewMsg.message;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1F2C34) : const Color(0xFFF0F2F5),
+        border: Border(
+          top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+        ),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF2A3942) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 4,
+              height: 48,
+              decoration: const BoxDecoration(
+                color: Color(0xFFD4AF37),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(4),
+                  bottomLeft: Radius.circular(4),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      previewMsg.senderName ?? "Team Member",
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFFD4AF37),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      previewText,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? Colors.white70 : Colors.black80,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.close_rounded, size: 18, color: isDark ? Colors.white54 : Colors.grey),
+              onPressed: () {
+                setState(() {
+                  _replyingTo = null;
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── Nested Quoted Reply Block inside Bubble ──────────
+  Widget _buildQuotedReplyBox(CaseComment msg, bool isDark) {
+    return GestureDetector(
+      onTap: () {
+        if (msg.replyToId != null) {
+          _scrollToMessage(msg.replyToId!);
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        decoration: BoxDecoration(
+          color: (isDark ? Colors.black : Colors.white).withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 3,
+              height: 36,
+              color: const Color(0xFFD4AF37),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    msg.replyToSender ?? "Team Member",
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFFD4AF37),
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    msg.replyToMessage ?? '',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark ? Colors.white70 : Colors.black80,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── Scroll to Message helper ───────────────────────
+  void _scrollToMessage(String replyToId) {
+    final idx = _currentMessagesList.indexWhere((m) => m.id == replyToId);
+    if (idx != -1) {
+      final offset = idx * 90.0;
+      _scrollController.animateTo(
+        offset.clamp(0.0, _scrollController.position.maxScrollExtent),
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOutCubic,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Scrolling to original message..."),
+          duration: Duration(milliseconds: 800),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Original message not found or deleted")),
+      );
+    }
+  }
+
+  // ─── Video Bubble Widget ─────────────────────────────
+  Widget _buildVideoBubble(CaseComment msg, bool isDark) {
+    final isDownloading = _downloadProgress.containsKey(msg.attachmentUrl);
+    final progress = _downloadProgress[msg.attachmentUrl] ?? 0.0;
+    
+    return GestureDetector(
+      onTap: isDownloading ? null : () => _downloadAndOpen(msg.attachmentUrl!, 'Video.mp4'),
+      child: Container(
+        width: 260,
+        height: 180,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isDark
+                ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
+                : [const Color(0xFFE2E8F0), const Color(0xFFCBD5E1)],
+          ),
+          border: Border.all(
+            color: (isDark ? Colors.white10 : Colors.black12),
+            width: 1,
+          ),
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned.fill(
+              child: Opacity(
+                opacity: 0.1,
+                child: Icon(
+                  Icons.video_library_rounded,
+                  size: 100,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+            if (isDownloading)
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 56,
+                    height: 56,
+                    child: CircularProgressIndicator(
+                      value: progress > 0 ? progress : null,
+                      color: const Color(0xFFD4AF37),
+                      strokeWidth: 4,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    "Downloading video...",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white70 : Colors.black80,
+                    ),
+                  ),
+                ],
+              )
+            else
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: (isDark ? Colors.black45 : Colors.white70),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.play_arrow_rounded,
+                      size: 40,
+                      color: Color(0xFFD4AF37),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    "Tap to Play Video",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white70 : Colors.black80,
+                    ),
+                  ),
+                ],
+              ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.black38 : Colors.white38,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(11),
+                    bottomRight: Radius.circular(11),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.movie_creation_rounded,
+                      size: 14,
+                      color: isDark ? Colors.white70 : Colors.black80,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      "VIDEO",
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white70 : Colors.black80,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showAttachmentSheet() {
     showModalBottomSheet(
       context: context,
@@ -237,6 +756,10 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                   _attachOption(Icons.photo_library_rounded, "Gallery", Colors.purple, () {
                     Navigator.pop(ctx);
                     _sendAttachment(type: 'gallery');
+                  }),
+                  _attachOption(Icons.video_library_rounded, "Video", Colors.deepPurple, () {
+                    Navigator.pop(ctx);
+                    _sendAttachment(type: 'video');
                   }),
                   _attachOption(Icons.description_rounded, "Document", Colors.blue, () {
                     Navigator.pop(ctx);
@@ -312,6 +835,9 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                       );
                     }
 
+                    // Keep our tracking list updated
+                    _currentMessagesList = allNotices;
+
                     if (allNotices.isEmpty) {
                       return Center(
                         child: Container(
@@ -360,6 +886,8 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
               },
             ),
           ),
+          // Reply preview bar if active
+          _buildReplyPreviewBar(isDark),
           // Input bar
           _buildInputBar(isDark),
         ],
@@ -451,71 +979,80 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
 
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 4),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
-        decoration: BoxDecoration(
-          color: bubbleColor,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(12),
-            topRight: const Radius.circular(12),
-            bottomLeft: Radius.circular(isMe ? 12 : 2),
-            bottomRight: Radius.circular(isMe ? 2 : 12),
+      child: GestureDetector(
+        onLongPress: () => _showMessageOptions(msg, isMe),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 4),
+          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
+          decoration: BoxDecoration(
+            color: bubbleColor,
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(12),
+              topRight: const Radius.circular(12),
+              bottomLeft: Radius.circular(isMe ? 12 : 2),
+              bottomRight: Radius.circular(isMe ? 2 : 12),
+            ),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 2, offset: const Offset(0, 1))],
           ),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 2, offset: const Offset(0, 1))],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Sender name (not me)
-              if (!isMe)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 3),
-                  child: Text(
-                    msg.senderName ?? "Team Member",
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: _senderColor(msg.senderName ?? '')),
-                  ),
-                ),
-
-              // ── Attachment rendering ──
-              if (msg.hasAttachment) ...[
-                if (msg.isImage)
-                  _buildImageBubble(msg, isDark)
-                else
-                  _buildDocumentBubble(msg, isMe, isDark),
-                const SizedBox(height: 4),
-              ],
-
-              // Text (hide if just an attachment label)
-              if (!msg.hasAttachment)
-                Text(msg.message, style: TextStyle(color: textColor, fontSize: 14, height: 1.35)),
-
-              // Time + ticks
-              const SizedBox(height: 2),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    DateFormat('hh:mm a').format(msg.createdAt.toLocal()),
-                    style: TextStyle(fontSize: 10, color: metaColor),
-                  ),
-                  if (isMe) ...[
-                    const SizedBox(width: 4),
-                    Icon(
-                      Icons.done_all_rounded,
-                      size: 14,
-                      color: msg.id.startsWith('temp_')
-                          ? metaColor
-                          : (isDark ? const Color(0xFF53BDEB) : Colors.blue),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Sender name (not me)
+                if (!isMe)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 3),
+                    child: Text(
+                      msg.senderName ?? "Team Member",
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: _senderColor(msg.senderName ?? '')),
                     ),
-                  ],
+                  ),
+
+                // ── Reply box (quoted message) ──
+                if (msg.hasReply)
+                  _buildQuotedReplyBox(msg, isDark),
+
+                // ── Attachment rendering ──
+                if (msg.hasAttachment) ...[
+                  if (msg.isImage)
+                    _buildImageBubble(msg, isDark)
+                  else if (msg.isVideo)
+                    _buildVideoBubble(msg, isDark)
+                  else
+                    _buildDocumentBubble(msg, isMe, isDark),
+                  const SizedBox(height: 4),
                 ],
-              ),
-            ],
+
+                // Text (hide if just an attachment label)
+                if (!msg.hasAttachment)
+                  Text(msg.message, style: TextStyle(color: textColor, fontSize: 14, height: 1.35)),
+
+                // Time + ticks
+                const SizedBox(height: 2),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      DateFormat('hh:mm a').format(msg.createdAt.toLocal()),
+                      style: TextStyle(fontSize: 10, color: metaColor),
+                    ),
+                    if (isMe) ...[
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.done_all_rounded,
+                        size: 14,
+                        color: msg.id.startsWith('temp_')
+                            ? metaColor
+                            : (isDark ? const Color(0xFF53BDEB) : Colors.blue),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

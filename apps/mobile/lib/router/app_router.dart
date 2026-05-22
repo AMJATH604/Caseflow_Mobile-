@@ -32,6 +32,7 @@ import '../pages/ai_chat_screen.dart';
 import '../pages/caveats_screen.dart';
 import '../pages/legal_pulse_screen.dart';
 import '../pages/chambers_chat_screen.dart';
+import '../pages/tools/know_your_rights_screen.dart';
 
 
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -129,6 +130,10 @@ final appRouter = GoRouter(
             final text = state.uri.queryParameters['text'];
             return TrackCaseScreen(initialText: text);
           },
+        ),
+        GoRoute(
+          path: '/guest-know-your-rights',
+          builder: (context, state) => const KnowYourRightsScreen(),
         ),
       ],
     ),
@@ -235,6 +240,10 @@ final appRouter = GoRouter(
             final text = state.uri.queryParameters['text'];
             return TrackCaseScreen(initialText: text);
           },
+        ),
+        GoRoute(
+          path: '/know-your-rights',
+          builder: (context, state) => const KnowYourRightsScreen(),
         ),
       ],
     ),

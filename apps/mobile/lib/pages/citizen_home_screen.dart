@@ -15,6 +15,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
   late AnimationController _animController;
 
   final List<_FeatureItem> _features = [
+    _FeatureItem("Know Your Rights", "Everyday legal guides", Icons.menu_book_rounded, const [Color(0xFFD4AF37), Color(0xFFB8860B)], "/know-your-rights"),
     _FeatureItem("Bare Acts", "BNS, BNSS, CPC, Constitution", Icons.library_books_rounded, const [Color(0xFF8B5CF6), Color(0xFF6366F1)], "/citizen-tools", toolId: "bare_acts"),
     _FeatureItem("Court Fee", "Calculate court fees", Icons.calculate_rounded, const [Color(0xFFF59E0B), Color(0xFFEF6C00)], "/citizen-tools", toolId: "court-fee"),
     _FeatureItem("Legal Dictionary", "500+ legal terms", Icons.import_contacts_rounded, const [Color(0xFFEF4444), Color(0xFFDC2626)], "/citizen-tools", toolId: "legal_dictionary"),
@@ -114,92 +115,96 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
   }
 
   Widget _buildBanner() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF065F46), Color(0xFF10B981)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF10B981).withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+    final isGuest = GoRouterState.of(context).matchedLocation.startsWith('/guest');
+    final targetRoute = isGuest ? '/guest-know-your-rights' : '/know-your-rights';
+
+    return InkWell(
+      onTap: () => context.push(targetRoute),
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)], // Premium deep blue gradient
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.lightbulb_rounded, color: Color(0xFFD4AF37), size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      "Did You Know?",
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFFD4AF37),
-                        letterSpacing: 1,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: const Color(0xFFD4AF37).withValues(alpha: 0.5), // Elegant gold border
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF2563EB).withValues(alpha: 0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.menu_book_rounded, color: Color(0xFFD4AF37), size: 22),
+                      const SizedBox(width: 8),
+                      Text(
+                        "EVERYDAY LEGAL ENCYCLOPEDIA",
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFFD4AF37),
+                          letterSpacing: 1.5,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  "Every Indian has the right to know the law. Ignorance of law is no excuse.",
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                    height: 1.5,
+                    ],
                   ),
-                ),
-                const SizedBox(height: 12),
-                InkWell(
-                  onTap: () {
-                    final isGuest = GoRouterState.of(context).matchedLocation.startsWith('/guest');
-                    final toolsRoute = isGuest ? '/guest-tools' : '/citizen-tools';
-                    context.push('$toolsRoute?tool=bare_acts');
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Did You Know? Every Indian has the right to know the law. Tap here to browse your Everyday Legal Encyclopedia in simple terms.",
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: Colors.white.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
                     ),
                     child: Text(
-                      "Browse Bare Acts →",
+                      "Explore Guides →",
                       style: GoogleFonts.inter(
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
+            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(Icons.gavel_rounded, size: 40, color: Color(0xFFD4AF37)),
             ),
-            child: const Icon(Icons.balance_rounded, size: 40, color: Colors.white),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -235,12 +240,14 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
     final isGuest = GoRouterState.of(context).matchedLocation.startsWith('/guest');
     final trackRoute = isGuest ? '/guest-track-case' : '/track-case';
     final toolsRoute = isGuest ? '/guest-tools' : '/citizen-tools';
+    final rightsRoute = isGuest ? '/guest-know-your-rights' : '/know-your-rights';
 
     return SizedBox(
       height: 100,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
+          _buildQuickActionCard("Know Your\nRights", Icons.menu_book_rounded, const [Color(0xFFD4AF37), Color(0xFFB8860B)], () => context.push(rightsRoute)),
           _buildQuickActionCard("Track\nMy Case", Icons.search_rounded, const [Color(0xFF10B981), Color(0xFF059669)], () => context.push(trackRoute)),
           _buildQuickActionCard("AI Legal\nHelp", Icons.auto_awesome_rounded, const [Color(0xFF6366F1), Color(0xFF4F46E5)], () {
             if (isGuest) {
@@ -345,6 +352,8 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
               targetRoute = "/guest-tools";
             } else if (targetRoute == "/track-case") {
               targetRoute = "/guest-track-case";
+            } else if (targetRoute == "/know-your-rights") {
+              targetRoute = "/guest-know-your-rights";
             }
           }
           
