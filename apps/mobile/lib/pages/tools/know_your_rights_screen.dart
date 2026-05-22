@@ -115,14 +115,14 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                     "About Legal Encyclopedia",
                     style: GoogleFonts.playfairDisplay(
                       fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black80,
+                      color: isDark ? Colors.white : Colors.black87,
                     ),
                   ),
                   content: Text(
                     "Our mission is to translate complex legal statutes into simple, bite-sized summaries that any Indian layman can easily read, understand, and use to protect their rights in everyday life.",
                     style: TextStyle(
                       fontSize: 14,
-                      color: isDark ? Colors.white70 : Colors.black80,
+                      color: isDark ? Colors.white70 : Colors.black87,
                       height: 1.5,
                     ),
                   ),
@@ -216,7 +216,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                       _searchQuery = val;
                     });
                   },
-                  style: TextStyle(color: isDark ? Colors.white : Colors.black80),
+                  style: TextStyle(color: isDark ? Colors.white : Colors.black87),
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.search_rounded, color: isDark ? Colors.white54 : Colors.grey),
                     suffixIcon: _searchQuery.isNotEmpty
@@ -305,7 +305,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                         style: GoogleFonts.outfit(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white70 : Colors.black60,
+                          color: isDark ? Colors.white70 : Colors.black54,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -326,7 +326,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
           // ── Layman Cards List ──
           if (filteredCards.isNotEmpty)
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, bottom: 32),
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 32),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (ctx, index) {
@@ -396,7 +396,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                     color: isSelected
                         ? Colors.white
-                        : (isDark ? Colors.white70 : Colors.black80),
+                        : (isDark ? Colors.white70 : Colors.black87),
                   ),
                 ),
               ],
@@ -466,7 +466,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
             style: GoogleFonts.outfit(
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : Colors.black80,
+              color: isDark ? Colors.white : Colors.black87,
             ),
           ),
           subtitle: Text(
@@ -548,7 +548,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                                 style: GoogleFonts.outfit(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
-                                  color: isDark ? Colors.white : Colors.black80,
+                                  color: isDark ? Colors.white : Colors.black87,
                                 ),
                               ),
                             ],

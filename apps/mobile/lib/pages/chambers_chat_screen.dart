@@ -359,8 +359,8 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
             ),
             const SizedBox(height: 16),
             ListTile(
-              leading: Icon(Icons.reply_rounded, color: isDark ? Colors.white70 : Colors.black80),
-              title: Text("Reply", style: TextStyle(color: isDark ? Colors.white : Colors.black80)),
+              leading: Icon(Icons.reply_rounded, color: isDark ? Colors.white70 : Colors.black87),
+              title: Text("Reply", style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
               onTap: () {
                 Navigator.pop(ctx);
                 setState(() {
@@ -370,8 +370,8 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
             ),
             if (!msg.hasAttachment)
               ListTile(
-                leading: Icon(Icons.copy_rounded, color: isDark ? Colors.white70 : Colors.black80),
-                title: Text("Copy Text", style: TextStyle(color: isDark ? Colors.white : Colors.black80)),
+                leading: Icon(Icons.copy_rounded, color: isDark ? Colors.white70 : Colors.black87),
+                title: Text("Copy Text", style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
                 onTap: () {
                   Navigator.pop(ctx);
                   Clipboard.setData(ClipboardData(text: msg.message));
@@ -382,8 +382,8 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
               ),
             if (msg.hasAttachment)
               ListTile(
-                leading: Icon(Icons.download_rounded, color: isDark ? Colors.white70 : Colors.black80),
-                title: Text("Save to Device", style: TextStyle(color: isDark ? Colors.white : Colors.black80)),
+                leading: Icon(Icons.download_rounded, color: isDark ? Colors.white70 : Colors.black87),
+                title: Text("Save to Device", style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _saveAttachmentToDevice(msg);
@@ -400,7 +400,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                     builder: (dial) => AlertDialog(
                       backgroundColor: isDark ? const Color(0xFF1F2C34) : Colors.white,
                       title: Text("Delete Message?", style: TextStyle(color: isDark ? Colors.white : Colors.black)),
-                      content: Text("Are you sure you want to delete this message for everyone?", style: TextStyle(color: isDark ? Colors.white70 : Colors.black80)),
+                      content: Text("Are you sure you want to delete this message for everyone?", style: TextStyle(color: isDark ? Colors.white70 : Colors.black87)),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(dial, false),
@@ -496,7 +496,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                       previewText,
                       style: TextStyle(
                         fontSize: 13,
-                        color: isDark ? Colors.white70 : Colors.black80,
+                        color: isDark ? Colors.white70 : Colors.black87,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -559,7 +559,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                     msg.replyToMessage ?? '',
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark ? Colors.white70 : Colors.black80,
+                      color: isDark ? Colors.white70 : Colors.black87,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -652,7 +652,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white70 : Colors.black80,
+                      color: isDark ? Colors.white70 : Colors.black87,
                     ),
                   ),
                 ],
@@ -687,7 +687,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white70 : Colors.black80,
+                      color: isDark ? Colors.white70 : Colors.black87,
                     ),
                   ),
                 ],
@@ -710,7 +710,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                     Icon(
                       Icons.movie_creation_rounded,
                       size: 14,
-                      color: isDark ? Colors.white70 : Colors.black80,
+                      color: isDark ? Colors.white70 : Colors.black87,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -718,7 +718,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
-                        color: isDark ? Colors.white70 : Colors.black80,
+                        color: isDark ? Colors.white70 : Colors.black87,
                         letterSpacing: 1,
                       ),
                     ),
