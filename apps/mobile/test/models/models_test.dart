@@ -154,10 +154,9 @@ void main() {
       final json = {
         'id': 'p-001',
         'case_id': 'case-001',
-        'total_amount': 50000,
+        'total_fee': 50000,
         'paid_amount': 25000,
         'balance_amount': 25000,
-        'payment_type': 'fee',
         'paid_date': '2026-04-01',
         'created_by': 'user-1',
       };
@@ -178,7 +177,7 @@ void main() {
       };
       final ef = EFilingRecord.fromJson(json);
       expect(ef.id, 'ef-001');
-      expect(ef.status, 'filed');
+      expect(ef.status, FilingStatus.filed);
     });
   });
 

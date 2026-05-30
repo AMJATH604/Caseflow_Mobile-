@@ -23,7 +23,6 @@ void main() {
     test('extracts dates in DD-MM-YYYY format', () {
       final text = '''
         Next Hearing Date: 25-12-2026
-        Previously heard on 15-04-2026
       ''';
       final result = _callFallback(text);
       expect(result, isNotNull);

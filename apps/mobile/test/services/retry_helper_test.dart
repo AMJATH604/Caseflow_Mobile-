@@ -26,16 +26,19 @@ void main() {
 
     test('throws after exhausting all retries', () async {
       int attempts = 0;
-      expect(
-        () => RetryHelper.retry(
+      bool threw = false;
+      try {
+        await RetryHelper.retry(
           () async {
             attempts++;
             throw Exception('Persistent failure');
           },
           maxRetries: 2,
-        ),
-        throwsException,
-      );
+        );
+      } catch (_) {
+        threw = true;
+      }
+      expect(threw, true);
       expect(attempts, greaterThanOrEqualTo(2));
     });
 
