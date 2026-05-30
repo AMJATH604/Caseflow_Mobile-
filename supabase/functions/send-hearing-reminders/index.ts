@@ -178,11 +178,12 @@ Deno.serve(async (req: Request) => {
     console.log(`[${executionId}] Target date for query: ${targetDate}`);
 
     // Query hearings on the target date, joined with case info
-    const { data: hearings, error: hearingsError } = await supabase
+    const { data: hearingsData, error: hearingsError } = await supabase
       .from("hearings")
       .select("id, case_id, hearing_date, stage, purpose, created_by, cases(case_title, court_name, case_number, created_by, assigned_to, firm_id)")
       .eq("hearing_date", targetDate);
 
+    const hearings = hearingsData as any;
     console.log(`[${executionId}] Hearings found in DB: ${hearings?.length || 0}`);
 
     if (hearingsError) {
@@ -377,7 +378,7 @@ Deno.serve(async (req: Request) => {
             }
           } catch (e) {
             failCount++;
-            errors.push(`Token ${token.substring(0, 10)}...: ${e.message}`);
+            errors.push(`Token ${token.substring(0, 10)}...: ${(e as any).message}`);
           }
         }
       }
@@ -397,7 +398,7 @@ Deno.serve(async (req: Request) => {
     );
   } catch (error) {
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: (error as any).message }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
