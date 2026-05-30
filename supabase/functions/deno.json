@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "allowJs": true,
-    "lib": ["deno.window", "deno.ns"]
+    "strict": false,
+    "useUnknownInCatchVariables": false,
+    "noImplicitAny": false
   },
   "nodeModulesDir": "auto"
 }

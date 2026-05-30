@@ -96,10 +96,12 @@ Deno.serve(async (req: Request) => {
     }
 
     // Query hearings on the target date, joined with case info
-    const { data: hearings, error: hearingsError } = await supabase
+    const { data: hearingsData, error: hearingsError } = await supabase
       .from("hearings")
       .select("id, case_id, hearing_date, stage, purpose, created_by, cases(case_title, court_name, case_number)")
       .eq("hearing_date", targetDate);
+
+    const hearings = hearingsData as any;
 
     if (hearingsError) {
       throw new Error(`Hearings query failed: ${hearingsError.message}`);
