@@ -102,8 +102,45 @@ Guidelines:
   final List<ChatMessage> _history = [];
   bool _historyLoaded = false;
 
+  /// Maximum allowed prompt length (characters) — mirrored from server-side.
+  static const int _maxPromptLength = 10000;
+
+  /// Approximate max tokens for conversation context before truncation.
+  static const int _maxContextTokens = 90000;
+
   List<ChatMessage> get history => List.unmodifiable(_history);
   bool get historyLoaded => _historyLoaded;
+
+  // ─── Input Validation ──────────────────────────────────
+
+  /// Validates and sanitizes user input before sending to the AI proxy.
+  /// Returns null if valid, or an error message string if invalid.
+  static String? validatePrompt(String message) {
+    if (message.trim().isEmpty) {
+      return 'Please enter a message.';
+    }
+    if (message.length > _maxPromptLength) {
+      return 'Message is too long (max ${_maxPromptLength} characters). Please shorten your message.';
+    }
+    return null; // Valid
+  }
+
+  /// Rough token estimate: ~4 chars per token for English text.
+  /// Used to prevent sending conversations that exceed the model's context window.
+  static int _estimateTokens(List<Map<String, dynamic>> history) {
+    int totalChars = 0;
+    for (final msg in history) {
+      final parts = msg['parts'] as List<dynamic>?;
+      if (parts != null) {
+        for (final part in parts) {
+          if (part is Map && part['text'] != null) {
+            totalChars += (part['text'] as String).length;
+          }
+        }
+      }
+    }
+    return totalChars ~/ 4;
+  }
 
   // ─── PERSISTENCE: Load chat history from Supabase ──────
 
@@ -160,6 +197,12 @@ Guidelines:
   /// Send a message to Gemini via the secure Edge Function proxy.
   /// Optionally include an image file for multimodal analysis.
   Future<String> sendMessage(String userMessage, {File? imageFile}) async {
+    // Client-side validation before sending to proxy
+    final validationError = validatePrompt(userMessage);
+    if (validationError != null) {
+      return '⚠️ $validationError';
+    }
+
     // Encode image to base64 if provided
     String? imageBase64;
     String? imagePath;
@@ -278,9 +321,11 @@ Guidelines:
       _history.removeLast();
       String errorMessage = '⚠️ AI Error: Something went wrong.';
       if (e.status == 429) {
-        errorMessage = '⚠️ AI Quota Exceeded: It looks like your Gemini API key has run out of its free quota. Please check your Google AI Studio billing.';
+        errorMessage = '⚠️ Rate Limit: You have reached the maximum number of AI requests per hour. Please wait a while and try again.';
       } else if (e.status == 401) {
-        errorMessage = '⚠️ AI Error: Unauthorized. Please check your GEMINI_API_KEY in Supabase dashboard.';
+        errorMessage = '⚠️ Session expired. Please sign out and sign back in.';
+      } else if (e.status == 413) {
+        errorMessage = '⚠️ Message too large. Please send a shorter message or a smaller image.';
       } else {
         final Map<String, dynamic>? details = e.details as Map<String, dynamic>?;
         errorMessage = '⚠️ AI Error (${e.status}): ${details?['error'] ?? e.reasonPhrase ?? 'Unknown API error.'}';
@@ -301,6 +346,7 @@ Guidelines:
   Future<String> sendMessageStream(
     String userMessage, {
     File? imageFile,
+
     required void Function(String fullText) onChunk,
   }) async {
     // Encode image to base64 if provided

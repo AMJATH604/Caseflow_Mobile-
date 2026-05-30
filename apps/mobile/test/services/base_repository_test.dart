@@ -131,4 +131,84 @@ void main() {
       BaseRepository.updateOffset(DateTime.now().toUtc());
     });
   });
+
+  group('BaseRepository.validateRequired', () {
+    test('passes when all required fields are present', () {
+      expect(
+        () => BaseRepository.validateRequired(
+          {'name': 'John', 'email': 'john@test.com'},
+          ['name', 'email'],
+        ),
+        returnsNormally,
+      );
+    });
+
+    test('throws when a required field is missing', () {
+      expect(
+        () => BaseRepository.validateRequired(
+          {'name': 'John'},
+          ['name', 'email'],
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('throws when a required field is empty string', () {
+      expect(
+        () => BaseRepository.validateRequired(
+          {'name': 'John', 'email': '  '},
+          ['name', 'email'],
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('throws when a required field is null', () {
+      expect(
+        () => BaseRepository.validateRequired(
+          {'name': 'John', 'email': null},
+          ['name', 'email'],
+        ),
+        throwsArgumentError,
+      );
+    });
+  });
+
+  group('BaseRepository.validateStringLength', () {
+    test('returns null for null input', () {
+      expect(
+        BaseRepository.validateStringLength(null, 'test'),
+        isNull,
+      );
+    });
+
+    test('returns trimmed value for valid input', () {
+      expect(
+        BaseRepository.validateStringLength('  hello  ', 'test'),
+        'hello',
+      );
+    });
+
+    test('throws for input exceeding max length', () {
+      expect(
+        () => BaseRepository.validateStringLength(
+          'a' * 501,
+          'test',
+          maxLength: 500,
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('passes for input at exactly max length', () {
+      expect(
+        () => BaseRepository.validateStringLength(
+          'a' * 500,
+          'test',
+          maxLength: 500,
+        ),
+        returnsNormally,
+      );
+    });
+  });
 }

@@ -8,7 +8,7 @@ on:
 
 jobs:
   flutter-analyze:
-    name: Flutter Analyze
+    name: Flutter Analyze & Test
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -32,8 +32,14 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Check formatting
+        run: dart format --set-exit-if-changed lib/ test/
+
       - name: Analyze code
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings || true
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run tests
+        run: flutter test
 
   dashboard-build:
     name: Dashboard Build
@@ -55,11 +61,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Lint check
+        run: npx eslint src/ --max-warnings=0 || echo "::warning::ESLint warnings found"
+
       - name: Type check
-        run: npx tsc --noEmit || true
+        run: npx tsc --noEmit
 
       - name: Build
-        run: npm run build || true
+        run: npm run build
         env:
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
@@ -78,9 +87,44 @@ jobs:
 
       - name: Check edge functions
         run: |
+          failed=0
           for dir in supabase/functions/*/; do
             if [ -f "$dir/index.ts" ]; then
               echo "Checking $dir..."
-              deno check "$dir/index.ts" || true
+              if ! deno check "$dir/index.ts"; then
+                failed=1
+                echo "::error::Deno check failed for $dir"
+              fi
             fi
           done
+          if [ $failed -ne 0 ]; then
+            echo "::error::One or more edge functions failed type checking"
+            exit 1
+          fi
+
+  # Security check — ensure no API keys are hardcoded
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for hardcoded API keys
+        run: |
+          # Search for common API key patterns in source code (excluding lock files and node_modules)
+          if grep -rn --include="*.ts" --include="*.dart" --include="*.tsx" --include="*.js" \
+            -E '(AIzaSy|sk-[a-zA-Z0-9]{20,}|AKIA[0-9A-Z]{16})' \
+            --exclude-dir=node_modules --exclude-dir=build --exclude-dir=.dart_tool .; then
+            echo "::error::Potential hardcoded API key detected in source code!"
+            exit 1
+          fi
+          echo "✅ No hardcoded API keys found"
+
+      - name: Check for sensitive files
+        run: |
+          # Ensure no APK/AAB files are tracked
+          if git ls-files '*.apk' '*.aab' | grep -q .; then
+            echo "::warning::APK/AAB files found in git. Consider removing with git filter-branch."
+          fi
+          echo "✅ Sensitive file check complete"

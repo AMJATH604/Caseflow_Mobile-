@@ -168,4 +168,59 @@ class BaseRepository {
 
     return null;
   }
+
+  // ─── Soft Delete Support ───────────────────────────────
+  // Legal data requires audit trails — soft delete preserves records
+  // by setting a `deleted_at` timestamp instead of removing rows.
+
+  /// Soft-delete a record by setting its `deleted_at` timestamp.
+  /// The record remains in the database for audit purposes but is
+  /// filtered out of all standard queries.
+  static Future<void> softDelete(String table, String id) async {
+    requireAuth();
+    await client.from(table).update({
+      'deleted_at': DateTime.now().toUtc().toIso8601String(),
+    }).eq('id', id);
+  }
+
+  /// Restore a soft-deleted record by clearing its `deleted_at` timestamp.
+  static Future<void> restoreSoftDeleted(String table, String id) async {
+    requireAuth();
+    await client.from(table).update({
+      'deleted_at': null,
+    }).eq('id', id);
+  }
+
+  // ─── Input Validation Helpers ──────────────────────────
+
+  /// Validates that required fields are present and non-empty in a data map.
+  /// Throws [ArgumentError] with a clear message if validation fails.
+  static void validateRequired(
+    Map<String, dynamic> data,
+    List<String> requiredFields,
+  ) {
+    for (final field in requiredFields) {
+      final value = data[field];
+      if (value == null || (value is String && value.trim().isEmpty)) {
+        throw ArgumentError('Required field "$field" is missing or empty');
+      }
+    }
+  }
+
+  /// Validates that a string field doesn't exceed a maximum length.
+  /// Returns the trimmed value or null if the input is null.
+  static String? validateStringLength(
+    String? value,
+    String fieldName, {
+    int maxLength = 500,
+  }) {
+    if (value == null) return null;
+    final trimmed = value.trim();
+    if (trimmed.length > maxLength) {
+      throw ArgumentError(
+        '$fieldName exceeds maximum length of $maxLength characters',
+      );
+    }
+    return trimmed;
+  }
 }

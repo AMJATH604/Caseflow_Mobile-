@@ -50,15 +50,7 @@ class RetryHelper {
            errorStr.contains('refresh_token');
   }
 
-  /// Check if it's a connectivity error (DNS, Socket, etc)
-  static bool _isNetworkError(Object e) {
-    final errorStr = e.toString().toLowerCase();
-    return errorStr.contains('socketexception') ||
-           errorStr.contains('failed host lookup') ||
-           errorStr.contains('connection timed out') ||
-           errorStr.contains('handshake');
-  }
-  
+
   /// Attempt to recover the session by refreshing it
   static Future<void> _tryRecoverSession() async {
     try {

@@ -554,18 +554,55 @@ class UserProfile {
 
   /// Feature gating: Based on subscription tier from the database.
   /// Respects trial periods and subscription expiration.
+  ///
+  /// Tier hierarchy: free < pro < business
+  /// Access is granted if:
+  ///   1. The user's tier matches or exceeds the required level, AND
+  ///   2. The subscription has not expired (currentPeriodEnd is in the future), OR
+  ///   3. The user is within an active trial period (trialEndsAt is in the future)
+
   /// Role-based access helpers
   bool get isAdvocate => userRole == 'advocate';
   bool get isCitizen => userRole == 'citizen';
 
-  bool get isPro => true; // Unlocked: Free for all mode enabled
+  /// Whether the user's trial period is still active.
+  bool get isTrialActive {
+    if (trialEndsAt == null) return false;
+    return DateTime.now().isBefore(trialEndsAt!);
+  }
 
-  bool get isBusiness => true; // Unlocked: Free for all mode enabled
+  /// Whether the user has an active paid subscription (not expired).
+  bool get isSubscriptionActive {
+    if (currentPeriodEnd == null) return false;
+    return DateTime.now().isBefore(currentPeriodEnd!);
+  }
+
+  /// Pro-tier access: Grants access to AI chat, advanced tools, unlimited cases.
+  /// True if user has 'pro' or 'business' tier with active subscription or trial.
+  bool get isPro {
+    if (subscriptionTier == 'pro' || subscriptionTier == 'business') {
+      return isSubscriptionActive || isTrialActive;
+    }
+    // Free tier users can access Pro features only during trial
+    return isTrialActive;
+  }
+
+  /// Business-tier access: Grants firm management, multi-advocate, API access.
+  /// True if user has 'business' tier with active subscription or trial.
+  bool get isBusiness {
+    if (subscriptionTier == 'business') {
+      return isSubscriptionActive || isTrialActive;
+    }
+    return false;
+  }
 
   bool get isFirmOwner => firmId == null;
 
   // Data visibility: true if the user has joined someone else's firm
   bool get isFirmMember => firmId != null;
+
+  /// Whether the user is on the free tier (no active subscription or trial).
+  bool get isFree => !isPro && !isBusiness;
 
   Map<String, dynamic> toJson() => {
     'id': id,

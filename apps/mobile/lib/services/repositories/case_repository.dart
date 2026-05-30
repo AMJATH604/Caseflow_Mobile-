@@ -1,6 +1,7 @@
 import '../../models/models.dart';
 import '../../models/case_dossier_models.dart';
 import 'base_repository.dart';
+import '../audit_logger.dart';
 
 /// Repository for all case-related operations.
 ///
@@ -66,22 +67,58 @@ class CaseRepository {
     final profile = await BaseRepository.getCachedProfile();
     final targetFirmId = BaseRepository.getTargetFirmId(profile, user.id);
 
+    // Input validation
+    BaseRepository.validateRequired(caseData, ['case_title', 'client_id']);
+    BaseRepository.validateStringLength(
+      caseData['case_title'] as String?,
+      'case_title',
+      maxLength: 300,
+    );
+
     final response = await _client.from('cases').insert({
       ...caseData,
       'created_by': user.id,
       'firm_id': targetFirmId,
     }).select().single();
-    return CaseModel.fromJson(response);
+
+    final newCase = CaseModel.fromJson(response);
+
+    // Audit log
+    AuditLogger.log(
+      action: AuditAction.create,
+      entity: 'cases',
+      entityId: newCase.id,
+      details: {'case_title': newCase.caseTitle, 'client_id': newCase.clientId},
+    );
+
+    return newCase;
   }
 
   static Future<void> updateCase(
       String id, Map<String, dynamic> updates) async {
     await _client.from('cases').update(updates).eq('id', id);
+
+    // Audit log
+    AuditLogger.log(
+      action: AuditAction.update,
+      entity: 'cases',
+      entityId: id,
+      details: {'updated_fields': updates.keys.toList()},
+    );
   }
 
   /// Cascading delete: removes all related records before the case itself.
   /// Ordered to avoid foreign key violations.
   static Future<void> deleteCase(String id) async {
+    // Audit log BEFORE deletion so we capture who deleted what
+    AuditLogger.log(
+      action: AuditAction.delete,
+      entity: 'cases',
+      entityId: id,
+      details: {'cascade': true},
+    );
+
+    // Cascading delete: removes all related records before the case itself.
     await _client.from('ecourt_sync_records').delete().eq('case_id', id);
     await _client.from('ecourt_hearing_history').delete().eq('case_id', id);
     await _client.from('hearings').delete().eq('case_id', id);

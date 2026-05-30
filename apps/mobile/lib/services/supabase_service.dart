@@ -239,44 +239,54 @@ class SupabaseService {
     final int dismissedCount =
         casesList.where((c) => c['status'] == 'dismissed' || c['status'] == 'closed').length;
 
-    // Step 2: Parallel fetch — was serial before, now 3x faster
+    // Step 2: Parallel fetch with error isolation — each query fails
+    // gracefully so a single failure doesn't crash the entire dashboard.
+    Future<List> safeQuery(Future<List> query) async {
+      try {
+        return await query;
+      } catch (e) {
+        debugPrint('Dashboard query failed (degrading gracefully): $e');
+        return [];
+      }
+    }
+
     final results = await Future.wait([
-      client
+      safeQuery(client
           .from('hearings')
           .select('id')
           .gte('hearing_date', today)
-          .inFilter('case_id', visibleCaseIds),
-      client
+          .inFilter('case_id', visibleCaseIds)),
+      safeQuery(client
           .from('efiling_records')
           .select('id')
-          .inFilter('case_id', visibleCaseIds),
-      client.from('clients').select('id'),
-      client
+          .inFilter('case_id', visibleCaseIds)),
+      safeQuery(client.from('clients').select('id')),
+      safeQuery(client
           .from('hearings')
           .select('*, cases(case_title, case_number, firm_id)')
           .eq('hearing_date', today)
           .inFilter('case_id', visibleCaseIds)
           .order('created_at', ascending: false)
-          .limit(5),
-      client
+          .limit(5)),
+      safeQuery(client
           .from('payments')
           .select('id, balance_amount')
           .gt('balance_amount', 0)
-          .inFilter('case_id', visibleCaseIds),
+          .inFilter('case_id', visibleCaseIds)),
     ]);
 
-    final pendingPayments = results[4] as List;
+    final pendingPayments = results[4];
 
     return {
       'activeCasesCount': activeCount,
       'totalCasesCount': casesList.length,
-      'upcomingHearingsCount': (results[0] as List).length,
-      'filingsCount': (results[1] as List).length,
-      'clientsCount': (results[2] as List).length,
+      'upcomingHearingsCount': results[0].length,
+      'filingsCount': results[1].length,
+      'clientsCount': results[2].length,
       'disposedCasesCount': disposedCount,
       'dismissedCasesCount': dismissedCount,
       'pendingPaymentsCount': pendingPayments.length,
-      'todayHearings': (results[3] as List)
+      'todayHearings': results[3]
           .map((json) => Hearing.fromJson(json))
           .toList(),
     };

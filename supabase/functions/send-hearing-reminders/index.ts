@@ -117,12 +117,37 @@ Deno.serve(async (req: Request) => {
     }
 
     // Initialize Supabase client with service role key
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const firebaseServiceAccountJson = Deno.env.get("FIREBASE_SERVICE_ACCOUNT")!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const firebaseServiceAccountJson = Deno.env.get("FIREBASE_SERVICE_ACCOUNT");
+
+    // Validate required environment variables
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error(`[${executionId}] Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY`);
+      return new Response(
+        JSON.stringify({ error: "Server misconfigured: missing Supabase credentials" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    if (!firebaseServiceAccountJson) {
+      console.error(`[${executionId}] Missing FIREBASE_SERVICE_ACCOUNT secret`);
+      return new Response(
+        JSON.stringify({ error: "Server misconfigured: missing Firebase credentials" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const firebaseServiceAccount = JSON.parse(firebaseServiceAccountJson);
+    let firebaseServiceAccount: any;
+    try {
+      firebaseServiceAccount = JSON.parse(firebaseServiceAccountJson);
+    } catch (parseError) {
+      console.error(`[${executionId}] Invalid FIREBASE_SERVICE_ACCOUNT JSON:`, parseError.message);
+      return new Response(
+        JSON.stringify({ error: "Server misconfigured: invalid Firebase service account format" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
     // Determine which date to query based on reminder type
     const now = new Date();
