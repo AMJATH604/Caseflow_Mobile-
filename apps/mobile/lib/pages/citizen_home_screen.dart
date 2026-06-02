@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,8 +12,79 @@ class CitizenHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _animController;
+  late PageController _carouselController;
+  Timer? _carouselTimer;
+  int _currentCarouselPage = 0;
+
+  // ─── CAROUSEL SLIDE DATA ───
+  static const List<_CarouselSlide> _carouselSlides = [
+    _CarouselSlide(
+      type: "\ud83d\udcd6 DID YOU KNOW?",
+      title: "Every Indian has the right to know the law",
+      body: "Browse your Everyday Legal Encyclopedia — 200+ legal concepts explained in simple terms.",
+      gradientColors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
+      icon: Icons.menu_book_rounded,
+      action: "Explore Guides",
+    ),
+    _CarouselSlide(
+      type: "\u2696\ufe0f LEGAL WORD OF THE DAY",
+      title: "Habeas Corpus",
+      body: "A court order demanding that a detained person be brought before the court to determine if their detention is lawful.",
+      gradientColors: [Color(0xFF7C3AED), Color(0xFFA855F7)],
+      icon: Icons.translate_rounded,
+      action: "Learn More",
+    ),
+    _CarouselSlide(
+      type: "\ud83d\udcdc CONSTITUTIONAL FACT",
+      title: "Article 21 — Right to Life",
+      body: "No person shall be deprived of life or personal liberty except according to procedure established by law.",
+      gradientColors: [Color(0xFFB45309), Color(0xFFD97706)],
+      icon: Icons.account_balance_rounded,
+      action: "Read Constitution",
+    ),
+    _CarouselSlide(
+      type: "\ud83d\udca1 LEGAL TIP",
+      title: "Zero FIR — File Anywhere!",
+      body: "You can file an FIR at ANY police station in India regardless of jurisdiction. Police cannot refuse under Section 154 CrPC.",
+      gradientColors: [Color(0xFF065F46), Color(0xFF10B981)],
+      icon: Icons.tips_and_updates_rounded,
+      action: "Know Your Rights",
+    ),
+    _CarouselSlide(
+      type: "\u2696\ufe0f LEGAL WORD",
+      title: "Caveat",
+      body: "A notice filed in court to prevent any order from being passed without hearing the person who filed the caveat (caveator).",
+      gradientColors: [Color(0xFF1E40AF), Color(0xFF6366F1)],
+      icon: Icons.spellcheck_rounded,
+      action: "Legal Dictionary",
+    ),
+    _CarouselSlide(
+      type: "\ud83c\udfdb\ufe0f LANDMARK CASE",
+      title: "Kesavananda Bharati v. Kerala (1973)",
+      body: "The Supreme Court established the Basic Structure Doctrine — Parliament cannot alter the fundamental framework of the Constitution.",
+      gradientColors: [Color(0xFF991B1B), Color(0xFFDC2626)],
+      icon: Icons.gavel_rounded,
+      action: "Explore Cases",
+    ),
+    _CarouselSlide(
+      type: "\ud83d\udca1 KNOW YOUR RIGHT",
+      title: "RTI — Right to Information",
+      body: "Under the RTI Act 2005, every citizen can request information from any public authority. They must respond within 30 days.",
+      gradientColors: [Color(0xFF0E7490), Color(0xFF06B6D4)],
+      icon: Icons.info_rounded,
+      action: "Learn RTI",
+    ),
+    _CarouselSlide(
+      type: "\u2696\ufe0f LEGAL WORD",
+      title: "Suo Motu",
+      body: "When a court takes cognizance and action on its own motion, without any petition or complaint from a party.",
+      gradientColors: [Color(0xFF6B21A8), Color(0xFF9333EA)],
+      icon: Icons.record_voice_over_rounded,
+      action: "Legal Dictionary",
+    ),
+  ];
 
   final List<_FeatureItem> _features = [
     _FeatureItem("Know Your Rights", "Everyday legal guides", Icons.menu_book_rounded, const [Color(0xFFD4AF37), Color(0xFFB8860B)], "/know-your-rights"),
@@ -39,11 +111,36 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     )..forward();
+
+    _carouselController = PageController();
+    _startCarouselAutoScroll();
+  }
+
+  void _startCarouselAutoScroll() {
+    _carouselTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (!mounted) return;
+      _currentCarouselPage = (_currentCarouselPage + 1) % _carouselSlides.length;
+      _carouselController.animateToPage(
+        _currentCarouselPage,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOutCubic,
+      );
+    });
+  }
+
+  void _resetCarouselTimer() {
+    _carouselTimer?.cancel();
+    // Resume auto-scroll after 6 seconds of inactivity
+    Future.delayed(const Duration(seconds: 6), () {
+      if (mounted) _startCarouselAutoScroll();
+    });
   }
 
   @override
   void dispose() {
     _animController.dispose();
+    _carouselTimer?.cancel();
+    _carouselController.dispose();
     super.dispose();
   }
 
@@ -63,8 +160,8 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
               _buildHeader(),
               const SizedBox(height: 20),
 
-              // Banner
-              _buildBanner(),
+               // Carousel
+              _buildCarousel(),
               const SizedBox(height: 24),
 
               // Quick Actions
@@ -114,98 +211,175 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
     );
   }
 
-  Widget _buildBanner() {
-    final isGuest = GoRouterState.of(context).matchedLocation.startsWith('/guest');
-    final targetRoute = isGuest ? '/guest-know-your-rights' : '/know-your-rights';
+  Widget _buildCarousel() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final carouselHeight = (screenWidth * 0.52).clamp(180.0, 240.0);
 
-    return InkWell(
-      onTap: () => context.push(targetRoute),
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)], // Premium deep blue gradient
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: const Color(0xFFD4AF37).withValues(alpha: 0.5), // Elegant gold border
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF2563EB).withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.menu_book_rounded, color: Color(0xFFD4AF37), size: 22),
-                      const SizedBox(width: 8),
-                      Text(
-                        "EVERYDAY LEGAL ENCYCLOPEDIA",
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFFD4AF37),
-                          letterSpacing: 1.5,
+    return Column(
+      children: [
+        SizedBox(
+          height: carouselHeight,
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification is ScrollStartNotification &&
+                  notification.dragDetails != null) {
+                _resetCarouselTimer();
+              }
+              return false;
+            },
+            child: PageView.builder(
+              controller: _carouselController,
+              itemCount: _carouselSlides.length,
+              onPageChanged: (index) {
+                setState(() => _currentCarouselPage = index);
+              },
+              itemBuilder: (context, index) {
+                final slide = _carouselSlides[index];
+                final isGuest = GoRouterState.of(context).matchedLocation.startsWith('/guest');
+                final targetRoute = isGuest ? '/guest-know-your-rights' : '/know-your-rights';
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: InkWell(
+                    onTap: () => context.push(targetRoute),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: slide.gradientColors,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: slide.gradientColors[0].withValues(alpha: 0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Did You Know? Every Indian has the right to know the law. Tap here to browse your Everyday Legal Encyclopedia in simple terms.",
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                      height: 1.45,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
-                    ),
-                    child: Text(
-                      "Explore Guides →",
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Slide type label
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    slide.type,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.white.withValues(alpha: 0.95),
+                                      letterSpacing: 1,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                // Title
+                                Text(
+                                  slide.title,
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                    height: 1.25,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 6),
+                                // Body
+                                Expanded(
+                                  child: Text(
+                                    slide.body,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.white.withValues(alpha: 0.85),
+                                      height: 1.4,
+                                    ),
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                // Action button
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                                  ),
+                                  child: Text(
+                                    "${slide.action} \u2192",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                            ),
+                            child: Icon(slide.icon, size: 32, color: Colors.white.withValues(alpha: 0.9)),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
+                );
+              },
             ),
-            const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Icon(Icons.gavel_rounded, size: 40, color: Color(0xFFD4AF37)),
-            ),
-          ],
+          ),
         ),
-      ),
+
+        const SizedBox(height: 12),
+
+        // Page indicator dots
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(_carouselSlides.length, (index) {
+            final isActive = index == _currentCarouselPage;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 3),
+              width: isActive ? 20 : 6,
+              height: 6,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(3),
+                color: isActive
+                    ? const Color(0xFF2563EB)
+                    : Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white.withValues(alpha: 0.2)
+                        : const Color(0xFFCBD5E1),
+              ),
+            );
+          }),
+        ),
+      ],
     );
   }
 
@@ -318,7 +492,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
         crossAxisCount: isMobile ? 2 : 4,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 1.05,
+        childAspectRatio: isMobile ? (MediaQuery.of(context).size.width > 360 ? 1.05 : 0.95) : 1.05,
       ),
       itemCount: _features.length,
       itemBuilder: (context, index) {
@@ -518,4 +692,22 @@ class _FeatureItem {
   final String? toolId;
 
   const _FeatureItem(this.title, this.subtitle, this.icon, this.gradient, this.route, {this.toolId});
+}
+
+class _CarouselSlide {
+  final String type;
+  final String title;
+  final String body;
+  final List<Color> gradientColors;
+  final IconData icon;
+  final String action;
+
+  const _CarouselSlide({
+    required this.type,
+    required this.title,
+    required this.body,
+    required this.gradientColors,
+    required this.icon,
+    required this.action,
+  });
 }

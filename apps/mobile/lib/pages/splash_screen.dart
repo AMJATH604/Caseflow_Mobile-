@@ -228,6 +228,12 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final scaleFactor = (screenWidth / 390).clamp(0.85, 1.15);
+    final logoSize = (120 * scaleFactor).clamp(90.0, 140.0);
+    final titleFontSize = (38 * scaleFactor).clamp(28.0, 44.0);
+    final taglineFontSize = (14 * scaleFactor).clamp(11.0, 16.0);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -284,11 +290,12 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
 
                       // Main content
-                      Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Spacer(flex: 3),
+                      SafeArea(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Spacer(flex: 3),
 
                             // Animated Logo
                             AnimatedBuilder(
@@ -301,8 +308,8 @@ class _SplashScreenState extends State<SplashScreen>
                                 ),
                               ),
                               child: Container(
-                                width: 120,
-                                height: 120,
+                                width: logoSize,
+                                height: logoSize,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(30),
                                   boxShadow: [
@@ -352,7 +359,7 @@ class _SplashScreenState extends State<SplashScreen>
                                   child: Text(
                                     AppConstants.appName.toUpperCase(),
                                     style: GoogleFonts.playfairDisplay(
-                                      fontSize: 38,
+                                      fontSize: titleFontSize,
                                       fontWeight: FontWeight.w700,
                                       color: Colors.white,
                                       letterSpacing: 6,
@@ -372,9 +379,9 @@ class _SplashScreenState extends State<SplashScreen>
                                 child: Text(
                                   "Empowering Justice, Streamlining Law",
                                   style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w300,
-                                    color: const Color(0xFFD4AF37).withValues(alpha: 0.9),
+                                    fontSize: taglineFontSize,
+                                    fontWeight: FontWeight.w400,
+                                    color: const Color(0xFFD4AF37),
                                     letterSpacing: 2,
                                   ),
                                 ),
@@ -391,25 +398,26 @@ class _SplashScreenState extends State<SplashScreen>
                                 child: Column(
                                   children: [
                                     SizedBox(
-                                      width: 140,
+                                      width: 160,
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(4),
                                         child: LinearProgressIndicator(
-                                          backgroundColor: Colors.white.withValues(alpha: 0.08),
+                                          backgroundColor: Colors.white.withValues(alpha: 0.12),
                                           valueColor: const AlwaysStoppedAnimation<Color>(
                                             Color(0xFFD4AF37),
                                           ),
-                                          minHeight: 2.5,
+                                          minHeight: 3.0,
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(height: 12),
+                                    const SizedBox(height: 14),
                                     Text(
-                                      "Preparing your workspace…",
+                                      "Preparing your workspace\u2026",
                                       style: GoogleFonts.inter(
-                                        fontSize: 11,
-                                        color: Colors.white.withValues(alpha: 0.35),
-                                        letterSpacing: 1,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white.withValues(alpha: 0.75),
+                                        letterSpacing: 1.2,
                                       ),
                                     ),
                                   ],
@@ -417,8 +425,9 @@ class _SplashScreenState extends State<SplashScreen>
                               ),
                             ),
 
-                            const SizedBox(height: 40),
-                          ],
+                              const SizedBox(height: 40),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -441,12 +450,14 @@ class _SplashScreenState extends State<SplashScreen>
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Color(0xFFFAF6EE),  // Light warm parchment
-                        Color(0xFFF4ECE4),  // Warm linen
-                        Color(0xFFE9DEC9),  // Deeper antique tan parchment
+                        Color(0xFF0A0E27),  // Deep midnight navy
+                        Color(0xFF141B3D),  // Dark navy
+                        Color(0xFF1A1040),  // Deep purple navy
+                        Color(0xFF0D1117),  // Near black
                       ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                      stops: [0.0, 0.3, 0.7, 1.0],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
                     ),
                   ),
                   child: SafeArea(
@@ -459,17 +470,22 @@ class _SplashScreenState extends State<SplashScreen>
                         Transform.scale(
                           scale: _portraitScale.value,
                           child: Container(
-                            width: 250,
-                            height: 250,
+                            width: 250 * scaleFactor,
+                            height: 250 * scaleFactor,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: const Color(0xFFD4AF37), // Metallic gold border
+                                color: const Color(0xFFD4AF37),
                                 width: 4.0,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF6B531F).withValues(alpha: 0.25),
+                                  color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+                                  blurRadius: 50,
+                                  spreadRadius: 8,
+                                ),
+                                BoxShadow(
+                                  color: const Color(0xFF6B531F).withValues(alpha: 0.4),
                                   blurRadius: 35,
                                   spreadRadius: 3,
                                   offset: const Offset(0, 12),
@@ -501,10 +517,10 @@ class _SplashScreenState extends State<SplashScreen>
                                     "“Constitution is not a mere lawyers' document, it is a vehicle of Life, and its spirit is always the spirit of Age.”",
                                     textAlign: TextAlign.center,
                                     style: GoogleFonts.playfairDisplay(
-                                      fontSize: 17,
+                                      fontSize: 17 * scaleFactor,
                                       fontWeight: FontWeight.w600,
                                       fontStyle: FontStyle.italic,
-                                      color: const Color(0xFF2C2213), // Deep slate brown
+                                      color: const Color(0xFFF5F0E8),
                                       height: 1.5,
                                     ),
                                   ),
@@ -512,9 +528,9 @@ class _SplashScreenState extends State<SplashScreen>
                                   Text(
                                     "— DR. B.R. AMBEDKAR",
                                     style: GoogleFonts.inter(
-                                      fontSize: 12,
+                                      fontSize: 12 * scaleFactor,
                                       fontWeight: FontWeight.w700,
-                                      color: const Color(0xFF8A6C25), // Golden amber highlight
+                                      color: const Color(0xFFD4AF37),
                                       letterSpacing: 2,
                                     ),
                                   ),
@@ -532,24 +548,25 @@ class _SplashScreenState extends State<SplashScreen>
                           child: Column(
                             children: [
                               SizedBox(
-                                width: 140,
+                                width: 160,
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(4),
                                   child: LinearProgressIndicator(
-                                    backgroundColor: const Color(0xFF2C2213).withValues(alpha: 0.08),
+                                    backgroundColor: Colors.white.withValues(alpha: 0.1),
                                     valueColor: const AlwaysStoppedAnimation<Color>(
-                                      Color(0xFF8A6C25),
+                                      Color(0xFFD4AF37),
                                     ),
-                                    minHeight: 2.5,
+                                    minHeight: 3.0,
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 14),
                               Text(
-                                "Entering Dharma & Document…",
+                                "Entering Dharma & Document\u2026",
                                 style: GoogleFonts.inter(
-                                  fontSize: 11,
-                                  color: const Color(0xFF2C2213).withValues(alpha: 0.4),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white.withValues(alpha: 0.65),
                                   letterSpacing: 1.2,
                                 ),
                               ),
