@@ -553,7 +553,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     _localPaths[url] = localPath;
 
     if (await File(localPath).exists()) {
-      await _audioPlayer.play(DeviceSource(localPath));
+      await _audioPlayer.play(DeviceFileSource(localPath));
     } else {
       await _audioPlayer.play(UrlSource(url));
       _downloadInBackground(url, 'voice_message.m4a');
