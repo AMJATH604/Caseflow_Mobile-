@@ -9,6 +9,7 @@ import '../components/case_dossier_tab.dart';
 import '../components/case_discussion_tab.dart';
 import '../components/case_documents_tab.dart';
 import '../components/case_payments_tab.dart';
+import '../components/case_witnesses_tab.dart';
 import 'evidence_lab_screen.dart';
 
 import '../components/case_header.dart';
@@ -63,7 +64,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> with Single
                     CaseDocumentsTab(caseId: widget.id),
                     CasePaymentsTab(caseId: widget.id),
                     EvidenceLabScreen(caseId: widget.id),
-                    const Center(child: Text("Witnesses Tab", style: TextStyle(color: Color(0xFF1E293B)))),
+                    CaseWitnessesTab(caseId: widget.id),
                   ],
                 ),
               ),
