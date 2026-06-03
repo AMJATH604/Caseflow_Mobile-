@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../services/providers.dart';
 import '../services/analytics_service.dart';
 import '../theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
@@ -37,281 +36,281 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
 
   final List<Map<String, dynamic>> _documentTools = [
     {
-      "id": "officepdf",
-      "title": "Word to PDF",
-      "desc": "Convert DOCX to PDF",
-      "icon": Icons.picture_as_pdf,
-      "color": Colors.blue,
-      "ext": ['doc', 'docx'],
-      "target": "pdf",
-      "plan": "pro",
+      'id': 'officepdf',
+      'title': 'Word to PDF',
+      'desc': 'Convert DOCX to PDF',
+      'icon': Icons.picture_as_pdf,
+      'color': Colors.blue,
+      'ext': ['doc', 'docx'],
+      'target': 'pdf',
+      'plan': 'pro',
     },
     {
-      "id": "pdfword",
-      "title": "PDF to Word",
-      "desc": "Convert PDF to DOCX",
-      "icon": Icons.description,
-      "color": Colors.indigo,
-      "ext": ['pdf'],
-      "target": "docx",
-      "plan": "pro",
+      'id': 'pdfword',
+      'title': 'PDF to Word',
+      'desc': 'Convert PDF to DOCX',
+      'icon': Icons.description,
+      'color': Colors.indigo,
+      'ext': ['pdf'],
+      'target': 'docx',
+      'plan': 'pro',
     },
     {
-      "id": "pdfocr",
-      "title": "OCR (Searchable)",
-      "desc": "Make PDF searchable",
-      "icon": Icons.document_scanner,
-      "color": Colors.green,
-      "ext": ['pdf'],
-      "target": "pdf",
-      "params": {"ocr_language": "eng"},
-      "plan": "pro",
+      'id': 'pdfocr',
+      'title': 'OCR (Searchable)',
+      'desc': 'Make PDF searchable',
+      'icon': Icons.document_scanner,
+      'color': Colors.green,
+      'ext': ['pdf'],
+      'target': 'pdf',
+      'params': {'ocr_language': 'eng'},
+      'plan': 'pro',
     },
     {
-      "id": "ocr",
-      "title": "OCR Scanner",
-      "desc": "Extract text from photo",
-      "icon": Icons.camera_alt,
-      "color": Colors.cyan,
-      "plan": "pro",
+      'id': 'ocr',
+      'title': 'OCR Scanner',
+      'desc': 'Extract text from photo',
+      'icon': Icons.camera_alt,
+      'color': Colors.cyan,
+      'plan': 'pro',
     },
     {
-      "id": "merge",
-      "title": "Merge PDF",
-      "desc": "Combine multiple PDFs",
-      "icon": Icons.call_merge,
-      "color": Colors.orange,
-      "ext": ['pdf'],
-      "target": "pdf",
-      "plan": "pro",
+      'id': 'merge',
+      'title': 'Merge PDF',
+      'desc': 'Combine multiple PDFs',
+      'icon': Icons.call_merge,
+      'color': Colors.orange,
+      'ext': ['pdf'],
+      'target': 'pdf',
+      'plan': 'pro',
     },
     {
-      "id": "split",
-      "title": "Split PDF",
-      "desc": "Separate PDF pages",
-      "icon": Icons.call_split,
-      "color": Colors.red,
-      "ext": ['pdf'],
-      "target": "zip",
-      "plan": "pro",
+      'id': 'split',
+      'title': 'Split PDF',
+      'desc': 'Separate PDF pages',
+      'icon': Icons.call_split,
+      'color': Colors.red,
+      'ext': ['pdf'],
+      'target': 'zip',
+      'plan': 'pro',
     },
     {
-      "id": "compress",
-      "title": "Compress PDF",
-      "desc": "Reduce file size",
-      "icon": Icons.compress,
-      "color": Colors.teal,
-      "ext": ['pdf'],
-      "target": "pdf",
-      "plan": "pro",
+      'id': 'compress',
+      'title': 'Compress PDF',
+      'desc': 'Reduce file size',
+      'icon': Icons.compress,
+      'color': Colors.teal,
+      'ext': ['pdf'],
+      'target': 'pdf',
+      'plan': 'pro',
     },
     {
-      "id": "imagepdf",
-      "title": "JPG to PDF",
-      "desc": "Images to PDF",
-      "icon": Icons.image,
-      "color": Colors.deepPurple,
-      "ext": ['jpg', 'jpeg', 'png'],
-      "target": "pdf",
-      "plan": "pro",
+      'id': 'imagepdf',
+      'title': 'JPG to PDF',
+      'desc': 'Images to PDF',
+      'icon': Icons.image,
+      'color': Colors.deepPurple,
+      'ext': ['jpg', 'jpeg', 'png'],
+      'target': 'pdf',
+      'plan': 'pro',
     },
     {
-      "id": "pdfjpg",
-      "title": "PDF to JPG",
-      "desc": "Extract images",
-      "icon": Icons.collections,
-      "color": Colors.pink,
-      "ext": ['pdf'],
-      "target": "zip",
-      "plan": "pro",
+      'id': 'pdfjpg',
+      'title': 'PDF to JPG',
+      'desc': 'Extract images',
+      'icon': Icons.collections,
+      'color': Colors.pink,
+      'ext': ['pdf'],
+      'target': 'zip',
+      'plan': 'pro',
     },
     {
-      "id": "watermark",
-      "title": "Watermark",
-      "desc": "Add stamp to PDF",
-      "icon": Icons.branding_watermark,
-      "color": Colors.blueGrey,
-      "ext": ['pdf'],
-      "target": "pdf",
-      "params": {"text": "CASEFLOW"},
-      "plan": "pro",
+      'id': 'watermark',
+      'title': 'Watermark',
+      'desc': 'Add stamp to PDF',
+      'icon': Icons.branding_watermark,
+      'color': Colors.blueGrey,
+      'ext': ['pdf'],
+      'target': 'pdf',
+      'params': {'text': 'CASEFLOW'},
+      'plan': 'pro',
     },
     {
-      "id": "rotate",
-      "title": "Rotate PDF",
-      "desc": "Fix orientation",
-      "icon": Icons.rotate_right,
-      "color": Colors.amber,
-      "ext": ['pdf'],
-      "target": "pdf",
-      "params": {"rotate": 90},
-      "plan": "pro",
+      'id': 'rotate',
+      'title': 'Rotate PDF',
+      'desc': 'Fix orientation',
+      'icon': Icons.rotate_right,
+      'color': Colors.amber,
+      'ext': ['pdf'],
+      'target': 'pdf',
+      'params': {'rotate': 90},
+      'plan': 'pro',
     },
   ];
 
   final List<Map<String, dynamic>> _legalTools = [
     {
-      "id": "ai_chat",
-      "title": "AI Legal Assistant",
-      "desc": "Ask Gemini legal questions",
-      "icon": Icons.auto_awesome,
-      "color": Color(0xFF6366F1),
-      "plan": "premium",
+      'id': 'ai_chat',
+      'title': 'AI Legal Assistant',
+      'desc': 'Ask Gemini legal questions',
+      'icon': Icons.auto_awesome,
+      'color': const Color(0xFF6366F1),
+      'plan': 'premium',
     },
     {
-      "id": "advocate_directory",
-      "title": "Advocate Directory",
-      "desc": "Find peers across India",
-      "icon": Icons.contact_page_rounded,
-      "color": Colors.indigo,
-      "plan": "free",
+      'id': 'advocate_directory',
+      'title': 'Advocate Directory',
+      'desc': 'Find peers across India',
+      'icon': Icons.contact_page_rounded,
+      'color': Colors.indigo,
+      'plan': 'free',
     },
     {
-      "id": "legal_pulse",
-      "title": "Legal Pulse",
-      "desc": "Live legal news feed",
-      "icon": Icons.newspaper_rounded,
-      "color": const Color(0xFFDC2626),
-      "plan": "free",
+      'id': 'legal_pulse',
+      'title': 'Legal Pulse',
+      'desc': 'Live legal news feed',
+      'icon': Icons.newspaper_rounded,
+      'color': const Color(0xFFDC2626),
+      'plan': 'free',
     },
     {
-      "id": "partition_calculator",
-      "title": "Partition Share",
-      "desc": "Hindu & Muslim Law",
-      "icon": Icons.family_restroom,
-      "color": Colors.pink,
-      "plan": "free",
+      'id': 'partition_calculator',
+      'title': 'Partition Share',
+      'desc': 'Hindu & Muslim Law',
+      'icon': Icons.family_restroom,
+      'color': Colors.pink,
+      'plan': 'free',
     },
     {
-      "id": "mact_calculator",
-      "title": "MACT Claims",
-      "desc": "Accident Compensation",
-      "icon": Icons.directions_car,
-      "color": Colors.red,
-      "plan": "free",
+      'id': 'mact_calculator',
+      'title': 'MACT Claims',
+      'desc': 'Accident Compensation',
+      'icon': Icons.directions_car,
+      'color': Colors.red,
+      'plan': 'free',
     },
     {
-      "id": "maintenance_calculator",
-      "title": "Maintenance",
-      "desc": "Sec 144 BNSS / HAMA",
-      "icon": Icons.account_balance_wallet,
-      "color": Colors.deepPurple,
-      "plan": "free",
+      'id': 'maintenance_calculator',
+      'title': 'Maintenance',
+      'desc': 'Sec 144 BNSS / HAMA',
+      'icon': Icons.account_balance_wallet,
+      'color': Colors.deepPurple,
+      'plan': 'free',
     },
     {
-      "id": "legal_dictionary",
-      "title": "Legal Dictionary",
-      "desc": "500+ Latin & Legal terms",
-      "icon": Icons.import_contacts_rounded,
-      "color": Colors.orange,
-      "plan": "free",
+      'id': 'legal_dictionary',
+      'title': 'Legal Dictionary',
+      'desc': '500+ Latin & Legal terms',
+      'icon': Icons.import_contacts_rounded,
+      'color': Colors.orange,
+      'plan': 'free',
     },
     {
-      "id": "english_dictionary",
-      "title": "English Dictionary",
-      "desc": "Curated A-Z Vocabulary",
-      "icon": Icons.spellcheck_rounded,
-      "color": Colors.teal,
-      "plan": "free",
+      'id': 'english_dictionary',
+      'title': 'English Dictionary',
+      'desc': 'Curated A-Z Vocabulary',
+      'icon': Icons.spellcheck_rounded,
+      'color': Colors.teal,
+      'plan': 'free',
     },
     {
-      "id": "court-fee",
-      "title": "Court Fee",
-      "desc": "Calculate fees",
-      "icon": Icons.calculate,
-      "color": Colors.orange,
-      "plan": "free",
+      'id': 'court-fee',
+      'title': 'Court Fee',
+      'desc': 'Calculate fees',
+      'icon': Icons.calculate,
+      'color': Colors.orange,
+      'plan': 'free',
     },
     {
-      "id": "epay_court_fee",
-      "title": "eCourts ePay",
-      "desc": "Pay court fees online",
-      "icon": Icons.account_balance_rounded,
-      "color": const Color(0xFF2563EB),
-      "plan": "free",
+      'id': 'epay_court_fee',
+      'title': 'eCourts ePay',
+      'desc': 'Pay court fees online',
+      'icon': Icons.account_balance_rounded,
+      'color': const Color(0xFF2563EB),
+      'plan': 'free',
     },
     {
-      "id": "interest",
-      "title": "Interest",
-      "desc": "Calculate interest",
-      "icon": Icons.percent,
-      "color": Colors.purple,
-      "plan": "free",
+      'id': 'interest',
+      'title': 'Interest',
+      'desc': 'Calculate interest',
+      'icon': Icons.percent,
+      'color': Colors.purple,
+      'plan': 'free',
     },
     {
-      "id": "delay",
-      "title": "Delay (Sec 5)",
-      "desc": "Calculate delay",
-      "icon": Icons.schedule,
-      "color": Colors.red,
-      "plan": "free",
+      'id': 'delay',
+      'title': 'Delay (Sec 5)',
+      'desc': 'Calculate delay',
+      'icon': Icons.schedule,
+      'color': Colors.red,
+      'plan': 'free',
     },
     {
-      "id": "limitation",
-      "title": "Limitation",
-      "desc": "Track deadlines",
-      "icon": Icons.timer,
-      "color": Colors.teal,
-      "plan": "free",
+      'id': 'limitation',
+      'title': 'Limitation',
+      'desc': 'Track deadlines',
+      'icon': Icons.timer,
+      'color': Colors.teal,
+      'plan': 'free',
     },
     {
-      "id": "bare_acts",
-      "title": "Bare Acts Library",
-      "desc": "Offline statutes",
-      "icon": Icons.library_books,
-      "color": Colors.brown,
-      "plan": "free",
+      'id': 'bare_acts',
+      'title': 'Bare Acts Library',
+      'desc': 'Offline statutes',
+      'icon': Icons.library_books,
+      'color': Colors.brown,
+      'plan': 'free',
     },
     {
-      "id": "import_export",
-      "title": "Import/Export",
-      "desc": "ECourts & Backups",
-      "icon": Icons.swap_vertical_circle_rounded,
-      "color": Colors.blueGrey,
-      "plan": "free",
+      'id': 'import_export',
+      'title': 'Import/Export',
+      'desc': 'ECourts & Backups',
+      'icon': Icons.swap_vertical_circle_rounded,
+      'color': Colors.blueGrey,
+      'plan': 'free',
     },
     {
-      "id": "holiday_list",
-      "title": "Holiday List",
-      "desc": "Court holidays 2026",
-      "icon": Icons.calendar_month_rounded,
-      "color": Colors.deepOrange,
-      "plan": "free",
+      'id': 'holiday_list',
+      'title': 'Holiday List',
+      'desc': 'Court holidays 2026',
+      'icon': Icons.calendar_month_rounded,
+      'color': Colors.deepOrange,
+      'plan': 'free',
     },
     {
-      "id": "legal_templates",
-      "title": "Legal Templates",
-      "desc": "PDF & Word Drafts",
-      "icon": Icons.description_rounded,
-      "color": AppTheme.accent,
-      "plan": "free",
+      'id': 'legal_templates',
+      'title': 'Legal Templates',
+      'desc': 'PDF & Word Drafts',
+      'icon': Icons.description_rounded,
+      'color': AppTheme.accent,
+      'plan': 'free',
     },
     {
-      "id": "stamp_values",
-      "title": "Stamp Values",
-      "desc": "Petition stamp reference",
-      "icon": Icons.receipt_long_rounded,
-      "color": Colors.amber,
-      "plan": "free",
+      'id': 'stamp_values',
+      'title': 'Stamp Values',
+      'desc': 'Petition stamp reference',
+      'icon': Icons.receipt_long_rounded,
+      'color': Colors.amber,
+      'plan': 'free',
     },
   ];
 
   final List<Map<String, dynamic>> _chambersTools = [
     {
-      "id": "broadcast",
-      "title": "Digital Chambers",
-      "desc": "Connect with Firm",
-      "icon": Icons.hub_rounded,
-      "color": AppTheme.accent,
-      "plan": "business",
+      'id': 'broadcast',
+      'title': 'Digital Chambers',
+      'desc': 'Connect with Firm',
+      'icon': Icons.hub_rounded,
+      'color': AppTheme.accent,
+      'plan': 'business',
     },
     {
-      "id": "associate",
-      "title": "Recruit Associate",
-      "desc": "Manage Talent",
-      "icon": Icons.people_alt_rounded,
-      "color": AppTheme.accentViolet,
-      "plan": "business",
+      'id': 'associate',
+      'title': 'Recruit Associate',
+      'desc': 'Manage Talent',
+      'icon': Icons.people_alt_rounded,
+      'color': AppTheme.accentViolet,
+      'plan': 'business',
     },
   ];
 
@@ -341,14 +340,14 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Intelligence Hub",
+                  'Intelligence Hub',
                   style: Theme.of(
                     context,
                   ).textTheme.displayLarge?.copyWith(fontSize: 28),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Specialized utilities for high-precision practice",
+                  'Specialized utilities for high-precision practice',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color:
                         Theme.of(context).brightness == Brightness.dark
@@ -361,7 +360,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
             ),
           ),
           _buildToolSection(
-            "Legal Tools",
+            'Legal Tools',
             _legalTools.where((t) {
               if (kIsWeb && t['id'] == 'import_export') return false;
               return true;
@@ -371,7 +370,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
           const SizedBox(height: 20),
           if (!kIsWeb) ...[
             _buildToolSection(
-              "Document Tools",
+              'Document Tools',
               _documentTools.where((t) {
                 // Hide OCR and generic PDF tools on web for now
                 return !['pdfocr', 'ocr'].contains(t['id']);
@@ -381,9 +380,9 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
             const SizedBox(height: 20),
           ],
           // Separate Chambers sections for high visibility
-          _buildToolSection("Digital Chambers", [_chambersTools[0]], isMobile),
+          _buildToolSection('Digital Chambers', [_chambersTools[0]], isMobile),
           const SizedBox(height: 20),
-          _buildToolSection("Recruit Associate", [_chambersTools[1]], isMobile),
+          _buildToolSection('Recruit Associate', [_chambersTools[1]], isMobile),
 
           const SizedBox(height: 100),
         ],
@@ -523,6 +522,8 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       EPayCourtFeeSheet.show(context);
     } else if (tool['id'] == 'legal_pulse') {
       context.push('/legal-pulse');
+    } else if (tool['id'] == 'broadcast') {
+      context.push('/chambers-chat');
     } else {
       setState(() => _activeToolId = tool['id']);
     }
@@ -532,7 +533,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
     final allTools = [..._documentTools, ..._legalTools, ..._chambersTools];
     final tool = allTools.firstWhere((t) => t['id'] == _activeToolId);
     Widget toolWidget;
-    String title = tool['title'];
+    final String title = tool['title'];
 
     if (tool.containsKey('ext')) {
       /*
@@ -547,7 +548,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       );
       */
       toolWidget = const Center(
-        child: Text("PDF Tools are currently mobile-only. Check back soon!"),
+        child: Text('PDF Tools are currently mobile-only. Check back soon!'),
       );
     } else {
       switch (_activeToolId) {
@@ -585,14 +586,14 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
           toolWidget =
               kIsWeb
                   ? const Center(
-                    child: Text("Import/Export is currently mobile-only."),
+                    child: Text('Import/Export is currently mobile-only.'),
                   )
                   : const CaseImportExportScreen();
           break;
         case 'ocr':
           // toolWidget = const OcrTool();
           toolWidget = const Center(
-            child: Text("OCR Scanner is currently mobile-only."),
+            child: Text('OCR Scanner is currently mobile-only.'),
           );
           break;
         case 'broadcast':
@@ -611,7 +612,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
           toolWidget = const StampValueScreen();
           break;
         default:
-          toolWidget = Center(child: Text("Tool: $_activeToolId"));
+          toolWidget = Center(child: Text('Tool: $_activeToolId'));
       }
     }
 

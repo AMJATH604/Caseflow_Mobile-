@@ -1370,7 +1370,11 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                     _currentMessagesList = allNotices;
 
                     // Asynchronously check and load local file presence
-                    _checkLocalFiles(allNotices);
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) {
+                        _checkLocalFiles(allNotices);
+                      }
+                    });
 
                     List<CaseComment> displayNotices = allNotices;
                     if (_isSearching &&
