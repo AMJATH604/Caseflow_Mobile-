@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +12,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
+import 'package:record/record.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/supabase_service.dart';
 import '../services/repositories/discussion_repository.dart';
 import '../services/providers.dart';
@@ -28,11 +32,37 @@ class ChambersChatScreen extends ConsumerStatefulWidget {
 class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
   final _msgController = TextEditingController();
   final _scrollController = ScrollController();
+  final _searchController = TextEditingController();
   bool _isUploading = false;
   UserProfile? _profile;
   final List<CaseComment> _optimisticNotices = [];
   CaseComment? _replyingTo;
   List<CaseComment> _currentMessagesList = [];
+
+  // Local caching tracking
+  final Map<String, bool> _localFilesExist = {};
+  final Map<String, String> _localPaths = {};
+
+  // Audio Player and Recorder
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  final AudioRecorder _audioRecorder = AudioRecorder();
+  String? _playingUrl;
+  PlayerState _playerState = PlayerState.stopped;
+  Duration _audioPosition = Duration.zero;
+  Duration _audioDuration = Duration.zero;
+
+  bool _isRecording = false;
+  String? _recordingPath;
+  Timer? _recordTimer;
+  int _recordDuration = 0;
+
+  // Typing indicators & Search
+  RealtimeChannel? _typingChannel;
+  final Set<String> _typingUsers = {};
+  Timer? _typingDebounce;
+  bool _amITyping = false;
+
+  bool _isSearching = false;
 
   // Download tracking: attachmentUrl -> progress (0.0..1.0) or null
   final Map<String, double> _downloadProgress = {};
@@ -41,18 +71,95 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
   void initState() {
     super.initState();
     _loadProfile();
+    _initAudioPlayerListeners();
   }
 
   @override
   void dispose() {
     _msgController.dispose();
     _scrollController.dispose();
+    _searchController.dispose();
+    _audioPlayer.dispose();
+    _audioRecorder.dispose();
+    _recordTimer?.cancel();
+    _typingDebounce?.cancel();
+    if (_typingChannel != null) {
+      Supabase.instance.client.removeChannel(_typingChannel!);
+    }
     super.dispose();
   }
 
   Future<void> _loadProfile() async {
     _profile = await SupabaseService.fetchProfile();
-    if (mounted) setState(() {});
+    if (mounted) {
+      setState(() {});
+      _initTypingChannel();
+    }
+  }
+
+  void _initTypingChannel() {
+    final firmId = _firmId;
+    if (firmId == null) return;
+
+    _typingChannel = Supabase.instance.client.channel('chambers_typing_$firmId');
+    
+    _typingChannel!
+      .onBroadcast(
+        event: 'typing',
+        callback: (payload) {
+          final userId = payload['user_id'] as String?;
+          final userName = payload['user_name'] as String?;
+          final isTyping = payload['is_typing'] as bool? ?? false;
+          
+          if (userId == null || userId == _profile?.id) return;
+          
+          setState(() {
+            if (isTyping) {
+              if (userName != null) {
+                _typingUsers.add(userName);
+              }
+            } else {
+              if (userName != null) {
+                _typingUsers.remove(userName);
+              }
+            }
+          });
+        },
+      )
+      .subscribe();
+  }
+
+  void _initAudioPlayerListeners() {
+    _audioPlayer.onPositionChanged.listen((pos) {
+      if (mounted) {
+        setState(() {
+          _audioPosition = pos;
+        });
+      }
+    });
+    _audioPlayer.onDurationChanged.listen((dur) {
+      if (mounted) {
+        setState(() {
+          _audioDuration = dur;
+        });
+      }
+    });
+    _audioPlayer.onPlayerStateChanged.listen((state) {
+      if (mounted) {
+        setState(() {
+          _playerState = state;
+        });
+      }
+    });
+    _audioPlayer.onPlayerComplete.listen((_) {
+      if (mounted) {
+        setState(() {
+          _audioPosition = Duration.zero;
+          _playerState = PlayerState.stopped;
+          _playingUrl = null;
+        });
+      }
+    });
   }
 
   String? get _firmId => _profile?.firmId ?? _profile?.id;
@@ -193,43 +300,177 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     if (mounted) setState(() => _isUploading = false);
   }
 
-  // ─── Download & Open File ───────────────────────────
-  Future<void> _downloadAndOpen(String url, String displayName) async {
+  // ─── Local Caching & Custom Downloaders ───────────────
+  Future<String> _getLocalFilePath(String url) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final uri = Uri.parse(url);
+    final fileName = Uri.decodeComponent(uri.pathSegments.last);
+    final chambersDir = Directory('${dir.path}/caseflow_chambers');
+    if (!await chambersDir.exists()) {
+      await chambersDir.create(recursive: true);
+    }
+    return '${chambersDir.path}/$fileName';
+  }
+
+  void _checkLocalFiles(List<CaseComment> messages) async {
+    for (final msg in messages) {
+      if (msg.hasAttachment && msg.attachmentUrl != null) {
+        final url = msg.attachmentUrl!;
+        if (!_localPaths.containsKey(url)) {
+          final path = await _getLocalFilePath(url);
+          _localPaths[url] = path;
+          final exists = await File(path).exists();
+          if (mounted) {
+            setState(() {
+              _localFilesExist[url] = exists;
+            });
+          }
+        }
+      }
+    }
+  }
+
+  Future<bool> _downloadFile(String url, String displayName) async {
+    if (_downloadProgress.containsKey(url)) return false;
+    
     try {
       setState(() => _downloadProgress[url] = 0.0);
 
-      final dir = await getTemporaryDirectory();
-      final ext = url.split('.').last.split('?').first;
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}_$displayName';
-      final filePath = '${dir.path}/$fileName${!fileName.contains('.') ? '.$ext' : ''}';
-
-      await Dio().download(
-        url,
-        filePath,
-        onReceiveProgress: (received, total) {
-          if (total > 0 && mounted) {
-            setState(() => _downloadProgress[url] = received / total);
-          }
-        },
-      );
-
-      if (mounted) {
-        setState(() => _downloadProgress.remove(url));
+      String relativePath = url;
+      if (url.startsWith('http')) {
+        final uri = Uri.parse(url);
+        final segments = uri.pathSegments;
+        final publicIdx = segments.indexOf('public');
+        final authIdx = segments.indexOf('authenticated');
+        final idx = publicIdx != -1 ? publicIdx : authIdx;
+        if (idx != -1 && segments.length > idx + 2) {
+          relativePath = segments.sublist(idx + 2).join('/');
+        }
       }
+      relativePath = Uri.decodeComponent(relativePath);
 
-      await OpenFile.open(filePath);
-    } catch (e) {
+      debugPrint('Downloading attachment from Supabase: $relativePath');
+      final bytes = await Supabase.instance.client.storage
+          .from('chat-attachments')
+          .download(relativePath);
+
+      final localPath = _localPaths[url] ?? await _getLocalFilePath(url);
+      _localPaths[url] = localPath;
+      
+      final file = File(localPath);
+      await file.writeAsBytes(bytes);
+
       if (mounted) {
-        setState(() => _downloadProgress.remove(url));
+        setState(() {
+          _downloadProgress.remove(url);
+          _localFilesExist[url] = true;
+        });
+      }
+      return true;
+    } catch (e) {
+      debugPrint('Download error via Supabase: $e. Trying Dio fallback...');
+      try {
+        final localPath = _localPaths[url] ?? await _getLocalFilePath(url);
+        _localPaths[url] = localPath;
+
+        await Dio().download(
+          url,
+          localPath,
+          onReceiveProgress: (received, total) {
+            if (total > 0 && mounted) {
+              setState(() => _downloadProgress[url] = received / total);
+            }
+          },
+        );
+
+        if (mounted) {
+          setState(() {
+            _downloadProgress.remove(url);
+            _localFilesExist[url] = true;
+          });
+        }
+        return true;
+      } catch (e2) {
+        debugPrint('Dio fallback download error: $e2');
+        if (mounted) {
+          setState(() => _downloadProgress.remove(url));
+        }
+        return false;
+      }
+    }
+  }
+
+  void _downloadInBackground(String url, String displayName) async {
+    if (_downloadProgress.containsKey(url) || _localFilesExist[url] == true) return;
+    
+    // Prevent duplicate triggers
+    _downloadProgress[url] = 0.0;
+    
+    final localPath = _localPaths[url] ?? await _getLocalFilePath(url);
+    _localPaths[url] = localPath;
+
+    try {
+      String relativePath = url;
+      if (url.startsWith('http')) {
+        final uri = Uri.parse(url);
+        final segments = uri.pathSegments;
+        final publicIdx = segments.indexOf('public');
+        final authIdx = segments.indexOf('authenticated');
+        final idx = publicIdx != -1 ? publicIdx : authIdx;
+        if (idx != -1 && segments.length > idx + 2) {
+          relativePath = segments.sublist(idx + 2).join('/');
+        }
+      }
+      relativePath = Uri.decodeComponent(relativePath);
+
+      final bytes = await Supabase.instance.client.storage
+          .from('chat-attachments')
+          .download(relativePath);
+      
+      final file = File(localPath);
+      await file.writeAsBytes(bytes);
+
+      if (mounted) {
+        setState(() {
+          _downloadProgress.remove(url);
+          _localFilesExist[url] = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Background download error: $e');
+      if (mounted) {
+        setState(() {
+          _downloadProgress.remove(url);
+        });
+      }
+    }
+  }
+
+  // ─── Download & Open File ───────────────────────────
+  Future<void> _downloadAndOpen(String url, String displayName) async {
+    final localPath = _localPaths[url] ?? await _getLocalFilePath(url);
+    _localPaths[url] = localPath;
+
+    final exists = await File(localPath).exists();
+    if (exists) {
+      await OpenFile.open(localPath);
+      return;
+    }
+
+    final success = await _downloadFile(url, displayName);
+    if (success) {
+      await OpenFile.open(localPath);
+    } else {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Could not open file: $e")),
+          const SnackBar(content: Text("Failed to download or open file")),
         );
       }
     }
   }
 
   // ─── Full-screen Image Viewer ──────────────────────
-  void _openImageViewer(String url) {
+  void _openImageViewer(String pathOrUrl, {required bool isLocal}) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => Scaffold(
         backgroundColor: Colors.black,
@@ -242,18 +483,122 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
           child: InteractiveViewer(
             minScale: 0.5,
             maxScale: 4.0,
-            child: Image.network(
-              url,
-              fit: BoxFit.contain,
-              loadingBuilder: (_, child, progress) {
-                if (progress == null) return child;
-                return const Center(child: CircularProgressIndicator(color: Colors.white));
-              },
-            ),
+            child: isLocal
+                ? Image.file(
+                    File(pathOrUrl),
+                    fit: BoxFit.contain,
+                  )
+                : Image.network(
+                    pathOrUrl,
+                    fit: BoxFit.contain,
+                    loadingBuilder: (_, child, progress) {
+                      if (progress == null) return child;
+                      return const Center(child: CircularProgressIndicator(color: Colors.white));
+                    },
+                  ),
           ),
         ),
       ),
     ));
+  }
+
+  // ─── Voice Note Recording & Playback ─────────────────
+  Future<void> _playVoice(String url) async {
+    if (_playingUrl == url) {
+      if (_playerState == PlayerState.playing) {
+        await _audioPlayer.pause();
+      } else {
+        await _audioPlayer.resume();
+      }
+      return;
+    }
+
+    await _audioPlayer.stop();
+    _playingUrl = url;
+    
+    final localPath = _localPaths[url] ?? await _getLocalFilePath(url);
+    _localPaths[url] = localPath;
+
+    if (await File(localPath).exists()) {
+      await _audioPlayer.play(DeviceSource(localPath));
+    } else {
+      await _audioPlayer.play(UrlSource(url));
+      _downloadInBackground(url, 'voice_message.m4a');
+    }
+  }
+
+  Future<void> _startRecording() async {
+    try {
+      if (await _audioRecorder.hasPermission()) {
+        final dir = await getTemporaryDirectory();
+        final path = '${dir.path}/audio_${DateTime.now().millisecondsSinceEpoch}.m4a';
+        
+        await _audioRecorder.start(
+          const RecordConfig(encoder: AudioEncoder.aacLc),
+          path: path,
+        );
+        
+        setState(() {
+          _isRecording = true;
+          _recordingPath = path;
+          _recordDuration = 0;
+        });
+        
+        _recordTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+          setState(() {
+            _recordDuration++;
+          });
+        });
+      }
+    } catch (e) {
+      debugPrint('Record start error: $e');
+    }
+  }
+
+  Future<void> _stopAndSendRecording() async {
+    _recordTimer?.cancel();
+    final path = await _audioRecorder.stop();
+    setState(() {
+      _isRecording = false;
+    });
+
+    if (path != null && _firmId != null) {
+      final file = File(path);
+      if (await file.exists()) {
+        setState(() => _isUploading = true);
+        final url = await DiscussionRepository.uploadAttachment(
+          file: file,
+          firmId: _firmId!,
+        );
+        if (url != null) {
+          final senderName = _profile?.fullName ?? "Team Member";
+          await SupabaseService.postDiscussion({
+            'firm_id': _firmId,
+            'message': '🎤 Voice message (${_formatDuration(_recordDuration)})',
+            'case_id': null,
+            'sender_name': senderName,
+            'attachment_url': url,
+            'attachment_type': 'audio',
+          });
+        }
+        setState(() => _isUploading = false);
+      }
+    }
+  }
+
+  Future<void> _cancelRecording() async {
+    _recordTimer?.cancel();
+    await _audioRecorder.stop();
+    setState(() {
+      _isRecording = false;
+      _recordingPath = null;
+    });
+  }
+
+  String _formatDuration(int seconds) {
+    final m = seconds ~/ 60;
+    final s = seconds % 60;
+    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
   // ─── Save Attachment to Device ──────────────────────
@@ -294,7 +639,20 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
       final tempDir = await getTemporaryDirectory();
       final tempPath = '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}_$fileName${!fileName.contains('.') ? '.$ext' : ''}';
       
-      await Dio().download(url, tempPath);
+      final localPath = _localPaths[url] ?? await _getLocalFilePath(url);
+      _localPaths[url] = localPath;
+      final cachedFile = File(localPath);
+      
+      if (await cachedFile.exists()) {
+        await cachedFile.copy(tempPath);
+      } else {
+        final success = await _downloadFile(url, fileName);
+        if (success && await cachedFile.exists()) {
+          await cachedFile.copy(tempPath);
+        } else {
+          throw Exception("Download failed");
+        }
+      }
 
       if (msg.attachmentType == 'image' || msg.attachmentType == 'video') {
         final result = await ImageGallerySaverPlus.saveFile(tempPath);
@@ -838,7 +1196,18 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                     // Keep our tracking list updated
                     _currentMessagesList = allNotices;
 
-                    if (allNotices.isEmpty) {
+                    // Asynchronously check and load local file presence
+                    _checkLocalFiles(allNotices);
+
+                    List<CaseComment> displayNotices = allNotices;
+                    if (_isSearching && _searchController.text.trim().isNotEmpty) {
+                      final query = _searchController.text.trim().toLowerCase();
+                      displayNotices = allNotices.where((msg) {
+                        return msg.message.toLowerCase().contains(query);
+                      }).toList();
+                    }
+
+                    if (displayNotices.isEmpty) {
                       return Center(
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -847,7 +1216,9 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            "🔒 Messages are end-to-end within your firm.\nSay hello to your team! 👋",
+                            _isSearching
+                                ? "No matching messages found"
+                                : "🔒 Messages are end-to-end within your firm.\nSay hello to your team! 👋",
                             textAlign: TextAlign.center,
                             style: TextStyle(color: isDark ? Colors.white54 : Colors.black45, fontSize: 13, height: 1.5),
                           ),
@@ -860,14 +1231,14 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                     return ListView.builder(
                       controller: _scrollController,
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      itemCount: allNotices.length,
+                      itemCount: displayNotices.length,
                       itemBuilder: (context, index) {
-                        final msg = allNotices[index];
+                        final msg = displayNotices[index];
                         final isMe = msg.senderId == _profile?.id;
 
                         // Date separator
                         Widget? dateSeparator;
-                        if (index == 0 || !_isSameDay(allNotices[index - 1].createdAt, msg.createdAt)) {
+                        if (index == 0 || !_isSameDay(displayNotices[index - 1].createdAt, msg.createdAt)) {
                           dateSeparator = _buildDateSeparator(msg.createdAt, isDark);
                         }
 
@@ -896,6 +1267,56 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
   }
 
   PreferredSizeWidget _buildAppBar(bool isDark) {
+    if (_isSearching) {
+      return AppBar(
+        backgroundColor: isDark ? const Color(0xFF1F2C34) : AppTheme.accent,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () {
+            setState(() {
+              _isSearching = false;
+              _searchController.clear();
+            });
+          },
+        ),
+        title: TextField(
+          controller: _searchController,
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: "Search messages...",
+            hintStyle: TextStyle(color: Colors.white60),
+            border: InputBorder.none,
+          ),
+          onChanged: (val) {
+            setState(() {});
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.clear_rounded),
+            onPressed: () {
+              setState(() {
+                _searchController.clear();
+              });
+            },
+          ),
+        ],
+      );
+    }
+
+    final subtitle = _typingUsers.isNotEmpty
+        ? Text(
+            "${_typingUsers.join(', ')} ${_typingUsers.length == 1 ? 'is' : 'are'} typing...",
+            style: const TextStyle(fontSize: 12, color: Color(0xFF25D366), fontWeight: FontWeight.bold),
+          )
+        : Text(
+            "Tap here for firm info",
+            style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.7)),
+          );
+
     return AppBar(
       backgroundColor: isDark ? const Color(0xFF1F2C34) : AppTheme.accent,
       foregroundColor: Colors.white,
@@ -903,6 +1324,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
       titleSpacing: 0,
       title: Row(
         children: [
+          const SizedBox(width: 8),
           Container(
             width: 40, height: 40,
             decoration: BoxDecoration(
@@ -917,16 +1339,21 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text("Chambers Chat", style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Colors.white)),
-                Text(
-                  "Tap here for firm info",
-                  style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.7)),
-                ),
+                subtitle,
               ],
             ),
           ),
         ],
       ),
       actions: [
+        IconButton(
+          icon: const Icon(Icons.search_rounded),
+          onPressed: () {
+            setState(() {
+              _isSearching = true;
+            });
+          },
+        ),
         if (_isUploading)
           const Padding(
             padding: EdgeInsets.only(right: 16),
@@ -969,6 +1396,27 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
+  // ─── Swipe to Reply Widget ─────────────────────────
+  Widget _buildSwipeToReply({required Widget child, required CaseComment message}) {
+    if (message.id.startsWith('temp_')) return child;
+    return Dismissible(
+      key: Key('reply_${message.id}'),
+      direction: DismissDirection.startToEnd,
+      confirmDismiss: (direction) async {
+        setState(() {
+          _replyingTo = message;
+        });
+        return false;
+      },
+      background: Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.only(left: 16),
+        child: const Icon(Icons.reply_rounded, color: Color(0xFF00A884)),
+      ),
+      child: child,
+    );
+  }
+
   // ─── MESSAGE BUBBLE ─────────────────────────────────
   Widget _buildBubble(CaseComment msg, bool isMe, bool isDark) {
     final bubbleColor = isMe
@@ -977,7 +1425,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     final textColor = isDark ? Colors.white : const Color(0xFF111B21);
     final metaColor = isDark ? Colors.white38 : const Color(0xFF667781);
 
-    return Align(
+    final bubbleWidget = Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: GestureDetector(
         onLongPress: () => _showMessageOptions(msg, isMe),
@@ -1020,6 +1468,8 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                     _buildImageBubble(msg, isDark)
                   else if (msg.isVideo)
                     _buildVideoBubble(msg, isDark)
+                  else if (msg.attachmentType == 'audio' || msg.attachmentType == 'voice')
+                    _buildVoiceBubble(msg, isMe, isDark)
                   else
                     _buildDocumentBubble(msg, isMe, isDark),
                   const SizedBox(height: 4),
@@ -1057,6 +1507,8 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
         ),
       ),
     );
+
+    return _buildSwipeToReply(child: bubbleWidget, message: msg);
   }
 
   Color _senderColor(String name) {
@@ -1070,40 +1522,67 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
 
   // ─── IMAGE BUBBLE ──────────────────────────────────
   Widget _buildImageBubble(CaseComment msg, bool isDark) {
+    final url = msg.attachmentUrl!;
+    final localExists = _localFilesExist[url] == true;
+    final localPath = _localPaths[url];
+
+    // Background download so images cache auto
+    if (!localExists && !_downloadProgress.containsKey(url)) {
+      _downloadInBackground(url, 'Image.png');
+    }
+
     return GestureDetector(
-      onTap: () => _openImageViewer(msg.attachmentUrl!),
+      onTap: () {
+        if (localExists && localPath != null) {
+          _openImageViewer(localPath, isLocal: true);
+        } else {
+          _openImageViewer(url, isLocal: false);
+        }
+      },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: Image.network(
-          msg.attachmentUrl!,
-          width: 260,
-          height: 200,
-          fit: BoxFit.cover,
-          loadingBuilder: (_, child, progress) {
-            if (progress == null) return child;
-            return Container(
-              width: 260, height: 200,
-              decoration: BoxDecoration(
-                color: isDark ? Colors.white10 : Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Center(
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  value: progress.expectedTotalBytes != null
-                      ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-                      : null,
-                  color: AppTheme.accent,
-                ),
-              ),
-            );
-          },
-          errorBuilder: (_, __, ___) => Container(
-            width: 260, height: 80,
-            decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(8)),
-            child: const Center(child: Icon(Icons.broken_image_rounded, color: Colors.grey, size: 32)),
+        child: localExists && localPath != null
+            ? Image.file(
+                File(localPath),
+                width: 260,
+                height: 200,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _buildNetworkImage(url, isDark),
+              )
+            : _buildNetworkImage(url, isDark),
+      ),
+    );
+  }
+
+  Widget _buildNetworkImage(String url, bool isDark) {
+    return Image.network(
+      url,
+      width: 260,
+      height: 200,
+      fit: BoxFit.cover,
+      loadingBuilder: (_, child, progress) {
+        if (progress == null) return child;
+        return Container(
+          width: 260, height: 200,
+          decoration: BoxDecoration(
+            color: isDark ? Colors.white10 : Colors.grey[200],
+            borderRadius: BorderRadius.circular(8),
           ),
-        ),
+          child: Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              value: progress.expectedTotalBytes != null
+                  ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                  : null,
+              color: AppTheme.accent,
+            ),
+          ),
+        );
+      },
+      errorBuilder: (_, __, ___) => Container(
+        width: 260, height: 80,
+        decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(8)),
+        child: const Center(child: Icon(Icons.broken_image_rounded, color: Colors.grey, size: 32)),
       ),
     );
   }
@@ -1112,13 +1591,15 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
   Widget _buildDocumentBubble(CaseComment msg, bool isMe, bool isDark) {
     final fileName = msg.message.replaceFirst('📎 ', '');
     final ext = fileName.split('.').last.toUpperCase();
-    final isDownloading = _downloadProgress.containsKey(msg.attachmentUrl);
-    final progress = _downloadProgress[msg.attachmentUrl] ?? 0.0;
+    final url = msg.attachmentUrl!;
+    final isDownloading = _downloadProgress.containsKey(url);
+    final progress = _downloadProgress[url] ?? 0.0;
+    final localExists = _localFilesExist[url] == true;
 
     final docColor = _docColor(ext);
 
     return GestureDetector(
-      onTap: isDownloading ? null : () => _downloadAndOpen(msg.attachmentUrl!, fileName),
+      onTap: isDownloading ? null : () => _downloadAndOpen(url, fileName),
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
@@ -1177,7 +1658,9 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        isDownloading ? "Downloading..." : "Tap to open",
+                        isDownloading
+                            ? "Downloading..."
+                            : (localExists ? "Tap to view" : "Tap to download"),
                         style: TextStyle(fontSize: 10, color: isDark ? Colors.white38 : Colors.black38),
                       ),
                     ],
@@ -1187,10 +1670,102 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
             ),
             const SizedBox(width: 8),
             // Download icon
-            if (!isDownloading)
+            if (!isDownloading && !localExists)
               Icon(Icons.download_rounded, size: 22, color: isDark ? Colors.white38 : Colors.black26),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildVoiceBubble(CaseComment msg, bool isMe, bool isDark) {
+    final url = msg.attachmentUrl!;
+    final isPlayingThis = _playingUrl == url;
+    final isPlaying = isPlayingThis && _playerState == PlayerState.playing;
+    
+    final durationText = isPlayingThis && _audioDuration > Duration.zero
+        ? '${_formatDuration(_audioPosition.inSeconds)} / ${_formatDuration(_audioDuration.inSeconds)}'
+        : msg.message.replaceFirst('🎤 Voice message (', '').replaceFirst(')', '');
+
+    final progressValue = isPlayingThis && _audioDuration.inMilliseconds > 0
+        ? _audioPosition.inMilliseconds / _audioDuration.inMilliseconds
+        : 0.0;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      width: 240,
+      decoration: BoxDecoration(
+        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => _playVoice(url),
+            child: Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: isMe
+                    ? (isDark ? Colors.white24 : Colors.black12)
+                    : (isDark ? Colors.white10 : Colors.grey[200]),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                color: isDark ? Colors.white : Colors.black87,
+                size: 24,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SliderTheme(
+                  data: SliderThemeData(
+                    trackHeight: 2,
+                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
+                    overlayShape: const RoundSliderOverlayShape(overlayRadius: 10),
+                    activeTrackColor: isDark ? Colors.white : const Color(0xFF00A884),
+                    inactiveTrackColor: isDark ? Colors.white24 : Colors.black12,
+                    thumbColor: isDark ? Colors.white : const Color(0xFF00A884),
+                  ),
+                  child: Slider(
+                    value: progressValue.clamp(0.0, 1.0),
+                    onChanged: (val) {
+                      if (isPlayingThis) {
+                        final pos = Duration(milliseconds: (val * _audioDuration.inMilliseconds).toInt());
+                        _audioPlayer.seek(pos);
+                      }
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        durationText,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isDark ? Colors.white38 : Colors.black38,
+                        ),
+                      ),
+                      Icon(
+                        Icons.mic_rounded,
+                        size: 14,
+                        color: isDark ? const Color(0xFF53BDEB) : Colors.blue,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1216,8 +1791,103 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     }
   }
 
+  void _onTextChanged(String text) {
+    if (_typingChannel == null || _profile == null) return;
+    
+    if (text.isNotEmpty && !_amITyping) {
+      _amITyping = true;
+      _typingChannel!.sendBroadcast(
+        event: 'typing',
+        payload: {
+          'user_id': _profile!.id,
+          'user_name': _profile!.fullName ?? 'Team Member',
+          'is_typing': true,
+        },
+      );
+    }
+    
+    _typingDebounce?.cancel();
+    _typingDebounce = Timer(const Duration(seconds: 2), () {
+      if (_amITyping) {
+        _amITyping = false;
+        _typingChannel?.sendBroadcast(
+          event: 'typing',
+          payload: {
+            'user_id': _profile!.id,
+            'user_name': _profile!.fullName ?? 'Team Member',
+            'is_typing': false,
+          },
+        );
+      }
+    });
+  }
+
   // ─── INPUT BAR ─────────────────────────────────────
   Widget _buildInputBar(bool isDark) {
+    final showMic = _msgController.text.trim().isEmpty;
+
+    if (_isRecording) {
+      return Container(
+        padding: EdgeInsets.only(
+          left: 6, right: 6, top: 6,
+          bottom: MediaQuery.of(context).viewInsets.bottom > 0 ? 6 : MediaQuery.of(context).padding.bottom + 6,
+        ),
+        color: isDark ? const Color(0xFF1F2C34) : const Color(0xFFF0F2F5),
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF2A3942) : Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.fiber_manual_record, color: Colors.redAccent, size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      _formatDuration(_recordDuration),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : const Color(0xFF111B21),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      "Recording voice...",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark ? Colors.white60 : Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+            IconButton(
+              icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 26),
+              onPressed: _cancelRecording,
+            ),
+            const SizedBox(width: 6),
+            Container(
+              width: 48, height: 48,
+              decoration: const BoxDecoration(
+                color: Color(0xFF00A884),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.send_rounded, size: 22, color: Colors.white),
+                onPressed: _stopAndSendRecording,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       padding: EdgeInsets.only(
         left: 6, right: 6, top: 6,
@@ -1248,6 +1918,10 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                       minLines: 1,
                       style: TextStyle(fontSize: 15, color: isDark ? Colors.white : const Color(0xFF111B21)),
                       textInputAction: TextInputAction.newline,
+                      onChanged: (val) {
+                        _onTextChanged(val);
+                        setState(() {});
+                      },
                       decoration: InputDecoration(
                         hintText: "Type a message",
                         hintStyle: TextStyle(color: isDark ? Colors.white38 : Colors.grey[500], fontSize: 15),
@@ -1266,7 +1940,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
             ),
           ),
           const SizedBox(width: 6),
-          // Send button
+          // Send / Mic button
           Container(
             width: 48, height: 48,
             decoration: const BoxDecoration(
@@ -1274,8 +1948,8 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: const Icon(Icons.send_rounded, size: 22, color: Colors.white),
-              onPressed: _sendMessage,
+              icon: Icon(showMic ? Icons.mic_rounded : Icons.send_rounded, size: 22, color: Colors.white),
+              onPressed: showMic ? _startRecording : _sendMessage,
             ),
           ),
         ],
