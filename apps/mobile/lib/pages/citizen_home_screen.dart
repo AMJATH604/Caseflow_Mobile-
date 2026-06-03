@@ -27,6 +27,9 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
       gradientColors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
       icon: Icons.menu_book_rounded,
       action: "Explore Guides",
+      detailTitle: "Ignorantia Juris Non Excusat",
+      detailBody: "Ignorance of the law is not an excuse. Under Indian law, every citizen is presumed to know the legal rules that apply to them.\n\nOur Everyday Legal Encyclopedia breaks down complex laws, civil disputes, criminal procedures, and constitutional provisions into plain, simple language so you are never left in the dark.",
+      customRoutePath: "/know-your-rights",
     ),
     _CarouselSlide(
       type: "\u2696\ufe0f LEGAL WORD OF THE DAY",
@@ -35,6 +38,10 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
       gradientColors: [Color(0xFF7C3AED), Color(0xFFA855F7)],
       icon: Icons.translate_rounded,
       action: "Learn More",
+      detailTitle: "Habeas Corpus (Writ of Liberty)",
+      detailBody: "A Latin term meaning 'to have the body'. It is a constitutional writ that protects individual liberty against unlawful or arbitrary detention.\n\nWhen filed, the High Court or Supreme Court orders the detaining authority to bring the detained person to court to examine the validity of their arrest. If the detention lacks legal basis, the person is set free immediately.",
+      customRoutePath: "/citizen-tools",
+      toolId: "legal_dictionary",
     ),
     _CarouselSlide(
       type: "\ud83d\udcdc CONSTITUTIONAL FACT",
@@ -43,6 +50,10 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
       gradientColors: [Color(0xFFB45309), Color(0xFFD97706)],
       icon: Icons.account_balance_rounded,
       action: "Read Constitution",
+      detailTitle: "Article 21 — Cornerstone of Liberty",
+      detailBody: "Article 21 guarantees that 'No person shall be deprived of his life or personal liberty except according to procedure established by law.'\n\nThe Supreme Court has interpreted this dynamically to include the right to privacy, clean drinking water, pollution-free air, speedy trial, livelihood, and free legal aid for the underprivileged.",
+      customRoutePath: "/citizen-tools",
+      toolId: "bare_acts",
     ),
     _CarouselSlide(
       type: "\ud83d\udca1 LEGAL TIP",
@@ -51,6 +62,9 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
       gradientColors: [Color(0xFF065F46), Color(0xFF10B981)],
       icon: Icons.tips_and_updates_rounded,
       action: "Know Your Rights",
+      detailTitle: "Zero FIR (First Information Report)",
+      detailBody: "A Zero FIR can be filed at any police station regardless of where the crime took place.\n\nThe station is legally obligated to accept your complaint, mark it as 'Zero FIR' (without a serial number), and subsequently transfer it to the police station with the appropriate jurisdiction. This ensures critical evidence is collected immediately.",
+      customRoutePath: "/know-your-rights",
     ),
     _CarouselSlide(
       type: "\u2696\ufe0f LEGAL WORD",
@@ -59,6 +73,10 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
       gradientColors: [Color(0xFF1E40AF), Color(0xFF6366F1)],
       icon: Icons.spellcheck_rounded,
       action: "Legal Dictionary",
+      detailTitle: "Caveat Petition",
+      detailBody: "Under Section 148A of the Civil Procedure Code, a Caveat is a precautionary petition filed by a person who fears that an ex-parte case may be filed against them.\n\nOnce logged, the Court cannot pass any interim order or injunction without first notifying the Caveator and giving them an opportunity to present their side of the case.",
+      customRoutePath: "/citizen-tools",
+      toolId: "legal_dictionary",
     ),
     _CarouselSlide(
       type: "\ud83c\udfdb\ufe0f LANDMARK CASE",
@@ -67,6 +85,9 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
       gradientColors: [Color(0xFF991B1B), Color(0xFFDC2626)],
       icon: Icons.gavel_rounded,
       action: "Explore Cases",
+      detailTitle: "The Basic Structure Doctrine",
+      detailBody: "The most critical judgment in Indian legal history. By a 7:6 majority, a 13-judge Supreme Court bench ruled that while Parliament has the power to amend the Constitution, it cannot alter or destroy its 'Basic Structure' — including democracy, secularism, rule of law, and judicial independence.",
+      customRoutePath: "/know-your-rights",
     ),
     _CarouselSlide(
       type: "\ud83d\udca1 KNOW YOUR RIGHT",
@@ -75,6 +96,9 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
       gradientColors: [Color(0xFF0E7490), Color(0xFF06B6D4)],
       icon: Icons.info_rounded,
       action: "Learn RTI",
+      detailTitle: "Right to Information Act, 2005",
+      detailBody: "The RTI Act empowers citizens to request records, documents, and info from government authorities to ensure transparency.\n\nPublic Information Officers must respond within 30 days. If the query concerns a citizen's life or personal liberty, the response must be provided within 48 hours.",
+      customRoutePath: "/know-your-rights",
     ),
     _CarouselSlide(
       type: "\u2696\ufe0f LEGAL WORD",
@@ -83,6 +107,10 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
       gradientColors: [Color(0xFF6B21A8), Color(0xFF9333EA)],
       icon: Icons.record_voice_over_rounded,
       action: "Legal Dictionary",
+      detailTitle: "Suo Motu Cognizance",
+      detailBody: "Meaning 'on its own motion'. This is when a court initiates legal proceedings on its own, without any party filing a petition.\n\nCourts take Suo Motu action based on media reports, letters, or public disasters, demonstrating the proactive role of the judiciary in upholding justice and protecting public interest.",
+      customRoutePath: "/citizen-tools",
+      toolId: "legal_dictionary",
     ),
   ];
 
@@ -117,12 +145,12 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
   }
 
   void _startCarouselAutoScroll() {
-    _carouselTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+    _carouselTimer = Timer.periodic(const Duration(seconds: 6), (timer) {
       if (!mounted) return;
       _currentCarouselPage = (_currentCarouselPage + 1) % _carouselSlides.length;
       _carouselController.animateToPage(
         _currentCarouselPage,
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 600),
         curve: Curves.easeInOutCubic,
       );
     });
@@ -130,8 +158,8 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
 
   void _resetCarouselTimer() {
     _carouselTimer?.cancel();
-    // Resume auto-scroll after 6 seconds of inactivity
-    Future.delayed(const Duration(seconds: 6), () {
+    // Resume auto-scroll after 8 seconds of inactivity
+    Future.delayed(const Duration(seconds: 8), () {
       if (mounted) _startCarouselAutoScroll();
     });
   }
@@ -235,13 +263,11 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
               },
               itemBuilder: (context, index) {
                 final slide = _carouselSlides[index];
-                final isGuest = GoRouterState.of(context).matchedLocation.startsWith('/guest');
-                final targetRoute = isGuest ? '/guest-know-your-rights' : '/know-your-rights';
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2),
                   child: InkWell(
-                    onTap: () => context.push(targetRoute),
+                    onTap: () => _showSlideDetailBottomSheet(context, slide),
                     borderRadius: BorderRadius.circular(20),
                     child: Container(
                       decoration: BoxDecoration(
@@ -681,6 +707,220 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
       ),
     );
   }
+
+  void _showSlideDetailBottomSheet(BuildContext context, _CarouselSlide slide) {
+    final isGuest = GoRouterState.of(context).matchedLocation.startsWith('/guest');
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      builder: (context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF0F172A) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 30,
+                spreadRadius: 5,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Drag Handle & Top Gradient Area
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: slide.gradientColors,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                child: Column(
+                  children: [
+                    // Handle
+                    Container(
+                      width: 40,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(2.5),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Header Row with Icon & Label
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              width: 1,
+                            ),
+                          ),
+                          child: Icon(
+                            slide.icon,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  slide.type,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                slide.title,
+                                style: GoogleFonts.outfit(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Detail Content
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      slide.detailTitle,
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Elegant divider line
+                    Container(
+                      width: 60,
+                      height: 3,
+                      decoration: BoxDecoration(
+                        color: slide.gradientColors[0],
+                        borderRadius: BorderRadius.circular(1.5),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Detail Text
+                    Text(
+                      slide.detailBody,
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        height: 1.6,
+                        color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    // Action Button
+                    InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                        final baseRoute = slide.customRoutePath ?? "/know-your-rights";
+                        String targetRoute = baseRoute;
+                        if (isGuest) {
+                          if (baseRoute == "/citizen-tools") {
+                            targetRoute = "/guest-tools";
+                          } else if (baseRoute == "/know-your-rights") {
+                            targetRoute = "/guest-know-your-rights";
+                          }
+                        }
+                        
+                        if (slide.toolId != null) {
+                          context.push('$targetRoute?tool=${slide.toolId}');
+                        } else {
+                          context.push(targetRoute);
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: slide.gradientColors,
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: slide.gradientColors[0].withValues(alpha: 0.3),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              slide.action,
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(
+                              Icons.arrow_forward_rounded,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _FeatureItem {
@@ -701,6 +941,10 @@ class _CarouselSlide {
   final List<Color> gradientColors;
   final IconData icon;
   final String action;
+  final String detailTitle;
+  final String detailBody;
+  final String? customRoutePath;
+  final String? toolId;
 
   const _CarouselSlide({
     required this.type,
@@ -709,5 +953,9 @@ class _CarouselSlide {
     required this.gradientColors,
     required this.icon,
     required this.action,
+    required this.detailTitle,
+    required this.detailBody,
+    this.customRoutePath,
+    this.toolId,
   });
 }
