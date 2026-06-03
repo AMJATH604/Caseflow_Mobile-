@@ -51,15 +51,15 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
       widget.onSaved();
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Notes saved!")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Notes saved!")));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -86,14 +86,24 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
                     color: AppTheme.accent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.edit_note, color: AppTheme.accent, size: 20),
+                  child: const Icon(
+                    Icons.edit_note,
+                    color: AppTheme.accent,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("Hearing Notes", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      const Text(
+                        "Hearing Notes",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                       Text(
                         "${widget.caseTitle} • ${DateFormat('dd MMM yyyy').format(widget.hearingDate)}",
                         style: TextStyle(color: Colors.grey[500], fontSize: 11),
@@ -110,7 +120,10 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
             const SizedBox(height: 16),
 
             // Quick note chips
-            const Text("Quick Notes:", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+            const Text(
+              "Quick Notes:",
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 6,
@@ -133,9 +146,12 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
               controller: _notesController,
               maxLines: 6,
               decoration: InputDecoration(
-                hintText: "Type your hearing notes here...\n\nE.g. Judge asked for written arguments by next date.\nOpposing counsel requested adjournment.",
+                hintText:
+                    "Type your hearing notes here...\n\nE.g. Judge asked for written arguments by next date.\nOpposing counsel requested adjournment.",
                 hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -146,9 +162,17 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
               height: 48,
               child: ElevatedButton.icon(
                 onPressed: _isSaving ? null : _saveNotes,
-                icon: _isSaving
-                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Icon(Icons.save),
+                icon:
+                    _isSaving
+                        ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                        : const Icon(Icons.save),
                 label: Text(_isSaving ? "Saving..." : "Save Notes"),
               ),
             ),
@@ -163,7 +187,9 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
       onTap: () {
         final current = _notesController.text;
         _notesController.text = current.isEmpty ? text : "$current\n$text";
-        _notesController.selection = TextSelection.collapsed(offset: _notesController.text.length);
+        _notesController.selection = TextSelection.collapsed(
+          offset: _notesController.text.length,
+        );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -172,7 +198,14 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppTheme.accent.withValues(alpha: 0.15)),
         ),
-        child: Text(text, style: const TextStyle(fontSize: 11, color: AppTheme.accent, fontWeight: FontWeight.w500)),
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontSize: 11,
+            color: AppTheme.accent,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ),
     );
   }

@@ -5,7 +5,6 @@ class AppConfig {
   static const String freePlanName = "Free";
   static const int freeCaseLimit = 99999;
 
-
   // ─── Pro Plan ───────────────────────────────────────
   static const String proPlanName = "CaseFlow Pro";
   static const double proMonthlyPrice = 49.0;

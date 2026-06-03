@@ -20,15 +20,30 @@ class EPayCourtFeeSheet extends ConsumerStatefulWidget {
   final String? caseTitle;
   final String? courtName;
 
-  const EPayCourtFeeSheet({super.key, this.caseId, this.caseTitle, this.courtName});
+  const EPayCourtFeeSheet({
+    super.key,
+    this.caseId,
+    this.caseTitle,
+    this.courtName,
+  });
 
   /// Convenience method to show the sheet from anywhere.
-  static void show(BuildContext context, {String? caseId, String? caseTitle, String? courtName}) {
+  static void show(
+    BuildContext context, {
+    String? caseId,
+    String? caseTitle,
+    String? courtName,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => EPayCourtFeeSheet(caseId: caseId, caseTitle: caseTitle, courtName: courtName),
+      builder:
+          (_) => EPayCourtFeeSheet(
+            caseId: caseId,
+            caseTitle: caseTitle,
+            courtName: courtName,
+          ),
     );
   }
 
@@ -114,10 +129,13 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
     try {
       // ── Smart Sync: Set pending payment before leaving ──
       if (_selectedCaseId != null && _selectedCaseTitle != null) {
-        final purpose = _paymentTypes
-            .firstWhere((pt) => pt.id == _selectedPaymentType,
-                orElse: () => _paymentTypes.first)
-            .title;
+        final purpose =
+            _paymentTypes
+                .firstWhere(
+                  (pt) => pt.id == _selectedPaymentType,
+                  orElse: () => _paymentTypes.first,
+                )
+                .title;
 
         await PaymentCaptureService().setPendingPayment(
           caseId: _selectedCaseId!,
@@ -159,165 +177,186 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
       minChildSize: 0.5,
       maxChildSize: 0.95,
       expand: false,
-      builder: (context, scrollController) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        ),
-        child: SingleChildScrollView(
-          controller: scrollController,
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ─── Drag Handle ───
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-
-              // ─── Header Banner ───
-              _buildHeaderBanner(),
-              const SizedBox(height: 24),
-
-              // ─── Case Selector (NEW — Smart Sync) ───
-              Text(
-                "SELECT CASE",
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.grey[400],
-                  letterSpacing: 1.5,
-                ),
-              ),
-              const SizedBox(height: 10),
-              casesAsync.when(
-                data: (cases) => Container(
-                  decoration: BoxDecoration(
-                    color: _selectedCaseId != null
-                        ? const Color(0xFFF0FDF4)
-                        : const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: _selectedCaseId != null
-                          ? const Color(0xFF059669).withValues(alpha: 0.3)
-                          : const Color(0xFFE2E8F0),
+      builder:
+          (context, scrollController) => Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            ),
+            child: SingleChildScrollView(
+              controller: scrollController,
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ─── Drag Handle ───
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
-                  child: DropdownButtonFormField<String>(
-                    value: _selectedCaseId,
-                    isExpanded: true,
+
+                  // ─── Header Banner ───
+                  _buildHeaderBanner(),
+                  const SizedBox(height: 24),
+
+                  // ─── Case Selector (NEW — Smart Sync) ───
+                  Text(
+                    "SELECT CASE",
                     style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.primary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.grey[400],
+                      letterSpacing: 1.5,
                     ),
-                    decoration: InputDecoration(
-                      hintText: "Link a case for auto-sync...",
-                      hintStyle: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: Colors.grey[400],
-                      ),
-                      prefixIcon: Icon(
-                        _selectedCaseId != null
-                            ? Icons.check_circle_rounded
-                            : Icons.folder_shared_outlined,
-                        color: _selectedCaseId != null
-                            ? const Color(0xFF059669)
-                            : Colors.grey[400],
-                        size: 20,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 14),
-                    ),
-                    items: cases
-                        .map((c) => DropdownMenuItem(
-                              value: c.id,
-                              child: Text(
-                                c.caseTitle.isEmpty
-                                    ? (c.caseNumber ?? "Case")
-                                    : c.caseTitle,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ))
-                        .toList(),
-                    onChanged: (val) {
-                      final selected = cases.firstWhere((c) => c.id == val);
-                      setState(() {
-                        _selectedCaseId = val;
-                        _selectedCaseTitle = selected.caseTitle.isEmpty
-                            ? (selected.caseNumber ?? "Case")
-                            : selected.caseTitle;
-                      });
-                    },
                   ),
-                ),
-                loading: () => const LinearProgressIndicator(),
-                error: (_, __) => Text("Could not load cases",
-                    style: GoogleFonts.inter(color: Colors.grey)),
-              ),
+                  const SizedBox(height: 10),
+                  casesAsync.when(
+                    data:
+                        (cases) => Container(
+                          decoration: BoxDecoration(
+                            color:
+                                _selectedCaseId != null
+                                    ? const Color(0xFFF0FDF4)
+                                    : const Color(0xFFF8FAFC),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color:
+                                  _selectedCaseId != null
+                                      ? const Color(
+                                        0xFF059669,
+                                      ).withValues(alpha: 0.3)
+                                      : const Color(0xFFE2E8F0),
+                            ),
+                          ),
+                          child: DropdownButtonFormField<String>(
+                            value: _selectedCaseId,
+                            isExpanded: true,
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.primary,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: "Link a case for auto-sync...",
+                              hintStyle: GoogleFonts.inter(
+                                fontSize: 13,
+                                color: Colors.grey[400],
+                              ),
+                              prefixIcon: Icon(
+                                _selectedCaseId != null
+                                    ? Icons.check_circle_rounded
+                                    : Icons.folder_shared_outlined,
+                                color:
+                                    _selectedCaseId != null
+                                        ? const Color(0xFF059669)
+                                        : Colors.grey[400],
+                                size: 20,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 14,
+                              ),
+                            ),
+                            items:
+                                cases
+                                    .map(
+                                      (c) => DropdownMenuItem(
+                                        value: c.id,
+                                        child: Text(
+                                          c.caseTitle.isEmpty
+                                              ? (c.caseNumber ?? "Case")
+                                              : c.caseTitle,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                            onChanged: (val) {
+                              final selected = cases.firstWhere(
+                                (c) => c.id == val,
+                              );
+                              setState(() {
+                                _selectedCaseId = val;
+                                _selectedCaseTitle =
+                                    selected.caseTitle.isEmpty
+                                        ? (selected.caseNumber ?? "Case")
+                                        : selected.caseTitle;
+                              });
+                            },
+                          ),
+                        ),
+                    loading: () => const LinearProgressIndicator(),
+                    error:
+                        (_, __) => Text(
+                          "Could not load cases",
+                          style: GoogleFonts.inter(color: Colors.grey),
+                        ),
+                  ),
 
-              // Smart Sync hint
-              if (_selectedCaseId != null) ...[
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.auto_awesome_rounded,
-                        size: 14, color: Color(0xFF059669)),
-                    const SizedBox(width: 6),
-                    Text(
-                      "Smart Sync ON — payment will auto-link when you return",
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: const Color(0xFF059669),
-                        fontWeight: FontWeight.w600,
-                      ),
+                  // Smart Sync hint
+                  if (_selectedCaseId != null) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.auto_awesome_rounded,
+                          size: 14,
+                          color: Color(0xFF059669),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          "Smart Sync ON — payment will auto-link when you return",
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            color: const Color(0xFF059669),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-              ],
 
-              const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-              // ─── Case Context (if provided) ───
-              if (widget.caseTitle != null && _selectedCaseId == null) ...[
-                _buildCaseContext(),
-                const SizedBox(height: 20),
-              ],
+                  // ─── Case Context (if provided) ───
+                  if (widget.caseTitle != null && _selectedCaseId == null) ...[
+                    _buildCaseContext(),
+                    const SizedBox(height: 20),
+                  ],
 
-              // ─── Payment Type Selector ───
-              Text(
-                "SELECT PAYMENT TYPE",
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.grey[400],
-                  letterSpacing: 1.5,
-                ),
+                  // ─── Payment Type Selector ───
+                  Text(
+                    "SELECT PAYMENT TYPE",
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.grey[400],
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  ..._paymentTypes.map((pt) => _buildPaymentTypeCard(pt)),
+
+                  const SizedBox(height: 24),
+
+                  // ─── Launch Button ───
+                  _buildLaunchButton(),
+                  const SizedBox(height: 16),
+
+                  // ─── Info Footer ───
+                  _buildInfoFooter(),
+                ],
               ),
-              const SizedBox(height: 14),
-              ..._paymentTypes.map((pt) => _buildPaymentTypeCard(pt)),
-
-              const SizedBox(height: 24),
-
-              // ─── Launch Button ───
-              _buildLaunchButton(),
-              const SizedBox(height: 16),
-
-              // ─── Info Footer ───
-              _buildInfoFooter(),
-            ],
+            ),
           ),
-        ),
-      ),
     );
   }
 
@@ -347,7 +386,11 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
               color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(Icons.account_balance_rounded, color: Colors.white, size: 28),
+            child: const Icon(
+              Icons.account_balance_rounded,
+              color: Colors.white,
+              size: 28,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -405,7 +448,11 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
       ),
       child: Row(
         children: [
-          Icon(Icons.folder_rounded, size: 18, color: AppTheme.accent.withValues(alpha: 0.7)),
+          Icon(
+            Icons.folder_rounded,
+            size: 18,
+            color: AppTheme.accent.withValues(alpha: 0.7),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -413,18 +460,29 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
               children: [
                 Text(
                   "Paying for",
-                  style: GoogleFonts.inter(fontSize: 10, color: Colors.grey[500], fontWeight: FontWeight.w600),
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    color: Colors.grey[500],
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 Text(
                   widget.caseTitle!,
-                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.primary),
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.primary,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (widget.courtName != null)
                   Text(
                     widget.courtName!,
-                    style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: Colors.grey[500],
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -449,12 +507,22 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
           color: isSelected ? pt.color.withValues(alpha: 0.06) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? pt.color.withValues(alpha: 0.4) : const Color(0xFFE5E7EB),
+            color:
+                isSelected
+                    ? pt.color.withValues(alpha: 0.4)
+                    : const Color(0xFFE5E7EB),
             width: isSelected ? 2 : 1,
           ),
-          boxShadow: isSelected
-              ? [BoxShadow(color: pt.color.withValues(alpha: 0.08), blurRadius: 12, offset: const Offset(0, 4))]
-              : null,
+          boxShadow:
+              isSelected
+                  ? [
+                    BoxShadow(
+                      color: pt.color.withValues(alpha: 0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                  : null,
         ),
         child: Row(
           children: [
@@ -483,7 +551,10 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                   const SizedBox(height: 2),
                   Text(
                     pt.subtitle,
-                    style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: Colors.grey[500],
+                    ),
                   ),
                 ],
               ),
@@ -500,9 +571,14 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                   width: 2,
                 ),
               ),
-              child: isSelected
-                  ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
-                  : null,
+              child:
+                  isSelected
+                      ? const Icon(
+                        Icons.check_rounded,
+                        size: 14,
+                        color: Colors.white,
+                      )
+                      : null,
             ),
           ],
         ),
@@ -522,30 +598,36 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
           foregroundColor: Colors.white,
           elevation: canLaunch ? 6 : 0,
           shadowColor: const Color(0xFF2563EB).withValues(alpha: 0.4),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           disabledBackgroundColor: Colors.grey[200],
         ),
-        child: _isLaunching
-            ? const SizedBox(
-                height: 24,
-                width: 24,
-                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.launch_rounded, size: 20),
-                  const SizedBox(width: 10),
-                  Text(
-                    "Open eCourts ePay Portal",
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.2,
-                    ),
+        child:
+            _isLaunching
+                ? const SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.5,
                   ),
-                ],
-              ),
+                )
+                : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.launch_rounded, size: 20),
+                    const SizedBox(width: 10),
+                    Text(
+                      "Open eCourts ePay Portal",
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ],
+                ),
       ),
     );
   }
@@ -563,7 +645,11 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
         children: [
           Row(
             children: [
-              const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFF92400E)),
+              const Icon(
+                Icons.info_outline_rounded,
+                size: 16,
+                color: Color(0xFF92400E),
+              ),
               const SizedBox(width: 8),
               Text(
                 "Smart Sync Enabled",
@@ -577,13 +663,23 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
           ),
           const SizedBox(height: 10),
           _buildInfoStep("1", "Select your case above for automatic tracking"),
-          _buildInfoStep("2", "You'll be redirected to the official eCourts ePay portal"),
+          _buildInfoStep(
+            "2",
+            "You'll be redirected to the official eCourts ePay portal",
+          ),
           _buildInfoStep("3", "Pay via Net Banking / UPI / Card on the portal"),
-          _buildInfoStep("4", "Return to CaseFlow — we'll ask for the amount & receipt"),
+          _buildInfoStep(
+            "4",
+            "Return to CaseFlow — we'll ask for the amount & receipt",
+          ),
           const SizedBox(height: 12),
           Row(
             children: [
-              Icon(Icons.verified_user_rounded, size: 14, color: Colors.green[700]),
+              Icon(
+                Icons.verified_user_rounded,
+                size: 14,
+                color: Colors.green[700],
+              ),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
@@ -630,7 +726,11 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF78350F), height: 1.4),
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: const Color(0xFF78350F),
+                height: 1.4,
+              ),
             ),
           ),
         ],

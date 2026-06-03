@@ -42,7 +42,11 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
   Future<void> _trackCase() async {
     final text = _textController.text.trim();
     if (text.isEmpty) {
-      setState(() => _error = "Please paste your eCourts case details or enter a CNR number.");
+      setState(
+        () =>
+            _error =
+                "Please paste your eCourts case details or enter a CNR number.",
+      );
       return;
     }
 
@@ -57,10 +61,18 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
       if (parsed != null && parsed.isNotEmpty) {
         setState(() => _result = parsed);
       } else {
-        setState(() => _error = "Could not parse case details. Please paste the full case status page from eCourts.");
+        setState(
+          () =>
+              _error =
+                  "Could not parse case details. Please paste the full case status page from eCourts.",
+        );
       }
     } catch (e) {
-      setState(() => _error = "Failed to parse case data. Please check your internet connection and try again.");
+      setState(
+        () =>
+            _error =
+                "Failed to parse case data. Please check your internet connection and try again.",
+      );
     } finally {
       setState(() => _isLoading = false);
     }
@@ -92,7 +104,10 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                 "Paste your eCourts case details to see status, hearing history, and more.",
                 style: GoogleFonts.inter(
                   fontSize: 13,
-                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  color:
+                      isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF64748B),
                 ),
               ),
 
@@ -115,12 +130,19 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.error_outline_rounded, color: Color(0xFFDC2626), size: 18),
+                      const Icon(
+                        Icons.error_outline_rounded,
+                        color: Color(0xFFDC2626),
+                        size: 18,
+                      ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           _error!,
-                          style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF991B1B)),
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: const Color(0xFF991B1B),
+                          ),
                         ),
                       ),
                     ],
@@ -167,9 +189,15 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+        ),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2)),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Column(
@@ -180,49 +208,84 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [Color(0xFF10B981), Color(0xFF059669)]),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF10B981), Color(0xFF059669)],
+                  ),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.search_rounded, color: Colors.white, size: 18),
+                child: const Icon(
+                  Icons.search_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
               ),
               const SizedBox(width: 12),
               Text(
                 "Case Details",
-                style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A)),
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 14),
           Text(
             "Paste the full case status page content from the eCourts website or app:",
-            style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF94A3B8)),
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: const Color(0xFF94A3B8),
+            ),
           ),
           const SizedBox(height: 12),
           TextFormField(
             controller: _textController,
             maxLines: 6,
             textInputAction: TextInputAction.done,
-            inputFormatters: [FilteringTextInputFormatter.deny(RegExp(''))], // allow all
-            style: GoogleFonts.inter(fontSize: 13, color: isDark ? Colors.white : const Color(0xFF0F172A)),
+            inputFormatters: [
+              FilteringTextInputFormatter.deny(RegExp('')),
+            ], // allow all
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
             decoration: InputDecoration(
-              hintText: "Paste eCourts case status text here...\n\nExample: Copy everything from the eCourts case status page including case number, parties, hearing details.",
-              hintStyle: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF64748B)),
+              hintText:
+                  "Paste eCourts case status text here...\n\nExample: Copy everything from the eCourts case status page including case number, parties, hearing details.",
+              hintStyle: GoogleFonts.inter(
+                fontSize: 12,
+                color: const Color(0xFF64748B),
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                borderSide: BorderSide(
+                  color:
+                      isDark
+                          ? const Color(0xFF334155)
+                          : const Color(0xFFE2E8F0),
+                ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                borderSide: BorderSide(
+                  color:
+                      isDark
+                          ? const Color(0xFF334155)
+                          : const Color(0xFFE2E8F0),
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFF10B981), width: 2),
+                borderSide: const BorderSide(
+                  color: Color(0xFF10B981),
+                  width: 2,
+                ),
               ),
               contentPadding: const EdgeInsets.all(14),
               filled: true,
-              fillColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+              fillColor:
+                  isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
             ),
           ),
           const SizedBox(height: 14),
@@ -234,19 +297,35 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF10B981),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 elevation: 0,
               ),
-              child: _isLoading
-                  ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.search_rounded, size: 18),
-                        const SizedBox(width: 8),
-                        Text("Track Case", style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 14)),
-                      ],
-                    ),
+              child:
+                  _isLoading
+                      ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                      : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.search_rounded, size: 18),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Track Case",
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
             ),
           ),
         ],
@@ -255,7 +334,8 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
   }
 
   Widget _buildStatusCard(bool isDark) {
-    final status = (_result!['case_status'] ?? 'not_available').toString().toLowerCase();
+    final status =
+        (_result!['case_status'] ?? 'not_available').toString().toLowerCase();
     final isPending = status == 'pending';
     final isDisposed = status == 'disposed';
 
@@ -265,17 +345,22 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: isPending
-              ? [const Color(0xFF065F46), const Color(0xFF10B981)]
-              : isDisposed
+          colors:
+              isPending
+                  ? [const Color(0xFF065F46), const Color(0xFF10B981)]
+                  : isDisposed
                   ? [const Color(0xFF991B1B), const Color(0xFFEF4444)]
                   : [const Color(0xFF1E3A5F), const Color(0xFF3B82F6)],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: (isPending ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withValues(alpha: 0.3),
-            blurRadius: 16, offset: const Offset(0, 6),
+            color: (isPending
+                    ? const Color(0xFF10B981)
+                    : const Color(0xFFEF4444))
+                .withValues(alpha: 0.3),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -285,7 +370,10 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -293,13 +381,23 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                 child: Row(
                   children: [
                     Icon(
-                      isPending ? Icons.schedule_rounded : isDisposed ? Icons.check_circle_rounded : Icons.info_rounded,
-                      color: Colors.white, size: 14,
+                      isPending
+                          ? Icons.schedule_rounded
+                          : isDisposed
+                          ? Icons.check_circle_rounded
+                          : Icons.info_rounded,
+                      color: Colors.white,
+                      size: 14,
                     ),
                     const SizedBox(width: 6),
                     Text(
                       status.toUpperCase(),
-                      style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1),
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: 1,
+                      ),
                     ),
                   ],
                 ),
@@ -308,16 +406,30 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
           ),
           if (nextDate != null) ...[
             const SizedBox(height: 14),
-            Text("Next Hearing", style: GoogleFonts.inter(fontSize: 11, color: Colors.white70, fontWeight: FontWeight.w500)),
+            Text(
+              "Next Hearing",
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: Colors.white70,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             const SizedBox(height: 4),
             Text(
               _formatDate(nextDate.toString()),
-              style: GoogleFonts.playfairDisplay(fontSize: 24, fontWeight: FontWeight.w700, color: Colors.white),
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
             ),
           ],
           if (_result!['cnr_number'] != null) ...[
             const SizedBox(height: 10),
-            Text("CNR: ${_result!['cnr_number']}", style: GoogleFonts.inter(fontSize: 12, color: Colors.white70)),
+            Text(
+              "CNR: ${_result!['cnr_number']}",
+              style: GoogleFonts.inter(fontSize: 12, color: Colors.white70),
+            ),
           ],
         ],
       ),
@@ -325,35 +437,68 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
   }
 
   Widget _buildCaseDetailsCard(bool isDark) {
-    return _buildInfoCard(isDark, "Case Details", Icons.description_rounded, const Color(0xFF6366F1), [
-      if (_result!['case_type'] != null) _infoRow("Case Type", _result!['case_type']),
-      if (_result!['case_number'] != null) _infoRow("Case Number", _result!['case_number']),
-      if (_result!['filing_number'] != null) _infoRow("Filing Number", _result!['filing_number']),
-      if (_result!['filing_date'] != null) _infoRow("Filing Date", _formatDate(_result!['filing_date'])),
-      if (_result!['court_name'] != null) _infoRow("Court", _result!['court_name']),
-      if (_result!['judge_name'] != null) _infoRow("Judge", _result!['judge_name']),
-      if (_result!['state'] != null || _result!['district'] != null)
-        _infoRow("Location", "${_result!['state'] ?? ''} / ${_result!['district'] ?? ''}"),
-    ]);
+    return _buildInfoCard(
+      isDark,
+      "Case Details",
+      Icons.description_rounded,
+      const Color(0xFF6366F1),
+      [
+        if (_result!['case_type'] != null)
+          _infoRow("Case Type", _result!['case_type']),
+        if (_result!['case_number'] != null)
+          _infoRow("Case Number", _result!['case_number']),
+        if (_result!['filing_number'] != null)
+          _infoRow("Filing Number", _result!['filing_number']),
+        if (_result!['filing_date'] != null)
+          _infoRow("Filing Date", _formatDate(_result!['filing_date'])),
+        if (_result!['court_name'] != null)
+          _infoRow("Court", _result!['court_name']),
+        if (_result!['judge_name'] != null)
+          _infoRow("Judge", _result!['judge_name']),
+        if (_result!['state'] != null || _result!['district'] != null)
+          _infoRow(
+            "Location",
+            "${_result!['state'] ?? ''} / ${_result!['district'] ?? ''}",
+          ),
+      ],
+    );
   }
 
   Widget _buildPartyDetailsCard(bool isDark) {
-    return _buildInfoCard(isDark, "Parties", Icons.people_rounded, const Color(0xFF3B82F6), [
-      if (_result!['petitioner_name'] != null) _infoRow("Petitioner", _result!['petitioner_name']),
-      if (_result!['respondent_name'] != null) _infoRow("Respondent", _result!['respondent_name']),
-      if (_result!['petitioner_advocate'] != null) _infoRow("Petitioner's Advocate", _result!['petitioner_advocate']),
-      if (_result!['respondent_advocate'] != null) _infoRow("Respondent's Advocate", _result!['respondent_advocate']),
-    ]);
+    return _buildInfoCard(
+      isDark,
+      "Parties",
+      Icons.people_rounded,
+      const Color(0xFF3B82F6),
+      [
+        if (_result!['petitioner_name'] != null)
+          _infoRow("Petitioner", _result!['petitioner_name']),
+        if (_result!['respondent_name'] != null)
+          _infoRow("Respondent", _result!['respondent_name']),
+        if (_result!['petitioner_advocate'] != null)
+          _infoRow("Petitioner's Advocate", _result!['petitioner_advocate']),
+        if (_result!['respondent_advocate'] != null)
+          _infoRow("Respondent's Advocate", _result!['respondent_advocate']),
+      ],
+    );
   }
 
-  Widget _buildInfoCard(bool isDark, String title, IconData icon, Color color, List<Widget> children) {
+  Widget _buildInfoCard(
+    bool isDark,
+    String title,
+    IconData icon,
+    Color color,
+    List<Widget> children,
+  ) {
     if (children.isEmpty) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -362,8 +507,14 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
             children: [
               Icon(icon, color: color, size: 18),
               const SizedBox(width: 8),
-              Text(title, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A))),
+              Text(
+                title,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 14),
@@ -382,11 +533,24 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
         children: [
           SizedBox(
             width: 120,
-            child: Text(label, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: const Color(0xFF94A3B8))),
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF94A3B8),
+              ),
+            ),
           ),
           Expanded(
-            child: Text(value, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white : const Color(0xFF0F172A))),
+            child: Text(
+              value,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : const Color(0xFF0F172A),
+              ),
+            ),
           ),
         ],
       ),
@@ -401,19 +565,37 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.timeline_rounded, color: Color(0xFF10B981), size: 18),
+              const Icon(
+                Icons.timeline_rounded,
+                color: Color(0xFF10B981),
+                size: 18,
+              ),
               const SizedBox(width: 8),
-              Text("Hearing History", style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A))),
+              Text(
+                "Hearing History",
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+              ),
               const Spacer(),
-              Text("${hearings.length} hearings", style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF94A3B8))),
+              Text(
+                "${hearings.length} hearings",
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: const Color(0xFF94A3B8),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -432,12 +614,21 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                     child: Column(
                       children: [
                         Container(
-                          width: 10, height: 10,
+                          width: 10,
+                          height: 10,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: i == 0 ? const Color(0xFF10B981) : const Color(0xFF64748B),
+                            color:
+                                i == 0
+                                    ? const Color(0xFF10B981)
+                                    : const Color(0xFF64748B),
                             border: Border.all(
-                              color: i == 0 ? const Color(0xFF10B981).withValues(alpha: 0.3) : Colors.transparent,
+                              color:
+                                  i == 0
+                                      ? const Color(
+                                        0xFF10B981,
+                                      ).withValues(alpha: 0.3)
+                                      : Colors.transparent,
                               width: 3,
                             ),
                           ),
@@ -446,7 +637,10 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                           Expanded(
                             child: Container(
                               width: 1.5,
-                              color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                              color:
+                                  isDark
+                                      ? const Color(0xFF334155)
+                                      : const Color(0xFFE2E8F0),
                             ),
                           ),
                       ],
@@ -462,16 +656,35 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                         children: [
                           Text(
                             _formatDate(h['hearing_date']?.toString() ?? ''),
-                            style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700,
-                                color: isDark ? Colors.white : const Color(0xFF0F172A)),
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color:
+                                  isDark
+                                      ? Colors.white
+                                      : const Color(0xFF0F172A),
+                            ),
                           ),
                           if (h['purpose'] != null) ...[
                             const SizedBox(height: 4),
-                            Text(h['purpose'], style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF94A3B8))),
+                            Text(
+                              h['purpose'],
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                color: const Color(0xFF94A3B8),
+                              ),
+                            ),
                           ],
                           if (h['business_done'] != null) ...[
                             const SizedBox(height: 3),
-                            Text(h['business_done'], style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF64748B), fontStyle: FontStyle.italic)),
+                            Text(
+                              h['business_done'],
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                color: const Color(0xFF64748B),
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
                           ],
                         ],
                       ),
@@ -493,38 +706,60 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.gavel_rounded, color: Color(0xFFD4AF37), size: 18),
+              const Icon(
+                Icons.gavel_rounded,
+                color: Color(0xFFD4AF37),
+                size: 18,
+              ),
               const SizedBox(width: 8),
-              Text("Acts & Sections", style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A))),
+              Text(
+                "Acts & Sections",
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: acts.map((a) {
-              final act = a as Map<String, dynamic>;
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD4AF37).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.3)),
-                ),
-                child: Text(
-                  "${act['act_name'] ?? ''}${act['section'] != null ? ' - ${act['section']}' : ''}",
-                  style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: const Color(0xFFD4AF37)),
-                ),
-              );
-            }).toList(),
+            children:
+                acts.map((a) {
+                  final act = a as Map<String, dynamic>;
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD4AF37).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Text(
+                      "${act['act_name'] ?? ''}${act['section'] != null ? ' - ${act['section']}' : ''}",
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFD4AF37),
+                      ),
+                    ),
+                  );
+                }).toList(),
           ),
         ],
       ),
@@ -535,12 +770,18 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [Color(0xFF1E3A5F), Color(0xFF2563EB)]),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1E3A5F), Color(0xFF2563EB)],
+        ),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
-          const Icon(Icons.info_outline_rounded, color: Colors.white70, size: 20),
+          const Icon(
+            Icons.info_outline_rounded,
+            color: Colors.white70,
+            size: 20,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -548,7 +789,11 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               children: [
                 Text(
                   "Need legal advice on your case?",
-                  style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -565,10 +810,18 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               backgroundColor: Colors.white,
               foregroundColor: const Color(0xFF2563EB),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
               elevation: 0,
             ),
-            child: Text("Find Advocate", style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700)),
+            child: Text(
+              "Find Advocate",
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ],
       ),
@@ -579,12 +832,20 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
     return Center(
       child: Column(
         children: [
-          Icon(Icons.search_rounded, size: 60, color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          Icon(
+            Icons.search_rounded,
+            size: 60,
+            color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+          ),
           const SizedBox(height: 16),
           Text(
             "Paste your eCourts case details above\nto see case status and hearing history",
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF94A3B8), height: 1.5),
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: const Color(0xFF94A3B8),
+              height: 1.5,
+            ),
           ),
           const SizedBox(height: 24),
           Container(
@@ -592,16 +853,28 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+              border: Border.all(
+                color:
+                    isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("How to use:", style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A))),
+                Text(
+                  "How to use:",
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
                 const SizedBox(height: 8),
                 _stepItem("1", "Visit ecourts.gov.in or eCourts app"),
-                _stepItem("2", "Search your case by CNR, case number, or party name"),
+                _stepItem(
+                  "2",
+                  "Search your case by CNR, case number, or party name",
+                ),
                 _stepItem("3", "Copy the entire case status page content"),
                 _stepItem("4", "Paste it above and tap Track Case"),
               ],
@@ -618,15 +891,31 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
       child: Row(
         children: [
           Container(
-            width: 20, height: 20,
+            width: 20,
+            height: 20,
             decoration: BoxDecoration(
               color: const Color(0xFF10B981).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: Center(child: Text(num, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: const Color(0xFF10B981)))),
+            child: Center(
+              child: Text(
+                num,
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF10B981),
+                ),
+              ),
+            ),
           ),
           const SizedBox(width: 8),
-          Text(text, style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF64748B))),
+          Text(
+            text,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: const Color(0xFF64748B),
+            ),
+          ),
         ],
       ),
     );

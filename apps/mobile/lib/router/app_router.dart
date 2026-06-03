@@ -34,12 +34,9 @@ import '../pages/legal_pulse_screen.dart';
 import '../pages/chambers_chat_screen.dart';
 import '../pages/tools/know_your_rights_screen.dart';
 
-
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<dynamic> stream) {
-    _subscription = stream.listen(
-      (dynamic _) => notifyListeners(),
-    );
+    _subscription = stream.listen((dynamic _) => notifyListeners());
   }
 
   late final StreamSubscription<dynamic> _subscription;
@@ -57,11 +54,12 @@ class GuestModeService {
   static bool isGuestMode = false;
 }
 
-
 final appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
   initialLocation: '/splash',
-  refreshListenable: GoRouterRefreshStream(Supabase.instance.client.auth.onAuthStateChange),
+  refreshListenable: GoRouterRefreshStream(
+    Supabase.instance.client.auth.onAuthStateChange,
+  ),
   redirect: (context, state) {
     final session = Supabase.instance.client.auth.currentSession;
     final isLoggingIn = state.matchedLocation == '/login';
@@ -89,10 +87,7 @@ final appRouter = GoRouter(
     return null;
   },
   routes: [
-    GoRoute(
-      path: '/splash',
-      builder: (context, state) => const SplashScreen(),
-    ),
+    GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
     GoRoute(
       path: '/onboarding',
       builder: (context, state) => const OnboardingScreen(),
@@ -152,7 +147,9 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: '/cases/:id',
-          builder: (context, state) => CaseDetailScreen(id: state.pathParameters['id']!),
+          builder:
+              (context, state) =>
+                  CaseDetailScreen(id: state.pathParameters['id']!),
         ),
         GoRoute(
           path: '/clients',
@@ -204,7 +201,10 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: '/commissions/:id',
-          builder: (context, state) => CommissionDetailScreen(commissionId: state.pathParameters['id']!),
+          builder:
+              (context, state) => CommissionDetailScreen(
+                commissionId: state.pathParameters['id']!,
+              ),
         ),
         GoRoute(
           path: '/ai-chat',

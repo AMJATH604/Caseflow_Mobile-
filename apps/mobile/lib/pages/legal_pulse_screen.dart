@@ -8,11 +8,17 @@ import '../services/legal_news_service.dart';
 import '../components/error_state_widget.dart';
 
 // ─── Providers ─────────────────────────────────────────
-final legalNewsProvider = FutureProvider.family<List<LegalNewsArticle>, String>((ref, category) async {
-  return LegalNewsService.fetchArticles(category: category == 'all' ? null : category);
-});
+final legalNewsProvider = FutureProvider.family<List<LegalNewsArticle>, String>(
+  (ref, category) async {
+    return LegalNewsService.fetchArticles(
+      category: category == 'all' ? null : category,
+    );
+  },
+);
 
-final legalNewsBookmarksProvider = FutureProvider<List<LegalNewsArticle>>((ref) async {
+final legalNewsBookmarksProvider = FutureProvider<List<LegalNewsArticle>>((
+  ref,
+) async {
   return LegalNewsService.fetchBookmarks();
 });
 
@@ -32,7 +38,11 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
   static const _categories = [
     {'id': 'all', 'label': 'All', 'icon': Icons.dashboard_rounded},
     {'id': 'top_stories', 'label': 'Top Stories', 'icon': Icons.star_rounded},
-    {'id': 'supreme_court', 'label': 'Supreme Court', 'icon': Icons.account_balance_rounded},
+    {
+      'id': 'supreme_court',
+      'label': 'Supreme Court',
+      'icon': Icons.account_balance_rounded,
+    },
     {'id': 'high_court', 'label': 'High Courts', 'icon': Icons.gavel_rounded},
     {'id': 'news', 'label': 'News', 'icon': Icons.newspaper_rounded},
     {'id': 'columns', 'label': 'Columns', 'icon': Icons.article_rounded},
@@ -78,15 +88,16 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: _categories.map((cat) {
-                  if (cat['id'] == 'bookmarks') {
-                    return _BookmarksTab(ref: ref);
-                  }
-                  return _NewsFeedTab(
-                    category: cat['id'] as String,
-                    ref: ref,
-                  );
-                }).toList(),
+                children:
+                    _categories.map((cat) {
+                      if (cat['id'] == 'bookmarks') {
+                        return _BookmarksTab(ref: ref);
+                      }
+                      return _NewsFeedTab(
+                        category: cat['id'] as String,
+                        ref: ref,
+                      );
+                    }).toList(),
               ),
             ),
           ],
@@ -122,7 +133,11 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
               color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(Icons.newspaper_rounded, color: Colors.white, size: 26),
+            child: const Icon(
+              Icons.newspaper_rounded,
+              color: Colors.white,
+              size: 26,
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -157,13 +172,21 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
               borderRadius: BorderRadius.circular(12),
               child: Padding(
                 padding: const EdgeInsets.all(10),
-                child: _isRefreshing
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                      )
-                    : const Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
+                child:
+                    _isRefreshing
+                        ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                        : const Icon(
+                          Icons.refresh_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
               ),
             ),
           ),
@@ -189,24 +212,31 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
         dividerColor: Colors.transparent,
         labelColor: Colors.white,
         unselectedLabelColor: Colors.grey[600],
-        labelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700),
-        unselectedLabelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600),
+        labelStyle: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+        ),
+        unselectedLabelStyle: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
         labelPadding: const EdgeInsets.symmetric(horizontal: 6),
-        tabs: _categories.map((cat) {
-          return Tab(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(cat['icon'] as IconData, size: 14),
-                  const SizedBox(width: 6),
-                  Text(cat['label'] as String),
-                ],
-              ),
-            ),
-          );
-        }).toList(),
+        tabs:
+            _categories.map((cat) {
+              return Tab(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(cat['icon'] as IconData, size: 14),
+                      const SizedBox(width: 6),
+                      Text(cat['label'] as String),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
       ),
     );
   }
@@ -246,10 +276,11 @@ class _NewsFeedTab extends StatelessWidget {
         );
       },
       loading: () => _buildLoadingShimmer(),
-      error: (err, _) => ErrorStateWidget(
-        error: err,
-        onRetry: () => ref.invalidate(legalNewsProvider(category)),
-      ),
+      error:
+          (err, _) => ErrorStateWidget(
+            error: err,
+            onRetry: () => ref.invalidate(legalNewsProvider(category)),
+          ),
     );
   }
 
@@ -264,12 +295,20 @@ class _NewsFeedTab extends StatelessWidget {
               color: const Color(0xFFDC2626).withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.newspaper_rounded, size: 48, color: const Color(0xFFDC2626).withValues(alpha: 0.4)),
+            child: Icon(
+              Icons.newspaper_rounded,
+              size: 48,
+              color: const Color(0xFFDC2626).withValues(alpha: 0.4),
+            ),
           ),
           const SizedBox(height: 20),
           Text(
             "No articles yet",
-            style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primary),
+            style: GoogleFonts.outfit(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.primary,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -322,17 +361,28 @@ class _BookmarksTab extends StatelessWidget {
                     color: AppTheme.accent.withValues(alpha: 0.08),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.bookmark_border_rounded, size: 48, color: AppTheme.accent.withValues(alpha: 0.4)),
+                  child: Icon(
+                    Icons.bookmark_border_rounded,
+                    size: 48,
+                    color: AppTheme.accent.withValues(alpha: 0.4),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Text(
                   "No saved articles",
-                  style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                  style: GoogleFonts.outfit(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primary,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   "Tap the bookmark icon on any article to save it",
-                  style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[500]),
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: Colors.grey[500],
+                  ),
                 ),
               ],
             ),
@@ -341,14 +391,19 @@ class _BookmarksTab extends StatelessWidget {
         return ListView.builder(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 80),
           itemCount: articles.length,
-          itemBuilder: (context, index) => _NewsCard(article: articles[index], ref: ref),
+          itemBuilder:
+              (context, index) => _NewsCard(article: articles[index], ref: ref),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
-      error: (err, _) => ErrorStateWidget(
-        error: err,
-        onRetry: () => ref.invalidate(legalNewsBookmarksProvider),
-      ),
+      loading:
+          () => const Center(
+            child: CircularProgressIndicator(color: AppTheme.accent),
+          ),
+      error:
+          (err, _) => ErrorStateWidget(
+            error: err,
+            onRetry: () => ref.invalidate(legalNewsBookmarksProvider),
+          ),
     );
   }
 }
@@ -371,7 +426,11 @@ class _HeroNewsCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: AppTheme.border.withValues(alpha: 0.6)),
           boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 16, offset: const Offset(0, 6)),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
           ],
         ),
         child: Column(
@@ -380,24 +439,36 @@ class _HeroNewsCard extends StatelessWidget {
             // Image section
             if (article.imageUrl != null)
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
                 child: Image.network(
                   article.imageUrl!,
                   height: 180,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    height: 120,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [const Color(0xFFDC2626).withValues(alpha: 0.1), const Color(0xFFEF4444).withValues(alpha: 0.05)],
+                  errorBuilder:
+                      (_, __, ___) => Container(
+                        height: 120,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFFDC2626).withValues(alpha: 0.1),
+                              const Color(0xFFEF4444).withValues(alpha: 0.05),
+                            ],
+                          ),
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(24),
+                          ),
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.newspaper_rounded,
+                            size: 40,
+                            color: Color(0xFFDC2626),
+                          ),
+                        ),
                       ),
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.newspaper_rounded, size: 40, color: Color(0xFFDC2626)),
-                    ),
-                  ),
                 ),
               ),
 
@@ -483,7 +554,11 @@ class _NewsCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: AppTheme.border.withValues(alpha: 0.5)),
           boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 3)),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
           ],
         ),
         child: Row(
@@ -492,15 +567,18 @@ class _NewsCard extends StatelessWidget {
             // Thumbnail
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: article.imageUrl != null
-                  ? Image.network(
-                      article.imageUrl!,
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _PlaceholderThumb(category: article.category),
-                    )
-                  : _PlaceholderThumb(category: article.category),
+              child:
+                  article.imageUrl != null
+                      ? Image.network(
+                        article.imageUrl!,
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                        errorBuilder:
+                            (_, __, ___) =>
+                                _PlaceholderThumb(category: article.category),
+                      )
+                      : _PlaceholderThumb(category: article.category),
             ),
             const SizedBox(width: 14),
 
@@ -531,11 +609,19 @@ class _NewsCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.open_in_new_rounded, size: 12, color: Colors.grey[400]),
+                      Icon(
+                        Icons.open_in_new_rounded,
+                        size: 12,
+                        color: Colors.grey[400],
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         "Read on LiveLaw",
-                        style: GoogleFonts.inter(fontSize: 10, color: Colors.grey[400], fontWeight: FontWeight.w600),
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          color: Colors.grey[400],
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const Spacer(),
                       _BookmarkButton(article: article, ref: ref, small: true),
@@ -563,7 +649,10 @@ class _CategoryChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final info = _getCategoryInfo(category);
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: small ? 8 : 10, vertical: small ? 3 : 4),
+      padding: EdgeInsets.symmetric(
+        horizontal: small ? 8 : 10,
+        vertical: small ? 3 : 4,
+      ),
       decoration: BoxDecoration(
         color: info.color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
@@ -600,7 +689,11 @@ class _TimeAgo extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.access_time_rounded, size: small ? 10 : 12, color: Colors.grey[400]),
+        Icon(
+          Icons.access_time_rounded,
+          size: small ? 10 : 12,
+          color: Colors.grey[400],
+        ),
         SizedBox(width: small ? 3 : 4),
         Text(
           text,
@@ -629,10 +722,18 @@ class _ReadMoreButton extends StatelessWidget {
         children: [
           Text(
             "Read Full Article",
-            style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFFDC2626)),
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFFDC2626),
+            ),
           ),
           const SizedBox(width: 4),
-          const Icon(Icons.arrow_forward_rounded, size: 14, color: Color(0xFFDC2626)),
+          const Icon(
+            Icons.arrow_forward_rounded,
+            size: 14,
+            color: Color(0xFFDC2626),
+          ),
         ],
       ),
     );
@@ -644,7 +745,11 @@ class _BookmarkButton extends StatefulWidget {
   final WidgetRef ref;
   final bool small;
 
-  const _BookmarkButton({required this.article, required this.ref, this.small = false});
+  const _BookmarkButton({
+    required this.article,
+    required this.ref,
+    this.small = false,
+  });
 
   @override
   State<_BookmarkButton> createState() => _BookmarkButtonState();
@@ -661,17 +766,23 @@ class _BookmarkButtonState extends State<_BookmarkButton> {
       borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: EdgeInsets.all(widget.small ? 4 : 8),
-        child: _isLoading
-            ? SizedBox(
-                width: widget.small ? 14 : 18,
-                height: widget.small ? 14 : 18,
-                child: const CircularProgressIndicator(strokeWidth: 1.5, color: AppTheme.accent),
-              )
-            : Icon(
-                _isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                size: widget.small ? 18 : 22,
-                color: _isBookmarked ? AppTheme.accent : Colors.grey[400],
-              ),
+        child:
+            _isLoading
+                ? SizedBox(
+                  width: widget.small ? 14 : 18,
+                  height: widget.small ? 14 : 18,
+                  child: const CircularProgressIndicator(
+                    strokeWidth: 1.5,
+                    color: AppTheme.accent,
+                  ),
+                )
+                : Icon(
+                  _isBookmarked
+                      ? Icons.bookmark_rounded
+                      : Icons.bookmark_border_rounded,
+                  size: widget.small ? 18 : 22,
+                  color: _isBookmarked ? AppTheme.accent : Colors.grey[400],
+                ),
       ),
     );
   }
@@ -728,7 +839,11 @@ class _PlaceholderThumb extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Center(
-        child: Icon(info.icon, size: 28, color: info.color.withValues(alpha: 0.4)),
+        child: Icon(
+          info.icon,
+          size: 28,
+          color: info.color.withValues(alpha: 0.4),
+        ),
       ),
     );
   }
@@ -769,18 +884,46 @@ class _CategoryInfo {
 _CategoryInfo _getCategoryInfo(String category) {
   switch (category) {
     case 'supreme_court':
-      return const _CategoryInfo('Supreme Court', Color(0xFFDC2626), Icons.account_balance_rounded);
+      return const _CategoryInfo(
+        'Supreme Court',
+        Color(0xFFDC2626),
+        Icons.account_balance_rounded,
+      );
     case 'high_court':
-      return const _CategoryInfo('High Court', Color(0xFF7C3AED), Icons.gavel_rounded);
+      return const _CategoryInfo(
+        'High Court',
+        Color(0xFF7C3AED),
+        Icons.gavel_rounded,
+      );
     case 'top_stories':
-      return const _CategoryInfo('Top Story', Color(0xFFF59E0B), Icons.star_rounded);
+      return const _CategoryInfo(
+        'Top Story',
+        Color(0xFFF59E0B),
+        Icons.star_rounded,
+      );
     case 'news':
-      return const _CategoryInfo('News', Color(0xFF2563EB), Icons.newspaper_rounded);
+      return const _CategoryInfo(
+        'News',
+        Color(0xFF2563EB),
+        Icons.newspaper_rounded,
+      );
     case 'columns':
-      return const _CategoryInfo('Column', Color(0xFF059669), Icons.article_rounded);
+      return const _CategoryInfo(
+        'Column',
+        Color(0xFF059669),
+        Icons.article_rounded,
+      );
     case 'tribunals':
-      return const _CategoryInfo('Tribunal', Color(0xFFEC4899), Icons.policy_rounded);
+      return const _CategoryInfo(
+        'Tribunal',
+        Color(0xFFEC4899),
+        Icons.policy_rounded,
+      );
     default:
-      return const _CategoryInfo('Legal News', Color(0xFF6B7280), Icons.newspaper_rounded);
+      return const _CategoryInfo(
+        'Legal News',
+        Color(0xFF6B7280),
+        Icons.newspaper_rounded,
+      );
   }
 }

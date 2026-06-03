@@ -10,12 +10,15 @@ class PaymentRepository {
     if (user == null) return [];
 
     final profile = await BaseRepository.getCachedProfile();
-    final visibleCaseIds =
-        await BaseRepository.getVisibleCaseIds(profile, user.id);
+    final visibleCaseIds = await BaseRepository.getVisibleCaseIds(
+      profile,
+      user.id,
+    );
 
     if (visibleCaseIds.isEmpty) return [];
 
-    var query = _client.from('payments')
+    var query = _client
+        .from('payments')
         .select('*, cases(case_title, case_number, cnr_number, firm_id)');
 
     if (caseId != null) {
@@ -43,7 +46,8 @@ class PaymentRepository {
 
   /// Fee summary with ledger logic: revenue vs expenses.
   static Future<Map<String, double>> fetchCasePaymentSummary(
-      String caseId) async {
+    String caseId,
+  ) async {
     final response = await _client
         .from('payments')
         .select('total_fee, paid_amount, transaction_type')
@@ -55,7 +59,7 @@ class PaymentRepository {
         'total_fee': 0,
         'total_paid': 0,
         'total_expenses': 0,
-        'balance': 0
+        'balance': 0,
       };
     }
 
@@ -83,7 +87,8 @@ class PaymentRepository {
 
   /// Adds a new ledger entry (Payment or Expense).
   static Future<void> addPaymentInstallment(
-      Map<String, dynamic> payment) async {
+    Map<String, dynamic> payment,
+  ) async {
     final user = BaseRepository.requireAuth();
     await _client.from('payments').insert({
       ...payment,

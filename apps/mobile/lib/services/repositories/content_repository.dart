@@ -28,19 +28,33 @@ class ContentRepository {
     return response as List<dynamic>;
   }
 
-  static Future<List<dynamic>> searchBareActs(String query,
-      {String? actId}) async {
+  static Future<List<dynamic>> searchBareActs(
+    String query, {
+    String? actId,
+  }) async {
     // Normalize: Handle Art15, Art.15, Article 15, Sec 15, etc.
-    String cleanQuery = query.replaceAll(
-        RegExp(r'^(art|article|sec|section|§|art\.|sec\.)\s*',
-            caseSensitive: false),
-        '').trim();
+    String cleanQuery =
+        query
+            .replaceAll(
+              RegExp(
+                r'^(art|article|sec|section|§|art\.|sec\.)\s*',
+                caseSensitive: false,
+              ),
+              '',
+            )
+            .trim();
 
     if (cleanQuery == query.trim()) {
-      cleanQuery = query.replaceAll(
-          RegExp(r'^(art|article|sec|section|§|art\.|sec\.)',
-              caseSensitive: false),
-          '').trim();
+      cleanQuery =
+          query
+              .replaceAll(
+                RegExp(
+                  r'^(art|article|sec|section|§|art\.|sec\.)',
+                  caseSensitive: false,
+                ),
+                '',
+              )
+              .trim();
     }
 
     var queryBuilder = _client
@@ -70,8 +84,9 @@ class ContentRepository {
 
   // ─── Stamp Values ─────────────────────────────────────
 
-  static Future<List<Map<String, dynamic>>> fetchStampValues(
-      {String stateId = 'TN'}) async {
+  static Future<List<Map<String, dynamic>>> fetchStampValues({
+    String stateId = 'TN',
+  }) async {
     final response = await _client
         .from('stamp_values')
         .select()
@@ -94,14 +109,15 @@ class ContentRepository {
         .toList();
   }
 
-  static Future<List<LegalTemplate>> searchLegalTemplates(
-      String query) async {
+  static Future<List<LegalTemplate>> searchLegalTemplates(String query) async {
     // Sanitize for safety
     final sanitized = query.replaceAll(RegExp(r'[^\w\s]'), '');
     final response = await _client
         .from('legal_templates')
         .select('*')
-        .or('title.ilike.%$sanitized%,description.ilike.%$sanitized%,category.ilike.%$sanitized%')
+        .or(
+          'title.ilike.%$sanitized%,description.ilike.%$sanitized%,category.ilike.%$sanitized%',
+        )
         .limit(20);
     return (response as List)
         .map((json) => LegalTemplate.fromJson(json))
@@ -111,19 +127,23 @@ class ContentRepository {
   // ─── Documents (Supabase Storage) ──────────────────────
 
   static Future<List<Map<String, dynamic>>> fetchDocuments(
-      String caseId) async {
+    String caseId,
+  ) async {
     try {
-      final files =
-          await _client.storage.from('case-documents').list(path: caseId);
+      final files = await _client.storage
+          .from('case-documents')
+          .list(path: caseId);
       return files
-          .map((f) => {
-                'name': f.name,
-                'size': f.metadata?['size'] ?? 0,
-                'created_at': f.createdAt ?? '',
-                'url': _client.storage
-                    .from('case-documents')
-                    .getPublicUrl('$caseId/${f.name}'),
-              })
+          .map(
+            (f) => {
+              'name': f.name,
+              'size': f.metadata?['size'] ?? 0,
+              'created_at': f.createdAt ?? '',
+              'url': _client.storage
+                  .from('case-documents')
+                  .getPublicUrl('$caseId/${f.name}'),
+            },
+          )
           .toList();
     } catch (e) {
       return [];
@@ -131,9 +151,14 @@ class ContentRepository {
   }
 
   static Future<void> uploadDocument(
-      String caseId, Uint8List file, String fileName) async {
+    String caseId,
+    Uint8List file,
+    String fileName,
+  ) async {
     BaseRepository.requireAuth();
-    await _client.storage.from('case-documents').uploadBinary(
+    await _client.storage
+        .from('case-documents')
+        .uploadBinary(
           '$caseId/$fileName',
           file,
           fileOptions: const FileOptions(upsert: true),
@@ -141,9 +166,7 @@ class ContentRepository {
   }
 
   static Future<void> deleteDocument(String caseId, String fileName) async {
-    await _client.storage
-        .from('case-documents')
-        .remove(['$caseId/$fileName']);
+    await _client.storage.from('case-documents').remove(['$caseId/$fileName']);
   }
 
   // ─── Tasks ─────────────────────────────────────────────
@@ -156,9 +179,7 @@ class ContentRepository {
         .select()
         .eq('created_by', user.id)
         .order('created_at');
-    return (response as List)
-        .map((json) => TaskModel.fromJson(json))
-        .toList();
+    return (response as List).map((json) => TaskModel.fromJson(json)).toList();
   }
 
   static Stream<List<TaskModel>> tasksStream() {
@@ -166,19 +187,18 @@ class ContentRepository {
         .from('tasks')
         .stream(primaryKey: ['id'])
         .order('created_at')
-        .map((data) =>
-            data.map((json) => TaskModel.fromJson(json)).toList());
+        .map((data) => data.map((json) => TaskModel.fromJson(json)).toList());
   }
 
   static Future<void> createTask(String title) async {
     final user = BaseRepository.requireAuth();
-    await _client
-        .from('tasks')
-        .insert({'title': title, 'created_by': user.id});
+    await _client.from('tasks').insert({'title': title, 'created_by': user.id});
   }
 
   static Future<void> updateTask(
-      String id, Map<String, dynamic> updates) async {
+    String id,
+    Map<String, dynamic> updates,
+  ) async {
     await _client.from('tasks').update(updates).eq('id', id);
   }
 
@@ -189,15 +209,19 @@ class ContentRepository {
   // ─── District Portals ──────────────────────────────────
 
   static Future<String?> getDistrictPortalUrl(
-      String state, String district, String type) async {
+    String state,
+    String district,
+    String type,
+  ) async {
     try {
-      final response = await _client
-          .from('district_portals')
-          .select('url')
-          .eq('state', state)
-          .eq('district', district)
-          .eq('portal_type', type)
-          .maybeSingle();
+      final response =
+          await _client
+              .from('district_portals')
+              .select('url')
+              .eq('state', state)
+              .eq('district', district)
+              .eq('portal_type', type)
+              .maybeSingle();
 
       if (response != null && response['url'] != null) {
         return response['url'] as String;
@@ -205,8 +229,10 @@ class ContentRepository {
 
       // Smart Fallback for Tamil Nadu
       if (state == "Tamil Nadu") {
-        final cleanDistrict =
-            district.toLowerCase().replaceAll(RegExp(r'\s+'), '');
+        final cleanDistrict = district.toLowerCase().replaceAll(
+          RegExp(r'\s+'),
+          '',
+        );
         if (type == 'certified_copy') {
           return 'https://$cleanDistrict.dcourts.gov.in/copyist-section/';
         } else if (type == 'video_conference') {

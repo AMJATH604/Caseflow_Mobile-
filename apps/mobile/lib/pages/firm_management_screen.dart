@@ -16,7 +16,8 @@ class FirmManagementScreen extends ConsumerStatefulWidget {
   const FirmManagementScreen({super.key});
 
   @override
-  ConsumerState<FirmManagementScreen> createState() => _FirmManagementScreenState();
+  ConsumerState<FirmManagementScreen> createState() =>
+      _FirmManagementScreenState();
 }
 
 class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
@@ -67,10 +68,15 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
       final members = await FirmService.fetchFirmMembers();
       if (mounted) {
         setState(() => _members = members);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Invitation sent!")));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Invitation sent!")));
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -81,9 +87,15 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
     try {
       await FirmService.acceptInvitation(id);
       await _loadInitialData();
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Firm joined successfully!")));
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Firm joined successfully!")),
+        );
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -110,14 +122,16 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
 
     // Optimistic add
     setState(() {
-      _optimisticNotices.add(CaseComment(
-        id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
-        firmId: firmId ?? '',
-        senderId: _profile?.id ?? '',
-        message: text,
-        senderName: senderName,
-        createdAt: DateTime.now(),
-      ));
+      _optimisticNotices.add(
+        CaseComment(
+          id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+          firmId: firmId ?? '',
+          senderId: _profile?.id ?? '',
+          message: text,
+          senderName: senderName,
+          createdAt: DateTime.now(),
+        ),
+      );
     });
     _noticeController.clear();
     _scrollToBottom();
@@ -139,12 +153,18 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
     String? attachmentType;
 
     if (type == 'camera') {
-      final picked = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 70);
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        imageQuality: 70,
+      );
       if (picked == null) return;
       file = File(picked.path);
       attachmentType = 'image';
     } else if (type == 'gallery') {
-      final picked = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 70);
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+      );
       if (picked == null) return;
       file = File(picked.path);
       attachmentType = 'image';
@@ -171,7 +191,10 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
       final senderName = _profile?.fullName ?? "Team Member";
       await SupabaseService.postDiscussion({
         'firm_id': firmId,
-        'message': attachmentType == 'image' ? '📷 Photo' : '📎 ${file.path.split('/').last}',
+        'message':
+            attachmentType == 'image'
+                ? '📷 Photo'
+                : '📎 ${file.path.split('/').last}',
         'case_id': null,
         'sender_name': senderName,
         'attachment_url': url,
@@ -181,7 +204,9 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Failed to upload. Check your internet connection.")),
+          const SnackBar(
+            content: Text("Failed to upload. Check your internet connection."),
+          ),
         );
       }
     }
@@ -192,47 +217,77 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
   void _showAttachmentSheet() {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text("Share", style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder:
+          (ctx) => SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildAttachOption(Icons.camera_alt_rounded, "Camera", Colors.pink, () {
-                    Navigator.pop(ctx);
-                    _sendAttachment(type: 'camera');
-                  }),
-                  _buildAttachOption(Icons.photo_library_rounded, "Gallery", Colors.purple, () {
-                    Navigator.pop(ctx);
-                    _sendAttachment(type: 'gallery');
-                  }),
-                  _buildAttachOption(Icons.insert_drive_file_rounded, "Document", Colors.blue, () {
-                    Navigator.pop(ctx);
-                    _sendAttachment(type: 'file');
-                  }),
+                  Text(
+                    "Share",
+                    style: GoogleFonts.outfit(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildAttachOption(
+                        Icons.camera_alt_rounded,
+                        "Camera",
+                        Colors.pink,
+                        () {
+                          Navigator.pop(ctx);
+                          _sendAttachment(type: 'camera');
+                        },
+                      ),
+                      _buildAttachOption(
+                        Icons.photo_library_rounded,
+                        "Gallery",
+                        Colors.purple,
+                        () {
+                          Navigator.pop(ctx);
+                          _sendAttachment(type: 'gallery');
+                        },
+                      ),
+                      _buildAttachOption(
+                        Icons.insert_drive_file_rounded,
+                        "Document",
+                        Colors.blue,
+                        () {
+                          Navigator.pop(ctx);
+                          _sendAttachment(type: 'file');
+                        },
+                      ),
+                    ],
+                  ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
   }
 
-  Widget _buildAttachOption(IconData icon, String label, Color color, VoidCallback onTap) {
+  Widget _buildAttachOption(
+    IconData icon,
+    String label,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Column(
         children: [
           Container(
-            width: 56, height: 56,
+            width: 56,
+            height: 56,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
@@ -240,7 +295,14 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
             child: Icon(icon, color: color, size: 26),
           ),
           const SizedBox(height: 8),
-          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey[600])),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[600],
+            ),
+          ),
         ],
       ),
     );
@@ -264,11 +326,15 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                 color: AppTheme.accent,
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 8,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (_profile?.isFirmMember == true || (_profile?.isFirmOwner ?? false)) ...[
+                      if (_profile?.isFirmMember == true ||
+                          (_profile?.isFirmOwner ?? false)) ...[
                         _buildSectionHeader("Digital Chambers"),
                         _buildNoticeBoard(),
                         const SizedBox(height: 32),
@@ -314,12 +380,22 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E293B), size: 20),
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Color(0xFF1E293B),
+              size: 20,
+            ),
             onPressed: () => context.go('/'),
           ),
           const SizedBox(width: 4),
-          Text("Firm Operating System",
-            style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w900, color: const Color(0xFF1E293B), letterSpacing: -0.5),
+          Text(
+            "Firm Operating System",
+            style: GoogleFonts.inter(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              color: const Color(0xFF1E293B),
+              letterSpacing: -0.5,
+            ),
           ),
         ],
       ),
@@ -331,9 +407,24 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
-          Container(width: 4, height: 18, decoration: BoxDecoration(color: AppTheme.accent, borderRadius: BorderRadius.circular(2))),
+          Container(
+            width: 4,
+            height: 18,
+            decoration: BoxDecoration(
+              color: AppTheme.accent,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
           const SizedBox(width: 12),
-          Text(title.toUpperCase(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: 2)),
+          Text(
+            title.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF1E293B),
+              letterSpacing: 2,
+            ),
+          ),
         ],
       ),
     );
@@ -353,17 +444,28 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: AppTheme.accent.withValues(alpha: 0.25), blurRadius: 16, offset: const Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.accent.withValues(alpha: 0.25),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Container(
-              width: 52, height: 52,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(Icons.forum_rounded, color: Colors.white, size: 26),
+              child: const Icon(
+                Icons.forum_rounded,
+                color: Colors.white,
+                size: 26,
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -372,23 +474,37 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                 children: [
                   const Text(
                     "Chambers Chat",
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.3),
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: -0.3,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     "Tap to open full conversation",
-                    style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.7), fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
             ),
             Container(
-              width: 36, height: 36,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 16),
+              child: const Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: Colors.white,
+                size: 16,
+              ),
             ),
           ],
         ),
@@ -396,25 +512,35 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
     );
   }
 
-
   // ─── REMAINING WIDGETS (unchanged logic, preserved) ──
 
   Widget _buildInviteForm() {
     return Container(
-      decoration: BoxDecoration(color: AppTheme.darkCard, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.darkBorder)),
+      decoration: BoxDecoration(
+        color: AppTheme.darkCard,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.darkBorder),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             Container(
-              decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
               child: TextField(
                 controller: _emailController,
                 style: const TextStyle(color: Color(0xFF1E293B), fontSize: 13),
                 decoration: InputDecoration(
                   hintText: "Junior's Professional Email",
                   hintStyle: const TextStyle(color: Color(0xFFCBD5E1)),
-                  prefixIcon: const Icon(Icons.alternate_email_rounded, size: 18, color: Color(0xFF94A3B8)),
+                  prefixIcon: const Icon(
+                    Icons.alternate_email_rounded,
+                    size: 18,
+                    color: Color(0xFF94A3B8),
+                  ),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.all(16),
                 ),
@@ -426,11 +552,22 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _inviteMember,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.accent, foregroundColor: Colors.black,
+                  backgroundColor: AppTheme.accent,
+                  foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 0,
                 ),
-                child: const Text("INITIALIZE RECRUITMENT", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 1)),
+                child: const Text(
+                  "INITIALIZE RECRUITMENT",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 11,
+                    letterSpacing: 1,
+                  ),
+                ),
               ),
             ),
           ],
@@ -443,23 +580,60 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
     final bool isMe = member.memberId == _profile?.id;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(color: AppTheme.darkCard, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.darkBorder)),
+      decoration: BoxDecoration(
+        color: AppTheme.darkCard,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.darkBorder),
+      ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         leading: Container(
-          width: 40, height: 40,
-          decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(8)),
-          child: const Icon(Icons.person_pin_rounded, color: Color(0xFF64748B), size: 20),
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: const Color(0xFFE2E8F0),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(
+            Icons.person_pin_rounded,
+            color: Color(0xFF64748B),
+            size: 20,
+          ),
         ),
         title: Text(
-          isMe ? "${member.memberName ?? member.memberEmail} (Me)" : (member.memberName ?? member.memberEmail),
-          style: const TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF1E293B), fontSize: 14, letterSpacing: -0.5),
+          isMe
+              ? "${member.memberName ?? member.memberEmail} (Me)"
+              : (member.memberName ?? member.memberEmail),
+          style: const TextStyle(
+            fontWeight: FontWeight.w900,
+            color: Color(0xFF1E293B),
+            fontSize: 14,
+            letterSpacing: -0.5,
+          ),
         ),
-        subtitle: Text(member.status.toUpperCase(),
-          style: TextStyle(color: member.status == 'accepted' ? AppTheme.success.withValues(alpha: 0.7) : AppTheme.accent.withValues(alpha: 0.7), fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 1)),
-        trailing: (_profile?.isFirmOwner ?? false)
-            ? IconButton(icon: Icon(Icons.remove_circle_outline_rounded, color: Colors.redAccent.withValues(alpha: 0.4), size: 18), onPressed: () => _removeMember(member.id))
-            : null,
+        subtitle: Text(
+          member.status.toUpperCase(),
+          style: TextStyle(
+            color:
+                member.status == 'accepted'
+                    ? AppTheme.success.withValues(alpha: 0.7)
+                    : AppTheme.accent.withValues(alpha: 0.7),
+            fontSize: 9,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1,
+          ),
+        ),
+        trailing:
+            (_profile?.isFirmOwner ?? false)
+                ? IconButton(
+                  icon: Icon(
+                    Icons.remove_circle_outline_rounded,
+                    color: Colors.redAccent.withValues(alpha: 0.4),
+                    size: 18,
+                  ),
+                  onPressed: () => _removeMember(member.id),
+                )
+                : null,
       ),
     );
   }
@@ -467,16 +641,49 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
   Widget _buildStaffFirmCard() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: AppTheme.accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppTheme.accent.withValues(alpha: 0.3))),
+      decoration: BoxDecoration(
+        color: AppTheme.accent.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.accent.withValues(alpha: 0.3)),
+      ),
       child: Row(
         children: [
-          Container(padding: const EdgeInsets.all(12), decoration: const BoxDecoration(color: AppTheme.accent, shape: BoxShape.circle), child: const Icon(Icons.verified_user_rounded, color: Colors.black, size: 24)),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: const BoxDecoration(
+              color: AppTheme.accent,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.verified_user_rounded,
+              color: Colors.black,
+              size: 24,
+            ),
+          ),
           const SizedBox(width: 20),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text("Authenticated Chambers Profile", style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E293B), fontSize: 16)),
-            const SizedBox(height: 4),
-            Text("Full professional access to shared documents & cases", style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.5))),
-          ])),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Authenticated Chambers Profile",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E293B),
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "Full professional access to shared documents & cases",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -484,16 +691,45 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
 
   Widget _buildInvitationCard(FirmMember invitation) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16), padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(24), border: Border.all(color: AppTheme.accent.withValues(alpha: 0.4))),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE2E8F0),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.accent.withValues(alpha: 0.4)),
+      ),
       child: ListTile(
-        leading: const CircleAvatar(backgroundColor: AppTheme.accent, child: Icon(Icons.business_rounded, color: Colors.black)),
-        title: const Text("Professional Invitation", style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
-        subtitle: Text("Join flow by ${invitation.ownerName ?? invitation.ownerId}", style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12)),
+        leading: const CircleAvatar(
+          backgroundColor: AppTheme.accent,
+          child: Icon(Icons.business_rounded, color: Colors.black),
+        ),
+        title: const Text(
+          "Professional Invitation",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1E293B),
+          ),
+        ),
+        subtitle: Text(
+          "Join flow by ${invitation.ownerName ?? invitation.ownerId}",
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.5),
+            fontSize: 12,
+          ),
+        ),
         trailing: ElevatedButton(
           onPressed: () => _acceptInvitation(invitation.id),
-          style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-          child: const Text("Accept", style: TextStyle(fontWeight: FontWeight.bold)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppTheme.accent,
+            foregroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: const Text(
+            "Accept",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
       ),
     );
@@ -503,27 +739,72 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
     return Center(
       child: Container(
         padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(color: AppTheme.darkCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.darkBorder)),
+        decoration: BoxDecoration(
+          color: AppTheme.darkCard,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTheme.darkBorder),
+        ),
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: AppTheme.accent.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.accent.withValues(alpha: 0.1))),
-              child: const Icon(Icons.account_tree_rounded, size: 48, color: AppTheme.accent),
+              decoration: BoxDecoration(
+                color: AppTheme.accent.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppTheme.accent.withValues(alpha: 0.1),
+                ),
+              ),
+              child: const Icon(
+                Icons.account_tree_rounded,
+                size: 48,
+                color: AppTheme.accent,
+              ),
             ),
             const SizedBox(height: 24),
-            Text("Professional Hub", style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w900, color: const Color(0xFF1E293B), letterSpacing: -1)),
+            Text(
+              "Professional Hub",
+              style: GoogleFonts.inter(
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                color: const Color(0xFF1E293B),
+                letterSpacing: -1,
+              ),
+            ),
             const SizedBox(height: 12),
-            Text("Transform CaseFlow into a shared chambers workspace. Recruit juniors and synchronize your legal operations.",
-              textAlign: TextAlign.center, style: TextStyle(color: const Color(0xFF94A3B8), fontSize: 13, height: 1.5, fontWeight: FontWeight.w500)),
+            Text(
+              "Transform CaseFlow into a shared chambers workspace. Recruit juniors and synchronize your legal operations.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: const Color(0xFF94A3B8),
+                fontSize: 13,
+                height: 1.5,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () => context.push('/upgrade'),
                 icon: const Icon(Icons.flash_on_rounded, size: 18),
-                label: const Text("ACTIVATE BUSINESS NODES", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5)),
-                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accent, foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 18), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), elevation: 0),
+                label: const Text(
+                  "ACTIVATE BUSINESS NODES",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.accent,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 0,
+                ),
               ),
             ),
           ],
@@ -534,27 +815,58 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
 
   Widget _buildEmptyTeamState() {
     return Container(
-      width: double.infinity, padding: const EdgeInsets.all(40), margin: const EdgeInsets.only(top: 8),
-      decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFFE2E8F0))),
-      child: Column(children: [
-        Icon(Icons.person_add_rounded, size: 48, color: const Color(0xFFE2E8F0)),
-        const SizedBox(height: 16),
-        Text("Recruit your first professional junior", style: TextStyle(color: const Color(0xFFCBD5E1), fontSize: 13, fontWeight: FontWeight.bold)),
-      ]),
+      width: double.infinity,
+      padding: const EdgeInsets.all(40),
+      margin: const EdgeInsets.only(top: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.person_add_rounded,
+            size: 48,
+            color: const Color(0xFFE2E8F0),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "Recruit your first professional junior",
+            style: TextStyle(
+              color: const Color(0xFFCBD5E1),
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Future<void> _removeMember(String id) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text("Remove Team Member?"),
-        content: const Text("They will no longer have access to cases in this firm."),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Cancel")),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("Remove", style: TextStyle(color: Colors.red))),
-        ],
-      ),
+      builder:
+          (ctx) => AlertDialog(
+            title: const Text("Remove Team Member?"),
+            content: const Text(
+              "They will no longer have access to cases in this firm.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text(
+                  "Remove",
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
     );
     if (confirm == true) {
       setState(() => _isLoading = true);

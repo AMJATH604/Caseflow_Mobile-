@@ -25,19 +25,17 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Track dashboard view
     AnalyticsService.logScreenView('Dashboard');
-    
+
     final profileAsync = ref.watch(userProfileProvider);
     final profile = profileAsync.valueOrNull;
-    
+
     // If the profile is loading, show a general loading indicator
     if (profileAsync.isLoading) {
       return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(color: AppTheme.accent),
-        ),
+        body: Center(child: CircularProgressIndicator(color: AppTheme.accent)),
       );
     }
-    
+
     // If logged in user is a citizen, show the Citizen Home Screen directly
     if (profile != null && profile.isCitizen) {
       return const CitizenHomeScreen();
@@ -46,9 +44,10 @@ class DashboardScreen extends ConsumerWidget {
     final isMobile = MediaQuery.of(context).size.width < 768;
     final statsAsync = ref.watch(dashboardStatsProvider);
     final firstName = profile?.fullName?.split(' ').first;
-    final userName = firstName != null && firstName.isNotEmpty 
-        ? "Advocate $firstName" 
-        : "Advocate";
+    final userName =
+        firstName != null && firstName.isNotEmpty
+            ? "Advocate $firstName"
+            : "Advocate";
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -64,14 +63,29 @@ class DashboardScreen extends ConsumerWidget {
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: statsAsync.when(
-            data: (stats) => isMobile 
-              ? _buildMobileDashboard(context, ref, stats, userName, profileAsync) 
-              : _buildDesktopDashboard(context, ref, stats, userName, profileAsync),
+            data:
+                (stats) =>
+                    isMobile
+                        ? _buildMobileDashboard(
+                          context,
+                          ref,
+                          stats,
+                          userName,
+                          profileAsync,
+                        )
+                        : _buildDesktopDashboard(
+                          context,
+                          ref,
+                          stats,
+                          userName,
+                          profileAsync,
+                        ),
             loading: () => _buildLoadingState(),
-            error: (err, stack) => ErrorStateWidget(
-              error: err,
-              onRetry: () => ref.invalidate(dashboardStatsProvider),
-            ),
+            error:
+                (err, stack) => ErrorStateWidget(
+                  error: err,
+                  onRetry: () => ref.invalidate(dashboardStatsProvider),
+                ),
           ),
         ),
       ),
@@ -80,7 +94,13 @@ class DashboardScreen extends ConsumerWidget {
 
   // ─── MOBILE DASHBOARD ────────────────────────────────
 
-  Widget _buildMobileDashboard(BuildContext context, WidgetRef ref, Map<String, dynamic> stats, String userName, AsyncValue<UserProfile> profileAsync) {
+  Widget _buildMobileDashboard(
+    BuildContext context,
+    WidgetRef ref,
+    Map<String, dynamic> stats,
+    String userName,
+    AsyncValue<UserProfile> profileAsync,
+  ) {
     final todayHearings = stats['todayHearings'] as List<Hearing>? ?? [];
 
     return Column(
@@ -144,23 +164,37 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                     // Mini profile badge
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF10B981).withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                        border: Border.all(
+                          color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            width: 6, height: 6,
-                            decoration: const BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle),
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF10B981),
+                              shape: BoxShape.circle,
+                            ),
                           ),
                           const SizedBox(width: 6),
                           Text(
                             "ONLINE",
-                            style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.w800, color: const Color(0xFF10B981), letterSpacing: 1),
+                            style: GoogleFonts.inter(
+                              fontSize: 8,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF10B981),
+                              letterSpacing: 1,
+                            ),
                           ),
                         ],
                       ),
@@ -171,11 +205,23 @@ class DashboardScreen extends ConsumerWidget {
                 // Compact stats inside header
                 Row(
                   children: [
-                    _buildHeaderStat("${stats['activeCasesCount'] ?? 0}", "Active", const Color(0xFF818CF8)),
+                    _buildHeaderStat(
+                      "${stats['activeCasesCount'] ?? 0}",
+                      "Active",
+                      const Color(0xFF818CF8),
+                    ),
                     const SizedBox(width: 8),
-                    _buildHeaderStat("${todayHearings.length}", "Today", const Color(0xFFFBBF24)),
+                    _buildHeaderStat(
+                      "${todayHearings.length}",
+                      "Today",
+                      const Color(0xFFFBBF24),
+                    ),
                     const SizedBox(width: 8),
-                    _buildHeaderStat("${stats['clientsCount'] ?? 0}", "Clients", const Color(0xFF34D399)),
+                    _buildHeaderStat(
+                      "${stats['clientsCount'] ?? 0}",
+                      "Clients",
+                      const Color(0xFF34D399),
+                    ),
                   ],
                 ),
               ],
@@ -295,10 +341,42 @@ class DashboardScreen extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildFeatureCard(context, Icons.business_center_rounded, "Cases", const Color(0xFF6366F1), () { context.go('/cases'); }),
-                  _buildFeatureCard(context, Icons.people_alt_rounded, "Clients", const Color(0xFF10B981), () { context.go('/clients'); }),
-                  _buildFeatureCard(context, Icons.gavel_rounded, "Hearings", const Color(0xFFF59E0B), () { context.go('/hearings'); }),
-                  _buildFeatureCard(context, Icons.credit_card_rounded, "Payments", const Color(0xFF0EA5E9), () { context.go('/payments'); }),
+                  _buildFeatureCard(
+                    context,
+                    Icons.business_center_rounded,
+                    "Cases",
+                    const Color(0xFF6366F1),
+                    () {
+                      context.go('/cases');
+                    },
+                  ),
+                  _buildFeatureCard(
+                    context,
+                    Icons.people_alt_rounded,
+                    "Clients",
+                    const Color(0xFF10B981),
+                    () {
+                      context.go('/clients');
+                    },
+                  ),
+                  _buildFeatureCard(
+                    context,
+                    Icons.gavel_rounded,
+                    "Hearings",
+                    const Color(0xFFF59E0B),
+                    () {
+                      context.go('/hearings');
+                    },
+                  ),
+                  _buildFeatureCard(
+                    context,
+                    Icons.credit_card_rounded,
+                    "Payments",
+                    const Color(0xFF0EA5E9),
+                    () {
+                      context.go('/payments');
+                    },
+                  ),
                 ],
               ),
               const SizedBox(height: 32),
@@ -314,27 +392,69 @@ class DashboardScreen extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildActionButton(context, Icons.add_rounded, "New Case", const Color(0xFF3B82F6), () {
-                    showDialog(context: context, builder: (context) => const NewCaseDialog());
-                  }),
-                  _buildActionButton(context, Icons.person_add_rounded, "New Client", const Color(0xFF4ADE80), () {
-                    showDialog(context: context, builder: (context) => const AddClientDialog());
-                  }),
-                  _buildActionButton(context, Icons.event_available_rounded, "New Hearing", const Color(0xFFF59E0B), () {
-                    showDialog(context: context, builder: (context) => const ScheduleHearingDialog());
-                  }),
-                  _buildActionButton(context, Icons.note_add_rounded, "Log C.A", Colors.deepOrange, () {
-                    showDialog(context: context, builder: (context) => const LogCCDialog());
-                  }),
+                  _buildActionButton(
+                    context,
+                    Icons.add_rounded,
+                    "New Case",
+                    const Color(0xFF3B82F6),
+                    () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const NewCaseDialog(),
+                      );
+                    },
+                  ),
+                  _buildActionButton(
+                    context,
+                    Icons.person_add_rounded,
+                    "New Client",
+                    const Color(0xFF4ADE80),
+                    () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const AddClientDialog(),
+                      );
+                    },
+                  ),
+                  _buildActionButton(
+                    context,
+                    Icons.event_available_rounded,
+                    "New Hearing",
+                    const Color(0xFFF59E0B),
+                    () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const ScheduleHearingDialog(),
+                      );
+                    },
+                  ),
+                  _buildActionButton(
+                    context,
+                    Icons.note_add_rounded,
+                    "Log C.A",
+                    Colors.deepOrange,
+                    () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const LogCCDialog(),
+                      );
+                    },
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  _buildActionButton(context, Icons.mail_rounded, "Invitations", Colors.purple, () {
-                    context.push('/collaborator-invitations');
-                  }),
+                  _buildActionButton(
+                    context,
+                    Icons.mail_rounded,
+                    "Invitations",
+                    Colors.purple,
+                    () {
+                      context.push('/collaborator-invitations');
+                    },
+                  ),
                 ],
               ),
               const SizedBox(height: 32),
@@ -351,7 +471,13 @@ class DashboardScreen extends ConsumerWidget {
 
   // ─── DESKTOP DASHBOARD ───────────────────────────────
 
-  Widget _buildDesktopDashboard(BuildContext context, WidgetRef ref, Map<String, dynamic> stats, String userName, AsyncValue<UserProfile> profileAsync) {
+  Widget _buildDesktopDashboard(
+    BuildContext context,
+    WidgetRef ref,
+    Map<String, dynamic> stats,
+    String userName,
+    AsyncValue<UserProfile> profileAsync,
+  ) {
     final todayHearings = stats['todayHearings'] as List<Hearing>? ?? [];
 
     return Column(
@@ -361,24 +487,31 @@ class DashboardScreen extends ConsumerWidget {
           children: [
             Text(
               "Dashboard",
-              style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w800),
+              style: Theme.of(
+                context,
+              ).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w800),
             ),
             const Spacer(),
             profileAsync.when(
-              data: (profile) => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: AppTheme.cardDecoration(color: AppTheme.surfaceLight),
-                child: Text(
-                  "BETA UNLOCKED",
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.accent,
-                    letterSpacing: 1,
+              data:
+                  (profile) => Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: AppTheme.cardDecoration(
+                      color: AppTheme.surfaceLight,
+                    ),
+                    child: Text(
+                      "BETA UNLOCKED",
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: AppTheme.accent,
+                        letterSpacing: 1,
+                      ),
+                    ),
                   ),
-
-                ),
-              ),
               loading: () => const SizedBox(),
               error: (_, __) => const SizedBox(),
             ),
@@ -390,23 +523,80 @@ class DashboardScreen extends ConsumerWidget {
           spacing: 20,
           runSpacing: 20,
           children: [
-            SizedBox(width: 280, child: KpiCard(title: "Active Cases", value: "${stats['activeCasesCount']}", icon: Icons.folder_open_rounded, accentColor: const Color(0xFF6366F1), onTap: () => context.go('/cases'))),
-            SizedBox(width: 280, child: KpiCard(title: "Today's Hearings", value: "${todayHearings.length}", icon: Icons.gavel_rounded, accentColor: const Color(0xFFF59E0B), showPulse: true, onTap: () => context.go('/hearings'))),
-            SizedBox(width: 280, child: KpiCard(title: "Upcoming Hearings", value: "${stats['upcomingHearingsCount']}", icon: Icons.calendar_month_rounded, accentColor: const Color(0xFF0EA5E9), onTap: () => context.go('/hearings'))),
-            SizedBox(width: 280, child: KpiCard(title: "Total Clients", value: "${stats['clientsCount']}", icon: Icons.people_rounded, accentColor: const Color(0xFF10B981), onTap: () => context.go('/clients'))),
+            SizedBox(
+              width: 280,
+              child: KpiCard(
+                title: "Active Cases",
+                value: "${stats['activeCasesCount']}",
+                icon: Icons.folder_open_rounded,
+                accentColor: const Color(0xFF6366F1),
+                onTap: () => context.go('/cases'),
+              ),
+            ),
+            SizedBox(
+              width: 280,
+              child: KpiCard(
+                title: "Today's Hearings",
+                value: "${todayHearings.length}",
+                icon: Icons.gavel_rounded,
+                accentColor: const Color(0xFFF59E0B),
+                showPulse: true,
+                onTap: () => context.go('/hearings'),
+              ),
+            ),
+            SizedBox(
+              width: 280,
+              child: KpiCard(
+                title: "Upcoming Hearings",
+                value: "${stats['upcomingHearingsCount']}",
+                icon: Icons.calendar_month_rounded,
+                accentColor: const Color(0xFF0EA5E9),
+                onTap: () => context.go('/hearings'),
+              ),
+            ),
+            SizedBox(
+              width: 280,
+              child: KpiCard(
+                title: "Total Clients",
+                value: "${stats['clientsCount']}",
+                icon: Icons.people_rounded,
+                accentColor: const Color(0xFF10B981),
+                onTap: () => context.go('/clients'),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 20),
         // Secondary stats row
         Row(
           children: [
-            StatChip(label: "Disposed", value: stats['disposedCasesCount'] ?? 0, color: const Color(0xFF14B8A6), icon: Icons.done_all_rounded),
+            StatChip(
+              label: "Disposed",
+              value: stats['disposedCasesCount'] ?? 0,
+              color: const Color(0xFF14B8A6),
+              icon: Icons.done_all_rounded,
+            ),
             const SizedBox(width: 10),
-            StatChip(label: "Closed", value: stats['dismissedCasesCount'] ?? 0, color: const Color(0xFF64748B), icon: Icons.close_rounded),
+            StatChip(
+              label: "Closed",
+              value: stats['dismissedCasesCount'] ?? 0,
+              color: const Color(0xFF64748B),
+              icon: Icons.close_rounded,
+            ),
             const SizedBox(width: 10),
-            StatChip(label: "E-Filings", value: stats['filingsCount'] ?? 0, color: const Color(0xFF3B82F6), icon: Icons.file_present_rounded),
+            StatChip(
+              label: "E-Filings",
+              value: stats['filingsCount'] ?? 0,
+              color: const Color(0xFF3B82F6),
+              icon: Icons.file_present_rounded,
+            ),
             const SizedBox(width: 10),
-            StatChip(label: "Pending ₹", value: stats['pendingPaymentsCount'] ?? 0, color: const Color(0xFFF97316), icon: Icons.account_balance_wallet_rounded),
+            StatChip(
+              label: "Pending ₹",
+              value: stats['pendingPaymentsCount'] ?? 0,
+              color: const Color(0xFFF97316),
+              icon: Icons.account_balance_wallet_rounded,
+            ),
           ],
         ),
         const SizedBox(height: 40),
@@ -415,7 +605,7 @@ class DashboardScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 2, 
+              flex: 2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -428,11 +618,7 @@ class DashboardScreen extends ConsumerWidget {
             const SizedBox(width: 32),
             const Expanded(
               flex: 1,
-              child: Column(
-                children: [
-                  DashboardCourtDiary(),
-                ],
-              ),
+              child: Column(children: [DashboardCourtDiary()]),
             ),
           ],
         ),
@@ -477,7 +663,13 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFeatureCard(BuildContext context, IconData icon, String label, Color accentColor, VoidCallback onTap) {
+  Widget _buildFeatureCard(
+    BuildContext context,
+    IconData icon,
+    String label,
+    Color accentColor,
+    VoidCallback onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -506,7 +698,13 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildActionButton(BuildContext context, IconData icon, String label, Color color, VoidCallback onTap) {
+  Widget _buildActionButton(
+    BuildContext context,
+    IconData icon,
+    String label,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -522,7 +720,7 @@ class DashboardScreen extends ConsumerWidget {
                   color: color.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
-                )
+                ),
               ],
             ),
             child: Icon(icon, color: const Color(0xFF1E293B), size: 24),
@@ -544,9 +742,11 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildLoadingState() {
-    return const Center(child: Padding(
-      padding: EdgeInsets.symmetric(vertical: 200),
-      child: CircularProgressIndicator(color: AppTheme.accent),
-    ));
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 200),
+        child: CircularProgressIndicator(color: AppTheme.accent),
+      ),
+    );
   }
 }

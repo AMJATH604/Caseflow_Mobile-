@@ -37,17 +37,22 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
     try {
       final user = SupabaseService.client.auth.currentUser;
       if (user != null) {
-        await SupabaseService.client.from('profiles').update({
-          'subscription_tier': widget.targetTier,
-          'updated_at': DateTime.now().toIso8601String(),
-        }).eq('id', user.id);
+        await SupabaseService.client
+            .from('profiles')
+            .update({
+              'subscription_tier': widget.targetTier,
+              'updated_at': DateTime.now().toIso8601String(),
+            })
+            .eq('id', user.id);
       }
-      
+
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Upgrade Successful! Welcome to ${widget.targetTier == 'pro' ? 'Pro' : 'Business'}."),
+            content: Text(
+              "Upgrade Successful! Welcome to ${widget.targetTier == 'pro' ? 'Pro' : 'Business'}.",
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -55,7 +60,10 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to update account: $e"), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text("Failed to update account: $e"),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -81,9 +89,10 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
     _paymentService.openCheckout(
       amount: isPro ? AppConfig.proPlanPrice : AppConfig.businessPlanPrice,
       name: isPro ? AppConfig.proPlanName : AppConfig.businessPlanName,
-      description: isPro 
-          ? "Unlimited Case Management & Document Tools"
-          : "Law Firm Management, Team Collaboration & Pro Features",
+      description:
+          isPro
+              ? "Unlimited Case Management & Document Tools"
+              : "Law Firm Management, Team Collaboration & Pro Features",
       userEmail: user.email ?? "",
       userContact: "",
     );
@@ -119,21 +128,36 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                gradient: isPro ? AppTheme.primaryGradient : const LinearGradient(colors: [Colors.purple, Colors.indigo]),
+                gradient:
+                    isPro
+                        ? AppTheme.primaryGradient
+                        : const LinearGradient(
+                          colors: [Colors.purple, Colors.indigo],
+                        ),
                 shape: BoxShape.circle,
               ),
-              child: Icon(isPro ? Icons.workspace_premium_rounded : Icons.business_center_rounded, color: const Color(0xFF1E293B), size: 36),
+              child: Icon(
+                isPro
+                    ? Icons.workspace_premium_rounded
+                    : Icons.business_center_rounded,
+                color: const Color(0xFF1E293B),
+                size: 36,
+              ),
             ),
             const SizedBox(height: 20),
             Text(
               "Unlock CaseFlow $planName",
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: -0.5),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                letterSpacing: -0.5,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
-              isPro 
-                ? "Everything you need to run a modern legal practice — all in one powerful app."
-                : "Transform your workspace into a collaborative law firm chambers.",
+              isPro
+                  ? "Everything you need to run a modern legal practice — all in one powerful app."
+                  : "Transform your workspace into a collaborative law firm chambers.",
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[500], fontSize: 13),
             ),
@@ -143,18 +167,57 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
             Flexible(
               child: SingleChildScrollView(
                 child: Column(
-                  children: isPro ? [
-                    _buildFeatureRow(Icons.work_rounded, "Unlimited Cases", "No 10-case limit"),
-                    _buildFeatureRow(Icons.picture_as_pdf_rounded, "Document Tools", "PDF, Word, OCR conversions"),
-                    _buildFeatureRow(Icons.notifications_active_rounded, "Smart Notifications", "Hearing reminders"),
-                    _buildFeatureRow(Icons.science_rounded, "Evidence Lab", "Evidence & witness notes"),
-                  ] : [
-                    _buildFeatureRow(Icons.business_rounded, "Law Firm Chambers", "Shared workspace for team"),
-                    _buildFeatureRow(Icons.person_add_rounded, "Invite Junior Advocates", "Build your team (Max 5)"),
-                    _buildFeatureRow(Icons.forum_rounded, "Intra-Team Chat", "Chat safely about case files"),
-                    _buildFeatureRow(Icons.assignment_ind_rounded, "Case Assignment", "Delegate work to associates"),
-                    _buildFeatureRow(Icons.all_inclusive_rounded, "All Pro Features", "Includes everything in Pro"),
-                  ],
+                  children:
+                      isPro
+                          ? [
+                            _buildFeatureRow(
+                              Icons.work_rounded,
+                              "Unlimited Cases",
+                              "No 10-case limit",
+                            ),
+                            _buildFeatureRow(
+                              Icons.picture_as_pdf_rounded,
+                              "Document Tools",
+                              "PDF, Word, OCR conversions",
+                            ),
+                            _buildFeatureRow(
+                              Icons.notifications_active_rounded,
+                              "Smart Notifications",
+                              "Hearing reminders",
+                            ),
+                            _buildFeatureRow(
+                              Icons.science_rounded,
+                              "Evidence Lab",
+                              "Evidence & witness notes",
+                            ),
+                          ]
+                          : [
+                            _buildFeatureRow(
+                              Icons.business_rounded,
+                              "Law Firm Chambers",
+                              "Shared workspace for team",
+                            ),
+                            _buildFeatureRow(
+                              Icons.person_add_rounded,
+                              "Invite Junior Advocates",
+                              "Build your team (Max 5)",
+                            ),
+                            _buildFeatureRow(
+                              Icons.forum_rounded,
+                              "Intra-Team Chat",
+                              "Chat safely about case files",
+                            ),
+                            _buildFeatureRow(
+                              Icons.assignment_ind_rounded,
+                              "Case Assignment",
+                              "Delegate work to associates",
+                            ),
+                            _buildFeatureRow(
+                              Icons.all_inclusive_rounded,
+                              "All Pro Features",
+                              "Includes everything in Pro",
+                            ),
+                          ],
                 ),
               ),
             ),
@@ -166,28 +229,48 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
               decoration: BoxDecoration(
                 color: AppTheme.background,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: isPro ? AppTheme.accent.withValues(alpha: 0.3) : Colors.purple.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color:
+                      isPro
+                          ? AppTheme.accent.withValues(alpha: 0.3)
+                          : Colors.purple.withValues(alpha: 0.3),
+                ),
               ),
               child: Row(
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("$planName Plan", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                       Text(
-                        isPro 
-                          ? "₹${AppConfig.proMonthlyPrice.toInt()}/mo or ₹${AppConfig.proYearlyPrice.toInt()}/yr"
-                          : "₹${AppConfig.businessMonthlyPrice.toInt()}/mo or ₹${AppConfig.businessYearlyPrice.toInt()}/yr", 
-                        style: TextStyle(fontSize: 11, color: Colors.grey[500])
+                        "$planName Plan",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      Text(
+                        isPro
+                            ? "₹${AppConfig.proMonthlyPrice.toInt()}/mo or ₹${AppConfig.proYearlyPrice.toInt()}/yr"
+                            : "₹${AppConfig.businessMonthlyPrice.toInt()}/mo or ₹${AppConfig.businessYearlyPrice.toInt()}/yr",
+                        style: TextStyle(fontSize: 11, color: Colors.grey[500]),
                       ),
                     ],
                   ),
                   const Spacer(),
                   Text(
-                    isPro ? "₹${AppConfig.proPlanPrice.toInt()}" : "₹${AppConfig.businessPlanPrice.toInt()}",
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: isPro ? AppTheme.primary : Colors.purple),
+                    isPro
+                        ? "₹${AppConfig.proPlanPrice.toInt()}"
+                        : "₹${AppConfig.businessPlanPrice.toInt()}",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: isPro ? AppTheme.primary : Colors.purple,
+                    ),
                   ),
-                  Text("/yr", style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+                  Text(
+                    "/yr",
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  ),
                 ],
               ),
             ),
@@ -199,14 +282,33 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
               height: 52,
               child: ElevatedButton.icon(
                 onPressed: _isProcessing ? null : _startCheckout,
-                icon: _isProcessing ? null : const Icon(Icons.bolt_rounded, size: 20),
-                label: _isProcessing
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : Text("Upgrade to $planName", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                icon:
+                    _isProcessing
+                        ? null
+                        : const Icon(Icons.bolt_rounded, size: 20),
+                label:
+                    _isProcessing
+                        ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                        : Text(
+                          "Upgrade to $planName",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isPro ? AppTheme.primary : Colors.purple,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   elevation: 0,
                 ),
               ),
@@ -214,7 +316,10 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
             const SizedBox(height: 8),
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text("Maybe Later", style: TextStyle(color: Colors.grey[400], fontSize: 12)),
+              child: Text(
+                "Maybe Later",
+                style: TextStyle(color: Colors.grey[400], fontSize: 12),
+              ),
             ),
           ],
         ),
@@ -240,8 +345,17 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                Text(subtitle, style: TextStyle(fontSize: 10, color: Colors.grey[400])),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: TextStyle(fontSize: 10, color: Colors.grey[400]),
+                ),
               ],
             ),
           ),

@@ -22,7 +22,8 @@ class CaseDetailScreen extends ConsumerStatefulWidget {
   ConsumerState<CaseDetailScreen> createState() => _CaseDetailScreenState();
 }
 
-class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> with SingleTickerProviderStateMixin {
+class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -45,7 +46,8 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> with Single
       backgroundColor: AppTheme.primaryLight,
       body: caseAsync.when(
         data: (caseData) {
-          if (caseData == null) return const Center(child: Text("Case not found."));
+          if (caseData == null)
+            return const Center(child: Text("Case not found."));
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -60,7 +62,10 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> with Single
                   controller: _tabController,
                   children: [
                     CaseDossierTab(caseId: widget.id, caseData: caseData),
-                    CaseDiscussionTab(caseId: widget.id, firmId: caseData.firmId ?? caseData.createdBy),
+                    CaseDiscussionTab(
+                      caseId: widget.id,
+                      firmId: caseData.firmId ?? caseData.createdBy,
+                    ),
                     CaseDocumentsTab(caseId: widget.id),
                     CasePaymentsTab(caseId: widget.id),
                     EvidenceLabScreen(caseId: widget.id),
@@ -71,8 +76,17 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> with Single
             ],
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
-        error: (err, stack) => Center(child: Text("Error: $err", style: const TextStyle(color: Color(0xFF1E293B)))),
+        loading:
+            () => const Center(
+              child: CircularProgressIndicator(color: AppTheme.accent),
+            ),
+        error:
+            (err, stack) => Center(
+              child: Text(
+                "Error: $err",
+                style: const TextStyle(color: Color(0xFF1E293B)),
+              ),
+            ),
       ),
     );
   }
@@ -98,8 +112,15 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen> with Single
         dividerColor: Colors.transparent,
         labelColor: Colors.black,
         unselectedLabelColor: const Color(0xFF64748B),
-        labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 0.5),
-        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+        labelStyle: const TextStyle(
+          fontWeight: FontWeight.w900,
+          fontSize: 11,
+          letterSpacing: 0.5,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: 11,
+        ),
         tabs: const [
           Tab(text: "DOSSIER"),
           Tab(text: "DISCUSSION"),

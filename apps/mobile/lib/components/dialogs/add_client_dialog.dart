@@ -40,11 +40,26 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
     try {
       await SupabaseService.createClient({
         'name': _nameController.text.trim(),
-        'phone': _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-        'email': _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
-        'address': _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
-        'state': _stateController.text.trim().isEmpty ? null : _stateController.text.trim(),
-        'district': _districtController.text.trim().isEmpty ? null : _districtController.text.trim(),
+        'phone':
+            _phoneController.text.trim().isEmpty
+                ? null
+                : _phoneController.text.trim(),
+        'email':
+            _emailController.text.trim().isEmpty
+                ? null
+                : _emailController.text.trim(),
+        'address':
+            _addressController.text.trim().isEmpty
+                ? null
+                : _addressController.text.trim(),
+        'state':
+            _stateController.text.trim().isEmpty
+                ? null
+                : _stateController.text.trim(),
+        'district':
+            _districtController.text.trim().isEmpty
+                ? null
+                : _districtController.text.trim(),
       });
       ref.invalidate(clientsProvider);
       if (mounted) {
@@ -53,19 +68,28 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
                 const SizedBox(width: 10),
                 Text("${_nameController.text.trim()} added successfully"),
               ],
             ),
             backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -100,7 +124,11 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.person_add_rounded, color: Colors.white, size: 22),
+                      child: const Icon(
+                        Icons.person_add_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -112,13 +140,19 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                             style: GoogleFonts.outfit(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              color:
+                                  isDark
+                                      ? Colors.white
+                                      : const Color(0xFF0F172A),
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             "Enter client details below",
-                            style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF94A3B8)),
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: const Color(0xFF94A3B8),
+                            ),
                           ),
                         ],
                       ),
@@ -127,8 +161,13 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.close_rounded, size: 20),
                       style: IconButton.styleFrom(
-                        backgroundColor: isDark ? const Color(0xFF2D3748) : const Color(0xFFF1F5F9),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        backgroundColor:
+                            isDark
+                                ? const Color(0xFF2D3748)
+                                : const Color(0xFFF1F5F9),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
                   ],
@@ -139,7 +178,8 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                   controller: _nameController,
                   label: "Full Name *",
                   icon: Icons.person_rounded,
-                  validator: (v) => v == null || v.trim().isEmpty ? "Required" : null,
+                  validator:
+                      (v) => v == null || v.trim().isEmpty ? "Required" : null,
                 ),
                 _buildField(
                   controller: _phoneController,
@@ -191,24 +231,34 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                       backgroundColor: AppTheme.accent,
                       foregroundColor: Colors.white,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
-                    child: _isSaving
-                        ? const SizedBox(
-                            height: 20, width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.add_rounded, size: 18),
-                              const SizedBox(width: 8),
-                              Text(
-                                "Add Client",
-                                style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 14),
+                    child:
+                        _isSaving
+                            ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
                               ),
-                            ],
-                          ),
+                            )
+                            : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.add_rounded, size: 18),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "Add Client",
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
                   ),
                 ),
               ],
@@ -242,23 +292,34 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
         ),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: const Color(0xFF94A3B8)),
+          labelStyle: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF94A3B8),
+          ),
           prefixIcon: Icon(icon, size: 18, color: const Color(0xFF94A3B8)),
           filled: true,
           fillColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0)),
+            borderSide: BorderSide(
+              color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0),
+            ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0)),
+            borderSide: BorderSide(
+              color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0),
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: const BorderSide(color: AppTheme.accent, width: 1.5),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
         ),
       ),
     );

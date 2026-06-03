@@ -69,15 +69,17 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
 
       final currentUser = ref.read(userProvider);
       setState(() {
-        _optimisticMessages.add(CaseComment(
-          id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
-          caseId: widget.caseId,
-          firmId: widget.firmId,
-          senderId: currentUser?.id ?? '',
-          message: text,
-          senderName: senderName,
-          createdAt: DateTime.now(),
-        ));
+        _optimisticMessages.add(
+          CaseComment(
+            id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+            caseId: widget.caseId,
+            firmId: widget.firmId,
+            senderId: currentUser?.id ?? '',
+            message: text,
+            senderName: senderName,
+            createdAt: DateTime.now(),
+          ),
+        );
       });
 
       _messageController.clear();
@@ -92,7 +94,9 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
       }
     } finally {
       if (mounted) setState(() => _isSending = false);
@@ -109,16 +113,25 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
         Expanded(
           child: discussionsAsync.when(
             data: (streamMessages) {
-              final pendingOptimistic = _optimisticMessages.where(
-                (opt) => !streamMessages.any((s) =>
-                  s.message == opt.message && s.senderId == opt.senderId
-                ),
-              ).toList();
+              final pendingOptimistic =
+                  _optimisticMessages
+                      .where(
+                        (opt) =>
+                            !streamMessages.any(
+                              (s) =>
+                                  s.message == opt.message &&
+                                  s.senderId == opt.senderId,
+                            ),
+                      )
+                      .toList();
               final allMessages = [...streamMessages, ...pendingOptimistic];
 
               if (pendingOptimistic.length < _optimisticMessages.length) {
-                _optimisticMessages.removeWhere((opt) =>
-                  streamMessages.any((s) => s.message == opt.message && s.senderId == opt.senderId)
+                _optimisticMessages.removeWhere(
+                  (opt) => streamMessages.any(
+                    (s) =>
+                        s.message == opt.message && s.senderId == opt.senderId,
+                  ),
                 );
               }
 
@@ -152,7 +165,10 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
                 },
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
+            loading:
+                () => const Center(
+                  child: CircularProgressIndicator(color: AppTheme.accent),
+                ),
             error: (e, s) => Center(child: Text("Error: $e")),
           ),
         ),
@@ -161,7 +177,8 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
     );
   }
 
-  bool _isSameDay(DateTime a, DateTime b) => a.year == b.year && a.month == b.month && a.day == b.day;
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
 
   // ─── DATE SEPARATOR PILL ─────────────────────────────
   Widget _buildDatePill(DateTime date) {
@@ -185,7 +202,12 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
       ),
       child: Text(
         label,
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF64748B), letterSpacing: 0.3),
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF64748B),
+          letterSpacing: 0.3,
+        ),
       ),
     );
   }
@@ -200,7 +222,9 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.78,
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -208,34 +232,60 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
             // Avatar (left side for others)
             if (!isMe) ...[
               Container(
-                width: 32, height: 32,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: avatarColors, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                  gradient: LinearGradient(
+                    colors: avatarColors,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Center(child: Text(initial, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13))),
+                child: Center(
+                  child: Text(
+                    initial,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(width: 8),
             ],
             // Bubble
             Flexible(
               child: Column(
-                crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
                   if (!isMe)
                     Padding(
                       padding: const EdgeInsets.only(left: 4, bottom: 3),
                       child: Text(
                         msg.senderName?.toUpperCase() ?? "ADVOCATE",
-                        style: TextStyle(fontSize: 9, color: avatarColors[0], fontWeight: FontWeight.w800, letterSpacing: 0.8),
+                        style: TextStyle(
+                          fontSize: 9,
+                          color: avatarColors[0],
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.8,
+                        ),
                       ),
                     ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
-                      gradient: isMe
-                          ? const LinearGradient(colors: [Color(0xFF2563EB), Color(0xFF3B82F6)])
-                          : null,
+                      gradient:
+                          isMe
+                              ? const LinearGradient(
+                                colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
+                              )
+                              : null,
                       color: isMe ? null : Colors.white,
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(16),
@@ -243,12 +293,18 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
                         bottomLeft: Radius.circular(isMe ? 16 : 4),
                         bottomRight: Radius.circular(isMe ? 4 : 16),
                       ),
-                      border: isMe ? null : Border.all(color: const Color(0xFFE2E8F0)),
+                      border:
+                          isMe
+                              ? null
+                              : Border.all(color: const Color(0xFFE2E8F0)),
                       boxShadow: [
                         BoxShadow(
-                          color: isMe
-                              ? const Color(0xFF2563EB).withValues(alpha: 0.15)
-                              : Colors.black.withValues(alpha: 0.04),
+                          color:
+                              isMe
+                                  ? const Color(
+                                    0xFF2563EB,
+                                  ).withValues(alpha: 0.15)
+                                  : Colors.black.withValues(alpha: 0.04),
                           blurRadius: 8,
                           offset: const Offset(0, 3),
                         ),
@@ -260,7 +316,8 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
                         Text(
                           msg.message,
                           style: TextStyle(
-                            color: isMe ? Colors.white : const Color(0xFF1E293B),
+                            color:
+                                isMe ? Colors.white : const Color(0xFF1E293B),
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             height: 1.4,
@@ -275,12 +332,19 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w700,
-                                color: isMe ? Colors.white.withValues(alpha: 0.6) : const Color(0xFF94A3B8),
+                                color:
+                                    isMe
+                                        ? Colors.white.withValues(alpha: 0.6)
+                                        : const Color(0xFF94A3B8),
                               ),
                             ),
                             if (isMe) ...[
                               const SizedBox(width: 4),
-                              Icon(Icons.done_all_rounded, size: 14, color: Colors.white.withValues(alpha: 0.6)),
+                              Icon(
+                                Icons.done_all_rounded,
+                                size: 14,
+                                color: Colors.white.withValues(alpha: 0.6),
+                              ),
                             ],
                           ],
                         ),
@@ -307,22 +371,44 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFFEEF2FF), Color(0xFFF0F9FF)],
-                begin: Alignment.topLeft, end: Alignment.bottomRight,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
               shape: BoxShape.circle,
-              boxShadow: [BoxShadow(color: const Color(0xFF2563EB).withValues(alpha: 0.08), blurRadius: 20, offset: const Offset(0, 6))],
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF2563EB).withValues(alpha: 0.08),
+                  blurRadius: 20,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
-            child: const Icon(Icons.forum_rounded, size: 44, color: Color(0xFF2563EB)),
+            child: const Icon(
+              Icons.forum_rounded,
+              size: 44,
+              color: Color(0xFF2563EB),
+            ),
           ),
           const SizedBox(height: 20),
-          const Text("Start a Discussion", style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17, color: Color(0xFF0F172A))),
+          const Text(
+            "Start a Discussion",
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              fontSize: 17,
+              color: Color(0xFF0F172A),
+            ),
+          ),
           const SizedBox(height: 8),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 48),
             child: Text(
               "Coordinate with your team members\nabout case strategy and updates",
               textAlign: TextAlign.center,
-              style: TextStyle(color: Color(0xFF64748B), fontSize: 13, height: 1.4),
+              style: TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 13,
+                height: 1.4,
+              ),
             ),
           ),
         ],
@@ -336,8 +422,16 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
       padding: const EdgeInsets.fromLTRB(12, 10, 8, 24),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: const Border(top: BorderSide(color: Color(0xFFF1F5F9), width: 1.5)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, -4))],
+        border: const Border(
+          top: BorderSide(color: Color(0xFFF1F5F9), width: 1.5),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -355,7 +449,11 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
                 style: const TextStyle(color: Color(0xFF1E293B), fontSize: 14),
                 decoration: const InputDecoration(
                   hintText: "Type a message...",
-                  hintStyle: TextStyle(fontSize: 14, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+                  hintStyle: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF94A3B8),
+                    fontWeight: FontWeight.w500,
+                  ),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(vertical: 12),
                 ),
@@ -369,16 +467,37 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
           GestureDetector(
             onTap: _isSending ? null : _sendMessage,
             child: Container(
-              width: 44, height: 44,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFF2563EB), Color(0xFF3B82F6)]),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
+                ),
                 borderRadius: BorderRadius.circular(14),
-                boxShadow: [BoxShadow(color: const Color(0xFF2563EB).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3))],
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF2563EB).withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: Center(
-                child: _isSending
-                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                child:
+                    _isSending
+                        ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                        : const Icon(
+                          Icons.send_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
               ),
             ),
           ),

@@ -22,7 +22,9 @@ enum CaseStatus {
 
   static CaseStatus fromString(String value) {
     return CaseStatus.values.firstWhere(
-      (e) => e.name == value.toLowerCase() || e.label.toLowerCase() == value.toLowerCase(),
+      (e) =>
+          e.name == value.toLowerCase() ||
+          e.label.toLowerCase() == value.toLowerCase(),
       orElse: () => CaseStatus.active,
     );
   }
@@ -60,11 +62,16 @@ enum DocType {
 
   String get label {
     switch (this) {
-      case DocType.plaint: return "Plaint";
-      case DocType.affidavit: return "Affidavit";
-      case DocType.vakalat: return "Vakalat";
-      case DocType.order: return "Order";
-      case DocType.judgment: return "Judgment";
+      case DocType.plaint:
+        return "Plaint";
+      case DocType.affidavit:
+        return "Affidavit";
+      case DocType.vakalat:
+        return "Vakalat";
+      case DocType.order:
+        return "Order";
+      case DocType.judgment:
+        return "Judgment";
     }
   }
 
@@ -87,8 +94,10 @@ enum FilingStatus {
 
   String get label {
     switch (this) {
-      case FilingStatus.signaturePending: return "Signature Pending";
-      default: return name[0].toUpperCase() + name.substring(1);
+      case FilingStatus.signaturePending:
+        return "Signature Pending";
+      default:
+        return name[0].toUpperCase() + name.substring(1);
     }
   }
 
@@ -110,15 +119,19 @@ enum PaymentMode {
 
   String get label {
     switch (this) {
-      case PaymentMode.bankTransfer: return "Bank Transfer";
-      default: return name.toUpperCase();
+      case PaymentMode.bankTransfer:
+        return "Bank Transfer";
+      default:
+        return name.toUpperCase();
     }
   }
 
   static PaymentMode fromString(String value) {
     final clean = value.toLowerCase().replaceAll(' ', '').replaceAll('_', '');
     return PaymentMode.values.firstWhere(
-      (e) => e.name.toLowerCase() == clean || e.name == value.replaceAll(' ', '').replaceAll('_', ''),
+      (e) =>
+          e.name.toLowerCase() == clean ||
+          e.name == value.replaceAll(' ', '').replaceAll('_', ''),
       orElse: () => PaymentMode.cash,
     );
   }

@@ -7,7 +7,10 @@ import '../../theme/app_theme.dart';
 import '../../models/geo_data.dart';
 
 // Provides the list of advocates based on current filters
-final advocateSearchProvider = FutureProvider.family<List<Map<String, dynamic>>, String>((ref, filterKey) async {
+final advocateSearchProvider = FutureProvider.family<
+  List<Map<String, dynamic>>,
+  String
+>((ref, filterKey) async {
   try {
     final parts = filterKey.split('|');
     final state = parts[0] == 'All' ? null : parts[0];
@@ -16,26 +19,32 @@ final advocateSearchProvider = FutureProvider.family<List<Map<String, dynamic>>,
 
     var query = Supabase.instance.client
         .from('profiles')
-        .select('id, full_name, email, mobile_number, practice_state, practice_district, office_address, registration_number')
+        .select(
+          'id, full_name, email, mobile_number, practice_state, practice_district, office_address, registration_number',
+        )
         .eq('is_public_directory_enabled', true);
 
     if (state != null && state.isNotEmpty) {
       query = query.eq('practice_state', state);
     }
-    
+
     if (district != null && district.isNotEmpty) {
       query = query.eq('practice_district', district);
     }
-    
+
     if (searchQuery.isNotEmpty) {
       query = query.ilike('full_name', '%$searchQuery%');
     }
 
-    final response = await query.order('full_name').timeout(
-      const Duration(seconds: 15),
-      onTimeout: () => throw 'Connection Timeout: The database is taking too long to respond. Please check your RLS policies or internet.',
-    );
-    
+    final response = await query
+        .order('full_name')
+        .timeout(
+          const Duration(seconds: 15),
+          onTimeout:
+              () =>
+                  throw 'Connection Timeout: The database is taking too long to respond. Please check your RLS policies or internet.',
+        );
+
     return List<Map<String, dynamic>>.from(response);
   } catch (e) {
     debugPrint("Advocate Search Error: $e");
@@ -47,10 +56,12 @@ class AdvocateDirectoryScreen extends ConsumerStatefulWidget {
   const AdvocateDirectoryScreen({super.key});
 
   @override
-  ConsumerState<AdvocateDirectoryScreen> createState() => _AdvocateDirectoryScreenState();
+  ConsumerState<AdvocateDirectoryScreen> createState() =>
+      _AdvocateDirectoryScreenState();
 }
 
-class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScreen> {
+class _AdvocateDirectoryScreenState
+    extends ConsumerState<AdvocateDirectoryScreen> {
   String _searchQuery = '';
   String? _selectedState = 'All';
   String? _selectedDistrict = 'All';
@@ -63,18 +74,20 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
   }
 
   void _setupRealtimeListener() {
-    _channel = Supabase.instance.client
-        .channel('public:profiles')
-        .onPostgresChanges(
-          event: PostgresChangeEvent.all,
-          schema: 'public',
-          table: 'profiles',
-          callback: (payload) {
-            final filterKey = "$_selectedState|$_selectedDistrict|$_searchQuery";
-            ref.invalidate(advocateSearchProvider(filterKey));
-          },
-        )
-        .subscribe();
+    _channel =
+        Supabase.instance.client
+            .channel('public:profiles')
+            .onPostgresChanges(
+              event: PostgresChangeEvent.all,
+              schema: 'public',
+              table: 'profiles',
+              callback: (payload) {
+                final filterKey =
+                    "$_selectedState|$_selectedDistrict|$_searchQuery";
+                ref.invalidate(advocateSearchProvider(filterKey));
+              },
+            )
+            .subscribe();
   }
 
   @override
@@ -102,14 +115,31 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
                 color: AppTheme.accent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(Icons.contact_page_rounded, color: AppTheme.accent, size: 20),
+              child: Icon(
+                Icons.contact_page_rounded,
+                color: AppTheme.accent,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Advocate Directory", style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 18)),
-                Text("Find peers across India", style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w500)),
+                Text(
+                  "Advocate Directory",
+                  style: GoogleFonts.outfit(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 18,
+                  ),
+                ),
+                Text(
+                  "Find peers across India",
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: Colors.grey[500],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           ],
@@ -128,7 +158,9 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
                   return _buildEmptyState(isDark);
                 }
                 return RefreshIndicator(
-                  onRefresh: () async => ref.invalidate(advocateSearchProvider(filterKey)),
+                  onRefresh:
+                      () async =>
+                          ref.invalidate(advocateSearchProvider(filterKey)),
                   child: ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: advocates.length + 1, // +1 for count header
@@ -139,14 +171,21 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
                           child: Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
                                 decoration: BoxDecoration(
                                   color: AppTheme.accent.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
                                   "${advocates.length} Advocate${advocates.length == 1 ? '' : 's'}",
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppTheme.accent),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.accent,
+                                  ),
                                 ),
                               ),
                             ],
@@ -158,16 +197,23 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
                   ),
                 );
               },
-              loading: () => Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(color: AppTheme.accent),
-                    const SizedBox(height: 16),
-                    Text("Loading directory...", style: TextStyle(color: Colors.grey[500], fontSize: 13)),
-                  ],
-                ),
-              ),
+              loading:
+                  () => Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(color: AppTheme.accent),
+                        const SizedBox(height: 16),
+                        Text(
+                          "Loading directory...",
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
               error: (e, st) => _buildErrorState(e, filterKey, isDark),
             ),
           ),
@@ -183,29 +229,53 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: isDark
-              ? [const Color(0xFF141B3D), const Color(0xFF0A0E27)]
-              : [const Color(0xFFF0F4FF), Colors.white],
+          colors:
+              isDark
+                  ? [const Color(0xFF141B3D), const Color(0xFF0A0E27)]
+                  : [const Color(0xFFF0F4FF), Colors.white],
         ),
-        border: Border(bottom: BorderSide(color: isDark ? Colors.white10 : const Color(0xFFE2E8F0))),
+        border: Border(
+          bottom: BorderSide(
+            color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
+          ),
+        ),
       ),
       child: Column(
         children: [
           // ─── Search Bar ──
           Container(
             decoration: BoxDecoration(
-              color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white,
+              color:
+                  isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white,
               borderRadius: BorderRadius.circular(14),
-              boxShadow: !isDark ? [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))] : null,
-              border: Border.all(color: isDark ? Colors.white10 : const Color(0xFFE2E8F0)),
+              boxShadow:
+                  !isDark
+                      ? [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
+                      : null,
+              border: Border.all(
+                color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
+              ),
             ),
             child: TextField(
               decoration: InputDecoration(
                 hintText: "Search by Advocate Name...",
                 hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-                prefixIcon: Icon(Icons.search_rounded, color: AppTheme.accent, size: 20),
+                prefixIcon: Icon(
+                  Icons.search_rounded,
+                  color: AppTheme.accent,
+                  size: 20,
+                ),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
               ),
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               onChanged: (val) => setState(() => _searchQuery = val),
@@ -216,26 +286,35 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
           // ─── Filter Chips ──
           Row(
             children: [
-              Expanded(child: _buildFilterDropdown(
-                label: "State",
-                value: _selectedState,
-                items: ['All', ...stateDistricts.keys],
-                isDark: isDark,
-                onChanged: (val) {
-                  setState(() {
-                    _selectedState = val;
-                    _selectedDistrict = 'All';
-                  });
-                },
-              )),
+              Expanded(
+                child: _buildFilterDropdown(
+                  label: "State",
+                  value: _selectedState,
+                  items: ['All', ...stateDistricts.keys],
+                  isDark: isDark,
+                  onChanged: (val) {
+                    setState(() {
+                      _selectedState = val;
+                      _selectedDistrict = 'All';
+                    });
+                  },
+                ),
+              ),
               const SizedBox(width: 10),
-              Expanded(child: _buildFilterDropdown(
-                label: "District",
-                value: _selectedDistrict,
-                items: ['All', ...(_selectedState != null && _selectedState != 'All' ? stateDistricts[_selectedState]! : [])],
-                isDark: isDark,
-                onChanged: (val) => setState(() => _selectedDistrict = val),
-              )),
+              Expanded(
+                child: _buildFilterDropdown(
+                  label: "District",
+                  value: _selectedDistrict,
+                  items: [
+                    'All',
+                    ...(_selectedState != null && _selectedState != 'All'
+                        ? stateDistricts[_selectedState]!
+                        : []),
+                  ],
+                  isDark: isDark,
+                  onChanged: (val) => setState(() => _selectedDistrict = val),
+                ),
+              ),
             ],
           ),
         ],
@@ -255,15 +334,33 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
       decoration: BoxDecoration(
         color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: isDark ? Colors.white10 : const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
+        ),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
-          icon: Icon(Icons.expand_more_rounded, size: 18, color: Colors.grey[400]),
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: isDark ? Colors.white : const Color(0xFF334155)),
-          items: items.map((s) => DropdownMenuItem(value: s, child: Text(s, overflow: TextOverflow.ellipsis))).toList(),
+          icon: Icon(
+            Icons.expand_more_rounded,
+            size: 18,
+            color: Colors.grey[400],
+          ),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: isDark ? Colors.white : const Color(0xFF334155),
+          ),
+          items:
+              items
+                  .map(
+                    (s) => DropdownMenuItem(
+                      value: s,
+                      child: Text(s, overflow: TextOverflow.ellipsis),
+                    ),
+                  )
+                  .toList(),
           onChanged: onChanged,
         ),
       ),
@@ -274,7 +371,10 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
     final name = advocate['full_name'] ?? 'Unknown';
     final district = advocate['practice_district'];
     final state = advocate['practice_state'];
-    final location = (district != null && state != null) ? '$district, $state' : (state ?? district ?? 'Location Unknown');
+    final location =
+        (district != null && state != null)
+            ? '$district, $state'
+            : (state ?? district ?? 'Location Unknown');
     final regNo = advocate['registration_number'] ?? 'Reg No. Not Provided';
     final mobile = advocate['mobile_number'];
     final email = advocate['email'];
@@ -296,8 +396,22 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
       decoration: BoxDecoration(
         color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFE2E8F0)),
-        boxShadow: !isDark ? [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))] : null,
+        border: Border.all(
+          color:
+              isDark
+                  ? Colors.white.withValues(alpha: 0.06)
+                  : const Color(0xFFE2E8F0),
+        ),
+        boxShadow:
+            !isDark
+                ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+                : null,
       ),
       child: Column(
         children: [
@@ -311,11 +425,16 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
                   padding: const EdgeInsets.all(2.5),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(colors: gradientPair, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                    gradient: LinearGradient(
+                      colors: gradientPair,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
                   child: CircleAvatar(
                     radius: 24,
-                    backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                    backgroundColor:
+                        isDark ? const Color(0xFF1E293B) : Colors.white,
                     child: Text(
                       name.substring(0, 1).toUpperCase(),
                       style: TextStyle(
@@ -331,9 +450,21 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name, style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A))),
+                      Text(
+                        name,
+                        style: GoogleFonts.outfit(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color:
+                              isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                      ),
                       const SizedBox(height: 6),
-                      _buildInfoChip(Icons.location_on_rounded, location, isDark),
+                      _buildInfoChip(
+                        Icons.location_on_rounded,
+                        location,
+                        isDark,
+                      ),
                       const SizedBox(height: 4),
                       _buildInfoChip(Icons.badge_rounded, regNo, isDark),
                       if (address != null && address.toString().isNotEmpty) ...[
@@ -356,18 +487,38 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: isDark ? Colors.white.withValues(alpha: 0.02) : const Color(0xFFF8FAFC),
+                color:
+                    isDark
+                        ? Colors.white.withValues(alpha: 0.02)
+                        : const Color(0xFFF8FAFC),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(16),
                   bottomRight: Radius.circular(16),
                 ),
-                border: Border(top: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.04) : const Color(0xFFF1F5F9))),
+                border: Border(
+                  top: BorderSide(
+                    color:
+                        isDark
+                            ? Colors.white.withValues(alpha: 0.04)
+                            : const Color(0xFFF1F5F9),
+                  ),
+                ),
               ),
               child: Row(
                 children: [
                   Icon(Icons.phone_rounded, size: 16, color: AppTheme.accent),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(mobile, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: isDark ? Colors.grey[300] : const Color(0xFF334155)))),
+                  Expanded(
+                    child: Text(
+                      mobile,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        color:
+                            isDark ? Colors.grey[300] : const Color(0xFF334155),
+                      ),
+                    ),
+                  ),
                   if (email != null && email.toString().isNotEmpty)
                     _buildActionButton(Icons.mail_outline_rounded, "Email", () {
                       launchUrl(Uri.parse('mailto:$email'));
@@ -388,12 +539,20 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
   Widget _buildInfoChip(IconData icon, String text, bool isDark) {
     return Row(
       children: [
-        Icon(icon, size: 13, color: isDark ? Colors.grey[500] : Colors.grey[400]),
+        Icon(
+          icon,
+          size: 13,
+          color: isDark ? Colors.grey[500] : Colors.grey[400],
+        ),
         const SizedBox(width: 6),
         Expanded(
           child: Text(
             text,
-            style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600], fontSize: 12, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -401,9 +560,17 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
     );
   }
 
-  Widget _buildActionButton(IconData icon, String label, VoidCallback onPressed, {bool isPrimary = false}) {
+  Widget _buildActionButton(
+    IconData icon,
+    String label,
+    VoidCallback onPressed, {
+    bool isPrimary = false,
+  }) {
     return Material(
-      color: isPrimary ? AppTheme.accent.withValues(alpha: 0.1) : Colors.transparent,
+      color:
+          isPrimary
+              ? AppTheme.accent.withValues(alpha: 0.1)
+              : Colors.transparent,
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onPressed,
@@ -415,7 +582,14 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
             children: [
               Icon(icon, size: 15, color: AppTheme.accent),
               const SizedBox(width: 4),
-              Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppTheme.accent)),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.accent,
+                ),
+              ),
             ],
           ),
         ),
@@ -434,12 +608,20 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
               shape: BoxShape.circle,
               color: AppTheme.accent.withValues(alpha: 0.08),
             ),
-            child: Icon(Icons.people_outline_rounded, size: 48, color: AppTheme.accent.withValues(alpha: 0.4)),
+            child: Icon(
+              Icons.people_outline_rounded,
+              size: 48,
+              color: AppTheme.accent.withValues(alpha: 0.4),
+            ),
           ),
           const SizedBox(height: 20),
           Text(
             "No Advocates Found",
-            style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A)),
+            style: GoogleFonts.outfit(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
           ),
           const SizedBox(height: 8),
           Padding(
@@ -468,10 +650,20 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
                 shape: BoxShape.circle,
                 color: Colors.red.withValues(alpha: 0.08),
               ),
-              child: const Icon(Icons.wifi_off_rounded, color: Colors.red, size: 40),
+              child: const Icon(
+                Icons.wifi_off_rounded,
+                color: Colors.red,
+                size: 40,
+              ),
             ),
             const SizedBox(height: 20),
-            Text("Connection Error", style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w700)),
+            Text(
+              "Connection Error",
+              style: GoogleFonts.outfit(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             const SizedBox(height: 8),
             Text(
               error.toString(),
@@ -480,14 +672,20 @@ class _AdvocateDirectoryScreenState extends ConsumerState<AdvocateDirectoryScree
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
-              onPressed: () => ref.invalidate(advocateSearchProvider(filterKey)),
+              onPressed:
+                  () => ref.invalidate(advocateSearchProvider(filterKey)),
               icon: const Icon(Icons.refresh_rounded, size: 18),
               label: const Text("Retry"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.accent,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
             ),
           ],

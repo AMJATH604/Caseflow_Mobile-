@@ -59,7 +59,10 @@ class StatusBadge extends StatelessWidget {
       case 'arguments':
         return _StatusConfig(AppTheme.accentViolet, Icons.gavel_rounded);
       default:
-        return _StatusConfig(const Color(0xFF6B7280), Icons.info_outline_rounded);
+        return _StatusConfig(
+          const Color(0xFF6B7280),
+          Icons.info_outline_rounded,
+        );
     }
   }
 }

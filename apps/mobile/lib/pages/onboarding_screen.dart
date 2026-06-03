@@ -109,152 +109,168 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     return Scaffold(
       body: AnimatedBuilder(
         animation: _bgAnimController,
-        builder: (context, _) => AnimatedContainer(
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeInOut,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                slide.gradientColors[0],
-                slide.gradientColors[1],
-                slide.gradientColors[2].withValues(alpha: 0.85),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              stops: [
-                0.0,
-                0.4 + 0.1 * sin(_bgAnimController.value * pi),
-                1.0,
-              ],
-            ),
-          ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                // Skip button
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: _completeOnboarding,
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            side: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.2),
-                            ),
-                          ),
-                        ),
-                        child: Text(
-                          "Skip",
-                          style: GoogleFonts.inter(
-                            color: Colors.white.withValues(alpha: 0.7),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+        builder:
+            (context, _) => AnimatedContainer(
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeInOut,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    slide.gradientColors[0],
+                    slide.gradientColors[1],
+                    slide.gradientColors[2].withValues(alpha: 0.85),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  stops: [
+                    0.0,
+                    0.4 + 0.1 * sin(_bgAnimController.value * pi),
+                    1.0,
+                  ],
                 ),
-
-                // Page view
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    onPageChanged: _onPageChanged,
-                    itemCount: _slides.length,
-                    itemBuilder: (context, index) {
-                      return _buildSlide(_slides[index], screenHeight);
-                    },
-                  ),
-                ),
-
-                // Bottom section
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
-                  child: Column(
-                    children: [
-                      // Dots indicator
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          _slides.length,
-                          (i) => AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            width: _currentPage == i ? 28 : 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(4),
-                              color: _currentPage == i
-                                  ? Colors.white
-                                  : Colors.white.withValues(alpha: 0.25),
-                              boxShadow: _currentPage == i
-                                  ? [
-                                      BoxShadow(
-                                        color: Colors.white.withValues(alpha: 0.4),
-                                        blurRadius: 8,
-                                      )
-                                    ]
-                                  : null,
-                            ),
-                          ),
-                        ),
+              ),
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    // Skip button
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
                       ),
-
-                      const SizedBox(height: 32),
-
-                      // CTA Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 58,
-                        child: ElevatedButton(
-                          onPressed: _nextPage,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: slide.gradientColors[0],
-                            elevation: 8,
-                            shadowColor: Colors.black.withValues(alpha: 0.25),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                _currentPage == _slides.length - 1
-                                    ? "Get Started"
-                                    : "Continue",
-                                style: GoogleFonts.outfit(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.5,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: _completeOnboarding,
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: BorderSide(
+                                  color: Colors.white.withValues(alpha: 0.2),
                                 ),
                               ),
-                              const SizedBox(width: 10),
-                              Icon(
-                                _currentPage == _slides.length - 1
-                                    ? Icons.arrow_forward_rounded
-                                    : Icons.east_rounded,
-                                size: 20,
+                            ),
+                            child: Text(
+                              "Skip",
+                              style: GoogleFonts.inter(
+                                color: Colors.white.withValues(alpha: 0.7),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
                               ),
-                            ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+
+                    // Page view
+                    Expanded(
+                      child: PageView.builder(
+                        controller: _pageController,
+                        onPageChanged: _onPageChanged,
+                        itemCount: _slides.length,
+                        itemBuilder: (context, index) {
+                          return _buildSlide(_slides[index], screenHeight);
+                        },
+                      ),
+                    ),
+
+                    // Bottom section
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
+                      child: Column(
+                        children: [
+                          // Dots indicator
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(
+                              _slides.length,
+                              (i) => AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                width: _currentPage == i ? 28 : 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(4),
+                                  color:
+                                      _currentPage == i
+                                          ? Colors.white
+                                          : Colors.white.withValues(
+                                            alpha: 0.25,
+                                          ),
+                                  boxShadow:
+                                      _currentPage == i
+                                          ? [
+                                            BoxShadow(
+                                              color: Colors.white.withValues(
+                                                alpha: 0.4,
+                                              ),
+                                              blurRadius: 8,
+                                            ),
+                                          ]
+                                          : null,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 32),
+
+                          // CTA Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 58,
+                            child: ElevatedButton(
+                              onPressed: _nextPage,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: slide.gradientColors[0],
+                                elevation: 8,
+                                shadowColor: Colors.black.withValues(
+                                  alpha: 0.25,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    _currentPage == _slides.length - 1
+                                        ? "Get Started"
+                                        : "Continue",
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Icon(
+                                    _currentPage == _slides.length - 1
+                                        ? Icons.arrow_forward_rounded
+                                        : Icons.east_rounded,
+                                    size: 20,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
       ),
     );
   }
@@ -271,7 +287,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           AnimatedBuilder(
             animation: _iconPulseController,
             builder: (context, _) {
-              final pulse = 1.0 + 0.05 * sin(_iconPulseController.value * 2 * pi);
+              final pulse =
+                  1.0 + 0.05 * sin(_iconPulseController.value * 2 * pi);
               return Container(
                 width: 200,
                 height: 200,
@@ -386,10 +403,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 width: 30,
                 height: 1.5,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [
-                    Colors.transparent,
-                    const Color(0xFFD4AF37).withValues(alpha: 0.6),
-                  ]),
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.transparent,
+                      const Color(0xFFD4AF37).withValues(alpha: 0.6),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -406,10 +425,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 width: 30,
                 height: 1.5,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [
-                    const Color(0xFFD4AF37).withValues(alpha: 0.6),
-                    Colors.transparent,
-                  ]),
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFFD4AF37).withValues(alpha: 0.6),
+                      Colors.transparent,
+                    ],
+                  ),
                 ),
               ),
             ],

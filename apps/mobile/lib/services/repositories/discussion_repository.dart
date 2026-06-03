@@ -13,8 +13,10 @@ import 'base_repository.dart';
 class DiscussionRepository {
   static final _client = BaseRepository.client;
 
-  static Future<List<CaseComment>> fetchDiscussions(
-      {String? caseId, String? firmId}) async {
+  static Future<List<CaseComment>> fetchDiscussions({
+    String? caseId,
+    String? firmId,
+  }) async {
     var query = _client.from('case_discussions').select('*');
     if (caseId != null) {
       query = query.eq('case_id', caseId);
@@ -33,16 +35,19 @@ class DiscussionRepository {
   /// For firm notices: uses a manual Realtime channel + initial fetch
   /// to guarantee instant delivery (the old `.stream()` approach was unreliable
   /// for firm notices because `isFilter` isn't supported by `.stream()`).
-  static Stream<List<CaseComment>> discussionsStream(
-      {String? caseId, String? firmId}) {
+  static Stream<List<CaseComment>> discussionsStream({
+    String? caseId,
+    String? firmId,
+  }) {
     if (caseId != null) {
       return _client
           .from('case_discussions')
           .stream(primaryKey: ['id'])
           .eq('case_id', caseId)
           .order('created_at', ascending: true)
-          .map((data) =>
-              data.map((json) => CaseComment.fromJson(json)).toList());
+          .map(
+            (data) => data.map((json) => CaseComment.fromJson(json)).toList(),
+          );
     } else if (firmId != null) {
       // Use manual Realtime channel for firm notices — guarantees instant delivery
       return _firmNoticesStream(firmId);
@@ -57,13 +62,15 @@ class DiscussionRepository {
     List<CaseComment> messages = [];
 
     // 1. Initial fetch
-    fetchDiscussions(firmId: firmId).then((data) {
-      messages = data;
-      if (!controller.isClosed) controller.add(List.from(messages));
-    }).catchError((e) {
-      debugPrint('Firm notices initial fetch error: $e');
-      if (!controller.isClosed) controller.addError(e);
-    });
+    fetchDiscussions(firmId: firmId)
+        .then((data) {
+          messages = data;
+          if (!controller.isClosed) controller.add(List.from(messages));
+        })
+        .catchError((e) {
+          debugPrint('Firm notices initial fetch error: $e');
+          if (!controller.isClosed) controller.addError(e);
+        });
 
     // 2. Realtime subscription for new messages
     final channelName = 'firm_notices_$firmId';
@@ -78,7 +85,8 @@ class DiscussionRepository {
             try {
               final newRecord = payload.newRecord;
               // Only add if it's a firm notice (case_id is null) for this firm
-              if (newRecord['firm_id'] == firmId && newRecord['case_id'] == null) {
+              if (newRecord['firm_id'] == firmId &&
+                  newRecord['case_id'] == null) {
                 final comment = CaseComment.fromJson(newRecord);
                 // Avoid duplicates
                 if (!messages.any((m) => m.id == comment.id)) {
@@ -138,12 +146,11 @@ class DiscussionRepository {
   }) async {
     try {
       final ext = file.path.split('.').last.toLowerCase();
-      final fileName = '${firmId}_${DateTime.now().millisecondsSinceEpoch}.$ext';
+      final fileName =
+          '${firmId}_${DateTime.now().millisecondsSinceEpoch}.$ext';
       final storagePath = 'chambers/$firmId/$fileName';
 
-      await _client.storage
-          .from('chat-attachments')
-          .upload(storagePath, file);
+      await _client.storage.from('chat-attachments').upload(storagePath, file);
 
       final publicUrl = _client.storage
           .from('chat-attachments')

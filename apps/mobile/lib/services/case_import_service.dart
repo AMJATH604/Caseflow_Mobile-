@@ -18,7 +18,12 @@ class CaseImportService {
     }
 
     final cases = <Map<String, String>>[];
-    final lines = content.split('\n').map((l) => l.trim()).where((l) => l.isNotEmpty).toList();
+    final lines =
+        content
+            .split('\n')
+            .map((l) => l.trim())
+            .where((l) => l.isNotEmpty)
+            .toList();
 
     for (var line in lines) {
       // 2. Try to parse individual line as JSON (sometimes exports are line-by-line JSON)
@@ -29,8 +34,8 @@ class CaseImportService {
           if (mapped.isNotEmpty) cases.add(mapped);
           continue;
         } else if (decoded is List) {
-           cases.addAll(_parseECourtsJson(decoded));
-           continue;
+          cases.addAll(_parseECourtsJson(decoded));
+          continue;
         }
       } catch (_) {}
 
@@ -73,7 +78,7 @@ class CaseImportService {
         } else {
           continue;
         }
-        
+
         final mapped = _mapECourtsJsonFields(data);
         if (mapped.isNotEmpty) result.add(mapped);
       } catch (_) {}
@@ -83,27 +88,35 @@ class CaseImportService {
 
   static Map<String, String> _mapECourtsJsonFields(Map<String, dynamic> data) {
     final result = <String, String>{};
-    
+
     // CNR Mapping
     final cnr = data['cino'] ?? data['cnr'] ?? data['cnr_number'];
     if (cnr != null) result['cnr_number'] = cnr.toString();
-    
+
     // Parties
-    final pet = data['petparty_name'] ?? data['pet_name'] ?? data['lpetparty_name'];
-    final res = data['resparty_name'] ?? data['res_name'] ?? data['lresparty_name'];
+    final pet =
+        data['petparty_name'] ?? data['pet_name'] ?? data['lpetparty_name'];
+    final res =
+        data['resparty_name'] ?? data['res_name'] ?? data['lresparty_name'];
     if (pet != null) result['petitioner'] = pet.toString();
     if (res != null) result['respondent'] = res.toString();
-    
+
     // Court and Location
-    final court = data['establishment_name'] ?? data['court_name'] ?? data['court_name1'];
+    final court =
+        data['establishment_name'] ?? data['court_name'] ?? data['court_name1'];
     if (court != null) result['court_name'] = court.toString();
-    
-    if (data['state_name'] != null) result['state'] = data['state_name'].toString();
-    if (data['district_name'] != null) result['district'] = data['district_name'].toString();
-    
+
+    if (data['state_name'] != null)
+      result['state'] = data['state_name'].toString();
+    if (data['district_name'] != null)
+      result['district'] = data['district_name'].toString();
+
     // Case Number Formatting (Type + No + Year)
-    if (data['type_name'] != null && data['reg_no'] != null && data['reg_year'] != null) {
-      result['case_number'] = "${data['type_name']}/${data['reg_no']}/${data['reg_year']}";
+    if (data['type_name'] != null &&
+        data['reg_no'] != null &&
+        data['reg_year'] != null) {
+      result['case_number'] =
+          "${data['type_name']}/${data['reg_no']}/${data['reg_year']}";
     } else if (data['case_no'] != null) {
       result['case_number'] = data['case_no'].toString();
     } else if (data['case_number'] != null) {
@@ -111,20 +124,26 @@ class CaseImportService {
     }
 
     // Dates
-    if (data['date_next_list'] != null) result['next_hearing_date'] = data['date_next_list'].toString();
+    if (data['date_next_list'] != null)
+      result['next_hearing_date'] = data['date_next_list'].toString();
 
     // Title
     if (result.containsKey('petitioner') && result.containsKey('respondent')) {
-      result['case_title'] = "${result['petitioner']} vs ${result['respondent']}";
+      result['case_title'] =
+          "${result['petitioner']} vs ${result['respondent']}";
     } else if (data['lpetparty_name'] != null) {
-       result['case_title'] = data['lpetparty_name'].toString();
+      result['case_title'] = data['lpetparty_name'].toString();
     }
 
     // Advocates
-    if (data['pet_adv'] != null) result['pet_advocate'] = data['pet_adv'].toString();
-    if (data['res_adv'] != null) result['res_advocate'] = data['res_adv'].toString();
-    if (data['pet_adv_phone'] != null) result['pet_adv_phone'] = data['pet_adv_phone'].toString();
-    if (data['res_adv_phone'] != null) result['res_adv_phone'] = data['res_adv_phone'].toString();
+    if (data['pet_adv'] != null)
+      result['pet_advocate'] = data['pet_adv'].toString();
+    if (data['res_adv'] != null)
+      result['res_advocate'] = data['res_adv'].toString();
+    if (data['pet_adv_phone'] != null)
+      result['pet_adv_phone'] = data['pet_adv_phone'].toString();
+    if (data['res_adv_phone'] != null)
+      result['res_adv_phone'] = data['res_adv_phone'].toString();
 
     return result;
   }
@@ -143,12 +162,17 @@ class CaseImportService {
         result['cnr_number'] = part;
       }
       // Detect case number pattern (e.g., CS/123/2024, CC/456/2025)
-      else if (RegExp(r'[A-Z]{1,5}[/\-]\d+[/\-]\d{4}', caseSensitive: false).hasMatch(part)) {
+      else if (RegExp(
+        r'[A-Z]{1,5}[/\-]\d+[/\-]\d{4}',
+        caseSensitive: false,
+      ).hasMatch(part)) {
         result['case_number'] = part;
       }
       // Detect "vs" or "v/s" pattern for party names
-      else if (part.toLowerCase().contains(' vs ') || part.toLowerCase().contains(' v/s ')) {
-        final separator = part.toLowerCase().contains(' vs ') ? ' vs ' : ' v/s ';
+      else if (part.toLowerCase().contains(' vs ') ||
+          part.toLowerCase().contains(' v/s ')) {
+        final separator =
+            part.toLowerCase().contains(' vs ') ? ' vs ' : ' v/s ';
         final partyParts = part.split(RegExp(separator, caseSensitive: false));
         if (partyParts.length >= 2) {
           result['petitioner'] = partyParts[0].trim();
@@ -157,13 +181,18 @@ class CaseImportService {
       }
       // Detect court names
       else if (part.toLowerCase().contains('court') ||
-               part.toLowerCase().contains('tribunal') ||
-               part.toLowerCase().contains('bench')) {
+          part.toLowerCase().contains('tribunal') ||
+          part.toLowerCase().contains('bench')) {
         result['court_name'] = part;
       }
       // Common status values
-      else if (['pending', 'disposed', 'case disposed', 'listed', 'under process']
-          .contains(part.toLowerCase())) {
+      else if ([
+        'pending',
+        'disposed',
+        'case disposed',
+        'listed',
+        'under process',
+      ].contains(part.toLowerCase())) {
         result['status'] = part;
       }
       // If nothing matched and it's the first unmatched, treat as case title
@@ -174,7 +203,8 @@ class CaseImportService {
 
     // Build case title from parties if not yet set
     if (!result.containsKey('case_title') && result.containsKey('petitioner')) {
-      result['case_title'] = '${result['petitioner']} vs ${result['respondent'] ?? 'Unknown'}';
+      result['case_title'] =
+          '${result['petitioner']} vs ${result['respondent'] ?? 'Unknown'}';
     }
 
     return result.isNotEmpty ? result : null;
@@ -192,11 +222,15 @@ class CaseImportService {
     if (caseMatch != null) result['case_number'] = caseMatch.group(0)!;
 
     // Try "vs" pattern
-    final vsMatch = RegExp(r'(.+?)\s+(?:vs|v/s)\s+(.+)', caseSensitive: false).firstMatch(line);
+    final vsMatch = RegExp(
+      r'(.+?)\s+(?:vs|v/s)\s+(.+)',
+      caseSensitive: false,
+    ).firstMatch(line);
     if (vsMatch != null) {
       result['petitioner'] = vsMatch.group(1)!.trim();
       result['respondent'] = vsMatch.group(2)!.trim();
-      result['case_title'] = '${result['petitioner']} vs ${result['respondent']}';
+      result['case_title'] =
+          '${result['petitioner']} vs ${result['respondent']}';
     }
 
     return result.isNotEmpty ? result : null;
@@ -242,8 +276,10 @@ class CaseImportService {
         }
 
         // Role-Based Mapping
-        final String petitioner = parsedCase['petitioner'] ?? 'Unknown Petitioner';
-        final String respondent = parsedCase['respondent'] ?? 'Unknown Respondent';
+        final String petitioner =
+            parsedCase['petitioner'] ?? 'Unknown Petitioner';
+        final String respondent =
+            parsedCase['respondent'] ?? 'Unknown Respondent';
         String clientName;
         String opposingParty;
         String? petitionerAdvocate = parsedCase['pet_advocate'];
@@ -262,14 +298,17 @@ class CaseImportService {
         // Find or Create Client (from cache)
         String? clientId = clientCache[clientName.toLowerCase()];
         if (clientId == null) {
-          final newClient = await SupabaseService.createClient({'name': clientName});
+          final newClient = await SupabaseService.createClient({
+            'name': clientName,
+          });
           clientId = newClient.id;
           clientCache[clientName.toLowerCase()] = clientId;
         }
 
         // Prepare Case Data
         final caseData = {
-          'case_title': parsedCase['case_title'] ?? '$petitioner vs $respondent',
+          'case_title':
+              parsedCase['case_title'] ?? '$petitioner vs $respondent',
           'case_number': parsedCase['case_number'] ?? cnr,
           'court_name': parsedCase['court_name'],
           'client_id': clientId,
@@ -302,7 +341,9 @@ class CaseImportService {
 
         // Create Hearing if date exists
         if (parsedCase['next_hearing_date'] != null) {
-          final hearingDate = DateTime.tryParse(parsedCase['next_hearing_date']!);
+          final hearingDate = DateTime.tryParse(
+            parsedCase['next_hearing_date']!,
+          );
           if (hearingDate != null) {
             try {
               await SupabaseService.createHearing({
@@ -311,7 +352,10 @@ class CaseImportService {
                 'stage': parsedCase['status'] ?? 'Listed',
                 'purpose': 'Hearing',
                 'status': 'scheduled',
-                'notes': existingCase != null ? 'Synced from eCourts Update' : 'Imported from eCourts',
+                'notes':
+                    existingCase != null
+                        ? 'Synced from eCourts Update'
+                        : 'Imported from eCourts',
               });
             } catch (_) {
               // Hearing may already exist, safe to skip
@@ -334,7 +378,10 @@ class CaseImportService {
     Map<String, String> parsedCase, {
     String representationType = 'petitioner',
   }) async {
-    final ids = await batchImportECourtsCases([parsedCase], {0: representationType});
+    final ids = await batchImportECourtsCases(
+      [parsedCase],
+      {0: representationType},
+    );
     return ids.isNotEmpty ? ids.first : null;
   }
 
@@ -367,11 +414,15 @@ class CaseImportService {
       String? clientId;
       final clientName = caseData['client_name'] ?? 'Unknown Client';
       final existingClients = await SupabaseService.fetchClients();
-      final match = existingClients.where((c) => c.name.toLowerCase() == clientName.toString().toLowerCase());
+      final match = existingClients.where(
+        (c) => c.name.toLowerCase() == clientName.toString().toLowerCase(),
+      );
       if (match.isNotEmpty) {
         clientId = match.first.id;
       } else {
-        final newClient = await SupabaseService.createClient({'name': clientName});
+        final newClient = await SupabaseService.createClient({
+          'name': clientName,
+        });
         clientId = newClient.id;
       }
 

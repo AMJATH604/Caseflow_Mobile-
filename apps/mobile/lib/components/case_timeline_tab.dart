@@ -10,7 +10,11 @@ import '../theme/app_theme.dart';
 class CaseTimelineTab extends ConsumerWidget {
   final String caseId;
   final CaseModel caseData;
-  const CaseTimelineTab({super.key, required this.caseId, required this.caseData});
+  const CaseTimelineTab({
+    super.key,
+    required this.caseId,
+    required this.caseData,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,11 +32,20 @@ class CaseTimelineTab extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.timeline_rounded, size: 48, color: const Color(0xFFE2E8F0)),
+                Icon(
+                  Icons.timeline_rounded,
+                  size: 48,
+                  color: const Color(0xFFE2E8F0),
+                ),
                 const SizedBox(height: 24),
                 Text(
                   "NO TEMPORAL DATA",
-                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 11, color: const Color(0xFF94A3B8), letterSpacing: 2),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 11,
+                    color: const Color(0xFF94A3B8),
+                    letterSpacing: 2,
+                  ),
                 ),
               ],
             ),
@@ -70,22 +83,23 @@ class CaseTimelineTab extends ConsumerWidget {
                           height: 16,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: isFuture
-                                ? Colors.transparent
-                                : event.color,
+                            color: isFuture ? Colors.transparent : event.color,
                             border: Border.all(
                               color: event.color.withValues(alpha: 0.5),
                               width: 1,
                             ),
-                            boxShadow: isFuture
-                                ? null
-                                : [
-                                    BoxShadow(
-                                      color: event.color.withValues(alpha: 0.3),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
+                            boxShadow:
+                                isFuture
+                                    ? null
+                                    : [
+                                      BoxShadow(
+                                        color: event.color.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
                           ),
                         ),
                         // Bottom connector line
@@ -122,7 +136,11 @@ class CaseTimelineTab extends ConsumerWidget {
                                   color: event.color.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: Icon(event.icon, size: 18, color: event.color),
+                                child: Icon(
+                                  event.icon,
+                                  size: 18,
+                                  color: event.color,
+                                ),
                               ),
                               const SizedBox(width: 10),
                               Expanded(
@@ -140,7 +158,9 @@ class CaseTimelineTab extends ConsumerWidget {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      DateFormat('dd MMM yyyy, EEEE').format(event.date),
+                                      DateFormat(
+                                        'dd MMM yyyy, EEEE',
+                                      ).format(event.date),
                                       style: TextStyle(
                                         fontSize: 10,
                                         color: const Color(0xFF94A3B8),
@@ -152,7 +172,10 @@ class CaseTimelineTab extends ConsumerWidget {
                               ),
                               if (isFuture)
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: event.color.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(8),
@@ -169,7 +192,10 @@ class CaseTimelineTab extends ConsumerWidget {
                                 ),
                               if (event.type == _EventType.filing && !isFuture)
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.green.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
@@ -198,7 +224,11 @@ class CaseTimelineTab extends ConsumerWidget {
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(Icons.notes_rounded, size: 12, color: const Color(0xFFE2E8F0)),
+                                  Icon(
+                                    Icons.notes_rounded,
+                                    size: 12,
+                                    color: const Color(0xFFE2E8F0),
+                                  ),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
@@ -241,87 +271,102 @@ class CaseTimelineTab extends ConsumerWidget {
 
     // 1. Filing date
     if (caseData.filingDate != null) {
-      events.add(_TimelineEvent(
-        date: caseData.filingDate!,
-        title: "Case Filed",
-        subtitle: "Filed at ${caseData.courtName ?? 'Court'} • ${caseData.caseNumber ?? ''}",
-        icon: Icons.gavel_rounded,
-        color: const Color(0xFF6C63FF),
-        type: _EventType.filing,
-      ));
+      events.add(
+        _TimelineEvent(
+          date: caseData.filingDate!,
+          title: "Case Filed",
+          subtitle:
+              "Filed at ${caseData.courtName ?? 'Court'} • ${caseData.caseNumber ?? ''}",
+          icon: Icons.gavel_rounded,
+          color: const Color(0xFF6C63FF),
+          type: _EventType.filing,
+        ),
+      );
     }
 
     // 2. Hearings
     for (final h in hearings) {
       final isAdjourned = h.status.toLowerCase() == 'adjourned';
       final isCompleted = h.status.toLowerCase() == 'completed';
-      events.add(_TimelineEvent(
-        date: h.hearingDate,
-        title: isAdjourned
-            ? "Adjourned"
-            : isCompleted
-                ? "Hearing Completed"
-                : "Hearing",
-        subtitle: [
-          if (h.purpose != null) h.purpose!,
-          if (h.stage != null) "Stage: ${h.stage}",
-          if (h.notes != null && h.notes!.isNotEmpty) h.notes!,
-        ].join(' • '),
-        icon: isAdjourned
-            ? Icons.update_rounded
-            : Icons.calendar_today_rounded,
-        color: isAdjourned
-            ? const Color(0xFFF59E0B)
-            : isCompleted
-                ? const Color(0xFF10B981)
-                : const Color(0xFF3B82F6),
-        type: isAdjourned ? _EventType.adjournment : _EventType.hearing,
-      ));
+      events.add(
+        _TimelineEvent(
+          date: h.hearingDate,
+          title:
+              isAdjourned
+                  ? "Adjourned"
+                  : isCompleted
+                  ? "Hearing Completed"
+                  : "Hearing",
+          subtitle: [
+            if (h.purpose != null) h.purpose!,
+            if (h.stage != null) "Stage: ${h.stage}",
+            if (h.notes != null && h.notes!.isNotEmpty) h.notes!,
+          ].join(' • '),
+          icon:
+              isAdjourned ? Icons.update_rounded : Icons.calendar_today_rounded,
+          color:
+              isAdjourned
+                  ? const Color(0xFFF59E0B)
+                  : isCompleted
+                  ? const Color(0xFF10B981)
+                  : const Color(0xFF3B82F6),
+          type: isAdjourned ? _EventType.adjournment : _EventType.hearing,
+        ),
+      );
     }
 
     // 3. Payments
     for (final p in payments) {
       if (p.paidDate != null) {
-        events.add(_TimelineEvent(
-          date: p.paidDate!,
-          title: "Payment Received",
-          subtitle: "₹${p.paidAmount.toStringAsFixed(0)} via ${p.paymentMode ?? 'Unknown'}",
-          icon: Icons.payment_rounded,
-          color: const Color(0xFF10B981),
-          type: _EventType.payment,
-        ));
+        events.add(
+          _TimelineEvent(
+            date: p.paidDate!,
+            title: "Payment Received",
+            subtitle:
+                "₹${p.paidAmount.toStringAsFixed(0)} via ${p.paymentMode ?? 'Unknown'}",
+            icon: Icons.payment_rounded,
+            color: const Color(0xFF10B981),
+            type: _EventType.payment,
+          ),
+        );
       }
     }
 
     // 4. E-Filings
     for (final e in efilings) {
       if (e.filingDate != null) {
-        events.add(_TimelineEvent(
-          date: e.filingDate!,
-          title: "E-Filing: ${e.documentType}",
-          subtitle: "Status: ${e.status.name}",
-          icon: Icons.cloud_upload_rounded,
-          color: const Color(0xFF8B5CF6),
-          type: _EventType.efiling,
-        ));
+        events.add(
+          _TimelineEvent(
+            date: e.filingDate!,
+            title: "E-Filing: ${e.documentType}",
+            subtitle: "Status: ${e.status.name}",
+            icon: Icons.cloud_upload_rounded,
+            color: const Color(0xFF8B5CF6),
+            type: _EventType.efiling,
+          ),
+        );
       }
     }
 
     // 5. Next hearing date (from case data, if not already in hearings)
     if (caseData.nextHearingDate != null) {
-      final alreadyHas = hearings.any((h) =>
-          h.hearingDate.year == caseData.nextHearingDate!.year &&
-          h.hearingDate.month == caseData.nextHearingDate!.month &&
-          h.hearingDate.day == caseData.nextHearingDate!.day);
+      final alreadyHas = hearings.any(
+        (h) =>
+            h.hearingDate.year == caseData.nextHearingDate!.year &&
+            h.hearingDate.month == caseData.nextHearingDate!.month &&
+            h.hearingDate.day == caseData.nextHearingDate!.day,
+      );
       if (!alreadyHas) {
-        events.add(_TimelineEvent(
-          date: caseData.nextHearingDate!,
-          title: "Next Hearing",
-          subtitle: "Scheduled at ${caseData.courtName ?? 'Court'}",
-          icon: Icons.event_rounded,
-          color: const Color(0xFFEC4899),
-          type: _EventType.hearing,
-        ));
+        events.add(
+          _TimelineEvent(
+            date: caseData.nextHearingDate!,
+            title: "Next Hearing",
+            subtitle: "Scheduled at ${caseData.courtName ?? 'Court'}",
+            icon: Icons.event_rounded,
+            color: const Color(0xFFEC4899),
+            type: _EventType.hearing,
+          ),
+        );
       }
     }
 

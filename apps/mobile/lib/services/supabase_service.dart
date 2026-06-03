@@ -44,8 +44,10 @@ class SupabaseService {
 
   static Future<AuthResponse> signIn(String email, String password) async {
     BaseRepository.invalidateProfileCache();
-    return await client.auth
-        .signInWithPassword(email: email, password: password);
+    return await client.auth.signInWithPassword(
+      email: email,
+      password: password,
+    );
   }
 
   static Future<void> signOut() async {
@@ -77,8 +79,7 @@ class SupabaseService {
 
   // ─── Cases ──────────────────────────────────────────
 
-  static Future<List<CaseModel>> fetchCases() =>
-      CaseRepository.fetchCases();
+  static Future<List<CaseModel>> fetchCases() => CaseRepository.fetchCases();
 
   static Future<CaseModel> fetchCaseById(String id) =>
       CaseRepository.fetchCaseById(id);
@@ -89,8 +90,7 @@ class SupabaseService {
   static Future<void> updateCase(String id, Map<String, dynamic> updates) =>
       CaseRepository.updateCase(id, updates);
 
-  static Future<void> deleteCase(String id) =>
-      CaseRepository.deleteCase(id);
+  static Future<void> deleteCase(String id) => CaseRepository.deleteCase(id);
 
   static Future<void> updateCaseCnr(String id, String cnr) =>
       CaseRepository.updateCaseCnr(id, cnr);
@@ -104,16 +104,16 @@ class SupabaseService {
       HearingRepository.createHearing(data);
 
   static Future<Hearing?> adjournHearing(
-          String id, Map<String, dynamic> data) =>
-      HearingRepository.adjournHearing(id, data);
+    String id,
+    Map<String, dynamic> data,
+  ) => HearingRepository.adjournHearing(id, data);
 
   static Future<void> deleteHearing(String id) =>
       HearingRepository.deleteHearing(id);
 
   // ─── E-Filing ───────────────────────────────────────
 
-  static Future<List<EFilingRecord>> fetchEfilingRecords(
-          {String? caseId}) =>
+  static Future<List<EFilingRecord>> fetchEfilingRecords({String? caseId}) =>
       FilingRepository.fetchEfilingRecords(caseId: caseId);
 
   static Future<void> createEfilingRecord(Map<String, dynamic> record) =>
@@ -138,8 +138,7 @@ class SupabaseService {
 
   // ─── Tasks ──────────────────────────────────────────
 
-  static Future<List<TaskModel>> fetchTasks() =>
-      ContentRepository.fetchTasks();
+  static Future<List<TaskModel>> fetchTasks() => ContentRepository.fetchTasks();
 
   static Stream<List<TaskModel>> tasksStream() =>
       ContentRepository.tasksStream();
@@ -150,8 +149,7 @@ class SupabaseService {
   static Future<void> updateTask(String id, Map<String, dynamic> updates) =>
       ContentRepository.updateTask(id, updates);
 
-  static Future<void> deleteTask(String id) =>
-      ContentRepository.deleteTask(id);
+  static Future<void> deleteTask(String id) => ContentRepository.deleteTask(id);
 
   // ─── Certified Copies ────────────────────────────────
 
@@ -162,8 +160,9 @@ class SupabaseService {
       FilingRepository.createCertifiedCopy(data);
 
   static Future<void> updateCertifiedCopy(
-          String id, Map<String, dynamic> updates) =>
-      FilingRepository.updateCertifiedCopy(id, updates);
+    String id,
+    Map<String, dynamic> updates,
+  ) => FilingRepository.updateCertifiedCopy(id, updates);
 
   static Future<void> deleteCertifiedCopy(String id) =>
       FilingRepository.deleteCertifiedCopy(id);
@@ -174,8 +173,10 @@ class SupabaseService {
       ContentRepository.fetchDocuments(caseId);
 
   static Future<void> uploadDocument(
-          String caseId, Uint8List file, String fileName) =>
-      ContentRepository.uploadDocument(caseId, file, fileName);
+    String caseId,
+    Uint8List file,
+    String fileName,
+  ) => ContentRepository.uploadDocument(caseId, file, fileName);
 
   static Future<void> deleteDocument(String caseId, String fileName) =>
       ContentRepository.deleteDocument(caseId, fileName);
@@ -188,13 +189,12 @@ class SupabaseService {
   static Future<List<dynamic>> fetchSections(String actId) =>
       ContentRepository.fetchSections(actId);
 
-  static Future<List<dynamic>> searchBareActs(String query,
-          {String? actId}) =>
+  static Future<List<dynamic>> searchBareActs(String query, {String? actId}) =>
       ContentRepository.searchBareActs(query, actId: actId);
 
-  static Future<List<Map<String, dynamic>>> fetchStampValues(
-          {String stateId = 'TN'}) =>
-      ContentRepository.fetchStampValues(stateId: stateId);
+  static Future<List<Map<String, dynamic>>> fetchStampValues({
+    String stateId = 'TN',
+  }) => ContentRepository.fetchStampValues(stateId: stateId);
 
   static Future<List<LegalTemplate>> fetchLegalTemplates() =>
       ContentRepository.fetchLegalTemplates();
@@ -211,12 +211,13 @@ class SupabaseService {
     final profile = await BaseRepository.getCachedProfile();
     final today = DateTime.now().toIso8601String().split('T')[0];
 
-    final orFilter =
-        BaseRepository.buildVisibilityFilter(profile, user.id);
+    final orFilter = BaseRepository.buildVisibilityFilter(profile, user.id);
 
     // Step 1: Get visible case IDs (required for all sub-queries)
-    final totalCasesRes =
-        await client.from('cases').select('id, status').or(orFilter);
+    final totalCasesRes = await client
+        .from('cases')
+        .select('id, status')
+        .or(orFilter);
     final List casesList = totalCasesRes as List;
     final List<String> visibleCaseIds =
         casesList.map((c) => c['id'] as String).toList();
@@ -237,7 +238,9 @@ class SupabaseService {
     final int disposedCount =
         casesList.where((c) => c['status'] == 'disposed').length;
     final int dismissedCount =
-        casesList.where((c) => c['status'] == 'dismissed' || c['status'] == 'closed').length;
+        casesList
+            .where((c) => c['status'] == 'dismissed' || c['status'] == 'closed')
+            .length;
 
     // Step 2: Parallel fetch with error isolation — each query fails
     // gracefully so a single failure doesn't crash the entire dashboard.
@@ -251,28 +254,36 @@ class SupabaseService {
     }
 
     final results = await Future.wait([
-      safeQuery(client
-          .from('hearings')
-          .select('id')
-          .gte('hearing_date', today)
-          .inFilter('case_id', visibleCaseIds)),
-      safeQuery(client
-          .from('efiling_records')
-          .select('id')
-          .inFilter('case_id', visibleCaseIds)),
+      safeQuery(
+        client
+            .from('hearings')
+            .select('id')
+            .gte('hearing_date', today)
+            .inFilter('case_id', visibleCaseIds),
+      ),
+      safeQuery(
+        client
+            .from('efiling_records')
+            .select('id')
+            .inFilter('case_id', visibleCaseIds),
+      ),
       safeQuery(client.from('clients').select('id')),
-      safeQuery(client
-          .from('hearings')
-          .select('*, cases(case_title, case_number, firm_id)')
-          .eq('hearing_date', today)
-          .inFilter('case_id', visibleCaseIds)
-          .order('created_at', ascending: false)
-          .limit(5)),
-      safeQuery(client
-          .from('payments')
-          .select('id, balance_amount')
-          .gt('balance_amount', 0)
-          .inFilter('case_id', visibleCaseIds)),
+      safeQuery(
+        client
+            .from('hearings')
+            .select('*, cases(case_title, case_number, firm_id)')
+            .eq('hearing_date', today)
+            .inFilter('case_id', visibleCaseIds)
+            .order('created_at', ascending: false)
+            .limit(5),
+      ),
+      safeQuery(
+        client
+            .from('payments')
+            .select('id, balance_amount')
+            .gt('balance_amount', 0)
+            .inFilter('case_id', visibleCaseIds),
+      ),
     ]);
 
     final pendingPayments = results[4];
@@ -286,25 +297,24 @@ class SupabaseService {
       'disposedCasesCount': disposedCount,
       'dismissedCasesCount': dismissedCount,
       'pendingPaymentsCount': pendingPayments.length,
-      'todayHearings': results[3]
-          .map((json) => Hearing.fromJson(json))
-          .toList(),
+      'todayHearings':
+          results[3].map((json) => Hearing.fromJson(json)).toList(),
     };
   }
 
   // ─── Evidence Lab ──────────────────────────────────
 
   static Future<List<EvidenceChecklist>> fetchEvidenceChecklist(
-          String caseId) =>
-      EvidenceRepository.fetchEvidenceChecklist(caseId);
+    String caseId,
+  ) => EvidenceRepository.fetchEvidenceChecklist(caseId);
 
-  static Future<void> createEvidenceChecklistItem(
-          Map<String, dynamic> data) =>
+  static Future<void> createEvidenceChecklistItem(Map<String, dynamic> data) =>
       EvidenceRepository.createEvidenceChecklistItem(data);
 
   static Future<void> updateEvidenceChecklistItem(
-          String id, Map<String, dynamic> updates) =>
-      EvidenceRepository.updateEvidenceChecklistItem(id, updates);
+    String id,
+    Map<String, dynamic> updates,
+  ) => EvidenceRepository.updateEvidenceChecklistItem(id, updates);
 
   static Future<void> deleteEvidenceChecklistItem(String id) =>
       EvidenceRepository.deleteEvidenceChecklistItem(id);
@@ -316,8 +326,9 @@ class SupabaseService {
       EvidenceRepository.createWitnessNote(data);
 
   static Future<void> updateWitnessNote(
-          String id, Map<String, dynamic> updates) =>
-      EvidenceRepository.updateWitnessNote(id, updates);
+    String id,
+    Map<String, dynamic> updates,
+  ) => EvidenceRepository.updateWitnessNote(id, updates);
 
   static Future<void> deleteWitnessNote(String id) =>
       EvidenceRepository.deleteWitnessNote(id);
@@ -333,15 +344,16 @@ class SupabaseService {
 
   // ─── Case Discussion & Notices ──────────────────────
 
-  static Future<List<CaseComment>> fetchDiscussions(
-          {String? caseId, String? firmId}) =>
-      DiscussionRepository.fetchDiscussions(caseId: caseId, firmId: firmId);
+  static Future<List<CaseComment>> fetchDiscussions({
+    String? caseId,
+    String? firmId,
+  }) => DiscussionRepository.fetchDiscussions(caseId: caseId, firmId: firmId);
 
   /// Now uses Supabase Realtime instead of 2-second polling.
-  static Stream<List<CaseComment>> discussionsStream(
-          {String? caseId, String? firmId}) =>
-      DiscussionRepository.discussionsStream(
-          caseId: caseId, firmId: firmId);
+  static Stream<List<CaseComment>> discussionsStream({
+    String? caseId,
+    String? firmId,
+  }) => DiscussionRepository.discussionsStream(caseId: caseId, firmId: firmId);
 
   static Future<void> postDiscussion(Map<String, dynamic> data) =>
       DiscussionRepository.postDiscussion(data);
@@ -352,8 +364,10 @@ class SupabaseService {
   // ─── District Portals ──────────────────────────────────
 
   static Future<String?> getDistrictPortalUrl(
-          String state, String district, String type) =>
-      ContentRepository.getDistrictPortalUrl(state, district, type);
+    String state,
+    String district,
+    String type,
+  ) => ContentRepository.getDistrictPortalUrl(state, district, type);
 
   // ─── Global Search ──────────────────────────────────
 
@@ -393,8 +407,7 @@ class SupabaseService {
   static Future<void> upsertCaseIA(Map<String, dynamic> data) =>
       CaseRepository.upsertCaseIA(data);
 
-  static Future<void> updateCaseIA(
-          String id, Map<String, dynamic> updates) =>
+  static Future<void> updateCaseIA(String id, Map<String, dynamic> updates) =>
       CaseRepository.updateCaseIA(id, updates);
 
   static Future<void> deleteCaseIA(String id) =>

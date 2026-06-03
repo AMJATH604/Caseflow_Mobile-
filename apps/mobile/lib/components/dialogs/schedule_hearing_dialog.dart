@@ -10,7 +10,8 @@ class ScheduleHearingDialog extends ConsumerStatefulWidget {
   const ScheduleHearingDialog({super.key});
 
   @override
-  ConsumerState<ScheduleHearingDialog> createState() => _ScheduleHearingDialogState();
+  ConsumerState<ScheduleHearingDialog> createState() =>
+      _ScheduleHearingDialogState();
 }
 
 class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
@@ -29,7 +30,10 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
   }
 
   Future<void> _save() async {
-    if (!_formKey.currentState!.validate() || _selectedCaseId == null || _hearingDate == null) return;
+    if (!_formKey.currentState!.validate() ||
+        _selectedCaseId == null ||
+        _hearingDate == null)
+      return;
 
     setState(() => _isSaving = true);
     try {
@@ -39,13 +43,14 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
         'stage': _purposeController.text,
         'notes': _notesController.text,
       });
-      
 
-      
       ref.invalidate(hearingsProvider);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -56,7 +61,13 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
     final casesAsync = ref.watch(casesProvider);
 
     return AlertDialog(
-      title: const Text("Schedule New Hearing", style: TextStyle(fontFamily: 'Playfair Display', fontWeight: FontWeight.bold)),
+      title: const Text(
+        "Schedule New Hearing",
+        style: TextStyle(
+          fontFamily: 'Playfair Display',
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -64,20 +75,40 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               casesAsync.when(
-                data: (cases) => DropdownButtonFormField<String>(
-                  initialValue: _selectedCaseId,
-                  decoration: const InputDecoration(labelText: "Select Case"),
-                  items: cases.map((c) => DropdownMenuItem(value: c.id, child: Text(c.caseTitle.isEmpty ? (c.caseNumber ?? "Unknown Case") : c.caseTitle))).toList(),
-                  onChanged: (val) => setState(() => _selectedCaseId = val),
-                  validator: (v) => v == null ? "Required" : null,
-                ),
+                data:
+                    (cases) => DropdownButtonFormField<String>(
+                      initialValue: _selectedCaseId,
+                      decoration: const InputDecoration(
+                        labelText: "Select Case",
+                      ),
+                      items:
+                          cases
+                              .map(
+                                (c) => DropdownMenuItem(
+                                  value: c.id,
+                                  child: Text(
+                                    c.caseTitle.isEmpty
+                                        ? (c.caseNumber ?? "Unknown Case")
+                                        : c.caseTitle,
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                      onChanged: (val) => setState(() => _selectedCaseId = val),
+                      validator: (v) => v == null ? "Required" : null,
+                    ),
                 loading: () => const CircularProgressIndicator(),
                 error: (e, s) => Text("Error loading cases: $e"),
               ),
               const SizedBox(height: 16),
               InkWell(
                 onTap: () async {
-                  final picked = await showDatePicker(context: context, initialDate: _hearingDate ?? DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime(2100));
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: _hearingDate ?? DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2100),
+                  );
                   if (picked != null) setState(() => _hearingDate = picked);
                 },
                 child: InputDecorator(
@@ -102,11 +133,27 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Cancel"),
+        ),
         ElevatedButton(
           onPressed: _isSaving ? null : _save,
-          style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
-          child: _isSaving ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text("Schedule"),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppTheme.primary,
+            foregroundColor: Colors.white,
+          ),
+          child:
+              _isSaving
+                  ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                  : const Text("Schedule"),
         ),
       ],
     );

@@ -10,11 +10,11 @@ class CaveatService {
         .from('caveats')
         .select('*')
         .order('expiry_date', ascending: true);
-        
+
     return (response as List).map((json) => Caveat.fromJson(json)).toList();
   }
 
-  /// Creates a new caveat. 
+  /// Creates a new caveat.
   /// The [expiryDate] will automatically be set exactly 90 days from the filing date.
   static Future<Caveat> createCaveat({
     required String courtName,
@@ -50,17 +50,17 @@ class CaveatService {
     final payload = caveat.toJson();
     payload.remove('id'); // Ensure ID is not sent for insert
 
-    final response = await _supabase
-        .from('caveats')
-        .insert(payload)
-        .select()
-        .single();
+    final response =
+        await _supabase.from('caveats').insert(payload).select().single();
 
     return Caveat.fromJson(response);
   }
 
   /// Updates an existing caveat
-  static Future<void> updateCaveat(String id, Map<String, dynamic> updates) async {
+  static Future<void> updateCaveat(
+    String id,
+    Map<String, dynamic> updates,
+  ) async {
     // If filing date is being updated, we must recalculate expiry
     if (updates.containsKey('filing_date')) {
       final newFilingDate = DateTime.parse(updates['filing_date'] as String);
@@ -68,25 +68,19 @@ class CaveatService {
       updates['expiry_date'] = newExpiryDate.toIso8601String().split('T')[0];
     }
 
-    await _supabase
-        .from('caveats')
-        .update(updates)
-        .eq('id', id);
+    await _supabase.from('caveats').update(updates).eq('id', id);
   }
 
   /// Deletes a caveat
   static Future<void> deleteCaveat(String id) async {
-    await _supabase
-        .from('caveats')
-        .delete()
-        .eq('id', id);
+    await _supabase.from('caveats').delete().eq('id', id);
   }
 
   /// Runs a check on active caveats and auto-updates status to 'expired' if days passed.
   /// Could be used locally on app load to sync state if Edge Function isn't handling status updates.
   static Future<void> cleanupExpiredCaveatsLocally() async {
     final now = DateTime.now().toIso8601String().split('T')[0];
-    
+
     await _supabase
         .from('caveats')
         .update({'status': 'expired'})

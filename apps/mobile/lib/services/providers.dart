@@ -61,7 +61,9 @@ final clientsProvider = FutureProvider<List<ClientModel>>((ref) async {
   ref.watch(authStateProvider);
   ref.watch(dataRefreshProvider);
   try {
-    final clients = await RetryHelper.retry(() => SupabaseService.fetchClients());
+    final clients = await RetryHelper.retry(
+      () => SupabaseService.fetchClients(),
+    );
     OfflineCacheService.cacheClients(clients.map((c) => c.toJson()).toList());
     return clients;
   } catch (e) {
@@ -93,7 +95,10 @@ final casesProvider = FutureProvider<List<CaseModel>>((ref) async {
   }
 });
 
-final caseDetailProvider = FutureProvider.family<CaseModel?, String>((ref, id) async {
+final caseDetailProvider = FutureProvider.family<CaseModel?, String>((
+  ref,
+  id,
+) async {
   ref.watch(authStateProvider);
   ref.watch(dataRefreshProvider); // ← watches refresh trigger
   return RetryHelper.retry(() => SupabaseService.fetchCaseById(id));
@@ -103,7 +108,9 @@ final hearingsProvider = FutureProvider<List<Hearing>>((ref) async {
   ref.watch(authStateProvider);
   ref.watch(dataRefreshProvider);
   try {
-    final hearings = await RetryHelper.retry(() => SupabaseService.fetchHearings());
+    final hearings = await RetryHelper.retry(
+      () => SupabaseService.fetchHearings(),
+    );
     OfflineCacheService.cacheHearings(hearings.map((h) => h.toJson()).toList());
     return hearings;
   } catch (e) {
@@ -116,7 +123,10 @@ final hearingsProvider = FutureProvider<List<Hearing>>((ref) async {
   }
 });
 
-final caseHearingsProvider = FutureProvider.family<List<Hearing>, String>((ref, caseId) async {
+final caseHearingsProvider = FutureProvider.family<List<Hearing>, String>((
+  ref,
+  caseId,
+) async {
   ref.watch(authStateProvider);
   ref.watch(dataRefreshProvider); // ← watches refresh trigger
   return RetryHelper.retry(() => SupabaseService.fetchHearings(caseId: caseId));
@@ -128,7 +138,10 @@ final paymentsProvider = FutureProvider<List<Payment>>((ref) async {
   return RetryHelper.retry(() => SupabaseService.fetchPayments());
 });
 
-final casePaymentsProvider = FutureProvider.family<List<Payment>, String>((ref, caseId) async {
+final casePaymentsProvider = FutureProvider.family<List<Payment>, String>((
+  ref,
+  caseId,
+) async {
   ref.watch(authStateProvider);
   ref.watch(dataRefreshProvider); // ← watches refresh trigger
   return RetryHelper.retry(() => SupabaseService.fetchPayments(caseId: caseId));
@@ -140,10 +153,15 @@ final efilingProvider = FutureProvider<List<EFilingRecord>>((ref) async {
   return RetryHelper.retry(() => SupabaseService.fetchEfilingRecords());
 });
 
-final caseEfilingProvider = FutureProvider.family<List<EFilingRecord>, String>((ref, caseId) async {
+final caseEfilingProvider = FutureProvider.family<List<EFilingRecord>, String>((
+  ref,
+  caseId,
+) async {
   ref.watch(authStateProvider);
   ref.watch(dataRefreshProvider); // ← watches refresh trigger
-  return RetryHelper.retry(() => SupabaseService.fetchEfilingRecords(caseId: caseId));
+  return RetryHelper.retry(
+    () => SupabaseService.fetchEfilingRecords(caseId: caseId),
+  );
 });
 
 final tasksProvider = FutureProvider<List<TaskModel>>((ref) async {
@@ -152,71 +170,101 @@ final tasksProvider = FutureProvider<List<TaskModel>>((ref) async {
   return RetryHelper.retry(() => SupabaseService.fetchTasks());
 });
 
-final dashboardStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+final dashboardStatsProvider = FutureProvider<Map<String, dynamic>>((
+  ref,
+) async {
   ref.watch(authStateProvider);
   ref.watch(dataRefreshProvider); // ← watches refresh trigger
   return RetryHelper.retry(() => SupabaseService.fetchDashboardStats());
 });
 
-final certifiedCopiesProvider = FutureProvider<List<CertifiedCopy>>((ref) async {
+final certifiedCopiesProvider = FutureProvider<List<CertifiedCopy>>((
+  ref,
+) async {
   ref.watch(authStateProvider);
   ref.watch(dataRefreshProvider); // ← watches refresh trigger
   return RetryHelper.retry(() => SupabaseService.fetchCertifiedCopies());
 });
 
-final caseDocumentsProvider = FutureProvider.family<List<Map<String, dynamic>>, String>((ref, caseId) async {
-  ref.watch(authStateProvider);
-  ref.watch(dataRefreshProvider); // ← watches refresh trigger
-  return RetryHelper.retry(() => SupabaseService.fetchDocuments(caseId));
-});
+final caseDocumentsProvider =
+    FutureProvider.family<List<Map<String, dynamic>>, String>((
+      ref,
+      caseId,
+    ) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider); // ← watches refresh trigger
+      return RetryHelper.retry(() => SupabaseService.fetchDocuments(caseId));
+    });
 
-final evidenceChecklistProvider = FutureProvider.family<List<EvidenceChecklist>, String>((ref, caseId) async {
-  ref.watch(authStateProvider);
-  ref.watch(dataRefreshProvider); // ← watches refresh trigger
-  return RetryHelper.retry(() => SupabaseService.fetchEvidenceChecklist(caseId));
-});
+final evidenceChecklistProvider =
+    FutureProvider.family<List<EvidenceChecklist>, String>((ref, caseId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider); // ← watches refresh trigger
+      return RetryHelper.retry(
+        () => SupabaseService.fetchEvidenceChecklist(caseId),
+      );
+    });
 
-final witnessNotesProvider = FutureProvider.family<List<WitnessNote>, String>((ref, caseId) async {
+final witnessNotesProvider = FutureProvider.family<List<WitnessNote>, String>((
+  ref,
+  caseId,
+) async {
   ref.watch(authStateProvider);
   ref.watch(dataRefreshProvider); // ← watches refresh trigger
   return RetryHelper.retry(() => SupabaseService.fetchWitnessNotes(caseId));
 });
 
-final evidencePhotosProvider = FutureProvider.family<List<EvidencePhoto>, String>((ref, caseId) async {
-  ref.watch(authStateProvider);
-  ref.watch(dataRefreshProvider); // ← watches refresh trigger
-  return RetryHelper.retry(() => SupabaseService.fetchEvidencePhotos(caseId));
-});
+final evidencePhotosProvider =
+    FutureProvider.family<List<EvidencePhoto>, String>((ref, caseId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider); // ← watches refresh trigger
+      return RetryHelper.retry(
+        () => SupabaseService.fetchEvidencePhotos(caseId),
+      );
+    });
 
-final caseDiscussionsProvider = StreamProvider.family<List<CaseComment>, String>((ref, caseId) {
-  ref.watch(authStateProvider);
-  return SupabaseService.discussionsStream(caseId: caseId);
-});
+final caseDiscussionsProvider =
+    StreamProvider.family<List<CaseComment>, String>((ref, caseId) {
+      ref.watch(authStateProvider);
+      return SupabaseService.discussionsStream(caseId: caseId);
+    });
 
-final firmNoticesProvider = StreamProvider.family<List<CaseComment>, String>((ref, firmId) {
+final firmNoticesProvider = StreamProvider.family<List<CaseComment>, String>((
+  ref,
+  firmId,
+) {
   ref.watch(authStateProvider);
   return SupabaseService.discussionsStream(firmId: firmId);
 });
 
 // ─── eCourt Dossier Providers ─────────────────────────
 
-final caseActsProvider = FutureProvider.family<List<CaseAct>, String>((ref, caseId) async {
+final caseActsProvider = FutureProvider.family<List<CaseAct>, String>((
+  ref,
+  caseId,
+) async {
   ref.watch(authStateProvider);
   ref.watch(dataRefreshProvider);
   return RetryHelper.retry(() => SupabaseService.fetchCaseActs(caseId));
 });
 
-final caseIAProvider = FutureProvider.family<List<CaseIAApplication>, String>((ref, caseId) async {
+final caseIAProvider = FutureProvider.family<List<CaseIAApplication>, String>((
+  ref,
+  caseId,
+) async {
   ref.watch(authStateProvider);
   ref.watch(dataRefreshProvider);
   return RetryHelper.retry(() => SupabaseService.fetchCaseIAs(caseId));
 });
 
-final caseInterimOrdersProvider = FutureProvider.family<List<CaseInterimOrder>, String>((ref, caseId) async {
-  ref.watch(authStateProvider);
-  ref.watch(dataRefreshProvider);
-  return RetryHelper.retry(() => SupabaseService.fetchInterimOrders(caseId));
-});
+final caseInterimOrdersProvider =
+    FutureProvider.family<List<CaseInterimOrder>, String>((ref, caseId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(
+        () => SupabaseService.fetchInterimOrders(caseId),
+      );
+    });
 
 // ─── Caveats ─────────────────────────────────────────
 
@@ -233,7 +281,9 @@ final pageTitleProvider = StateProvider<String>((ref) => "CaseFlow");
 final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.light);
 
 // ─── Carousel Slides ──────────────────────────────────
-final carouselSlidesProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+final carouselSlidesProvider = FutureProvider<List<Map<String, dynamic>>>((
+  ref,
+) async {
   ref.watch(authStateProvider);
   ref.watch(dataRefreshProvider);
   return RetryHelper.retry(() => SupabaseService.fetchCarouselSlides());

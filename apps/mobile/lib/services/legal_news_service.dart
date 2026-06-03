@@ -33,12 +33,14 @@ class LegalNewsArticle {
       imageUrl: json['image_url'] as String?,
       category: json['category'] as String? ?? 'general',
       source: json['source'] as String? ?? 'livelaw',
-      publishedAt: json['published_at'] != null
-          ? DateTime.tryParse(json['published_at'] as String)
-          : null,
-      createdAt: json['created_at'] != null
-          ? DateTime.tryParse(json['created_at'] as String)
-          : null,
+      publishedAt:
+          json['published_at'] != null
+              ? DateTime.tryParse(json['published_at'] as String)
+              : null,
+      createdAt:
+          json['created_at'] != null
+              ? DateTime.tryParse(json['created_at'] as String)
+              : null,
     );
   }
 }
@@ -132,12 +134,13 @@ class LegalNewsService {
     final user = _client.auth.currentUser;
     if (user == null) return false;
 
-    final response = await _client
-        .from('legal_news_bookmarks')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('article_id', articleId)
-        .maybeSingle();
+    final response =
+        await _client
+            .from('legal_news_bookmarks')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('article_id', articleId)
+            .maybeSingle();
 
     return response != null;
   }

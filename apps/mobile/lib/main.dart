@@ -35,15 +35,16 @@ void main() async {
   // Catch all Flutter framework errors
   FlutterError.onError = (errorDetails) {
     final errorStr = errorDetails.exception.toString().toLowerCase();
-    
+
     // Completely ignore network/connectivity errors to reduce noise
-    final isNetworkError = errorStr.contains('socketexception') ||
-                          errorStr.contains('authretryablefetchexception') ||
-                          errorStr.contains('failed host lookup') ||
-                          errorStr.contains('connection refused') ||
-                          errorStr.contains('handshake') ||
-                          errorStr.contains('connection closed');
-    
+    final isNetworkError =
+        errorStr.contains('socketexception') ||
+        errorStr.contains('authretryablefetchexception') ||
+        errorStr.contains('failed host lookup') ||
+        errorStr.contains('connection refused') ||
+        errorStr.contains('handshake') ||
+        errorStr.contains('connection closed');
+
     if (!isNetworkError) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     }
@@ -52,14 +53,15 @@ void main() async {
   // Catch async errors not caught by Flutter framework
   PlatformDispatcher.instance.onError = (error, stack) {
     final errorStr = error.toString().toLowerCase();
-    
+
     // Completely ignore network/connectivity errors to reduce noise
-    final isNetworkError = errorStr.contains('socketexception') || 
-                          errorStr.contains('authretryablefetchexception') ||
-                          errorStr.contains('failed host lookup') ||
-                          errorStr.contains('connection refused') ||
-                          errorStr.contains('handshake') ||
-                          errorStr.contains('connection closed');
+    final isNetworkError =
+        errorStr.contains('socketexception') ||
+        errorStr.contains('authretryablefetchexception') ||
+        errorStr.contains('failed host lookup') ||
+        errorStr.contains('connection refused') ||
+        errorStr.contains('handshake') ||
+        errorStr.contains('connection closed');
 
     if (!isNetworkError) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
@@ -69,7 +71,7 @@ void main() async {
 
   // Register the background message handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  
+
   // Initialize Supabase with custom HTTP timeout settings
   await Supabase.initialize(
     url: AppConstants.supabaseUrl,
@@ -113,11 +115,7 @@ void main() async {
     }
   });
 
-  runApp(
-    const ProviderScope(
-      child: CaseFlowApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: CaseFlowApp()));
 }
 
 /// Global navigator key for showing overlays from lifecycle events.
@@ -130,7 +128,8 @@ class CaseFlowApp extends ConsumerStatefulWidget {
   ConsumerState<CaseFlowApp> createState() => _CaseFlowAppState();
 }
 
-class _CaseFlowAppState extends ConsumerState<CaseFlowApp> with WidgetsBindingObserver {
+class _CaseFlowAppState extends ConsumerState<CaseFlowApp>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();

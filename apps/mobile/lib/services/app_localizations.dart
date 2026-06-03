@@ -150,7 +150,8 @@ class AppLocalizations {
       'retry': 'पुनः प्रयास',
       'no_data': 'कोई डेटा उपलब्ध नहीं',
       'offline_mode': 'ऑफ़लाइन मोड',
-      'offline_message': 'कैश्ड डेटा दिखा रहा है। सिंक करने के लिए इंटरनेट से कनेक्ट करें।',
+      'offline_message':
+          'कैश्ड डेटा दिखा रहा है। सिंक करने के लिए इंटरनेट से कनेक्ट करें।',
     },
 
     'ta': {
@@ -194,7 +195,8 @@ class AppLocalizations {
       'retry': 'மீண்டும் முயற்சி',
       'no_data': 'தரவு இல்லை',
       'offline_mode': 'ஆஃப்லைன் பயன்முறை',
-      'offline_message': 'தேக்கக தரவைக் காட்டுகிறது. ஒத்திசைக்க இணையத்தை இணைக்கவும்.',
+      'offline_message':
+          'தேக்கக தரவைக் காட்டுகிறது. ஒத்திசைக்க இணையத்தை இணைக்கவும்.',
     },
 
     'te': {
@@ -238,12 +240,14 @@ class AppLocalizations {
       'retry': 'మళ్ళీ ప్రయత్నించు',
       'no_data': 'డేటా అందుబాటులో లేదు',
       'offline_mode': 'ఆఫ్‌లైన్ మోడ్',
-      'offline_message': 'కాష్ చేసిన డేటా చూపుతోంది. సింక్ చేయడానికి ఇంటర్నెట్‌కు కనెక్ట్ చేయండి.',
+      'offline_message':
+          'కాష్ చేసిన డేటా చూపుతోంది. సింక్ చేయడానికి ఇంటర్నెట్‌కు కనెక్ట్ చేయండి.',
     },
   };
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override

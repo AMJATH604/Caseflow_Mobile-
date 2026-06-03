@@ -32,14 +32,14 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
 
     try {
       await SupabaseService.resetUserWorkspace();
-      
+
       // Invalidate all data providers to refresh UI
       ref.invalidate(casesProvider);
       ref.invalidate(clientsProvider);
       ref.invalidate(hearingsProvider);
       ref.invalidate(dashboardStatsProvider);
       ref.invalidate(userProfileProvider);
-      
+
       if (mounted) {
         Navigator.pop(context); // Close dialog
         ScaffoldMessenger.of(context).showSnackBar(
@@ -79,7 +79,11 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                     color: AppTheme.error.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.warning_amber_rounded, color: AppTheme.error, size: 32),
+                  child: const Icon(
+                    Icons.warning_amber_rounded,
+                    color: AppTheme.error,
+                    size: 32,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 Text(
@@ -105,7 +109,9 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                   decoration: BoxDecoration(
                     color: Colors.grey.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+                    border: Border.all(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,7 +130,9 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                         autofocus: true,
                         decoration: InputDecoration(
                           hintText: "RESET",
-                          hintStyle: TextStyle(color: Colors.grey.withValues(alpha: 0.3)),
+                          hintStyle: TextStyle(
+                            color: Colors.grey.withValues(alpha: 0.3),
+                          ),
                           border: InputBorder.none,
                           errorText: _errorMessage,
                         ),
@@ -134,7 +142,8 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                           letterSpacing: 2,
                         ),
                         onChanged: (val) {
-                          if (_errorMessage != null) setState(() => _errorMessage = null);
+                          if (_errorMessage != null)
+                            setState(() => _errorMessage = null);
                         },
                       ),
                     ],
@@ -145,14 +154,20 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                   children: [
                     Expanded(
                       child: TextButton(
-                        onPressed: _isDeleting ? null : () => Navigator.pop(context),
+                        onPressed:
+                            _isDeleting ? null : () => Navigator.pop(context),
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                         child: Text(
                           "Cancel",
-                          style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.grey),
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
                     ),
@@ -165,18 +180,26 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           elevation: 0,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        child: _isDeleting
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                              )
-                            : Text(
-                                "Delete All",
-                                style: GoogleFonts.inter(fontWeight: FontWeight.w700),
-                              ),
+                        child:
+                            _isDeleting
+                                ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                                : Text(
+                                  "Delete All",
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                       ),
                     ),
                   ],

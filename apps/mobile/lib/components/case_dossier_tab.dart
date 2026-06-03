@@ -20,7 +20,11 @@ class CaseDossierTab extends ConsumerStatefulWidget {
   final String caseId;
   final CaseModel caseData;
 
-  const CaseDossierTab({super.key, required this.caseId, required this.caseData});
+  const CaseDossierTab({
+    super.key,
+    required this.caseId,
+    required this.caseData,
+  });
 
   @override
   ConsumerState<CaseDossierTab> createState() => _CaseDossierTabState();
@@ -44,12 +48,32 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
             color: const Color(0xFF6C63FF),
             initiallyExpanded: true,
             children: [
-              DossierHelper.dossierRow("CASE TYPE", caseData.caseType ?? "NOT DEFINED"),
-              DossierHelper.dossierRow("CASE NUMBER", caseData.caseNumber ?? "NOT ASSIGNED"),
-              DossierHelper.dossierRow("FILING DATE", caseData.filingDate != null ? fmt.format(caseData.filingDate!) : "PENDING"),
-              DossierHelper.dossierRow("CNR NUMBER", caseData.cnrNumber ?? "NOT AVAILABLE"),
-              DossierHelper.dossierRow("COURT", caseData.courtName ?? "UNSPECIFIED FORUM"),
-              DossierHelper.dossierRow("STATE / DISTRICT", "${caseData.state ?? '—'} / ${caseData.district ?? '—'}"),
+              DossierHelper.dossierRow(
+                "CASE TYPE",
+                caseData.caseType ?? "NOT DEFINED",
+              ),
+              DossierHelper.dossierRow(
+                "CASE NUMBER",
+                caseData.caseNumber ?? "NOT ASSIGNED",
+              ),
+              DossierHelper.dossierRow(
+                "FILING DATE",
+                caseData.filingDate != null
+                    ? fmt.format(caseData.filingDate!)
+                    : "PENDING",
+              ),
+              DossierHelper.dossierRow(
+                "CNR NUMBER",
+                caseData.cnrNumber ?? "NOT AVAILABLE",
+              ),
+              DossierHelper.dossierRow(
+                "COURT",
+                caseData.courtName ?? "UNSPECIFIED FORUM",
+              ),
+              DossierHelper.dossierRow(
+                "STATE / DISTRICT",
+                "${caseData.state ?? '—'} / ${caseData.district ?? '—'}",
+              ),
             ],
           ),
 
@@ -61,17 +85,34 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
             title: "Case Status",
             color: const Color(0xFF3B82F6),
             badgeText: caseData.status.label.toUpperCase(),
-            badgeColor: caseData.status == CaseStatus.active
-                ? AppTheme.success
-                : caseData.status == CaseStatus.disposed
+            badgeColor:
+                caseData.status == CaseStatus.active
+                    ? AppTheme.success
+                    : caseData.status == CaseStatus.disposed
                     ? AppTheme.error
                     : AppTheme.warning,
             initiallyExpanded: true,
             children: [
-              DossierHelper.dossierRow("FIRST HEARING", caseData.filingDate != null ? fmt.format(caseData.filingDate!) : "—"),
-              DossierHelper.dossierRow("NEXT HEARING", caseData.nextHearingDate != null ? fmt.format(caseData.nextHearingDate!) : "NOT SCHEDULED"),
-              DossierHelper.dossierRow("CASE STAGE", caseData.stage.label.toUpperCase()),
-              DossierHelper.dossierRow("COURT TYPE", caseData.courtType.label.toUpperCase()),
+              DossierHelper.dossierRow(
+                "FIRST HEARING",
+                caseData.filingDate != null
+                    ? fmt.format(caseData.filingDate!)
+                    : "—",
+              ),
+              DossierHelper.dossierRow(
+                "NEXT HEARING",
+                caseData.nextHearingDate != null
+                    ? fmt.format(caseData.nextHearingDate!)
+                    : "NOT SCHEDULED",
+              ),
+              DossierHelper.dossierRow(
+                "CASE STAGE",
+                caseData.stage.label.toUpperCase(),
+              ),
+              DossierHelper.dossierRow(
+                "COURT TYPE",
+                caseData.courtType.label.toUpperCase(),
+              ),
             ],
           ),
 
@@ -88,7 +129,10 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
             title: "Client Intelligence",
             color: const Color(0xFF8B5CF6),
             children: [
-              DossierHelper.dossierRow("ENTITY NAME", caseData.clientName ?? "ANONYMOUS"),
+              DossierHelper.dossierRow(
+                "ENTITY NAME",
+                caseData.clientName ?? "ANONYMOUS",
+              ),
             ],
           ),
 
@@ -105,7 +149,10 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
           const SizedBox(height: 10),
 
           // ─── 7. CASE HISTORY ─────────────────────────
-          CaseHistorySection(caseId: widget.caseId, caseTitle: caseData.caseTitle),
+          CaseHistorySection(
+            caseId: widget.caseId,
+            caseTitle: caseData.caseTitle,
+          ),
 
           const SizedBox(height: 10),
 
@@ -117,11 +164,44 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
           // ─── 9. QUICK STATS BAR ──────────────────────
           Row(
             children: [
-              Expanded(child: DossierHelper.statMini("HEARINGS", ref.watch(caseHearingsProvider(widget.caseId)).value?.length ?? 0, Icons.gavel_rounded, AppTheme.accent)),
+              Expanded(
+                child: DossierHelper.statMini(
+                  "HEARINGS",
+                  ref
+                          .watch(caseHearingsProvider(widget.caseId))
+                          .value
+                          ?.length ??
+                      0,
+                  Icons.gavel_rounded,
+                  AppTheme.accent,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: DossierHelper.statMini("RECORDS", ref.watch(caseDocumentsProvider(widget.caseId)).value?.length ?? 0, Icons.folder_zip_rounded, AppTheme.info)),
+              Expanded(
+                child: DossierHelper.statMini(
+                  "RECORDS",
+                  ref
+                          .watch(caseDocumentsProvider(widget.caseId))
+                          .value
+                          ?.length ??
+                      0,
+                  Icons.folder_zip_rounded,
+                  AppTheme.info,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: DossierHelper.statMini("FINANCE", ref.watch(casePaymentsProvider(widget.caseId)).value?.length ?? 0, Icons.account_balance_wallet_rounded, AppTheme.success)),
+              Expanded(
+                child: DossierHelper.statMini(
+                  "FINANCE",
+                  ref
+                          .watch(casePaymentsProvider(widget.caseId))
+                          .value
+                          ?.length ??
+                      0,
+                  Icons.account_balance_wallet_rounded,
+                  AppTheme.success,
+                ),
+              ),
             ],
           ),
 

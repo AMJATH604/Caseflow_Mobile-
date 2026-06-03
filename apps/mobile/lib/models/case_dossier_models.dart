@@ -19,13 +19,15 @@ class CaseAct {
   });
 
   factory CaseAct.fromJson(Map<String, dynamic> json) => CaseAct(
-        id: json['id'] ?? '',
-        caseId: json['case_id'] ?? '',
-        actName: json['act_name'] ?? '',
-        sectionNumber: json['section_number'],
-        createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
-      );
+    id: json['id'] ?? '',
+    caseId: json['case_id'] ?? '',
+    actName: json['act_name'] ?? '',
+    sectionNumber: json['section_number'],
+    createdBy: json['created_by'] ?? '',
+    createdAt: DateTime.parse(
+      json['created_at'] ?? DateTime.now().toIso8601String(),
+    ),
+  );
 }
 
 class CaseIAApplication {
@@ -53,17 +55,26 @@ class CaseIAApplication {
     required this.createdAt,
   });
 
-  factory CaseIAApplication.fromJson(Map<String, dynamic> json) => CaseIAApplication(
+  factory CaseIAApplication.fromJson(Map<String, dynamic> json) =>
+      CaseIAApplication(
         id: json['id'] ?? '',
         caseId: json['case_id'] ?? '',
         iaNumber: json['ia_number'] ?? '',
         classification: json['classification'],
         party: json['party'],
-        filingDate: json['filing_date'] != null ? DateTime.parse(json['filing_date']) : null,
-        nextDate: json['next_date'] != null ? DateTime.parse(json['next_date']) : null,
+        filingDate:
+            json['filing_date'] != null
+                ? DateTime.parse(json['filing_date'])
+                : null,
+        nextDate:
+            json['next_date'] != null
+                ? DateTime.parse(json['next_date'])
+                : null,
         iaStatus: json['ia_status'] ?? 'pending',
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+        createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String(),
+        ),
       );
 }
 
@@ -90,15 +101,20 @@ class CaseInterimOrder {
     required this.createdAt,
   });
 
-  factory CaseInterimOrder.fromJson(Map<String, dynamic> json) => CaseInterimOrder(
+  factory CaseInterimOrder.fromJson(Map<String, dynamic> json) =>
+      CaseInterimOrder(
         id: json['id'] ?? '',
         caseId: json['case_id'] ?? '',
         orderNumber: json['order_number'],
-        orderDate: DateTime.parse(json['order_date'] ?? DateTime.now().toIso8601String()),
+        orderDate: DateTime.parse(
+          json['order_date'] ?? DateTime.now().toIso8601String(),
+        ),
         orderType: json['order_type'] ?? 'deposition',
         orderSummary: json['order_summary'],
         documentUrl: json['document_url'],
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+        createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String(),
+        ),
       );
 }

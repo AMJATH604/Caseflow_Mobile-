@@ -7,11 +7,7 @@ class PaymentService {
   final Function(PaymentFailureResponse)? onFailure;
   final Function(ExternalWalletResponse)? onExternalWallet;
 
-  PaymentService({
-    this.onSuccess,
-    this.onFailure,
-    this.onExternalWallet,
-  }) {
+  PaymentService({this.onSuccess, this.onFailure, this.onExternalWallet}) {
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);

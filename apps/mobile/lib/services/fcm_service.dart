@@ -100,11 +100,7 @@ class FcmService {
       final data = message.data;
 
       if (title != null) {
-        _showInAppNotification(
-          title: title,
-          body: body ?? '',
-          data: data,
-        );
+        _showInAppNotification(title: title, body: body ?? '', data: data);
       }
     });
 
@@ -137,15 +133,12 @@ class FcmService {
       }
 
       debugPrint('FCM: Upserting token for user ${user.id}...');
-      await Supabase.instance.client.from('fcm_tokens').upsert(
-        {
-          'user_id': user.id,
-          'token': token,
-          'device_info': defaultTargetPlatform.toString(),
-          'updated_at': DateTime.now().toUtc().toIso8601String(),
-        },
-        onConflict: 'user_id,token',
-      );
+      await Supabase.instance.client.from('fcm_tokens').upsert({
+        'user_id': user.id,
+        'token': token,
+        'device_info': defaultTargetPlatform.toString(),
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }, onConflict: 'user_id,token');
       debugPrint('FCM: ✅ Token successfully upserted to database.');
     } catch (e) {
       debugPrint('FCM: ❌ Error storing token: $e');
@@ -155,15 +148,12 @@ class FcmService {
         final user = Supabase.instance.client.auth.currentUser;
         if (user != null) {
           debugPrint('FCM: Retrying token upsert...');
-          await Supabase.instance.client.from('fcm_tokens').upsert(
-            {
-              'user_id': user.id,
-              'token': token,
-              'device_info': defaultTargetPlatform.toString(),
-              'updated_at': DateTime.now().toUtc().toIso8601String(),
-            },
-            onConflict: 'user_id,token',
-          );
+          await Supabase.instance.client.from('fcm_tokens').upsert({
+            'user_id': user.id,
+            'token': token,
+            'device_info': defaultTargetPlatform.toString(),
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          }, onConflict: 'user_id,token');
           debugPrint('FCM: ✅ Token retry succeeded.');
         }
       } catch (retryError) {
@@ -234,15 +224,16 @@ class FcmService {
 
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (context) => _NotificationBanner(
-        title: title,
-        body: body,
-        channelContext: data?['channel'] ?? '',
-        onDismiss: () {
-          entry.remove();
-          if (_currentOverlay == entry) _currentOverlay = null;
-        },
-      ),
+      builder:
+          (context) => _NotificationBanner(
+            title: title,
+            body: body,
+            channelContext: data?['channel'] ?? '',
+            onDismiss: () {
+              entry.remove();
+              if (_currentOverlay == entry) _currentOverlay = null;
+            },
+          ),
     );
 
     _currentOverlay = entry;
@@ -291,10 +282,7 @@ class _NotificationBannerState extends State<_NotificationBanner>
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, -1),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
     _controller.forward();
   }
 
@@ -318,7 +306,8 @@ class _NotificationBannerState extends State<_NotificationBanner>
         child: GestureDetector(
           onTap: widget.onDismiss,
           onVerticalDragEnd: (details) {
-            if (details.primaryVelocity != null && details.primaryVelocity! < 0) {
+            if (details.primaryVelocity != null &&
+                details.primaryVelocity! < 0) {
               widget.onDismiss();
             }
           },
@@ -348,8 +337,11 @@ class _NotificationBannerState extends State<_NotificationBanner>
                     ),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.chat_bubble_rounded,
-                      color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.chat_bubble_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 // Text content
@@ -366,7 +358,10 @@ class _NotificationBannerState extends State<_NotificationBanner>
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 13,
-                                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                color:
+                                    isDark
+                                        ? Colors.white
+                                        : const Color(0xFF0F172A),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -375,9 +370,13 @@ class _NotificationBannerState extends State<_NotificationBanner>
                           if (widget.channelContext.isNotEmpty)
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                                color: const Color(
+                                  0xFF6366F1,
+                                ).withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
@@ -396,7 +395,10 @@ class _NotificationBannerState extends State<_NotificationBanner>
                         widget.body,
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          color:
+                              isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : const Color(0xFF64748B),
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -412,4 +414,3 @@ class _NotificationBannerState extends State<_NotificationBanner>
     );
   }
 }
-

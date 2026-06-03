@@ -29,23 +29,107 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
   String? _activeToolId;
 
   final List<Map<String, dynamic>> _calculatorTools = [
-    {"id": "court-fee", "title": "Court Fee", "desc": "Calculate court fees", "icon": Icons.calculate, "color": Colors.orange},
-    {"id": "epay_court_fee", "title": "eCourts ePay", "desc": "Pay court fees online", "icon": Icons.account_balance_rounded, "color": const Color(0xFF2563EB)},
-    {"id": "interest", "title": "Interest", "desc": "Calculate interest", "icon": Icons.percent, "color": Colors.purple},
-    {"id": "delay", "title": "Delay (Sec 5)", "desc": "Calculate delay period", "icon": Icons.schedule, "color": Colors.red},
-    {"id": "limitation", "title": "Limitation", "desc": "Track deadlines", "icon": Icons.timer, "color": Colors.teal},
-    {"id": "partition_calculator", "title": "Partition Share", "desc": "Hindu & Muslim Law", "icon": Icons.family_restroom, "color": Colors.pink},
-    {"id": "mact_calculator", "title": "MACT Claims", "desc": "Accident compensation", "icon": Icons.directions_car, "color": Colors.red},
-    {"id": "maintenance_calculator", "title": "Maintenance", "desc": "Sec 144 BNSS / HAMA", "icon": Icons.account_balance_wallet, "color": Colors.deepPurple},
-    {"id": "stamp_values", "title": "Stamp Values", "desc": "Petition stamp reference", "icon": Icons.receipt_long_rounded, "color": Colors.amber},
+    {
+      "id": "court-fee",
+      "title": "Court Fee",
+      "desc": "Calculate court fees",
+      "icon": Icons.calculate,
+      "color": Colors.orange,
+    },
+    {
+      "id": "epay_court_fee",
+      "title": "eCourts ePay",
+      "desc": "Pay court fees online",
+      "icon": Icons.account_balance_rounded,
+      "color": const Color(0xFF2563EB),
+    },
+    {
+      "id": "interest",
+      "title": "Interest",
+      "desc": "Calculate interest",
+      "icon": Icons.percent,
+      "color": Colors.purple,
+    },
+    {
+      "id": "delay",
+      "title": "Delay (Sec 5)",
+      "desc": "Calculate delay period",
+      "icon": Icons.schedule,
+      "color": Colors.red,
+    },
+    {
+      "id": "limitation",
+      "title": "Limitation",
+      "desc": "Track deadlines",
+      "icon": Icons.timer,
+      "color": Colors.teal,
+    },
+    {
+      "id": "partition_calculator",
+      "title": "Partition Share",
+      "desc": "Hindu & Muslim Law",
+      "icon": Icons.family_restroom,
+      "color": Colors.pink,
+    },
+    {
+      "id": "mact_calculator",
+      "title": "MACT Claims",
+      "desc": "Accident compensation",
+      "icon": Icons.directions_car,
+      "color": Colors.red,
+    },
+    {
+      "id": "maintenance_calculator",
+      "title": "Maintenance",
+      "desc": "Sec 144 BNSS / HAMA",
+      "icon": Icons.account_balance_wallet,
+      "color": Colors.deepPurple,
+    },
+    {
+      "id": "stamp_values",
+      "title": "Stamp Values",
+      "desc": "Petition stamp reference",
+      "icon": Icons.receipt_long_rounded,
+      "color": Colors.amber,
+    },
   ];
 
   final List<Map<String, dynamic>> _libraryTools = [
-    {"id": "bare_acts", "title": "Bare Acts Library", "desc": "BNS, BNSS, CPC & more", "icon": Icons.library_books, "color": Colors.brown},
-    {"id": "legal_dictionary", "title": "Legal Dictionary", "desc": "500+ Latin & Legal terms", "icon": Icons.import_contacts_rounded, "color": Colors.orange},
-    {"id": "english_dictionary", "title": "English Dictionary", "desc": "Curated A-Z vocabulary", "icon": Icons.spellcheck_rounded, "color": Colors.teal},
-    {"id": "legal_templates", "title": "Legal Templates", "desc": "PDF & Word drafts", "icon": Icons.description_rounded, "color": const Color(0xFFD4AF37)},
-    {"id": "holiday_list", "title": "Court Holidays", "desc": "Court holidays 2026", "icon": Icons.calendar_month_rounded, "color": Colors.deepOrange},
+    {
+      "id": "bare_acts",
+      "title": "Bare Acts Library",
+      "desc": "BNS, BNSS, CPC & more",
+      "icon": Icons.library_books,
+      "color": Colors.brown,
+    },
+    {
+      "id": "legal_dictionary",
+      "title": "Legal Dictionary",
+      "desc": "500+ Latin & Legal terms",
+      "icon": Icons.import_contacts_rounded,
+      "color": Colors.orange,
+    },
+    {
+      "id": "english_dictionary",
+      "title": "English Dictionary",
+      "desc": "Curated A-Z vocabulary",
+      "icon": Icons.spellcheck_rounded,
+      "color": Colors.teal,
+    },
+    {
+      "id": "legal_templates",
+      "title": "Legal Templates",
+      "desc": "PDF & Word drafts",
+      "icon": Icons.description_rounded,
+      "color": const Color(0xFFD4AF37),
+    },
+    {
+      "id": "holiday_list",
+      "title": "Court Holidays",
+      "desc": "Court holidays 2026",
+      "icon": Icons.calendar_month_rounded,
+      "color": Colors.deepOrange,
+    },
   ];
 
   @override
@@ -62,7 +146,10 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
-        child: _activeToolId == null ? _buildSelectionGrid(isMobile) : _buildToolView(),
+        child:
+            _activeToolId == null
+                ? _buildSelectionGrid(isMobile)
+                : _buildToolView(),
       ),
     );
   }
@@ -79,15 +166,18 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
               children: [
                 Text(
                   "Legal Toolkit",
-                  style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 28),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.displayLarge?.copyWith(fontSize: 28),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   "Essential legal tools for every Indian citizen",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? const Color(0xFFCBD5E1)
-                        : Colors.black38,
+                    color:
+                        Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFFCBD5E1)
+                            : Colors.black38,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -103,7 +193,11 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
     );
   }
 
-  Widget _buildToolSection(String title, List<Map<String, dynamic>> tools, bool isMobile) {
+  Widget _buildToolSection(
+    String title,
+    List<Map<String, dynamic>> tools,
+    bool isMobile,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -112,7 +206,8 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
           child: Row(
             children: [
               Container(
-                width: 4, height: 20,
+                width: 4,
+                height: 20,
                 decoration: BoxDecoration(
                   color: const Color(0xFF10B981),
                   borderRadius: BorderRadius.circular(2),
@@ -123,7 +218,10 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
                 title.toUpperCase(),
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.w900,
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
+                  color:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black87,
                   letterSpacing: 2,
                 ),
               ),
@@ -152,7 +250,9 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
       onTap: () => _onToolTap(tool),
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        decoration: AppTheme.cardDecoration(isDark: Theme.of(context).brightness == Brightness.dark),
+        decoration: AppTheme.cardDecoration(
+          isDark: Theme.of(context).brightness == Brightness.dark,
+        ),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -162,7 +262,9 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
                 decoration: BoxDecoration(
                   color: (tool['color'] as Color).withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: (tool['color'] as Color).withValues(alpha: 0.1)),
+                  border: Border.all(
+                    color: (tool['color'] as Color).withValues(alpha: 0.1),
+                  ),
                 ),
                 child: Icon(tool['icon'], color: tool['color'], size: 22),
               ),
@@ -171,7 +273,10 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
                 tool['title'],
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
+                  color:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black87,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -182,7 +287,10 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
                   tool['desc'].toString().toUpperCase(),
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     fontSize: 8,
-                    color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFCBD5E1) : Colors.black38,
+                    color:
+                        Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFFCBD5E1)
+                            : Colors.black38,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.5,
                   ),
@@ -208,25 +316,55 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
 
   Widget _buildToolView() {
     final allTools = [..._calculatorTools, ..._libraryTools];
-    final tool = allTools.firstWhere((t) => t['id'] == _activeToolId, orElse: () => allTools.first);
+    final tool = allTools.firstWhere(
+      (t) => t['id'] == _activeToolId,
+      orElse: () => allTools.first,
+    );
     Widget toolWidget;
     String title = tool['title'];
 
     switch (_activeToolId) {
-      case 'court-fee': toolWidget = const CourtFeeCalculator(); break;
-      case 'interest': toolWidget = const InterestCalculator(); break;
-      case 'delay': toolWidget = const DelayCalculator(); break;
-      case 'limitation': toolWidget = const LimitationCalculator(); break;
-      case 'partition_calculator': toolWidget = const PartitionCalculator(); break;
-      case 'mact_calculator': toolWidget = const MactCalculator(); break;
-      case 'maintenance_calculator': toolWidget = const MaintenanceCalculator(); break;
-      case 'legal_dictionary': toolWidget = const LegalDictionary(); break;
-      case 'english_dictionary': toolWidget = const EnglishDictionary(); break;
-      case 'bare_acts': toolWidget = const BareActsLibraryScreen(); break;
-      case 'holiday_list': toolWidget = const CourtHolidayList(); break;
-      case 'legal_templates': toolWidget = const LegalTemplatesScreen(); break;
-      case 'stamp_values': toolWidget = const StampValueScreen(); break;
-      default: toolWidget = Center(child: Text("Tool: $_activeToolId"));
+      case 'court-fee':
+        toolWidget = const CourtFeeCalculator();
+        break;
+      case 'interest':
+        toolWidget = const InterestCalculator();
+        break;
+      case 'delay':
+        toolWidget = const DelayCalculator();
+        break;
+      case 'limitation':
+        toolWidget = const LimitationCalculator();
+        break;
+      case 'partition_calculator':
+        toolWidget = const PartitionCalculator();
+        break;
+      case 'mact_calculator':
+        toolWidget = const MactCalculator();
+        break;
+      case 'maintenance_calculator':
+        toolWidget = const MaintenanceCalculator();
+        break;
+      case 'legal_dictionary':
+        toolWidget = const LegalDictionary();
+        break;
+      case 'english_dictionary':
+        toolWidget = const EnglishDictionary();
+        break;
+      case 'bare_acts':
+        toolWidget = const BareActsLibraryScreen();
+        break;
+      case 'holiday_list':
+        toolWidget = const CourtHolidayList();
+        break;
+      case 'legal_templates':
+        toolWidget = const LegalTemplatesScreen();
+        break;
+      case 'stamp_values':
+        toolWidget = const StampValueScreen();
+        break;
+      default:
+        toolWidget = Center(child: Text("Tool: $_activeToolId"));
     }
 
     final isMobile = MediaQuery.of(context).size.width < 768;
@@ -239,8 +377,14 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
             children: [
               IconButton(
                 onPressed: () => setState(() => _activeToolId = null),
-                icon: Icon(Icons.arrow_back_ios_new_rounded,
-                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87, size: 20),
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black87,
+                  size: 20,
+                ),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
@@ -249,7 +393,9 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
                 child: Text(
                   title.toUpperCase(),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: isMobile ? 18 : 22, fontWeight: FontWeight.w800, letterSpacing: 1,
+                    fontSize: isMobile ? 18 : 22,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1,
                   ),
                 ),
               ),

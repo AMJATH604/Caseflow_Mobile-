@@ -19,7 +19,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
   final _totalFeeController = TextEditingController();
   final _amountController = TextEditingController();
   final _notesController = TextEditingController();
-  
+
   String _transactionType = "revenue"; // 'revenue' (Payment) or 'expense'
   String _paymentMode = "upi";
   DateTime? _date = DateTime.now();
@@ -83,7 +83,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
     setState(() => _isSaving = true);
     try {
       final amount = double.tryParse(_amountController.text) ?? 0;
-      
+
       if (_hasExistingPayments) {
         // ─── ADD LEDGER ENTRY ───
         await SupabaseService.addPaymentInstallment({
@@ -113,7 +113,10 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
       ref.invalidate(paymentsProvider);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -139,18 +142,33 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: themeColor.withValues(alpha: 0.05),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(28),
+                ),
               ),
               child: Row(
                 children: [
                   CircleAvatar(
                     backgroundColor: themeColor.withValues(alpha: 0.1),
-                    child: Icon(isExpense ? Icons.outbound_rounded : Icons.payments_rounded, color: themeColor),
+                    child: Icon(
+                      isExpense
+                          ? Icons.outbound_rounded
+                          : Icons.payments_rounded,
+                      color: themeColor,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Text(
-                    isExpense ? "Log Office Expense" : (_hasExistingPayments ? "Add Payment" : "New Financial Record"),
-                    style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                    isExpense
+                        ? "Log Office Expense"
+                        : (_hasExistingPayments
+                            ? "Add Payment"
+                            : "New Financial Record"),
+                    style: GoogleFonts.outfit(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primary,
+                    ),
                   ),
                 ],
               ),
@@ -166,13 +184,30 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                     children: [
                       // ─── Transaction Type Toggle ───
                       if (_hasExistingPayments) ...[
-                        Text("Transaction Type", style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+                        Text(
+                          "Transaction Type",
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            _buildTypeOption("revenue", "Payment Received", Icons.call_received_rounded, AppTheme.success),
+                            _buildTypeOption(
+                              "revenue",
+                              "Payment Received",
+                              Icons.call_received_rounded,
+                              AppTheme.success,
+                            ),
                             const SizedBox(width: 12),
-                            _buildTypeOption("expense", "Expense Incurred", Icons.call_made_rounded, AppTheme.error),
+                            _buildTypeOption(
+                              "expense",
+                              "Expense Incurred",
+                              Icons.call_made_rounded,
+                              AppTheme.error,
+                            ),
                           ],
                         ),
                         const SizedBox(height: 24),
@@ -180,22 +215,40 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
 
                       // ─── Case Selector ───
                       casesAsync.when(
-                        data: (cases) => DropdownButtonFormField<String>(
-                          value: _selectedCaseId,
-                          style: GoogleFonts.inter(color: AppTheme.primary, fontSize: 15),
-                          decoration: InputDecoration(
-                            labelText: "Select Case",
-                            prefixIcon: const Icon(Icons.folder_shared_outlined),
-                            filled: true,
-                            fillColor: AppTheme.background.withValues(alpha: 0.5),
-                          ),
-                          items: cases.map((c) => DropdownMenuItem(
-                            value: c.id,
-                            child: Text(c.caseTitle.isEmpty ? (c.caseNumber ?? "Case #${c.id.substring(0,4)}") : c.caseTitle),
-                          )).toList(),
-                          onChanged: _onCaseSelected,
-                          validator: (v) => v == null ? "Required" : null,
-                        ),
+                        data:
+                            (cases) => DropdownButtonFormField<String>(
+                              value: _selectedCaseId,
+                              style: GoogleFonts.inter(
+                                color: AppTheme.primary,
+                                fontSize: 15,
+                              ),
+                              decoration: InputDecoration(
+                                labelText: "Select Case",
+                                prefixIcon: const Icon(
+                                  Icons.folder_shared_outlined,
+                                ),
+                                filled: true,
+                                fillColor: AppTheme.background.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                              items:
+                                  cases
+                                      .map(
+                                        (c) => DropdownMenuItem(
+                                          value: c.id,
+                                          child: Text(
+                                            c.caseTitle.isEmpty
+                                                ? (c.caseNumber ??
+                                                    "Case #${c.id.substring(0, 4)}")
+                                                : c.caseTitle,
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                              onChanged: _onCaseSelected,
+                              validator: (v) => v == null ? "Required" : null,
+                            ),
                         loading: () => const LinearProgressIndicator(),
                         error: (e, s) => Text("Error: $e"),
                       ),
@@ -206,16 +259,21 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                         _buildSummarySnapshot(fmt),
 
                       // ─── Amount & Fee Fields ───
-                      if (!_hasExistingPayments && !_isLoadingSummary && _selectedCaseId != null) ...[
+                      if (!_hasExistingPayments &&
+                          !_isLoadingSummary &&
+                          _selectedCaseId != null) ...[
                         TextFormField(
                           controller: _totalFeeController,
                           style: GoogleFonts.inter(fontWeight: FontWeight.bold),
                           decoration: const InputDecoration(
                             labelText: "Agreed Total Fee (₹)",
-                            prefixIcon: Icon(Icons.account_balance_wallet_outlined),
+                            prefixIcon: Icon(
+                              Icons.account_balance_wallet_outlined,
+                            ),
                           ),
                           keyboardType: TextInputType.number,
-                          validator: (v) => v!.isEmpty ? "Total fee required" : null,
+                          validator:
+                              (v) => v!.isEmpty ? "Total fee required" : null,
                         ),
                         const SizedBox(height: 20),
                       ],
@@ -223,15 +281,31 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                       if (_selectedCaseId != null && !_isLoadingSummary)
                         TextFormField(
                           controller: _amountController,
-                          style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: themeColor),
+                          style: GoogleFonts.outfit(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: themeColor,
+                          ),
                           decoration: InputDecoration(
-                            labelText: isExpense ? "Expense Amount (₹)" : "Payment Amount (₹)",
-                            prefixIcon: Icon(isExpense ? Icons.remove_circle_outline : Icons.add_circle_outline, color: themeColor),
+                            labelText:
+                                isExpense
+                                    ? "Expense Amount (₹)"
+                                    : "Payment Amount (₹)",
+                            prefixIcon: Icon(
+                              isExpense
+                                  ? Icons.remove_circle_outline
+                                  : Icons.add_circle_outline,
+                              color: themeColor,
+                            ),
                           ),
                           keyboardType: TextInputType.number,
-                          validator: (v) => (double.tryParse(v ?? '') ?? 0) <= 0 ? "Enter valid amount" : null,
+                          validator:
+                              (v) =>
+                                  (double.tryParse(v ?? '') ?? 0) <= 0
+                                      ? "Enter valid amount"
+                                      : null,
                         ),
-                      
+
                       const SizedBox(height: 20),
 
                       // ─── Notes ───
@@ -245,7 +319,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                             prefixIcon: Icon(Icons.notes_rounded),
                           ),
                         ),
-                      
+
                       const SizedBox(height: 20),
 
                       // ─── Mode & Date ───
@@ -256,9 +330,20 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                               flex: 3,
                               child: DropdownButtonFormField<String>(
                                 value: _paymentMode,
-                                decoration: const InputDecoration(labelText: "Mode"),
-                                items: ["upi", "cash", "bank_transfer", "cheque"].map((m) => DropdownMenuItem(value: m, child: Text(m.toUpperCase()))).toList(),
-                                onChanged: (v) => setState(() => _paymentMode = v!),
+                                decoration: const InputDecoration(
+                                  labelText: "Mode",
+                                ),
+                                items:
+                                    ["upi", "cash", "bank_transfer", "cheque"]
+                                        .map(
+                                          (m) => DropdownMenuItem(
+                                            value: m,
+                                            child: Text(m.toUpperCase()),
+                                          ),
+                                        )
+                                        .toList(),
+                                onChanged:
+                                    (v) => setState(() => _paymentMode = v!),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -272,11 +357,16 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                                     firstDate: DateTime(2020),
                                     lastDate: DateTime.now(),
                                   );
-                                  if (picked != null) setState(() => _date = picked);
+                                  if (picked != null)
+                                    setState(() => _date = picked);
                                 },
                                 child: InputDecorator(
-                                  decoration: const InputDecoration(labelText: "Date"),
-                                  child: Text(DateFormat('dd MMM').format(_date!)),
+                                  decoration: const InputDecoration(
+                                    labelText: "Date",
+                                  ),
+                                  child: Text(
+                                    DateFormat('dd MMM').format(_date!),
+                                  ),
                                 ),
                               ),
                             ),
@@ -298,7 +388,9 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       child: const Text("Cancel"),
                     ),
@@ -311,12 +403,27 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                         backgroundColor: themeColor,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         elevation: 0,
                       ),
-                      child: _isSaving
-                          ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                          : Text(isExpense ? "Log Expense" : "Save Record", style: const TextStyle(fontWeight: FontWeight.bold)),
+                      child:
+                          _isSaving
+                              ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                              : Text(
+                                isExpense ? "Log Expense" : "Save Record",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                     ),
                   ),
                 ],
@@ -328,7 +435,12 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
     );
   }
 
-  Widget _buildTypeOption(String type, String label, IconData icon, Color color) {
+  Widget _buildTypeOption(
+    String type,
+    String label,
+    IconData icon,
+    Color color,
+  ) {
     final isSelected = _transactionType == type;
     return Expanded(
       child: InkWell(
@@ -341,13 +453,29 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
             color: isSelected ? color : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: isSelected ? color : AppTheme.border),
-            boxShadow: isSelected ? [BoxShadow(color: color.withValues(alpha: 0.2), blurRadius: 8, offset: const Offset(0, 4))] : null,
+            boxShadow:
+                isSelected
+                    ? [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                    : null,
           ),
           child: Column(
             children: [
               Icon(icon, color: isSelected ? Colors.white : color, size: 20),
               const SizedBox(height: 4),
-              Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : AppTheme.primary)),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected ? Colors.white : AppTheme.primary,
+                ),
+              ),
             ],
           ),
         ),
@@ -366,26 +494,61 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
       ),
       child: Column(
         children: [
-           _summaryLine("Agreed Fee", "₹${fmt.format(_existingTotalFee)}", AppTheme.primary),
-           const SizedBox(height: 8),
-           _summaryLine("Total Paid", "₹${fmt.format(_existingTotalPaid)}", AppTheme.success),
-           const SizedBox(height: 8),
-           _summaryLine("Total Expenses", "₹${fmt.format(_existingTotalExpenses)}", AppTheme.error),
-           const Divider(height: 20),
-           _summaryLine("Current Owed", "₹${fmt.format(_existingBalance)}", _existingBalance > 0 ? AppTheme.error : AppTheme.success, isBold: true),
+          _summaryLine(
+            "Agreed Fee",
+            "₹${fmt.format(_existingTotalFee)}",
+            AppTheme.primary,
+          ),
+          const SizedBox(height: 8),
+          _summaryLine(
+            "Total Paid",
+            "₹${fmt.format(_existingTotalPaid)}",
+            AppTheme.success,
+          ),
+          const SizedBox(height: 8),
+          _summaryLine(
+            "Total Expenses",
+            "₹${fmt.format(_existingTotalExpenses)}",
+            AppTheme.error,
+          ),
+          const Divider(height: 20),
+          _summaryLine(
+            "Current Owed",
+            "₹${fmt.format(_existingBalance)}",
+            _existingBalance > 0 ? AppTheme.error : AppTheme.success,
+            isBold: true,
+          ),
         ],
       ),
     );
   }
 
-  Widget _summaryLine(String label, String value, Color color, {bool isBold = false}) {
+  Widget _summaryLine(
+    String label,
+    String value,
+    Color color, {
+    bool isBold = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: GoogleFonts.inter(fontSize: 12, fontWeight: isBold ? FontWeight.bold : FontWeight.w500, color: Colors.grey[600])),
-        Text(value, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: color)),
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
+            color: Colors.grey[600],
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
       ],
     );
   }
 }
-

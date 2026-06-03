@@ -46,11 +46,8 @@ class BaseRepository {
     final user = client.auth.currentUser;
     if (user == null) throw Exception("Not authenticated");
 
-    final response = await client
-        .from('profiles')
-        .select()
-        .eq('id', user.id)
-        .maybeSingle();
+    final response =
+        await client.from('profiles').select().eq('id', user.id).maybeSingle();
 
     if (response == null) {
       final newProfile = {
@@ -63,24 +60,27 @@ class BaseRepository {
       return UserProfile.fromJson(newProfile);
     }
 
-    final Map<String, dynamic> profileData =
-        Map<String, dynamic>.from(response);
+    final Map<String, dynamic> profileData = Map<String, dynamic>.from(
+      response,
+    );
     final String? currentFirmId = profileData['firm_id'];
 
     if (currentFirmId != null) {
       // Membership Verification: revoke if no longer in firm_members
-      final membership = await client
-          .from('firm_members')
-          .select()
-          .eq('member_id', user.id)
-          .eq('owner_id', currentFirmId)
-          .eq('status', 'accepted')
-          .maybeSingle();
+      final membership =
+          await client
+              .from('firm_members')
+              .select()
+              .eq('member_id', user.id)
+              .eq('owner_id', currentFirmId)
+              .eq('status', 'accepted')
+              .maybeSingle();
 
       if (membership == null) {
         await client
             .from('profiles')
-            .update({'firm_id': null}).eq('id', user.id);
+            .update({'firm_id': null})
+            .eq('id', user.id);
         profileData['firm_id'] = null;
       }
     }
@@ -126,7 +126,9 @@ class BaseRepository {
 
   /// Returns all visible case IDs for the current user (for filtering sub-entities).
   static Future<List<String>> getVisibleCaseIds(
-      UserProfile profile, String userId) async {
+    UserProfile profile,
+    String userId,
+  ) async {
     final orFilter = buildVisibilityFilter(profile, userId);
     final res = await client.from('cases').select('id').or(orFilter);
     return (res as List).map((c) => c['id'] as String).toList();
@@ -144,8 +146,7 @@ class BaseRepository {
   static Duration _serverTimeOffset = Duration.zero;
 
   static void updateOffset(DateTime serverTime) {
-    _serverTimeOffset =
-        serverTime.toUtc().difference(DateTime.now().toUtc());
+    _serverTimeOffset = serverTime.toUtc().difference(DateTime.now().toUtc());
   }
 
   static DateTime get syncedNow => DateTime.now().add(_serverTimeOffset);
@@ -178,17 +179,16 @@ class BaseRepository {
   /// filtered out of all standard queries.
   static Future<void> softDelete(String table, String id) async {
     requireAuth();
-    await client.from(table).update({
-      'deleted_at': DateTime.now().toUtc().toIso8601String(),
-    }).eq('id', id);
+    await client
+        .from(table)
+        .update({'deleted_at': DateTime.now().toUtc().toIso8601String()})
+        .eq('id', id);
   }
 
   /// Restore a soft-deleted record by clearing its `deleted_at` timestamp.
   static Future<void> restoreSoftDeleted(String table, String id) async {
     requireAuth();
-    await client.from(table).update({
-      'deleted_at': null,
-    }).eq('id', id);
+    await client.from(table).update({'deleted_at': null}).eq('id', id);
   }
 
   // ─── Input Validation Helpers ──────────────────────────

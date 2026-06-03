@@ -53,11 +53,12 @@ class CommissionService {
   }
 
   static Future<Commission> fetchCommissionById(String id) async {
-    final response = await _client
-        .from('commissions')
-        .select('*, cases(case_title)')
-        .eq('id', id)
-        .single();
+    final response =
+        await _client
+            .from('commissions')
+            .select('*, cases(case_title)')
+            .eq('id', id)
+            .single();
     return Commission.fromJson(response);
   }
 
@@ -65,15 +66,23 @@ class CommissionService {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception("Not authenticated");
 
-    final response = await _client.from('commissions').insert({
-      ...data,
-      'created_by': user.id,
-      'commissioner_id': user.id,
-    }).select('*, cases(case_title)').single();
+    final response =
+        await _client
+            .from('commissions')
+            .insert({
+              ...data,
+              'created_by': user.id,
+              'commissioner_id': user.id,
+            })
+            .select('*, cases(case_title)')
+            .single();
     return Commission.fromJson(response);
   }
 
-  static Future<void> updateCommission(String id, Map<String, dynamic> updates) async {
+  static Future<void> updateCommission(
+    String id,
+    Map<String, dynamic> updates,
+  ) async {
     updates['updated_at'] = DateTime.now().toIso8601String();
     await _client.from('commissions').update(updates).eq('id', id);
   }
@@ -90,22 +99,29 @@ class CommissionService {
         .select()
         .eq('commission_id', commissionId)
         .order('visit_date', ascending: false);
-    return (response as List).map((json) => CommissionVisit.fromJson(json)).toList();
+    return (response as List)
+        .map((json) => CommissionVisit.fromJson(json))
+        .toList();
   }
 
   static Future<CommissionVisit> createVisit(Map<String, dynamic> data) async {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception("Not authenticated");
 
-    final response = await _client.from('commission_visits').insert({
-      ...data,
-      'created_by': user.id,
-    }).select().single();
+    final response =
+        await _client
+            .from('commission_visits')
+            .insert({...data, 'created_by': user.id})
+            .select()
+            .single();
     return CommissionVisit.fromJson(response);
   }
 
   /// GPS Check-in: Records REAL GPS coordinates and time (Phase 2)
-  static Future<CommissionVisit> checkIn(String commissionId, {String? address}) async {
+  static Future<CommissionVisit> checkIn(
+    String commissionId, {
+    String? address,
+  }) async {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception("Not authenticated");
 
@@ -115,16 +131,25 @@ class CommissionService {
     final lng = position?.longitude ?? 0.0;
 
     final now = DateTime.now().toIso8601String();
-    final response = await _client.from('commission_visits').insert({
-      'commission_id': commissionId,
-      'visit_date': DateTime.now().toIso8601String().split('T')[0],
-      'checkin_time': now,
-      'checkin_lat': lat,
-      'checkin_lng': lng,
-      'checkin_address': address ?? (position != null ? 'GPS: ${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}' : 'Location unavailable'),
-      'visit_status': 'checked_in',
-      'created_by': user.id,
-    }).select().single();
+    final response =
+        await _client
+            .from('commission_visits')
+            .insert({
+              'commission_id': commissionId,
+              'visit_date': DateTime.now().toIso8601String().split('T')[0],
+              'checkin_time': now,
+              'checkin_lat': lat,
+              'checkin_lng': lng,
+              'checkin_address':
+                  address ??
+                  (position != null
+                      ? 'GPS: ${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}'
+                      : 'Location unavailable'),
+              'visit_status': 'checked_in',
+              'created_by': user.id,
+            })
+            .select()
+            .single();
 
     // Update commission status to in_progress
     await updateCommission(commissionId, {'status': 'in_progress'});
@@ -138,45 +163,66 @@ class CommissionService {
     final lat = position?.latitude ?? 0.0;
     final lng = position?.longitude ?? 0.0;
 
-    await _client.from('commission_visits').update({
-      'checkout_time': DateTime.now().toIso8601String(),
-      'checkout_lat': lat,
-      'checkout_lng': lng,
-      'checkout_address': address ?? (position != null ? 'GPS: ${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}' : 'Location unavailable'),
-      'visit_status': 'completed',
-    }).eq('id', visitId);
+    await _client
+        .from('commission_visits')
+        .update({
+          'checkout_time': DateTime.now().toIso8601String(),
+          'checkout_lat': lat,
+          'checkout_lng': lng,
+          'checkout_address':
+              address ??
+              (position != null
+                  ? 'GPS: ${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}'
+                  : 'Location unavailable'),
+          'visit_status': 'completed',
+        })
+        .eq('id', visitId);
   }
 
   static Future<void> reportObstruction(String visitId, String details) async {
-    await _client.from('commission_visits').update({
-      'visit_status': 'obstructed',
-      'obstruction_details': details,
-      'checkout_time': DateTime.now().toIso8601String(),
-    }).eq('id', visitId);
+    await _client
+        .from('commission_visits')
+        .update({
+          'visit_status': 'obstructed',
+          'obstruction_details': details,
+          'checkout_time': DateTime.now().toIso8601String(),
+        })
+        .eq('id', visitId);
   }
 
-  static Future<void> updateVisit(String id, Map<String, dynamic> updates) async {
+  static Future<void> updateVisit(
+    String id,
+    Map<String, dynamic> updates,
+  ) async {
     await _client.from('commission_visits').update(updates).eq('id', id);
   }
 
   // ─── Observations CRUD ─────────────────────────────────────
 
-  static Future<List<CommissionObservation>> fetchObservations(String commissionId) async {
+  static Future<List<CommissionObservation>> fetchObservations(
+    String commissionId,
+  ) async {
     final response = await _client
         .from('commission_observations')
         .select()
         .eq('commission_id', commissionId)
         .order('sequence_order', ascending: true);
-    return (response as List).map((json) => CommissionObservation.fromJson(json)).toList();
+    return (response as List)
+        .map((json) => CommissionObservation.fromJson(json))
+        .toList();
   }
 
-  static Future<List<CommissionObservation>> fetchVisitObservations(String visitId) async {
+  static Future<List<CommissionObservation>> fetchVisitObservations(
+    String visitId,
+  ) async {
     final response = await _client
         .from('commission_observations')
         .select()
         .eq('visit_id', visitId)
         .order('created_at', ascending: true);
-    return (response as List).map((json) => CommissionObservation.fromJson(json)).toList();
+    return (response as List)
+        .map((json) => CommissionObservation.fromJson(json))
+        .toList();
   }
 
   static Future<void> createObservation(Map<String, dynamic> data) async {
@@ -189,7 +235,10 @@ class CommissionService {
     });
   }
 
-  static Future<void> updateObservation(String id, Map<String, dynamic> updates) async {
+  static Future<void> updateObservation(
+    String id,
+    Map<String, dynamic> updates,
+  ) async {
     await _client.from('commission_observations').update(updates).eq('id', id);
   }
 
@@ -199,13 +248,17 @@ class CommissionService {
 
   // ─── Evidence CRUD ─────────────────────────────────────────
 
-  static Future<List<CommissionEvidence>> fetchEvidence(String commissionId) async {
+  static Future<List<CommissionEvidence>> fetchEvidence(
+    String commissionId,
+  ) async {
     final response = await _client
         .from('commission_evidence')
         .select()
         .eq('commission_id', commissionId)
         .order('sequence_number', ascending: true);
-    return (response as List).map((json) => CommissionEvidence.fromJson(json)).toList();
+    return (response as List)
+        .map((json) => CommissionEvidence.fromJson(json))
+        .toList();
   }
 
   /// Upload photo evidence with GPS metadata and SHA-256 hash
@@ -225,40 +278,52 @@ class CommissionService {
 
     // Generate SHA-256 hash for tamper detection
     final hash = sha256.convert(fileBytes).toString();
-    
+
     // Upload to Supabase Storage
     final storagePath = '$commissionId/$visitId/$fileName';
-    await _client.storage.from('commission-evidence').uploadBinary(
-      storagePath,
-      fileBytes,
-      fileOptions: const FileOptions(upsert: true),
-    );
+    await _client.storage
+        .from('commission-evidence')
+        .uploadBinary(
+          storagePath,
+          fileBytes,
+          fileOptions: const FileOptions(upsert: true),
+        );
 
-    final fileUrl = _client.storage.from('commission-evidence').getPublicUrl(storagePath);
+    final fileUrl = _client.storage
+        .from('commission-evidence')
+        .getPublicUrl(storagePath);
 
     // Get current evidence count for sequence numbering
     final existing = await fetchEvidence(commissionId);
 
     // Save metadata to database
-    final response = await _client.from('commission_evidence').insert({
-      'commission_id': commissionId,
-      'visit_id': visitId,
-      'file_type': 'photo',
-      'file_url': fileUrl,
-      'caption': caption,
-      'latitude': position?.latitude,
-      'longitude': position?.longitude,
-      'direction': direction,
-      'sha256_hash': hash,
-      'sequence_number': existing.length + 1,
-      'created_by': user.id,
-    }).select().single();
+    final response =
+        await _client
+            .from('commission_evidence')
+            .insert({
+              'commission_id': commissionId,
+              'visit_id': visitId,
+              'file_type': 'photo',
+              'file_url': fileUrl,
+              'caption': caption,
+              'latitude': position?.latitude,
+              'longitude': position?.longitude,
+              'direction': direction,
+              'sha256_hash': hash,
+              'sequence_number': existing.length + 1,
+              'created_by': user.id,
+            })
+            .select()
+            .single();
 
     return CommissionEvidence.fromJson(response);
   }
 
   static Future<void> updateEvidenceCaption(String id, String caption) async {
-    await _client.from('commission_evidence').update({'caption': caption}).eq('id', id);
+    await _client
+        .from('commission_evidence')
+        .update({'caption': caption})
+        .eq('id', id);
   }
 
   static Future<void> deleteEvidence(String id) async {
@@ -267,13 +332,17 @@ class CommissionService {
 
   // ─── Expenses CRUD ─────────────────────────────────────────
 
-  static Future<List<CommissionExpense>> fetchExpenses(String commissionId) async {
+  static Future<List<CommissionExpense>> fetchExpenses(
+    String commissionId,
+  ) async {
     final response = await _client
         .from('commission_expenses')
         .select()
         .eq('commission_id', commissionId)
         .order('expense_date', ascending: false);
-    return (response as List).map((json) => CommissionExpense.fromJson(json)).toList();
+    return (response as List)
+        .map((json) => CommissionExpense.fromJson(json))
+        .toList();
   }
 
   static Future<void> createExpense(Map<String, dynamic> data) async {
@@ -290,7 +359,9 @@ class CommissionService {
     await _client.from('commission_expenses').delete().eq('id', id);
   }
 
-  static Future<Map<String, double>> fetchExpenseSummary(String commissionId) async {
+  static Future<Map<String, double>> fetchExpenseSummary(
+    String commissionId,
+  ) async {
     final expenses = await fetchExpenses(commissionId);
     double total = 0;
     final Map<String, double> byType = {};
@@ -304,59 +375,84 @@ class CommissionService {
 
   // ─── Reports CRUD ──────────────────────────────────────────
 
-  static Future<List<CommissionReport>> fetchReports(String commissionId) async {
+  static Future<List<CommissionReport>> fetchReports(
+    String commissionId,
+  ) async {
     final response = await _client
         .from('commission_reports')
         .select()
         .eq('commission_id', commissionId)
         .order('version', ascending: false);
-    return (response as List).map((json) => CommissionReport.fromJson(json)).toList();
+    return (response as List)
+        .map((json) => CommissionReport.fromJson(json))
+        .toList();
   }
 
-  static Future<CommissionReport> createReport(Map<String, dynamic> data) async {
+  static Future<CommissionReport> createReport(
+    Map<String, dynamic> data,
+  ) async {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception("Not authenticated");
 
-    final response = await _client.from('commission_reports').insert({
-      ...data,
-      'created_by': user.id,
-    }).select().single();
+    final response =
+        await _client
+            .from('commission_reports')
+            .insert({...data, 'created_by': user.id})
+            .select()
+            .single();
     return CommissionReport.fromJson(response);
   }
 
-  static Future<void> updateReport(String id, Map<String, dynamic> updates) async {
+  static Future<void> updateReport(
+    String id,
+    Map<String, dynamic> updates,
+  ) async {
     updates['updated_at'] = DateTime.now().toIso8601String();
     await _client.from('commission_reports').update(updates).eq('id', id);
   }
 
   // ─── Witnesses CRUD (Phase 2) ─────────────────────────────
 
-  static Future<List<CommissionWitness>> fetchWitnesses(String commissionId) async {
+  static Future<List<CommissionWitness>> fetchWitnesses(
+    String commissionId,
+  ) async {
     final response = await _client
         .from('commission_witnesses')
         .select()
         .eq('commission_id', commissionId)
         .order('created_at', ascending: true);
-    return (response as List).map((json) => CommissionWitness.fromJson(json)).toList();
+    return (response as List)
+        .map((json) => CommissionWitness.fromJson(json))
+        .toList();
   }
 
-  static Future<CommissionWitness> createWitness(Map<String, dynamic> data) async {
+  static Future<CommissionWitness> createWitness(
+    Map<String, dynamic> data,
+  ) async {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception("Not authenticated");
 
     // Attach GPS coordinates
     final position = await getCurrentLocation();
 
-    final response = await _client.from('commission_witnesses').insert({
-      ...data,
-      'latitude': position?.latitude,
-      'longitude': position?.longitude,
-      'created_by': user.id,
-    }).select().single();
+    final response =
+        await _client
+            .from('commission_witnesses')
+            .insert({
+              ...data,
+              'latitude': position?.latitude,
+              'longitude': position?.longitude,
+              'created_by': user.id,
+            })
+            .select()
+            .single();
     return CommissionWitness.fromJson(response);
   }
 
-  static Future<void> updateWitness(String id, Map<String, dynamic> updates) async {
+  static Future<void> updateWitness(
+    String id,
+    Map<String, dynamic> updates,
+  ) async {
     await _client.from('commission_witnesses').update(updates).eq('id', id);
   }
 
@@ -373,12 +469,16 @@ class CommissionService {
     required String folder, // 'photos', 'audio', 'signatures'
   }) async {
     final storagePath = '$commissionId/$witnessId/$folder/$fileName';
-    await _client.storage.from('commission-witnesses').uploadBinary(
-      storagePath,
-      fileBytes,
-      fileOptions: const FileOptions(upsert: true),
-    );
-    return _client.storage.from('commission-witnesses').getPublicUrl(storagePath);
+    await _client.storage
+        .from('commission-witnesses')
+        .uploadBinary(
+          storagePath,
+          fileBytes,
+          fileOptions: const FileOptions(upsert: true),
+        );
+    return _client.storage
+        .from('commission-witnesses')
+        .getPublicUrl(storagePath);
   }
 
   /// Download file from storage for PDF embedding / gallery save
@@ -448,27 +548,38 @@ class CommissionService {
 
   // ─── Sketches CRUD (Phase 2) ──────────────────────────────
 
-  static Future<List<CommissionSketch>> fetchSketches(String commissionId) async {
+  static Future<List<CommissionSketch>> fetchSketches(
+    String commissionId,
+  ) async {
     final response = await _client
         .from('commission_sketches')
         .select()
         .eq('commission_id', commissionId)
         .order('created_at', ascending: false);
-    return (response as List).map((json) => CommissionSketch.fromJson(json)).toList();
+    return (response as List)
+        .map((json) => CommissionSketch.fromJson(json))
+        .toList();
   }
 
-  static Future<CommissionSketch> createSketch(Map<String, dynamic> data) async {
+  static Future<CommissionSketch> createSketch(
+    Map<String, dynamic> data,
+  ) async {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception("Not authenticated");
 
-    final response = await _client.from('commission_sketches').insert({
-      ...data,
-      'created_by': user.id,
-    }).select().single();
+    final response =
+        await _client
+            .from('commission_sketches')
+            .insert({...data, 'created_by': user.id})
+            .select()
+            .single();
     return CommissionSketch.fromJson(response);
   }
 
-  static Future<void> updateSketch(String id, Map<String, dynamic> updates) async {
+  static Future<void> updateSketch(
+    String id,
+    Map<String, dynamic> updates,
+  ) async {
     updates['updated_at'] = DateTime.now().toIso8601String();
     await _client.from('commission_sketches').update(updates).eq('id', id);
   }
@@ -483,13 +594,21 @@ class CommissionService {
     required String sketchId,
     required Uint8List imageBytes,
   }) async {
-    final storagePath = '$commissionId/$sketchId/sketch_${DateTime.now().millisecondsSinceEpoch}.png';
-    await _client.storage.from('commission-sketches').uploadBinary(
-      storagePath,
-      imageBytes,
-      fileOptions: const FileOptions(upsert: true, contentType: 'image/png'),
-    );
-    return _client.storage.from('commission-sketches').getPublicUrl(storagePath);
+    final storagePath =
+        '$commissionId/$sketchId/sketch_${DateTime.now().millisecondsSinceEpoch}.png';
+    await _client.storage
+        .from('commission-sketches')
+        .uploadBinary(
+          storagePath,
+          imageBytes,
+          fileOptions: const FileOptions(
+            upsert: true,
+            contentType: 'image/png',
+          ),
+        );
+    return _client.storage
+        .from('commission-sketches')
+        .getPublicUrl(storagePath);
   }
 
   // ─── Dashboard Stats ───────────────────────────────────────
@@ -499,12 +618,20 @@ class CommissionService {
     if (user == null) return {};
 
     final all = await fetchCommissions();
-    
+
     return {
       'total': all.length,
       'pending': all.where((c) => c.status == CommissionStatus.pending).length,
-      'inProgress': all.where((c) => c.status == CommissionStatus.inProgress).length,
-      'completed': all.where((c) => c.status == CommissionStatus.submitted || c.status == CommissionStatus.closed).length,
+      'inProgress':
+          all.where((c) => c.status == CommissionStatus.inProgress).length,
+      'completed':
+          all
+              .where(
+                (c) =>
+                    c.status == CommissionStatus.submitted ||
+                    c.status == CommissionStatus.closed,
+              )
+              .length,
       'overdue': all.where((c) => c.isOverdue).length,
     };
   }
@@ -512,19 +639,25 @@ class CommissionService {
   // ─── Document Vault (Commission Documents) ─────────────────
 
   /// Fetch all documents stored for a commission
-  static Future<List<Map<String, dynamic>>> fetchCommissionDocuments(String commissionId) async {
+  static Future<List<Map<String, dynamic>>> fetchCommissionDocuments(
+    String commissionId,
+  ) async {
     try {
       final files = await _client.storage
           .from('commission-evidence')
           .list(path: '$commissionId/documents');
-      return files.map((f) => {
-        'name': f.name,
-        'size': f.metadata?['size'] ?? 0,
-        'created_at': f.createdAt ?? '',
-        'url': _client.storage
-            .from('commission-evidence')
-            .getPublicUrl('$commissionId/documents/${f.name}'),
-      }).toList();
+      return files
+          .map(
+            (f) => {
+              'name': f.name,
+              'size': f.metadata?['size'] ?? 0,
+              'created_at': f.createdAt ?? '',
+              'url': _client.storage
+                  .from('commission-evidence')
+                  .getPublicUrl('$commissionId/documents/${f.name}'),
+            },
+          )
+          .toList();
     } catch (e) {
       debugPrint('Fetch commission documents error: $e');
       return [];
@@ -541,17 +674,22 @@ class CommissionService {
     if (user == null) throw Exception('Not authenticated');
 
     final storagePath = '$commissionId/documents/$fileName';
-    await _client.storage.from('commission-evidence').uploadBinary(
-      storagePath,
-      fileBytes,
-      fileOptions: const FileOptions(upsert: true),
-    );
+    await _client.storage
+        .from('commission-evidence')
+        .uploadBinary(
+          storagePath,
+          fileBytes,
+          fileOptions: const FileOptions(upsert: true),
+        );
   }
 
   /// Delete a document from the commission vault
-  static Future<void> deleteCommissionDocument(String commissionId, String fileName) async {
-    await _client.storage
-        .from('commission-evidence')
-        .remove(['$commissionId/documents/$fileName']);
+  static Future<void> deleteCommissionDocument(
+    String commissionId,
+    String fileName,
+  ) async {
+    await _client.storage.from('commission-evidence').remove([
+      '$commissionId/documents/$fileName',
+    ]);
   }
 }

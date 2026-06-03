@@ -64,23 +64,28 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
-    // Filter logic
-    final filteredCards = KnowYourRightsData.cards.where((card) {
-      final matchesCategory = _selectedCategoryId == 'all' || card.categoryId == _selectedCategoryId;
-      
-      final query = _searchQuery.toLowerCase();
-      final matchesSearch = card.title.toLowerCase().contains(query) ||
-          card.sectionOrStatute.toLowerCase().contains(query) ||
-          card.coreLaw.toLowerCase().contains(query) ||
-          card.whenItApplies.toLowerCase().contains(query) ||
-          card.immediateRemedy.toLowerCase().contains(query);
 
-      return matchesCategory && matchesSearch;
-    }).toList();
+    // Filter logic
+    final filteredCards =
+        KnowYourRightsData.cards.where((card) {
+          final matchesCategory =
+              _selectedCategoryId == 'all' ||
+              card.categoryId == _selectedCategoryId;
+
+          final query = _searchQuery.toLowerCase();
+          final matchesSearch =
+              card.title.toLowerCase().contains(query) ||
+              card.sectionOrStatute.toLowerCase().contains(query) ||
+              card.coreLaw.toLowerCase().contains(query) ||
+              card.whenItApplies.toLowerCase().contains(query) ||
+              card.immediateRemedy.toLowerCase().contains(query);
+
+          return matchesCategory && matchesSearch;
+        }).toList();
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+      backgroundColor:
+          isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: isDark ? const Color(0xFF0F172A) : AppTheme.accent,
@@ -109,30 +114,35 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (ctx) => AlertDialog(
-                  backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-                  title: Text(
-                    "About Legal Encyclopedia",
-                    style: GoogleFonts.playfairDisplay(
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black87,
+                builder:
+                    (ctx) => AlertDialog(
+                      backgroundColor:
+                          isDark ? const Color(0xFF1E293B) : Colors.white,
+                      title: Text(
+                        "About Legal Encyclopedia",
+                        style: GoogleFonts.playfairDisplay(
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      content: Text(
+                        "Our mission is to translate complex legal statutes into simple, bite-sized summaries that any Indian layman can easily read, understand, and use to protect their rights in everyday life.",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark ? Colors.white70 : Colors.black87,
+                          height: 1.5,
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: const Text(
+                            "Got it",
+                            style: TextStyle(color: Color(0xFFD4AF37)),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  content: Text(
-                    "Our mission is to translate complex legal statutes into simple, bite-sized summaries that any Indian layman can easily read, understand, and use to protect their rights in everyday life.",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isDark ? Colors.white70 : Colors.black87,
-                      height: 1.5,
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx),
-                      child: const Text("Got it", style: TextStyle(color: Color(0xFFD4AF37))),
-                    )
-                  ],
-                ),
               );
             },
           ),
@@ -206,7 +216,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                       color: Colors.black.withOpacity(0.04),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
-                    )
+                    ),
                   ],
                 ),
                 child: TextField(
@@ -216,22 +226,30 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                       _searchQuery = val;
                     });
                   },
-                  style: TextStyle(color: isDark ? Colors.white : Colors.black87),
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search_rounded, color: isDark ? Colors.white54 : Colors.grey),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear_rounded),
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() {
-                                _searchQuery = '';
-                              });
-                            },
-                          )
-                        : null,
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: isDark ? Colors.white54 : Colors.grey,
+                    ),
+                    suffixIcon:
+                        _searchQuery.isNotEmpty
+                            ? IconButton(
+                              icon: const Icon(Icons.clear_rounded),
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() {
+                                  _searchQuery = '';
+                                });
+                              },
+                            )
+                            : null,
                     hintText: "Search laws, rights, or remedies...",
-                    hintStyle: TextStyle(color: isDark ? Colors.white38 : Colors.grey[400]),
+                    hintStyle: TextStyle(
+                      color: isDark ? Colors.white38 : Colors.grey[400],
+                    ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -246,7 +264,10 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
               height: 72,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 14,
+                ),
                 itemCount: KnowYourRightsData.categories.length + 1,
                 itemBuilder: (ctx, index) {
                   if (index == 0) {
@@ -255,9 +276,13 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                       isSelected: isSelected,
                       title: 'All Guides',
                       icon: '⚖️',
-                      gradient: isSelected
-                          ? [const Color(0xFFD4AF37), const Color(0xFFB5942B)]
-                          : [Colors.grey[800]!, Colors.grey[700]!],
+                      gradient:
+                          isSelected
+                              ? [
+                                const Color(0xFFD4AF37),
+                                const Color(0xFFB5942B),
+                              ]
+                              : [Colors.grey[800]!, Colors.grey[700]!],
                       onTap: () {
                         setState(() {
                           _selectedCategoryId = 'all';
@@ -272,7 +297,10 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                     isSelected: isSelected,
                     title: cat.title,
                     icon: cat.icon,
-                    gradient: isSelected ? cat.gradient : [Colors.grey[800]!, Colors.grey[700]!],
+                    gradient:
+                        isSelected
+                            ? cat.gradient
+                            : [Colors.grey[800]!, Colors.grey[700]!],
                     onTap: () {
                       setState(() {
                         _selectedCategoryId = cat.id;
@@ -328,15 +356,12 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
             SliverPadding(
               padding: const EdgeInsets.only(left: 16, right: 16, bottom: 32),
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (ctx, index) {
-                    final card = filteredCards[index];
-                    final isExpanded = _expandedCardId == card.id;
+                delegate: SliverChildBuilderDelegate((ctx, index) {
+                  final card = filteredCards[index];
+                  final isExpanded = _expandedCardId == card.id;
 
-                    return _buildLaymanCardWidget(card, isExpanded, isDark);
-                  },
-                  childCount: filteredCards.length,
-                ),
+                  return _buildLaymanCardWidget(card, isExpanded, isDark);
+                }, childCount: filteredCards.length),
               ),
             ),
         ],
@@ -352,7 +377,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
     required VoidCallback onTap,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       margin: const EdgeInsets.only(right: 8),
       child: Material(
@@ -365,24 +390,27 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               gradient: isSelected ? LinearGradient(colors: gradient) : null,
-              color: isSelected
-                  ? null
-                  : (isDark ? const Color(0xFF1E293B) : Colors.white),
+              color:
+                  isSelected
+                      ? null
+                      : (isDark ? const Color(0xFF1E293B) : Colors.white),
               borderRadius: BorderRadius.circular(30),
               border: Border.all(
-                color: isSelected
-                    ? Colors.transparent
-                    : (isDark ? Colors.white10 : Colors.black12),
+                color:
+                    isSelected
+                        ? Colors.transparent
+                        : (isDark ? Colors.white10 : Colors.black12),
               ),
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: gradient[0].withOpacity(0.3),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      )
-                    ]
-                  : null,
+              boxShadow:
+                  isSelected
+                      ? [
+                        BoxShadow(
+                          color: gradient[0].withOpacity(0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
+                      : null,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -394,9 +422,10 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                   style: GoogleFonts.outfit(
                     fontSize: 13,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                    color: isSelected
-                        ? Colors.white
-                        : (isDark ? Colors.white70 : Colors.black87),
+                    color:
+                        isSelected
+                            ? Colors.white
+                            : (isDark ? Colors.white70 : Colors.black87),
                   ),
                 ),
               ],
@@ -411,12 +440,13 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
     // Get category gradient for accent matching
     final category = KnowYourRightsData.categories.firstWhere(
       (c) => c.id == card.categoryId,
-      orElse: () => const RightsCategory(
-        id: 'other',
-        title: 'Other',
-        icon: '⚖️',
-        gradient: [Color(0xFFD4AF37), Color(0xFFB5942B)],
-      ),
+      orElse:
+          () => const RightsCategory(
+            id: 'other',
+            title: 'Other',
+            icon: '⚖️',
+            gradient: [Color(0xFFD4AF37), Color(0xFFB5942B)],
+          ),
     );
 
     return Container(
@@ -425,9 +455,10 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isExpanded
-              ? category.gradient[0].withOpacity(0.3)
-              : (isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
+          color:
+              isExpanded
+                  ? category.gradient[0].withOpacity(0.3)
+                  : (isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
           width: isExpanded ? 1.5 : 1.0,
         ),
         boxShadow: [
@@ -435,7 +466,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
             color: Colors.black.withOpacity(isExpanded ? 0.08 : 0.02),
             blurRadius: isExpanded ? 12 : 4,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: Theme(
@@ -455,10 +486,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
               shape: BoxShape.circle,
             ),
             child: Center(
-              child: Text(
-                category.icon,
-                style: const TextStyle(fontSize: 18),
-              ),
+              child: Text(category.icon, style: const TextStyle(fontSize: 18)),
             ),
           ),
           title: Text(
@@ -479,7 +507,12 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
           ),
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 20, top: 4),
+              padding: const EdgeInsets.only(
+                left: 16,
+                right: 16,
+                bottom: 20,
+                top: 4,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -517,17 +550,25 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? const Color(0xFF0F172A).withOpacity(0.4)
-                          : const Color(0xFFF1F5F9),
+                      color:
+                          isDark
+                              ? const Color(0xFF0F172A).withOpacity(0.4)
+                              : const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
+                        color:
+                            isDark
+                                ? Colors.white10
+                                : Colors.black.withOpacity(0.05),
                       ),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.support_agent_rounded, size: 20, color: Color(0xFFD4AF37)),
+                        const Icon(
+                          Icons.support_agent_rounded,
+                          size: 20,
+                          color: Color(0xFFD4AF37),
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Column(
@@ -572,7 +613,10 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
                         ),
                         icon: const Icon(Icons.share_rounded, size: 16),
                         label: Text(
@@ -630,12 +674,16 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isDark
-                ? const Color(0xFF0F172A).withOpacity(0.3)
-                : const Color(0xFFF8FAFC),
+            color:
+                isDark
+                    ? const Color(0xFF0F172A).withOpacity(0.3)
+                    : const Color(0xFFF8FAFC),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.03),
+              color:
+                  isDark
+                      ? Colors.white.withOpacity(0.03)
+                      : Colors.black.withOpacity(0.03),
             ),
           ),
           child: Text(
@@ -644,7 +692,10 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
               fontSize: 13.5,
               height: 1.45,
               fontWeight: FontWeight.w500,
-              color: isDark ? Colors.white.withOpacity(0.85) : Colors.black.withOpacity(0.75),
+              color:
+                  isDark
+                      ? Colors.white.withOpacity(0.85)
+                      : Colors.black.withOpacity(0.75),
             ),
           ),
         ),

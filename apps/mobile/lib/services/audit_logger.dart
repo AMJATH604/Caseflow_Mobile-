@@ -66,14 +66,19 @@ class AuditLogger {
       if (userId == null) return;
 
       final now = DateTime.now().toUtc().toIso8601String();
-      final records = entityIds.map((id) => {
-        'user_id': userId,
-        'action': action.name,
-        'entity': entity,
-        'entity_id': id,
-        'context': context,
-        'created_at': now,
-      }).toList();
+      final records =
+          entityIds
+              .map(
+                (id) => {
+                  'user_id': userId,
+                  'action': action.name,
+                  'entity': entity,
+                  'entity_id': id,
+                  'context': context,
+                  'created_at': now,
+                },
+              )
+              .toList();
 
       await _client.from('audit_logs').insert(records);
     } catch (e) {

@@ -30,7 +30,10 @@ class TaskWidget extends ConsumerWidget {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               IconButton(
-                icon: const Icon(Icons.add_circle_outline, color: AppTheme.accent),
+                icon: const Icon(
+                  Icons.add_circle_outline,
+                  color: AppTheme.accent,
+                ),
                 onPressed: () {
                   _showAddTaskDialog(context, ref);
                 },
@@ -44,31 +47,44 @@ class TaskWidget extends ConsumerWidget {
                 return const Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Text("No tasks for today", style: TextStyle(color: Colors.grey)),
+                    child: Text(
+                      "No tasks for today",
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ),
                 );
               }
               return Column(
-                children: tasks.map((task) => _buildTaskItem(task, ref)).toList(),
+                children:
+                    tasks.map((task) => _buildTaskItem(task, ref)).toList(),
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Column(
-              children: [
-                const Icon(Icons.cloud_off_rounded, color: Colors.grey, size: 32),
-                const SizedBox(height: 8),
-                const Text(
-                  "Unable to load tasks",
-                  style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w600),
+            error:
+                (err, stack) => Column(
+                  children: [
+                    const Icon(
+                      Icons.cloud_off_rounded,
+                      color: Colors.grey,
+                      size: 32,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Unable to load tasks",
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    TextButton.icon(
+                      onPressed: () => ref.invalidate(tasksProvider),
+                      icon: const Icon(Icons.refresh, size: 16),
+                      label: const Text("Tap to Retry"),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                TextButton.icon(
-                  onPressed: () => ref.invalidate(tasksProvider),
-                  icon: const Icon(Icons.refresh, size: 16),
-                  label: const Text("Tap to Retry"),
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -83,7 +99,9 @@ class TaskWidget extends ConsumerWidget {
           Checkbox(
             value: task.isCompleted,
             activeColor: AppTheme.success,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
             onChanged: (val) async {
               await SupabaseService.updateTask(task.id, {'is_completed': val});
               ref.invalidate(tasksProvider);
@@ -93,14 +111,19 @@ class TaskWidget extends ConsumerWidget {
             child: Text(
               task.title,
               style: TextStyle(
-                decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+                decoration:
+                    task.isCompleted ? TextDecoration.lineThrough : null,
                 color: task.isCompleted ? Colors.grey : AppTheme.primary,
                 fontSize: 14,
               ),
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline, size: 18, color: Colors.grey),
+            icon: const Icon(
+              Icons.delete_outline,
+              size: 18,
+              color: Colors.grey,
+            ),
             onPressed: () async {
               await SupabaseService.deleteTask(task.id);
               ref.invalidate(tasksProvider);
@@ -115,28 +138,32 @@ class TaskWidget extends ConsumerWidget {
     final controller = TextEditingController();
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("New Task"),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: "Enter task title"),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
-          ElevatedButton(
-            onPressed: () async {
-              if (controller.text.isNotEmpty) {
-                await SupabaseService.createTask(controller.text);
-                ref.invalidate(tasksProvider);
-                if (!context.mounted) return;
-                Navigator.pop(context);
-              }
-            },
-            child: const Text("Add"),
+      builder:
+          (context) => AlertDialog(
+            title: const Text("New Task"),
+            content: TextField(
+              controller: controller,
+              decoration: const InputDecoration(hintText: "Enter task title"),
+              autofocus: true,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  if (controller.text.isNotEmpty) {
+                    await SupabaseService.createTask(controller.text);
+                    ref.invalidate(tasksProvider);
+                    if (!context.mounted) return;
+                    Navigator.pop(context);
+                  }
+                },
+                child: const Text("Add"),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 }

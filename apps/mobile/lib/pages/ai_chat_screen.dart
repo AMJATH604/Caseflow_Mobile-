@@ -61,9 +61,12 @@ class _AiChatScreenState extends State<AiChatScreen>
     });
     _scrollToBottom();
 
-    final prompt = text.trim().isEmpty
-        ? (fileToSend != null && !_isImageFile(fileToSend.path) ? "Analyze this document" : "Analyze this image")
-        : text.trim();
+    final prompt =
+        text.trim().isEmpty
+            ? (fileToSend != null && !_isImageFile(fileToSend.path)
+                ? "Analyze this document"
+                : "Analyze this image")
+            : text.trim();
 
     // Use streaming for a ChatGPT-like word-by-word experience
     await _gemini.sendMessageStream(
@@ -113,12 +116,12 @@ class _AiChatScreenState extends State<AiChatScreen>
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: [
-        'jpg', 'jpeg', 'png', 'webp', 'gif',       // Images
-        'pdf',                                       // PDF documents
-        'doc', 'docx',                               // Word documents
-        'xls', 'xlsx',                               // Excel files
-        'txt', 'csv',                                // Text files
-        'ppt', 'pptx',                               // Presentations
+        'jpg', 'jpeg', 'png', 'webp', 'gif', // Images
+        'pdf', // PDF documents
+        'doc', 'docx', // Word documents
+        'xls', 'xlsx', // Excel files
+        'txt', 'csv', // Text files
+        'ppt', 'pptx', // Presentations
       ],
     );
     if (result != null && result.files.isNotEmpty && mounted) {
@@ -145,17 +148,24 @@ class _AiChatScreenState extends State<AiChatScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text("Attach File",
-                    style: GoogleFonts.outfit(
-                        fontSize: 18, fontWeight: FontWeight.w700)),
+                Text(
+                  "Attach File",
+                  style: GoogleFonts.outfit(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 const SizedBox(height: 8),
-                Text("Send images or documents for AI analysis",
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: isDark
-                          ? const Color(0xFF94A3B8)
-                          : const Color(0xFF64748B),
-                    )),
+                Text(
+                  "Send images or documents for AI analysis",
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color:
+                        isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B),
+                  ),
+                ),
                 const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -198,7 +208,11 @@ class _AiChatScreenState extends State<AiChatScreen>
   }
 
   Widget _buildAttachOption(
-      IconData icon, String label, Color color, VoidCallback onTap) {
+    IconData icon,
+    String label,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -214,11 +228,14 @@ class _AiChatScreenState extends State<AiChatScreen>
             child: Icon(icon, color: color, size: 26),
           ),
           const SizedBox(height: 8),
-          Text(label,
-              style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[600])),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[600],
+            ),
+          ),
         ],
       ),
     );
@@ -237,9 +254,10 @@ class _AiChatScreenState extends State<AiChatScreen>
           children: [
             _buildHeader(isDark),
             Expanded(
-              child: messages.isEmpty
-                  ? _buildWelcomeView(isDark)
-                  : _buildChatList(isDark, messages),
+              child:
+                  messages.isEmpty
+                      ? _buildWelcomeView(isDark)
+                      : _buildChatList(isDark, messages),
             ),
             // Pending image preview
             if (_pendingFile != null) _buildFilePreview(isDark),
@@ -257,8 +275,7 @@ class _AiChatScreenState extends State<AiChatScreen>
         color: isDark ? const Color(0xFF161620) : Colors.white,
         border: Border(
           bottom: BorderSide(
-            color:
-                isDark ? const Color(0xFF232330) : const Color(0xFFE2E8F0),
+            color: isDark ? const Color(0xFF232330) : const Color(0xFFE2E8F0),
           ),
         ),
       ),
@@ -275,36 +292,48 @@ class _AiChatScreenState extends State<AiChatScreen>
               ),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
+            child: const Icon(
+              Icons.auto_awesome,
+              color: Colors.white,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("CaseFlow AI",
-                    style: GoogleFonts.outfit(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
-                    )),
+                Text(
+                  "CaseFlow AI",
+                  style: GoogleFonts.outfit(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
                 const SizedBox(height: 1),
                 Row(
                   children: [
                     Container(
-                        width: 6,
-                        height: 6,
-                        decoration: const BoxDecoration(
-                            color: Color(0xFF10B981), shape: BoxShape.circle)),
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF10B981),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                     const SizedBox(width: 5),
-                    Text("Powered by Gemini • Vision enabled",
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: isDark
-                              ? const Color(0xFF94A3B8)
-                              : const Color(0xFF64748B),
-                          fontWeight: FontWeight.w500,
-                        )),
+                    Text(
+                      "Powered by Gemini • Vision enabled",
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color:
+                            isDark
+                                ? const Color(0xFF94A3B8)
+                                : const Color(0xFF64748B),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -315,32 +344,40 @@ class _AiChatScreenState extends State<AiChatScreen>
               onPressed: () {
                 showDialog(
                   context: context,
-                  builder: (ctx) => AlertDialog(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                    title: const Text("Clear Chat?"),
-                    content: const Text(
-                        "This will permanently delete all your AI chat history."),
-                    actions: [
-                      TextButton(
-                          onPressed: () => Navigator.pop(ctx),
-                          child: const Text("Cancel")),
-                      TextButton(
-                        onPressed: () async {
-                          Navigator.pop(ctx);
-                          await _gemini.clearHistory();
-                          if (mounted) setState(() {});
-                        },
-                        child: const Text("Clear",
-                            style: TextStyle(color: Colors.red)),
+                  builder:
+                      (ctx) => AlertDialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        title: const Text("Clear Chat?"),
+                        content: const Text(
+                          "This will permanently delete all your AI chat history.",
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text("Cancel"),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              Navigator.pop(ctx);
+                              await _gemini.clearHistory();
+                              if (mounted) setState(() {});
+                            },
+                            child: const Text(
+                              "Clear",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
                 );
               },
-              icon: Icon(Icons.delete_outline_rounded,
-                  color: isDark ? const Color(0xFF64748B) : Colors.black38,
-                  size: 20),
+              icon: Icon(
+                Icons.delete_outline_rounded,
+                color: isDark ? const Color(0xFF64748B) : Colors.black38,
+                size: 20,
+              ),
             ),
         ],
       ),
@@ -361,7 +398,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                 colors: [
                   Color(0xFF6366F1),
                   Color(0xFF22D3EE),
-                  Color(0xFF34D399)
+                  Color(0xFF34D399),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -369,30 +406,34 @@ class _AiChatScreenState extends State<AiChatScreen>
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                    color: const Color(0xFF6366F1).withValues(alpha: 0.3),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8)),
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
               ],
             ),
-            child:
-                const Icon(Icons.auto_awesome, color: Colors.white, size: 36),
+            child: const Icon(
+              Icons.auto_awesome,
+              color: Colors.white,
+              size: 36,
+            ),
           ),
           const SizedBox(height: 24),
-          Text("CaseFlow AI",
-              style: GoogleFonts.outfit(
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-                color: isDark ? Colors.white : const Color(0xFF0F172A),
-              )),
+          Text(
+            "CaseFlow AI",
+            style: GoogleFonts.outfit(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+          ),
           const SizedBox(height: 8),
           Text(
             "Your expert Indian legal assistant.\nAsk questions or share images of legal documents.",
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: isDark
-                  ? const Color(0xFF94A3B8)
-                  : const Color(0xFF64748B),
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
               height: 1.5,
             ),
           ),
@@ -404,36 +445,43 @@ class _AiChatScreenState extends State<AiChatScreen>
               color: const Color(0xFF6366F1).withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.15)),
+                color: const Color(0xFF6366F1).withValues(alpha: 0.15),
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.image_search_rounded,
-                    size: 18, color: Color(0xFF6366F1)),
+                const Icon(
+                  Icons.image_search_rounded,
+                  size: 18,
+                  color: Color(0xFF6366F1),
+                ),
                 const SizedBox(width: 8),
-                Text("📸 Send photos of court orders, FIRs, or legal docs!",
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF6366F1),
-                    )),
+                Text(
+                  "📸 Send photos of court orders, FIRs, or legal docs!",
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF6366F1),
+                  ),
+                ),
               ],
             ),
           ),
           const SizedBox(height: 32),
-          Text("TRY ASKING",
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: isDark
-                    ? const Color(0xFF475569)
-                    : const Color(0xFF94A3B8),
-                letterSpacing: 2,
-              )),
+          Text(
+            "TRY ASKING",
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8),
+              letterSpacing: 2,
+            ),
+          ),
           const SizedBox(height: 16),
-          ...GeminiService.suggestedPrompts
-              .map((prompt) => _buildSuggestionCard(prompt, isDark)),
+          ...GeminiService.suggestedPrompts.map(
+            (prompt) => _buildSuggestionCard(prompt, isDark),
+          ),
         ],
       ),
     );
@@ -452,9 +500,8 @@ class _AiChatScreenState extends State<AiChatScreen>
             color: isDark ? const Color(0xFF161620) : Colors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-                color: isDark
-                    ? const Color(0xFF232330)
-                    : const Color(0xFFE2E8F0)),
+              color: isDark ? const Color(0xFF232330) : const Color(0xFFE2E8F0),
+            ),
           ),
           child: Row(
             children: [
@@ -464,32 +511,36 @@ class _AiChatScreenState extends State<AiChatScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(prompt['title']!,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: isDark
-                              ? Colors.white
-                              : const Color(0xFF0F172A),
-                        )),
+                    Text(
+                      prompt['title']!,
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                    ),
                     const SizedBox(height: 3),
-                    Text(prompt['prompt']!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: isDark
-                              ? const Color(0xFF64748B)
-                              : const Color(0xFF94A3B8),
-                        )),
+                    Text(
+                      prompt['prompt']!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color:
+                            isDark
+                                ? const Color(0xFF64748B)
+                                : const Color(0xFF94A3B8),
+                      ),
+                    ),
                   ],
                 ),
               ),
-              Icon(Icons.arrow_forward_ios_rounded,
-                  size: 14,
-                  color: isDark
-                      ? const Color(0xFF475569)
-                      : const Color(0xFFCBD5E1)),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 14,
+                color:
+                    isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1),
+              ),
             ],
           ),
         ),
@@ -524,11 +575,15 @@ class _AiChatScreenState extends State<AiChatScreen>
               height: 32,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                    colors: [Color(0xFF6366F1), Color(0xFF22D3EE)]),
+                  colors: [Color(0xFF6366F1), Color(0xFF22D3EE)],
+                ),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.auto_awesome,
-                  color: Colors.white, size: 16),
+              child: const Icon(
+                Icons.auto_awesome,
+                color: Colors.white,
+                size: 16,
+              ),
             ),
             const SizedBox(width: 10),
           ],
@@ -536,9 +591,10 @@ class _AiChatScreenState extends State<AiChatScreen>
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: isUser
-                    ? AppTheme.accent
-                    : isDark
+                color:
+                    isUser
+                        ? AppTheme.accent
+                        : isDark
                         ? const Color(0xFF1E1E2E)
                         : Colors.white,
                 borderRadius: BorderRadius.only(
@@ -547,73 +603,91 @@ class _AiChatScreenState extends State<AiChatScreen>
                   bottomLeft: Radius.circular(isUser ? 18 : 4),
                   bottomRight: Radius.circular(isUser ? 4 : 18),
                 ),
-                border: isUser
-                    ? null
-                    : Border.all(
-                        color: isDark
-                            ? const Color(0xFF2D2D3F)
-                            : const Color(0xFFE2E8F0)),
+                border:
+                    isUser
+                        ? null
+                        : Border.all(
+                          color:
+                              isDark
+                                  ? const Color(0xFF2D2D3F)
+                                  : const Color(0xFFE2E8F0),
+                        ),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2)),
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
                 ],
               ),
-              child: msg.isLoading
-                  ? _buildTypingIndicator()
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Show attached image in user bubble
-                        if (isUser && msg.hasImage) ...[
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: msg.imagePath != null
-                                ? Image.file(
-                                    File(msg.imagePath!),
-                                    width: 200,
-                                    height: 150,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Container(
-                                      width: 200,
-                                      height: 60,
-                                      color: Colors.grey[300],
-                                      child: const Center(
-                                          child: Icon(Icons.broken_image)),
-                                    ),
-                                  )
-                                : const SizedBox.shrink(),
-                          ),
-                          const SizedBox(height: 8),
+              child:
+                  msg.isLoading
+                      ? _buildTypingIndicator()
+                      : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Show attached image in user bubble
+                          if (isUser && msg.hasImage) ...[
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child:
+                                  msg.imagePath != null
+                                      ? Image.file(
+                                        File(msg.imagePath!),
+                                        width: 200,
+                                        height: 150,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (_, __, ___) => Container(
+                                              width: 200,
+                                              height: 60,
+                                              color: Colors.grey[300],
+                                              child: const Center(
+                                                child: Icon(Icons.broken_image),
+                                              ),
+                                            ),
+                                      )
+                                      : const SizedBox.shrink(),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                          _buildMessageContent(msg, isUser, isDark),
+                          if (!isUser) ...[
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildActionChip(
+                                  Icons.copy_rounded,
+                                  "Copy",
+                                  () {
+                                    Clipboard.setData(
+                                      ClipboardData(text: msg.text),
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: const Text(
+                                          "Copied to clipboard",
+                                        ),
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        duration: const Duration(
+                                          milliseconds: 1500,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  isDark,
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
-                        _buildMessageContent(msg, isUser, isDark),
-                        if (!isUser) ...[
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _buildActionChip(Icons.copy_rounded, "Copy", () {
-                                Clipboard.setData(
-                                    ClipboardData(text: msg.text));
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content:
-                                        const Text("Copied to clipboard"),
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(12)),
-                                    duration:
-                                        const Duration(milliseconds: 1500),
-                                  ),
-                                );
-                              }, isDark),
-                            ],
-                          ),
-                        ],
-                      ],
-                    ),
+                      ),
             ),
           ),
           if (isUser) ...[
@@ -622,15 +696,15 @@ class _AiChatScreenState extends State<AiChatScreen>
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: isDark
-                    ? const Color(0xFF232330)
-                    : const Color(0xFFE2E8F0),
+                color:
+                    isDark ? const Color(0xFF232330) : const Color(0xFFE2E8F0),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.person_rounded,
-                  color:
-                      isDark ? Colors.white70 : const Color(0xFF475569),
-                  size: 18),
+              child: Icon(
+                Icons.person_rounded,
+                color: isDark ? Colors.white70 : const Color(0xFF475569),
+                size: 18,
+              ),
             ),
           ],
         ],
@@ -639,7 +713,11 @@ class _AiChatScreenState extends State<AiChatScreen>
   }
 
   Widget _buildActionChip(
-      IconData icon, String label, VoidCallback onTap, bool isDark) {
+    IconData icon,
+    String label,
+    VoidCallback onTap,
+    bool isDark,
+  ) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
@@ -652,20 +730,21 @@ class _AiChatScreenState extends State<AiChatScreen>
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon,
-                size: 13,
-                color: isDark
-                    ? const Color(0xFF94A3B8)
-                    : const Color(0xFF64748B)),
+            Icon(
+              icon,
+              size: 13,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+            ),
             const SizedBox(width: 5),
-            Text(label,
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? const Color(0xFF94A3B8)
-                      : const Color(0xFF64748B),
-                )),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color:
+                    isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+              ),
+            ),
           ],
         ),
       ),
@@ -677,7 +756,9 @@ class _AiChatScreenState extends State<AiChatScreen>
       return SelectableText(
         msg.text,
         style: GoogleFonts.inter(
-          fontSize: 14, height: 1.6, color: Colors.white,
+          fontSize: 14,
+          height: 1.6,
+          color: Colors.white,
         ),
       );
     }
@@ -690,7 +771,9 @@ class _AiChatScreenState extends State<AiChatScreen>
       return SelectableText(
         msg.text,
         style: GoogleFonts.inter(
-          fontSize: 14, height: 1.6, color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+          fontSize: 14,
+          height: 1.6,
+          color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
         ),
       );
     }
@@ -702,12 +785,17 @@ class _AiChatScreenState extends State<AiChatScreen>
       if (match.start > lastEnd) {
         final textBefore = msg.text.substring(lastEnd, match.start).trim();
         if (textBefore.isNotEmpty) {
-          children.add(SelectableText(
-            textBefore,
-            style: GoogleFonts.inter(
-              fontSize: 14, height: 1.6, color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+          children.add(
+            SelectableText(
+              textBefore,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                height: 1.6,
+                color:
+                    isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+              ),
             ),
-          ));
+          );
           children.add(const SizedBox(height: 12));
         }
       }
@@ -730,7 +818,12 @@ class _AiChatScreenState extends State<AiChatScreen>
           children.add(_buildGenUiSectionCard(attrs, isDark));
           break;
         default:
-          children.add(Text("[Unknown Gen UI Widget: $tagType]", style: TextStyle(color: Colors.red)));
+          children.add(
+            Text(
+              "[Unknown Gen UI Widget: $tagType]",
+              style: TextStyle(color: Colors.red),
+            ),
+          );
       }
 
       children.add(const SizedBox(height: 12));
@@ -740,12 +833,16 @@ class _AiChatScreenState extends State<AiChatScreen>
     if (lastEnd < msg.text.length) {
       final textAfter = msg.text.substring(lastEnd).trim();
       if (textAfter.isNotEmpty) {
-        children.add(SelectableText(
-          textAfter,
-          style: GoogleFonts.inter(
-            fontSize: 14, height: 1.6, color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+        children.add(
+          SelectableText(
+            textAfter,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              height: 1.6,
+              color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+            ),
           ),
-        ));
+        );
       }
     }
 
@@ -777,7 +874,9 @@ class _AiChatScreenState extends State<AiChatScreen>
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161620) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -793,22 +892,46 @@ class _AiChatScreenState extends State<AiChatScreen>
             children: [
               Container(
                 padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(color: const Color(0xFF3B82F6).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                child: const Icon(Icons.gavel_rounded, size: 16, color: Color(0xFF3B82F6)),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.gavel_rounded,
+                  size: 16,
+                  color: Color(0xFF3B82F6),
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   title,
-                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A)),
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          Text("CNR: $cnr", style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))),
+          Text(
+            "CNR: $cnr",
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+            ),
+          ),
           const SizedBox(height: 4),
-          Text("Court: $court", style: GoogleFonts.inter(fontSize: 12, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))),
+          Text(
+            "Court: $court",
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+            ),
+          ),
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
@@ -824,7 +947,9 @@ class _AiChatScreenState extends State<AiChatScreen>
                 backgroundColor: const Color(0xFF3B82F6),
                 foregroundColor: Colors.white,
                 elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
             ),
           ),
@@ -845,7 +970,9 @@ class _AiChatScreenState extends State<AiChatScreen>
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161620) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -861,14 +988,25 @@ class _AiChatScreenState extends State<AiChatScreen>
             children: [
               Container(
                 padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                child: const Icon(Icons.currency_rupee_rounded, size: 16, color: Color(0xFF10B981)),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.currency_rupee_rounded,
+                  size: 16,
+                  color: Color(0xFF10B981),
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   title,
-                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A)),
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
                 ),
               ),
             ],
@@ -880,15 +1018,41 @@ class _AiChatScreenState extends State<AiChatScreen>
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Paid", style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF10B981))),
-                  Text("₹$paid", style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: isDark ? Colors.white : const Color(0xFF0F172A))),
+                  Text(
+                    "Paid",
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: const Color(0xFF10B981),
+                    ),
+                  ),
+                  Text(
+                    "₹$paid",
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text("Balance", style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFFEF4444))),
-                  Text("₹$balance", style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: isDark ? Colors.white : const Color(0xFF0F172A))),
+                  Text(
+                    "Balance",
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: const Color(0xFFEF4444),
+                    ),
+                  ),
+                  Text(
+                    "₹$balance",
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -904,20 +1068,44 @@ class _AiChatScreenState extends State<AiChatScreen>
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161620) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Popular Calculators", style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A))),
+          Text(
+            "Popular Calculators",
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+          ),
           const SizedBox(height: 10),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              _buildCalcChip("Court Fee", Icons.account_balance_rounded, isDark, "court-fee"),
-              _buildCalcChip("Limitation", Icons.timer_rounded, isDark, "limitation"),
-              _buildCalcChip("Maintenance", Icons.family_restroom_rounded, isDark, "maintenance_calculator"),
+              _buildCalcChip(
+                "Court Fee",
+                Icons.account_balance_rounded,
+                isDark,
+                "court-fee",
+              ),
+              _buildCalcChip(
+                "Limitation",
+                Icons.timer_rounded,
+                isDark,
+                "limitation",
+              ),
+              _buildCalcChip(
+                "Maintenance",
+                Icons.family_restroom_rounded,
+                isDark,
+                "maintenance_calculator",
+              ),
             ],
           ),
         ],
@@ -925,7 +1113,12 @@ class _AiChatScreenState extends State<AiChatScreen>
     );
   }
 
-  Widget _buildCalcChip(String label, IconData icon, bool isDark, String toolId) {
+  Widget _buildCalcChip(
+    String label,
+    IconData icon,
+    bool isDark,
+    String toolId,
+  ) {
     return InkWell(
       onTap: () {
         context.go('/citizen-tools?tool=$toolId');
@@ -936,14 +1129,24 @@ class _AiChatScreenState extends State<AiChatScreen>
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+          border: Border.all(
+            color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 14, color: const Color(0xFF6366F1)),
             const SizedBox(width: 6),
-            Text(label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155))),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color:
+                    isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+              ),
+            ),
           ],
         ),
       ),
@@ -961,7 +1164,9 @@ class _AiChatScreenState extends State<AiChatScreen>
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -970,16 +1175,26 @@ class _AiChatScreenState extends State<AiChatScreen>
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
             ),
             child: Row(
               children: [
-                const Icon(Icons.menu_book_rounded, size: 14, color: Color(0xFFD4AF37)),
+                const Icon(
+                  Icons.menu_book_rounded,
+                  size: 14,
+                  color: Color(0xFFD4AF37),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     "$act - Section $section",
-                    style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A)),
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
                   ),
                 ),
               ],
@@ -991,12 +1206,26 @@ class _AiChatScreenState extends State<AiChatScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (title.isNotEmpty) ...[
-                  Text(title, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700, color: isDark ? Colors.white : const Color(0xFF0F172A))),
+                  Text(
+                    title,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
                   const SizedBox(height: 8),
                 ],
                 Text(
                   content,
-                  style: GoogleFonts.inter(fontSize: 13, height: 1.5, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    height: 1.5,
+                    color:
+                        isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF475569),
+                  ),
                 ),
               ],
             ),
@@ -1016,12 +1245,14 @@ class _AiChatScreenState extends State<AiChatScreen>
         const SizedBox(width: 4),
         _buildDot(2),
         const SizedBox(width: 8),
-        Text("Thinking...",
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: const Color(0xFF94A3B8),
-              fontStyle: FontStyle.italic,
-            )),
+        Text(
+          "Thinking...",
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: const Color(0xFF94A3B8),
+            fontStyle: FontStyle.italic,
+          ),
+        ),
       ],
     );
   }
@@ -1053,9 +1284,8 @@ class _AiChatScreenState extends State<AiChatScreen>
         color: isDark ? const Color(0xFF161620) : Colors.white,
         border: Border(
           top: BorderSide(
-              color: isDark
-                  ? const Color(0xFF232330)
-                  : const Color(0xFFE2E8F0)),
+            color: isDark ? const Color(0xFF232330) : const Color(0xFFE2E8F0),
+          ),
         ),
       ),
       child: Row(
@@ -1079,7 +1309,9 @@ class _AiChatScreenState extends State<AiChatScreen>
                   decoration: BoxDecoration(
                     color: const Color(0xFF6366F1).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFF6366F1).withValues(alpha: 0.2)),
+                    border: Border.all(
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.2),
+                    ),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -1092,7 +1324,11 @@ class _AiChatScreenState extends State<AiChatScreen>
                       const SizedBox(height: 2),
                       Text(
                         p.extension(fileName).toUpperCase().replaceAll('.', ''),
-                        style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.w800, color: const Color(0xFF6366F1)),
+                        style: GoogleFonts.inter(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF6366F1),
+                        ),
                       ),
                     ],
                   ),
@@ -1109,7 +1345,11 @@ class _AiChatScreenState extends State<AiChatScreen>
                       color: Colors.red,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.close, size: 14, color: Colors.white),
+                    child: const Icon(
+                      Icons.close,
+                      size: 14,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -1133,12 +1373,15 @@ class _AiChatScreenState extends State<AiChatScreen>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  isImage ? "Add a message or tap send" : "Document ready — add a message or tap send",
+                  isImage
+                      ? "Add a message or tap send"
+                      : "Document ready — add a message or tap send",
                   style: GoogleFonts.inter(
                     fontSize: 11,
-                    color: isDark
-                        ? const Color(0xFF94A3B8)
-                        : const Color(0xFF64748B),
+                    color:
+                        isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B),
                   ),
                 ),
               ],
@@ -1152,12 +1395,22 @@ class _AiChatScreenState extends State<AiChatScreen>
   IconData _getFileIcon(String fileName) {
     final ext = p.extension(fileName).toLowerCase().replaceAll('.', '');
     switch (ext) {
-      case 'pdf': return Icons.picture_as_pdf_rounded;
-      case 'doc': case 'docx': return Icons.article_rounded;
-      case 'xls': case 'xlsx': case 'csv': return Icons.table_chart_rounded;
-      case 'ppt': case 'pptx': return Icons.slideshow_rounded;
-      case 'txt': return Icons.text_snippet_rounded;
-      default: return Icons.insert_drive_file_rounded;
+      case 'pdf':
+        return Icons.picture_as_pdf_rounded;
+      case 'doc':
+      case 'docx':
+        return Icons.article_rounded;
+      case 'xls':
+      case 'xlsx':
+      case 'csv':
+        return Icons.table_chart_rounded;
+      case 'ppt':
+      case 'pptx':
+        return Icons.slideshow_rounded;
+      case 'txt':
+        return Icons.text_snippet_rounded;
+      default:
+        return Icons.insert_drive_file_rounded;
     }
   }
 
@@ -1173,15 +1426,15 @@ class _AiChatScreenState extends State<AiChatScreen>
         color: isDark ? const Color(0xFF161620) : Colors.white,
         border: Border(
           top: BorderSide(
-              color: isDark
-                  ? const Color(0xFF232330)
-                  : const Color(0xFFE2E8F0)),
+            color: isDark ? const Color(0xFF232330) : const Color(0xFFE2E8F0),
+          ),
         ),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -2)),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
         ],
       ),
       child: Row(
@@ -1191,9 +1444,10 @@ class _AiChatScreenState extends State<AiChatScreen>
             onPressed: _isSending ? null : _showAttachmentOptions,
             icon: Icon(
               Icons.add_circle_outline_rounded,
-              color: _pendingFile != null
-                  ? const Color(0xFF6366F1)
-                  : isDark
+              color:
+                  _pendingFile != null
+                      ? const Color(0xFF6366F1)
+                      : isDark
                       ? const Color(0xFF475569)
                       : const Color(0xFF94A3B8),
               size: 24,
@@ -1203,14 +1457,15 @@ class _AiChatScreenState extends State<AiChatScreen>
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: isDark
-                    ? const Color(0xFF0A0A0F)
-                    : const Color(0xFFF1F5F9),
+                color:
+                    isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                    color: isDark
-                        ? const Color(0xFF232330)
-                        : const Color(0xFFE2E8F0)),
+                  color:
+                      isDark
+                          ? const Color(0xFF232330)
+                          : const Color(0xFFE2E8F0),
+                ),
               ),
               child: TextField(
                 controller: _controller,
@@ -1224,18 +1479,22 @@ class _AiChatScreenState extends State<AiChatScreen>
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
                 decoration: InputDecoration(
-                  hintText: _pendingFile != null
-                      ? "Describe what to analyze..."
-                      : "Ask about any Indian law...",
+                  hintText:
+                      _pendingFile != null
+                          ? "Describe what to analyze..."
+                          : "Ask about any Indian law...",
                   hintStyle: GoogleFonts.inter(
                     fontSize: 14,
-                    color: isDark
-                        ? const Color(0xFF475569)
-                        : const Color(0xFF94A3B8),
+                    color:
+                        isDark
+                            ? const Color(0xFF475569)
+                            : const Color(0xFF94A3B8),
                   ),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 18, vertical: 12),
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
                 ),
               ),
             ),
@@ -1247,31 +1506,38 @@ class _AiChatScreenState extends State<AiChatScreen>
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              gradient: _isSending
-                  ? null
-                  : const LinearGradient(
-                      colors: [Color(0xFF6366F1), Color(0xFF2563EB)]),
-              color: _isSending
-                  ? (isDark
-                      ? const Color(0xFF232330)
-                      : const Color(0xFFE2E8F0))
-                  : null,
+              gradient:
+                  _isSending
+                      ? null
+                      : const LinearGradient(
+                        colors: [Color(0xFF6366F1), Color(0xFF2563EB)],
+                      ),
+              color:
+                  _isSending
+                      ? (isDark
+                          ? const Color(0xFF232330)
+                          : const Color(0xFFE2E8F0))
+                      : null,
               borderRadius: BorderRadius.circular(22),
             ),
             child: IconButton(
               onPressed:
                   _isSending ? null : () => _sendMessage(_controller.text),
-              icon: _isSending
-                  ? SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: isDark ? Colors.white54 : Colors.black26,
+              icon:
+                  _isSending
+                      ? SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: isDark ? Colors.white54 : Colors.black26,
+                        ),
+                      )
+                      : const Icon(
+                        Icons.send_rounded,
+                        color: Colors.white,
+                        size: 20,
                       ),
-                    )
-                  : const Icon(Icons.send_rounded,
-                      color: Colors.white, size: 20),
             ),
           ),
         ],

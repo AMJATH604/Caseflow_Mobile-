@@ -90,7 +90,11 @@ class OfflineCacheService {
     debugPrint('OfflineCache: SQLite tables created');
   }
 
-  static Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+  static Future<void> _onUpgrade(
+    Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {
     // Future migrations go here
   }
 
@@ -122,15 +126,11 @@ class OfflineCacheService {
     final now = DateTime.now().toIso8601String();
 
     for (final c in cases) {
-      batch.insert(
-        'cached_cases',
-        {
-          'id': c['id'],
-          'data': jsonEncode(c),
-          'updated_at': now,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      batch.insert('cached_cases', {
+        'id': c['id'],
+        'data': jsonEncode(c),
+        'updated_at': now,
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
 
     await batch.commit(noResult: true);
@@ -141,7 +141,10 @@ class OfflineCacheService {
   static Future<List<Map<String, dynamic>>> getCachedCases() async {
     try {
       final db = await database;
-      final results = await db.query('cached_cases', orderBy: 'updated_at DESC');
+      final results = await db.query(
+        'cached_cases',
+        orderBy: 'updated_at DESC',
+      );
       return results.map((row) {
         return jsonDecode(row['data'] as String) as Map<String, dynamic>;
       }).toList();
@@ -160,16 +163,12 @@ class OfflineCacheService {
     final now = DateTime.now().toIso8601String();
 
     for (final h in hearings) {
-      batch.insert(
-        'cached_hearings',
-        {
-          'id': h['id'],
-          'case_id': h['case_id'],
-          'data': jsonEncode(h),
-          'updated_at': now,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      batch.insert('cached_hearings', {
+        'id': h['id'],
+        'case_id': h['case_id'],
+        'data': jsonEncode(h),
+        'updated_at': now,
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
 
     await batch.commit(noResult: true);
@@ -177,12 +176,20 @@ class OfflineCacheService {
   }
 
   /// Get cached hearings, optionally filtered by case ID.
-  static Future<List<Map<String, dynamic>>> getCachedHearings({String? caseId}) async {
+  static Future<List<Map<String, dynamic>>> getCachedHearings({
+    String? caseId,
+  }) async {
     try {
       final db = await database;
-      final results = caseId != null
-          ? await db.query('cached_hearings', where: 'case_id = ?', whereArgs: [caseId], orderBy: 'updated_at DESC')
-          : await db.query('cached_hearings', orderBy: 'updated_at DESC');
+      final results =
+          caseId != null
+              ? await db.query(
+                'cached_hearings',
+                where: 'case_id = ?',
+                whereArgs: [caseId],
+                orderBy: 'updated_at DESC',
+              )
+              : await db.query('cached_hearings', orderBy: 'updated_at DESC');
       return results.map((row) {
         return jsonDecode(row['data'] as String) as Map<String, dynamic>;
       }).toList();
@@ -201,15 +208,11 @@ class OfflineCacheService {
     final now = DateTime.now().toIso8601String();
 
     for (final c in clients) {
-      batch.insert(
-        'cached_clients',
-        {
-          'id': c['id'],
-          'data': jsonEncode(c),
-          'updated_at': now,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      batch.insert('cached_clients', {
+        'id': c['id'],
+        'data': jsonEncode(c),
+        'updated_at': now,
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
 
     await batch.commit(noResult: true);
@@ -220,7 +223,10 @@ class OfflineCacheService {
   static Future<List<Map<String, dynamic>>> getCachedClients() async {
     try {
       final db = await database;
-      final results = await db.query('cached_clients', orderBy: 'updated_at DESC');
+      final results = await db.query(
+        'cached_clients',
+        orderBy: 'updated_at DESC',
+      );
       return results.map((row) {
         return jsonDecode(row['data'] as String) as Map<String, dynamic>;
       }).toList();
@@ -237,26 +243,29 @@ class OfflineCacheService {
     final db = await database;
     // Remove non-serializable data (like Hearing objects)
     final serializable = Map<String, dynamic>.from(stats);
-    serializable.remove('todayHearings'); // These are Hearing objects, not raw maps
+    serializable.remove(
+      'todayHearings',
+    ); // These are Hearing objects, not raw maps
 
-    await db.insert(
-      'cached_stats',
-      {
-        'key': 'dashboard',
-        'data': jsonEncode(serializable),
-        'updated_at': DateTime.now().toIso8601String(),
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('cached_stats', {
+      'key': 'dashboard',
+      'data': jsonEncode(serializable),
+      'updated_at': DateTime.now().toIso8601String(),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   /// Get cached dashboard stats.
   static Future<Map<String, dynamic>?> getCachedDashboardStats() async {
     try {
       final db = await database;
-      final results = await db.query('cached_stats', where: 'key = ?', whereArgs: ['dashboard']);
+      final results = await db.query(
+        'cached_stats',
+        where: 'key = ?',
+        whereArgs: ['dashboard'],
+      );
       if (results.isEmpty) return null;
-      return jsonDecode(results.first['data'] as String) as Map<String, dynamic>;
+      return jsonDecode(results.first['data'] as String)
+          as Map<String, dynamic>;
     } catch (e) {
       debugPrint('OfflineCache: Error reading cached stats: $e');
       return null;
@@ -266,25 +275,29 @@ class OfflineCacheService {
   // ─── Generic Key-Value Cache ───────────────────────────
 
   /// Set a cached value with optional TTL (default 5 minutes).
-  static Future<void> set(String key, dynamic value, {int ttlSeconds = 300}) async {
+  static Future<void> set(
+    String key,
+    dynamic value, {
+    int ttlSeconds = 300,
+  }) async {
     final db = await database;
-    await db.insert(
-      'cached_kv',
-      {
-        'key': key,
-        'value': jsonEncode(value),
-        'ttl_seconds': ttlSeconds,
-        'updated_at': DateTime.now().toIso8601String(),
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('cached_kv', {
+      'key': key,
+      'value': jsonEncode(value),
+      'ttl_seconds': ttlSeconds,
+      'updated_at': DateTime.now().toIso8601String(),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   /// Get a cached value, returns null if expired or missing.
   static Future<dynamic> get(String key) async {
     try {
       final db = await database;
-      final results = await db.query('cached_kv', where: 'key = ?', whereArgs: [key]);
+      final results = await db.query(
+        'cached_kv',
+        where: 'key = ?',
+        whereArgs: [key],
+      );
       if (results.isEmpty) return null;
 
       final row = results.first;

@@ -7,7 +7,6 @@ import '../theme/app_theme.dart';
 import '../components/empty_state_widget.dart';
 import '../components/error_state_widget.dart';
 
-
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
@@ -29,8 +28,18 @@ class NotificationsScreen extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Updates", style: TextStyle(fontSize: isMobile ? 24 : 28, fontWeight: FontWeight.bold, fontFamily: 'Playfair Display')),
-                    const Text("Recent activity across your practice", style: TextStyle(color: Colors.grey)),
+                    Text(
+                      "Updates",
+                      style: TextStyle(
+                        fontSize: isMobile ? 24 : 28,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Playfair Display',
+                      ),
+                    ),
+                    const Text(
+                      "Recent activity across your practice",
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ],
                 ),
               ],
@@ -40,10 +49,11 @@ class NotificationsScreen extends ConsumerWidget {
             child: casesAsync.when(
               data: (cases) => _buildActivityFeed(cases),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => ErrorStateWidget(
-                error: err,
-                onRetry: () => ref.invalidate(casesProvider),
-              ),
+              error:
+                  (err, stack) => ErrorStateWidget(
+                    error: err,
+                    onRetry: () => ref.invalidate(casesProvider),
+                  ),
             ),
           ),
         ],
@@ -56,7 +66,8 @@ class NotificationsScreen extends ConsumerWidget {
       return const EmptyStateWidget(
         icon: Icons.notifications_none,
         title: "No Recent Updates",
-        message: "When your cases, clients, or payments are modified, the activity log will appear here.",
+        message:
+            "When your cases, clients, or payments are modified, the activity log will appear here.",
       );
     }
 
@@ -66,12 +77,23 @@ class NotificationsScreen extends ConsumerWidget {
         final item = items[index];
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: ListTile(
             leading: _buildIcon(item.status),
-            title: Text(item.caseTitle, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-            subtitle: Text("Updated to ${item.status.name}", style: const TextStyle(fontSize: 12, color: Colors.grey)),
-            trailing: Text(DateFormat('HH:mm').format(DateTime.now()), style: const TextStyle(fontSize: 10, color: Colors.grey)),
+            title: Text(
+              item.caseTitle,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            subtitle: Text(
+              "Updated to ${item.status.name}",
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+            trailing: Text(
+              DateFormat('HH:mm').format(DateTime.now()),
+              style: const TextStyle(fontSize: 10, color: Colors.grey),
+            ),
           ),
         );
       },
@@ -93,10 +115,11 @@ class NotificationsScreen extends ConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Icon(icon, color: color, size: 20),
     );
   }
-
 }
-

@@ -9,11 +9,7 @@ class QuickAdjournSheet extends ConsumerStatefulWidget {
   final Hearing hearing;
   final VoidCallback? onSuccess;
 
-  const QuickAdjournSheet({
-    super.key,
-    required this.hearing,
-    this.onSuccess,
-  });
+  const QuickAdjournSheet({super.key, required this.hearing, this.onSuccess});
 
   @override
   ConsumerState<QuickAdjournSheet> createState() => _QuickAdjournSheetState();
@@ -39,8 +35,10 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
   }
 
   Future<void> _submit() async {
-    final bool isFinal = _selectedStage == CaseStage.disposed || _selectedStage == CaseStage.dismissed;
-    
+    final bool isFinal =
+        _selectedStage == CaseStage.disposed ||
+        _selectedStage == CaseStage.dismissed;
+
     if (!isFinal && _selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please select a next hearing date.")),
@@ -50,29 +48,36 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
 
     setState(() => _isLoading = true);
     try {
-      final newHearing = await SupabaseService.adjournHearing(widget.hearing.id, {
-        'current_notes': _notesController.text,
-        'next_date': _selectedDate?.toIso8601String().split('T')[0] ?? DateTime.now().toIso8601String().split('T')[0],
-        'next_stage': _selectedStage.label,
-        'case_id': widget.hearing.caseId,
-      });
+      final newHearing =
+          await SupabaseService.adjournHearing(widget.hearing.id, {
+            'current_notes': _notesController.text,
+            'next_date':
+                _selectedDate?.toIso8601String().split('T')[0] ??
+                DateTime.now().toIso8601String().split('T')[0],
+            'next_stage': _selectedStage.label,
+            'case_id': widget.hearing.caseId,
+          });
 
-      if (newHearing != null) {
-
-      }
+      if (newHearing != null) {}
 
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(isFinal ? "Case ${_selectedStage.label} Successfully" : "Case Adjourned and Diary Updated")),
+          SnackBar(
+            content: Text(
+              isFinal
+                  ? "Case ${_selectedStage.label} Successfully"
+                  : "Case Adjourned and Diary Updated",
+            ),
+          ),
         );
         widget.onSuccess?.call();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: ${e.toString()}")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -128,16 +133,23 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
               Expanded(
                 child: DropdownButtonFormField<CaseStage>(
                   initialValue: _selectedStage,
-                  decoration: const InputDecoration(
-                    labelText: "Next Stage",
-                  ),
-                  items: CaseStage.values.map((s) => DropdownMenuItem(value: s, child: Text(s.label))).toList(),
+                  decoration: const InputDecoration(labelText: "Next Stage"),
+                  items:
+                      CaseStage.values
+                          .map(
+                            (s) => DropdownMenuItem(
+                              value: s,
+                              child: Text(s.label),
+                            ),
+                          )
+                          .toList(),
                   onChanged: (val) {
                     if (val != null) {
                       setState(() {
                         _selectedStage = val;
                         // Clear selected date if it's a final stage
-                        if (_selectedStage == CaseStage.disposed || _selectedStage == CaseStage.dismissed) {
+                        if (_selectedStage == CaseStage.disposed ||
+                            _selectedStage == CaseStage.dismissed) {
                           _selectedDate = null;
                         }
                       });
@@ -145,16 +157,21 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
                   },
                 ),
               ),
-              if (_selectedStage != CaseStage.disposed && _selectedStage != CaseStage.dismissed) ...[
+              if (_selectedStage != CaseStage.disposed &&
+                  _selectedStage != CaseStage.dismissed) ...[
                 const SizedBox(width: 16),
                 Expanded(
                   child: InkWell(
                     onTap: () async {
                       final date = await showDatePicker(
                         context: context,
-                        initialDate: DateTime.now().add(const Duration(days: 7)),
+                        initialDate: DateTime.now().add(
+                          const Duration(days: 7),
+                        ),
                         firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
+                        lastDate: DateTime.now().add(
+                          const Duration(days: 365 * 5),
+                        ),
                       );
                       if (date != null) setState(() => _selectedDate = date);
                     },
@@ -185,16 +202,17 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: _isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation(Colors.white),
-                    ),
-                  )
-                : const Text("Update Diary"),
+            child:
+                _isLoading
+                    ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation(Colors.white),
+                      ),
+                    )
+                    : const Text("Update Diary"),
           ),
           const SizedBox(height: 32),
         ],

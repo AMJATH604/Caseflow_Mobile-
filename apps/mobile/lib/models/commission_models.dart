@@ -228,7 +228,6 @@ enum ExpenseType {
   }
 }
 
-
 // ─── Models ───────────────────────────────────────────────────
 
 class Commission {
@@ -286,40 +285,60 @@ class Commission {
   });
 
   factory Commission.fromJson(Map<String, dynamic> json) => Commission(
-        id: json['id'] ?? '',
-        caseId: json['case_id'],
-        commissionerId: json['commissioner_id'],
-        commissionType: CommissionType.fromString(json['commission_type'] ?? 'local_investigation'),
-        warrantDate: json['warrant_date'] != null ? DateTime.parse(json['warrant_date']) : null,
-        executionDate: json['execution_date'] != null ? DateTime.parse(json['execution_date']) : null,
-        deadlineDate: json['deadline_date'] != null ? DateTime.parse(json['deadline_date']) : null,
-        status: CommissionStatus.fromString(json['status'] ?? 'pending'),
-        scopeOfWork: json['scope_of_work'],
-        propertyDescription: json['property_description'],
-        surveyNumber: json['survey_number'],
-        village: json['village'],
-        taluk: json['taluk'],
-        district: json['district'],
-        state: json['state'],
-        partyPetitioner: json['party_petitioner'],
-        partyRespondent: json['party_respondent'],
-        courtName: json['court_name'],
-        caseNumberRef: json['case_number_ref'],
-        notes: json['notes'],
-        createdBy: json['created_by'] ?? '',
-        firmId: json['firm_id'],
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
-        caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
-      );
+    id: json['id'] ?? '',
+    caseId: json['case_id'],
+    commissionerId: json['commissioner_id'],
+    commissionType: CommissionType.fromString(
+      json['commission_type'] ?? 'local_investigation',
+    ),
+    warrantDate:
+        json['warrant_date'] != null
+            ? DateTime.parse(json['warrant_date'])
+            : null,
+    executionDate:
+        json['execution_date'] != null
+            ? DateTime.parse(json['execution_date'])
+            : null,
+    deadlineDate:
+        json['deadline_date'] != null
+            ? DateTime.parse(json['deadline_date'])
+            : null,
+    status: CommissionStatus.fromString(json['status'] ?? 'pending'),
+    scopeOfWork: json['scope_of_work'],
+    propertyDescription: json['property_description'],
+    surveyNumber: json['survey_number'],
+    village: json['village'],
+    taluk: json['taluk'],
+    district: json['district'],
+    state: json['state'],
+    partyPetitioner: json['party_petitioner'],
+    partyRespondent: json['party_respondent'],
+    courtName: json['court_name'],
+    caseNumberRef: json['case_number_ref'],
+    notes: json['notes'],
+    createdBy: json['created_by'] ?? '',
+    firmId: json['firm_id'],
+    createdAt: DateTime.parse(
+      json['created_at'] ?? DateTime.now().toIso8601String(),
+    ),
+    caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
+  );
 
   String get locationSummary {
-    final parts = [village, taluk, district, state].where((e) => e != null && e.isNotEmpty);
+    final parts = [
+      village,
+      taluk,
+      district,
+      state,
+    ].where((e) => e != null && e.isNotEmpty);
     return parts.isNotEmpty ? parts.join(', ') : 'No location specified';
   }
 
   bool get isOverdue {
     if (deadlineDate == null) return false;
-    if (status == CommissionStatus.submitted || status == CommissionStatus.closed) return false;
+    if (status == CommissionStatus.submitted ||
+        status == CommissionStatus.closed)
+      return false;
     return DateTime.now().isAfter(deadlineDate!);
   }
 
@@ -368,12 +387,21 @@ class CommissionVisit {
     required this.createdAt,
   });
 
-  factory CommissionVisit.fromJson(Map<String, dynamic> json) => CommissionVisit(
+  factory CommissionVisit.fromJson(Map<String, dynamic> json) =>
+      CommissionVisit(
         id: json['id'] ?? '',
         commissionId: json['commission_id'] ?? '',
-        visitDate: DateTime.parse(json['visit_date'] ?? DateTime.now().toIso8601String()),
-        checkinTime: json['checkin_time'] != null ? DateTime.parse(json['checkin_time']) : null,
-        checkoutTime: json['checkout_time'] != null ? DateTime.parse(json['checkout_time']) : null,
+        visitDate: DateTime.parse(
+          json['visit_date'] ?? DateTime.now().toIso8601String(),
+        ),
+        checkinTime:
+            json['checkin_time'] != null
+                ? DateTime.parse(json['checkin_time'])
+                : null,
+        checkoutTime:
+            json['checkout_time'] != null
+                ? DateTime.parse(json['checkout_time'])
+                : null,
         checkinLat: json['checkin_lat']?.toDouble(),
         checkinLng: json['checkin_lng']?.toDouble(),
         checkoutLat: json['checkout_lat']?.toDouble(),
@@ -385,11 +413,13 @@ class CommissionVisit {
         weatherConditions: json['weather_conditions'],
         personsPresent: json['persons_present'],
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+        createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String(),
+        ),
       );
 
   bool get isActive => visitStatus == VisitStatus.checkedIn;
-  
+
   String? get durationText {
     if (checkinTime == null || checkoutTime == null) return null;
     final diff = checkoutTime!.difference(checkinTime!);
@@ -423,7 +453,8 @@ class CommissionObservation {
     required this.createdAt,
   });
 
-  factory CommissionObservation.fromJson(Map<String, dynamic> json) => CommissionObservation(
+  factory CommissionObservation.fromJson(Map<String, dynamic> json) =>
+      CommissionObservation(
         id: json['id'] ?? '',
         visitId: json['visit_id'] ?? '',
         commissionId: json['commission_id'] ?? '',
@@ -433,7 +464,9 @@ class CommissionObservation {
         sequenceOrder: json['sequence_order'] ?? 0,
         tags: List<String>.from(json['tags'] ?? []),
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+        createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String(),
+        ),
       );
 }
 
@@ -470,7 +503,8 @@ class CommissionEvidence {
     required this.createdAt,
   });
 
-  factory CommissionEvidence.fromJson(Map<String, dynamic> json) => CommissionEvidence(
+  factory CommissionEvidence.fromJson(Map<String, dynamic> json) =>
+      CommissionEvidence(
         id: json['id'] ?? '',
         visitId: json['visit_id'] ?? '',
         commissionId: json['commission_id'] ?? '',
@@ -484,7 +518,9 @@ class CommissionEvidence {
         sha256Hash: json['sha256_hash'],
         sequenceNumber: json['sequence_number'] ?? 0,
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+        createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String(),
+        ),
       );
 
   String get locationText {
@@ -518,16 +554,21 @@ class CommissionExpense {
     required this.createdAt,
   });
 
-  factory CommissionExpense.fromJson(Map<String, dynamic> json) => CommissionExpense(
+  factory CommissionExpense.fromJson(Map<String, dynamic> json) =>
+      CommissionExpense(
         id: json['id'] ?? '',
         commissionId: json['commission_id'] ?? '',
         expenseType: ExpenseType.fromString(json['expense_type'] ?? 'travel'),
         amount: (json['amount'] ?? 0).toDouble(),
         description: json['description'],
-        expenseDate: DateTime.parse(json['expense_date'] ?? DateTime.now().toIso8601String()),
+        expenseDate: DateTime.parse(
+          json['expense_date'] ?? DateTime.now().toIso8601String(),
+        ),
         receiptUrl: json['receipt_url'],
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+        createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String(),
+        ),
       );
 }
 
@@ -554,16 +595,22 @@ class CommissionReport {
     required this.createdAt,
   });
 
-  factory CommissionReport.fromJson(Map<String, dynamic> json) => CommissionReport(
+  factory CommissionReport.fromJson(Map<String, dynamic> json) =>
+      CommissionReport(
         id: json['id'] ?? '',
         commissionId: json['commission_id'] ?? '',
         version: json['version'] ?? 1,
         reportContent: json['report_content'],
         pdfUrl: json['pdf_url'],
-        submittedDate: json['submitted_date'] != null ? DateTime.parse(json['submitted_date']) : null,
+        submittedDate:
+            json['submitted_date'] != null
+                ? DateTime.parse(json['submitted_date'])
+                : null,
         status: json['status'] ?? 'draft',
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+        createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String(),
+        ),
       );
 }
 
@@ -602,7 +649,8 @@ class CommissionWitness {
     required this.createdAt,
   });
 
-  factory CommissionWitness.fromJson(Map<String, dynamic> json) => CommissionWitness(
+  factory CommissionWitness.fromJson(Map<String, dynamic> json) =>
+      CommissionWitness(
         id: json['id'] ?? '',
         visitId: json['visit_id'] ?? '',
         commissionId: json['commission_id'] ?? '',
@@ -616,17 +664,25 @@ class CommissionWitness {
         latitude: json['latitude']?.toDouble(),
         longitude: json['longitude']?.toDouble(),
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+        createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String(),
+        ),
       );
 
   String get idLabel {
     switch (idType) {
-      case 'aadhaar': return 'Aadhaar';
-      case 'voter_id': return 'Voter ID';
-      case 'pan': return 'PAN';
-      case 'driving_license': return 'Driving License';
-      case 'passport': return 'Passport';
-      default: return 'Other';
+      case 'aadhaar':
+        return 'Aadhaar';
+      case 'voter_id':
+        return 'Voter ID';
+      case 'pan':
+        return 'PAN';
+      case 'driving_license':
+        return 'Driving License';
+      case 'passport':
+        return 'Passport';
+      default:
+        return 'Other';
     }
   }
 
@@ -667,29 +723,44 @@ class CommissionSketch {
     required this.updatedAt,
   });
 
-  factory CommissionSketch.fromJson(Map<String, dynamic> json) => CommissionSketch(
+  factory CommissionSketch.fromJson(Map<String, dynamic> json) =>
+      CommissionSketch(
         id: json['id'] ?? '',
         visitId: json['visit_id'],
         commissionId: json['commission_id'] ?? '',
         title: json['title'] ?? 'Untitled Sketch',
         sketchType: json['sketch_type'] ?? 'general',
-        sketchData: json['sketch_data'] is Map ? Map<String, dynamic>.from(json['sketch_data']) : null,
+        sketchData:
+            json['sketch_data'] is Map
+                ? Map<String, dynamic>.from(json['sketch_data'])
+                : null,
         sketchImageUrl: json['sketch_image_url'],
-        annotations: json['annotations'] is List
-            ? (json['annotations'] as List).map((a) => Map<String, dynamic>.from(a)).toList()
-            : [],
+        annotations:
+            json['annotations'] is List
+                ? (json['annotations'] as List)
+                    .map((a) => Map<String, dynamic>.from(a))
+                    .toList()
+                : [],
         northAngle: (json['north_angle'] ?? 0).toDouble(),
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
-        updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
+        createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String(),
+        ),
+        updatedAt: DateTime.parse(
+          json['updated_at'] ?? DateTime.now().toIso8601String(),
+        ),
       );
 
   String get sketchTypeLabel {
     switch (sketchType) {
-      case 'property_layout': return 'Property Layout';
-      case 'boundary': return 'Boundary Marking';
-      case 'measurement': return 'Measurement';
-      default: return 'General';
+      case 'property_layout':
+        return 'Property Layout';
+      case 'boundary':
+        return 'Boundary Marking';
+      case 'measurement':
+        return 'Measurement';
+      default:
+        return 'General';
     }
   }
 }

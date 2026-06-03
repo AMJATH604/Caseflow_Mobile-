@@ -158,7 +158,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           await SupabaseService.signOut();
           if (mounted) {
             setState(() => _isLoading = false);
-            final capitalizedDbRole = profile.userRole == 'advocate' ? 'an Advocate' : 'a Citizen';
+            final capitalizedDbRole =
+                profile.userRole == 'advocate' ? 'an Advocate' : 'a Citizen';
             _showError(
               "This account is registered as $capitalizedDbRole. Please go back and sign in through the correct portal.",
             );
@@ -173,7 +174,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       } catch (e) {
         attempt++;
         final errorStr = e.toString().toLowerCase();
-        final isTimeout = errorStr.contains('timed out') ||
+        final isTimeout =
+            errorStr.contains('timed out') ||
             errorStr.contains('socketexception') ||
             errorStr.contains('connection') ||
             errorStr.contains('timeout');
@@ -211,20 +213,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
     while (attempt < maxAttempts) {
       try {
-        final res = await SupabaseService.client.auth.signUp(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-          data: {
-            'full_name': _nameController.text.trim(),
-            'mobile_number': _mobileController.text.trim(),
-            'registration_number': _userRole == 'advocate' ? _regNoController.text.trim() : '',
-            'practice_state': _selectedState,
-            'practice_district': _selectedDistrict,
-            'office_address': _userRole == 'advocate' ? _addressController.text.trim() : '',
-            'is_public_directory_enabled': _userRole == 'advocate',
-            'user_role': _userRole,
-          },
-        ).timeout(const Duration(seconds: 15));
+        final res = await SupabaseService.client.auth
+            .signUp(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim(),
+              data: {
+                'full_name': _nameController.text.trim(),
+                'mobile_number': _mobileController.text.trim(),
+                'registration_number':
+                    _userRole == 'advocate' ? _regNoController.text.trim() : '',
+                'practice_state': _selectedState,
+                'practice_district': _selectedDistrict,
+                'office_address':
+                    _userRole == 'advocate'
+                        ? _addressController.text.trim()
+                        : '',
+                'is_public_directory_enabled': _userRole == 'advocate',
+                'user_role': _userRole,
+              },
+            )
+            .timeout(const Duration(seconds: 15));
 
         if (res.user != null && mounted) {
           _showSuccess("Account created! Please verify your email to sign in.");
@@ -238,7 +246,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       } catch (e) {
         attempt++;
         final errorStr = e.toString().toLowerCase();
-        final isTimeout = errorStr.contains('timed out') ||
+        final isTimeout =
+            errorStr.contains('timed out') ||
             errorStr.contains('socketexception') ||
             errorStr.contains('connection') ||
             errorStr.contains('timeout');
@@ -250,10 +259,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
         if (mounted) {
           if (errorStr.contains('already registered')) {
-            _showError("This email is already registered. Tap Sign In to login.");
+            _showError(
+              "This email is already registered. Tap Sign In to login.",
+            );
             // Auto-switch to sign-in tab for convenience
             Future.delayed(const Duration(seconds: 2), () {
-              if (mounted) setState(() { _authTab = 0; _signupStep = 0; });
+              if (mounted)
+                setState(() {
+                  _authTab = 0;
+                  _signupStep = 0;
+                });
             });
           } else if (isTimeout) {
             _showError("Cannot connect. Check your internet.", isWarning: true);
@@ -270,8 +285,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   Future<void> _handleForgotPassword() async {
     final email = _emailController.text.trim();
-    if (email.isEmpty || !RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$').hasMatch(email)) {
-      _showError("Enter your email address above first, then tap Forgot Password.");
+    if (email.isEmpty ||
+        !RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$').hasMatch(email)) {
+      _showError(
+        "Enter your email address above first, then tap Forgot Password.",
+      );
       return;
     }
     setState(() => _isLoading = true);
@@ -287,39 +305,48 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }
 
   void _showError(String msg, {bool isWarning = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Row(
-        children: [
-          Icon(
-            isWarning ? Icons.wifi_off_rounded : Icons.error_outline_rounded,
-            color: Colors.white,
-            size: 18,
-          ),
-          const SizedBox(width: 10),
-          Expanded(child: Text(msg, style: GoogleFonts.inter(fontSize: 13))),
-        ],
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              isWarning ? Icons.wifi_off_rounded : Icons.error_outline_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+            const SizedBox(width: 10),
+            Expanded(child: Text(msg, style: GoogleFonts.inter(fontSize: 13))),
+          ],
+        ),
+        backgroundColor:
+            isWarning ? const Color(0xFFD97706) : const Color(0xFFDC2626),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
       ),
-      backgroundColor: isWarning ? const Color(0xFFD97706) : const Color(0xFFDC2626),
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.all(16),
-    ));
+    );
   }
 
   void _showSuccess(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Row(
-        children: [
-          const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
-          const SizedBox(width: 10),
-          Expanded(child: Text(msg, style: GoogleFonts.inter(fontSize: 13))),
-        ],
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(
+              Icons.check_circle_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+            const SizedBox(width: 10),
+            Expanded(child: Text(msg, style: GoogleFonts.inter(fontSize: 13))),
+          ],
+        ),
+        backgroundColor: const Color(0xFF059669),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
       ),
-      backgroundColor: const Color(0xFF059669),
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.all(16),
-    ));
+    );
   }
 
   // ─── Build ──────────────────────────────────────────
@@ -355,50 +382,52 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Widget _buildAnimatedBackground() {
     return AnimatedBuilder(
       animation: _bgController,
-      builder: (context, _) => Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: const [
-              Color(0xFF0A0E27),
-              Color(0xFF141B3D),
-              Color(0xFF1A237E),
-              Color(0xFF0D1B3E),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: [
-              0.0,
-              0.3 + 0.05 * sin(_bgController.value * pi),
-              0.6 + 0.05 * cos(_bgController.value * pi),
-              1.0,
-            ],
+      builder:
+          (context, _) => Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: const [
+                  Color(0xFF0A0E27),
+                  Color(0xFF141B3D),
+                  Color(0xFF1A237E),
+                  Color(0xFF0D1B3E),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                stops: [
+                  0.0,
+                  0.3 + 0.05 * sin(_bgController.value * pi),
+                  0.6 + 0.05 * cos(_bgController.value * pi),
+                  1.0,
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
     );
   }
 
   Widget _buildPatternOverlay() {
     return AnimatedBuilder(
       animation: _headerController,
-      builder: (context, _) => Positioned(
-        top: -50 + 20 * sin(_headerController.value * pi),
-        right: -80 + 15 * cos(_headerController.value * pi),
-        child: Container(
-          width: 300,
-          height: 300,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: RadialGradient(
-              colors: [
-                const Color(0xFFD4AF37).withValues(alpha: 0.08),
-                const Color(0xFF2563EB).withValues(alpha: 0.03),
-                Colors.transparent,
-              ],
+      builder:
+          (context, _) => Positioned(
+            top: -50 + 20 * sin(_headerController.value * pi),
+            right: -80 + 15 * cos(_headerController.value * pi),
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFFD4AF37).withValues(alpha: 0.08),
+                    const Color(0xFF2563EB).withValues(alpha: 0.03),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
     );
   }
 
@@ -426,7 +455,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(14),
-                  child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
               const SizedBox(width: 14),
@@ -519,56 +551,57 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Widget _buildCardSection() {
     return AnimatedBuilder(
       animation: _cardController,
-      builder: (context, _) => Transform.translate(
-        offset: Offset(0, _cardSlide.value),
-        child: Opacity(
-          opacity: _cardOpacity.value,
-          child: Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0x20000000),
-                  blurRadius: 30,
-                  offset: Offset(0, -10),
-                ),
-              ],
-            ),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(28, 0, 28, 28),
-              child: Column(
-                children: [
-                  const SizedBox(height: 6),
-                  // Drag handle
-                  Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2),
+      builder:
+          (context, _) => Transform.translate(
+            offset: Offset(0, _cardSlide.value),
+            child: Opacity(
+              opacity: _cardOpacity.value,
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x20000000),
+                      blurRadius: 30,
+                      offset: Offset(0, -10),
                     ),
+                  ],
+                ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(28, 0, 28, 28),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 6),
+                      // Drag handle
+                      Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Tab bar
+                      _buildTabBar(),
+                      const SizedBox(height: 24),
+
+                      // Content
+                      _authTab == 0 ? _buildSignInForm() : _buildSignUpWizard(),
+
+                      const SizedBox(height: 20),
+
+                      // Social proof
+                      _buildSocialProof(),
+                    ],
                   ),
-                  const SizedBox(height: 20),
-
-                  // Tab bar
-                  _buildTabBar(),
-                  const SizedBox(height: 24),
-
-                  // Content
-                  _authTab == 0 ? _buildSignInForm() : _buildSignUpWizard(),
-
-                  const SizedBox(height: 20),
-
-                  // Social proof
-                  _buildSocialProof(),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
     );
   }
 
@@ -579,12 +612,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         color: const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(14),
       ),
-      child: Row(
-        children: [
-          _buildTab("Sign In", 0),
-          _buildTab("Register", 1),
-        ],
-      ),
+      child: Row(children: [_buildTab("Sign In", 0), _buildTab("Register", 1)]),
     );
   }
 
@@ -604,15 +632,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           decoration: BoxDecoration(
             color: isActive ? Colors.white : Colors.transparent,
             borderRadius: BorderRadius.circular(11),
-            boxShadow: isActive
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    )
-                  ]
-                : null,
+            boxShadow:
+                isActive
+                    ? [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.06),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                    : null,
           ),
           child: Center(
             child: Text(
@@ -620,7 +649,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                color: isActive ? const Color(0xFF0F172A) : const Color(0xFF94A3B8),
+                color:
+                    isActive
+                        ? const Color(0xFF0F172A)
+                        : const Color(0xFF94A3B8),
               ),
             ),
           ),
@@ -644,7 +676,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             keyboardType: TextInputType.emailAddress,
             validator: (v) {
               if (v == null || v.isEmpty) return "Enter your email";
-              if (!RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$').hasMatch(v.trim())) return "Enter a valid email";
+              if (!RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$').hasMatch(v.trim()))
+                return "Enter a valid email";
               return null;
             },
           ),
@@ -712,22 +745,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               ),
             );
           },
-          child: _signupStep == 0
-              ? _buildStep0()
-              : (_userRole == 'citizen')
+          child:
+              _signupStep == 0
+                  ? _buildStep0()
+                  : (_userRole == 'citizen')
                   ? _buildCitizenStep1()
                   : _signupStep == 1
-                      ? _buildStep1()
-                      : _buildStep2(),
+                  ? _buildStep1()
+                  : _buildStep2(),
         ),
       ],
     );
   }
 
   Widget _buildStepIndicator() {
-    final steps = _userRole == 'citizen'
-        ? ["Account", "Location"]
-        : ["Account", "Professional", "Location"];
+    final steps =
+        _userRole == 'citizen'
+            ? ["Account", "Location"]
+            : ["Account", "Professional", "Location"];
     return Row(
       children: List.generate(steps.length, (i) {
         final isActive = _signupStep == i;
@@ -742,31 +777,43 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 height: 28,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isComplete
-                      ? const Color(0xFF059669)
-                      : isActive
+                  color:
+                      isComplete
+                          ? const Color(0xFF059669)
+                          : isActive
                           ? const Color(0xFF2563EB)
                           : const Color(0xFFE2E8F0),
-                  boxShadow: isActive
-                      ? [
-                          BoxShadow(
-                            color: const Color(0xFF2563EB).withValues(alpha: 0.3),
-                            blurRadius: 8,
-                          )
-                        ]
-                      : null,
+                  boxShadow:
+                      isActive
+                          ? [
+                            BoxShadow(
+                              color: const Color(
+                                0xFF2563EB,
+                              ).withValues(alpha: 0.3),
+                              blurRadius: 8,
+                            ),
+                          ]
+                          : null,
                 ),
                 child: Center(
-                  child: isComplete
-                      ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
-                      : Text(
-                          "${i + 1}",
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: isActive ? Colors.white : const Color(0xFF94A3B8),
+                  child:
+                      isComplete
+                          ? const Icon(
+                            Icons.check_rounded,
+                            size: 14,
+                            color: Colors.white,
+                          )
+                          : Text(
+                            "${i + 1}",
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color:
+                                  isActive
+                                      ? Colors.white
+                                      : const Color(0xFF94A3B8),
+                            ),
                           ),
-                        ),
                 ),
               ),
               const SizedBox(width: 6),
@@ -777,9 +824,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                    color: isActive
-                        ? const Color(0xFF0F172A)
-                        : isComplete
+                    color:
+                        isActive
+                            ? const Color(0xFF0F172A)
+                            : isComplete
                             ? const Color(0xFF059669)
                             : const Color(0xFF94A3B8),
                   ),
@@ -794,9 +842,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   margin: const EdgeInsets.symmetric(horizontal: 2),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(1),
-                    color: isComplete
-                        ? const Color(0xFF059669)
-                        : const Color(0xFFE2E8F0),
+                    color:
+                        isComplete
+                            ? const Color(0xFF059669)
+                            : const Color(0xFFE2E8F0),
                   ),
                 ),
             ],
@@ -814,7 +863,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         key: const ValueKey('step0'),
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStepTitle("Create Your Account", "Set up your login credentials"),
+          _buildStepTitle(
+            "Create Your Account",
+            "Set up your login credentials",
+          ),
           const SizedBox(height: 20),
           _buildTextField(
             controller: _emailController,
@@ -824,7 +876,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             keyboardType: TextInputType.emailAddress,
             validator: (v) {
               if (v == null || v.isEmpty) return "Enter your email";
-              if (!RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$').hasMatch(v.trim())) {
+              if (!RegExp(
+                r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$',
+              ).hasMatch(v.trim())) {
                 return "Enter a valid email address";
               }
               return null;
@@ -841,8 +895,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             validator: (v) {
               if (v == null || v.isEmpty) return "Enter a password";
               if (v.length < 8) return "Minimum 8 characters required";
-              if (!v.contains(RegExp(r'[A-Z]'))) return "Must contain at least 1 uppercase letter";
-              if (!v.contains(RegExp(r'[0-9]'))) return "Must contain at least 1 digit";
+              if (!v.contains(RegExp(r'[A-Z]')))
+                return "Must contain at least 1 uppercase letter";
+              if (!v.contains(RegExp(r'[0-9]')))
+                return "Must contain at least 1 digit";
               return null;
             },
           ),
@@ -857,7 +913,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     child: LinearProgressIndicator(
                       value: _passwordStrength,
                       backgroundColor: const Color(0xFFE2E8F0),
-                      valueColor: AlwaysStoppedAnimation(_passwordStrengthColor),
+                      valueColor: AlwaysStoppedAnimation(
+                        _passwordStrengthColor,
+                      ),
                       minHeight: 4,
                     ),
                   ),
@@ -878,9 +936,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               spacing: 12,
               runSpacing: 4,
               children: [
-                _buildRequirement("8+ chars", _passwordController.text.length >= 8),
-                _buildRequirement("Uppercase", _passwordController.text.contains(RegExp(r'[A-Z]'))),
-                _buildRequirement("Number", _passwordController.text.contains(RegExp(r'[0-9]'))),
+                _buildRequirement(
+                  "8+ chars",
+                  _passwordController.text.length >= 8,
+                ),
+                _buildRequirement(
+                  "Uppercase",
+                  _passwordController.text.contains(RegExp(r'[A-Z]')),
+                ),
+                _buildRequirement(
+                  "Number",
+                  _passwordController.text.contains(RegExp(r'[0-9]')),
+                ),
               ],
             ),
           ],
@@ -907,14 +974,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         key: const ValueKey('step1'),
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStepTitle("Professional Details", "Your Bar Council information"),
+          _buildStepTitle(
+            "Professional Details",
+            "Your Bar Council information",
+          ),
           const SizedBox(height: 20),
           _buildTextField(
             controller: _nameController,
             label: "Full Name",
             hint: "Adv. Full Name",
             icon: Icons.person_outline_rounded,
-            validator: (v) => (v == null || v.isEmpty) ? "Enter your name" : null,
+            validator:
+                (v) => (v == null || v.isEmpty) ? "Enter your name" : null,
           ),
           const SizedBox(height: 16),
           _buildTextField(
@@ -923,7 +994,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             hint: "+91 98765 43210",
             icon: Icons.phone_outlined,
             keyboardType: TextInputType.phone,
-            validator: (v) => (v == null || v.isEmpty) ? "Enter mobile number" : null,
+            validator:
+                (v) => (v == null || v.isEmpty) ? "Enter mobile number" : null,
           ),
           const SizedBox(height: 16),
           _buildTextField(
@@ -931,7 +1003,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             label: "Bar Council Registration No.",
             hint: "e.g. MS/1234/2020",
             icon: Icons.badge_outlined,
-            validator: (v) => (v == null || v.isEmpty) ? "Enter registration number" : null,
+            validator:
+                (v) =>
+                    (v == null || v.isEmpty)
+                        ? "Enter registration number"
+                        : null,
           ),
           const SizedBox(height: 24),
           Row(
@@ -978,7 +1054,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             label: "Full Name",
             hint: "Enter your full name",
             icon: Icons.person_outlined,
-            validator: (v) => (v == null || v.trim().isEmpty) ? "Enter your name" : null,
+            validator:
+                (v) =>
+                    (v == null || v.trim().isEmpty) ? "Enter your name" : null,
           ),
           const SizedBox(height: 16),
 
@@ -1016,9 +1094,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             label: "District",
             value: _selectedDistrict,
             icon: Icons.my_location_outlined,
-            items: _selectedState != null
-                ? stateDistricts[_selectedState]!
-                : <String>[],
+            items:
+                _selectedState != null
+                    ? stateDistricts[_selectedState]!
+                    : <String>[],
             onChanged: (val) => setState(() => _selectedDistrict = val),
           ),
 
@@ -1042,7 +1121,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         _selectedState != null &&
                         _selectedDistrict != null) {
                       _handleSignUp();
-                    } else if (_selectedState == null || _selectedDistrict == null) {
+                    } else if (_selectedState == null ||
+                        _selectedDistrict == null) {
                       _showError("Please select your state and district.");
                     }
                   },
@@ -1086,9 +1166,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             label: "Practice District",
             value: _selectedDistrict,
             icon: Icons.my_location_outlined,
-            items: _selectedState != null
-                ? stateDistricts[_selectedState]!
-                : <String>[],
+            items:
+                _selectedState != null
+                    ? stateDistricts[_selectedState]!
+                    : <String>[],
             onChanged: (val) => setState(() => _selectedDistrict = val),
           ),
           const SizedBox(height: 16),
@@ -1099,7 +1180,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             hint: "Your chamber / office address",
             icon: Icons.business_outlined,
             maxLines: 2,
-            validator: (v) => (v == null || v.isEmpty) ? "Enter office address" : null,
+            validator:
+                (v) => (v == null || v.isEmpty) ? "Enter office address" : null,
           ),
 
           const SizedBox(height: 24),
@@ -1122,7 +1204,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         _selectedState != null &&
                         _selectedDistrict != null) {
                       _handleSignUp();
-                    } else if (_selectedState == null || _selectedDistrict == null) {
+                    } else if (_selectedState == null ||
+                        _selectedDistrict == null) {
                       _showError("Please select your state and district.");
                     }
                   },
@@ -1226,23 +1309,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               color: const Color(0xFFCBD5E1),
             ),
             prefixIcon: Icon(icon, color: const Color(0xFF94A3B8), size: 20),
-            suffixIcon: isPassword
-                ? IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined,
-                      color: const Color(0xFF94A3B8),
-                      size: 20,
-                    ),
-                    onPressed: () =>
-                        setState(() => _obscurePassword = !_obscurePassword),
-                  )
-                : null,
+            suffixIcon:
+                isPassword
+                    ? IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        color: const Color(0xFF94A3B8),
+                        size: 20,
+                      ),
+                      onPressed:
+                          () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
+                    )
+                    : null,
             filled: true,
             fillColor: const Color(0xFFF8FAFC),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
@@ -1253,7 +1341,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+              borderSide: const BorderSide(
+                color: Color(0xFF2563EB),
+                width: 1.5,
+              ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
@@ -1302,8 +1393,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
             filled: true,
             fillColor: const Color(0xFFF8FAFC),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
@@ -1314,15 +1407,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+              borderSide: const BorderSide(
+                color: Color(0xFF2563EB),
+                width: 1.5,
+              ),
             ),
           ),
-          items: items
-              .map((s) => DropdownMenuItem(
-                    value: s,
-                    child: Text(s, overflow: TextOverflow.ellipsis),
-                  ))
-              .toList(),
+          items:
+              items
+                  .map(
+                    (s) => DropdownMenuItem(
+                      value: s,
+                      child: Text(s, overflow: TextOverflow.ellipsis),
+                    ),
+                  )
+                  .toList(),
           onChanged: onChanged,
         ),
       ],
@@ -1343,35 +1442,38 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           backgroundColor: const Color(0xFF0F172A),
           foregroundColor: Colors.white,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
           disabledBackgroundColor: const Color(0xFF94A3B8),
         ),
-        child: _isLoading
-            ? const SizedBox(
-                height: 22,
-                width: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: Colors.white,
-                ),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    label,
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.3,
-                    ),
+        child:
+            _isLoading
+                ? const SizedBox(
+                  height: 22,
+                  width: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: Colors.white,
                   ),
-                  if (icon != null) ...[
-                    const SizedBox(width: 8),
-                    Icon(icon, size: 18),
+                )
+                : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      label,
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                    if (icon != null) ...[
+                      const SizedBox(width: 8),
+                      Icon(icon, size: 18),
+                    ],
                   ],
-                ],
-              ),
+                ),
       ),
     );
   }
@@ -1386,15 +1488,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: Color(0xFFE2E8F0)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
           foregroundColor: const Color(0xFF64748B),
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -1424,11 +1525,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     height: 28,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: [
-                        const Color(0xFF2563EB),
-                        const Color(0xFF059669),
-                        const Color(0xFFD97706),
-                      ][i],
+                      color:
+                          [
+                            const Color(0xFF2563EB),
+                            const Color(0xFF059669),
+                            const Color(0xFFD97706),
+                          ][i],
                       border: Border.all(color: Colors.white, width: 2),
                     ),
                     child: Center(
@@ -1463,8 +1565,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 children: [
                   ...List.generate(
                     5,
-                    (_) => const Icon(Icons.star_rounded,
-                        size: 12, color: Color(0xFFF59E0B)),
+                    (_) => const Icon(
+                      Icons.star_rounded,
+                      size: 12,
+                      color: Color(0xFFF59E0B),
+                    ),
                   ),
                   const SizedBox(width: 6),
                   Text(

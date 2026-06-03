@@ -8,9 +8,11 @@ import 'package:pdfx/pdfx.dart' as native;
 /// Local PDF processing service — replaces iLovePDF cloud API.
 /// All operations run entirely on the device (offline-capable).
 class LocalPdfService {
-
   // ─── MERGE PDF ──────────────────────────────────────────
-  static Future<String> mergePdfs(List<File> files, {Function(double)? onProgress}) async {
+  static Future<String> mergePdfs(
+    List<File> files, {
+    Function(double)? onProgress,
+  }) async {
     onProgress?.call(0.1);
 
     final PdfDocument mergedDoc = PdfDocument();
@@ -39,13 +41,22 @@ class LocalPdfService {
 
   // ─── SPLIT PDF ──────────────────────────────────────────
   /// [pageRange] — optional, e.g. "1,3,5-8". If null, splits ALL pages.
-  static Future<String> splitPdf(File inputFile, {String? pageRange, Function(double)? onProgress}) async {
+  static Future<String> splitPdf(
+    File inputFile, {
+    String? pageRange,
+    Function(double)? onProgress,
+  }) async {
     onProgress?.call(0.1);
 
     final bytes = await inputFile.readAsBytes();
     final PdfDocument sourceDoc = PdfDocument(inputBytes: bytes);
     final directory = await getApplicationDocumentsDirectory();
-    final splitDir = Directory(p.join(directory.path, 'caseflow_split_${DateTime.now().millisecondsSinceEpoch}'));
+    final splitDir = Directory(
+      p.join(
+        directory.path,
+        'caseflow_split_${DateTime.now().millisecondsSinceEpoch}',
+      ),
+    );
     await splitDir.create(recursive: true);
 
     final int totalPages = sourceDoc.pages.count;
@@ -83,7 +94,11 @@ class LocalPdfService {
 
   // ─── COMPRESS PDF ───────────────────────────────────────
   /// [level]: 'low', 'recommended', 'maximum'
-  static Future<String> compressPdf(File inputFile, {String level = 'recommended', Function(double)? onProgress}) async {
+  static Future<String> compressPdf(
+    File inputFile, {
+    String level = 'recommended',
+    Function(double)? onProgress,
+  }) async {
     onProgress?.call(0.1);
 
     final bytes = await inputFile.readAsBytes();
@@ -111,9 +126,13 @@ class LocalPdfService {
     // Calculate size comparison
     final originalSize = await inputFile.length();
     final compressedSize = await File(outputPath).length();
-    final savings = ((1 - compressedSize / originalSize) * 100).toStringAsFixed(1);
+    final savings = ((1 - compressedSize / originalSize) * 100).toStringAsFixed(
+      1,
+    );
     // ignore: avoid_print
-    print('Compression: $originalSize → $compressedSize bytes ($savings% smaller)');
+    print(
+      'Compression: $originalSize → $compressedSize bytes ($savings% smaller)',
+    );
 
     doc.dispose();
     onProgress?.call(1.0);
@@ -121,7 +140,11 @@ class LocalPdfService {
   }
 
   // ─── ROTATE PDF ─────────────────────────────────────────
-  static Future<String> rotatePdf(File inputFile, int degrees, {Function(double)? onProgress}) async {
+  static Future<String> rotatePdf(
+    File inputFile,
+    int degrees, {
+    Function(double)? onProgress,
+  }) async {
     onProgress?.call(0.1);
 
     final bytes = await inputFile.readAsBytes();
@@ -144,7 +167,9 @@ class LocalPdfService {
   }
 
   // ─── WATERMARK ──────────────────────────────────────────
-  static Future<String> addWatermark(File inputFile, String text, {
+  static Future<String> addWatermark(
+    File inputFile,
+    String text, {
     double opacity = 0.25,
     double fontSize = 60,
     Function(double)? onProgress,
@@ -157,7 +182,9 @@ class LocalPdfService {
     onProgress?.call(0.3);
 
     final PdfFont font = PdfStandardFont(PdfFontFamily.helvetica, fontSize);
-    final PdfBrush brush = PdfSolidBrush(PdfColor(128, 128, 128, (opacity * 255).toInt()));
+    final PdfBrush brush = PdfSolidBrush(
+      PdfColor(128, 128, 128, (opacity * 255).toInt()),
+    );
 
     for (int i = 0; i < doc.pages.count; i++) {
       final page = doc.pages[i];
@@ -167,9 +194,15 @@ class LocalPdfService {
       page.graphics.setTransparency(opacity);
       page.graphics.rotateTransform(-45);
       page.graphics.drawString(
-        text, font,
+        text,
+        font,
         brush: brush,
-        bounds: Rect.fromLTWH(-clientSize.width / 2, clientSize.height / 2, clientSize.width * 2, fontSize + 40),
+        bounds: Rect.fromLTWH(
+          -clientSize.width / 2,
+          clientSize.height / 2,
+          clientSize.width * 2,
+          fontSize + 40,
+        ),
         format: PdfStringFormat(alignment: PdfTextAlignment.center),
       );
       page.graphics.restore();
@@ -185,7 +218,11 @@ class LocalPdfService {
 
   // ─── IMAGES TO PDF ──────────────────────────────────────
   /// [pageSize]: 'a4', 'letter', 'original'
-  static Future<String> imagesToPdf(List<File> imageFiles, {String pageSize = 'a4', Function(double)? onProgress}) async {
+  static Future<String> imagesToPdf(
+    List<File> imageFiles, {
+    String pageSize = 'a4',
+    Function(double)? onProgress,
+  }) async {
     onProgress?.call(0.1);
 
     final PdfDocument doc = PdfDocument();
@@ -199,14 +236,16 @@ class LocalPdfService {
 
       switch (pageSize) {
         case 'letter':
-          pageWidth = 612; pageHeight = 792;
+          pageWidth = 612;
+          pageHeight = 792;
           break;
         case 'original':
           pageWidth = image.width.toDouble();
           pageHeight = image.height.toDouble();
           break;
         default: // a4
-          pageWidth = 595; pageHeight = 842;
+          pageWidth = 595;
+          pageHeight = 842;
       }
 
       // For A4 and Letter, fit the image maintaining aspect ratio
@@ -228,7 +267,10 @@ class LocalPdfService {
 
       doc.pageSettings.size = Size(pageWidth, pageHeight);
       final PdfPage page = doc.pages.add();
-      page.graphics.drawImage(image, Rect.fromLTWH(drawX, drawY, drawWidth, drawHeight));
+      page.graphics.drawImage(
+        image,
+        Rect.fromLTWH(drawX, drawY, drawWidth, drawHeight),
+      );
 
       onProgress?.call(0.1 + (0.7 * (i + 1) / imageFiles.length));
     }
@@ -242,12 +284,21 @@ class LocalPdfService {
 
   // ─── PDF TO IMAGES ──────────────────────────────────────
   /// [quality]: 'low', 'medium', 'high'
-  static Future<String> pdfToImages(File inputFile, {String quality = 'high', Function(double)? onProgress}) async {
+  static Future<String> pdfToImages(
+    File inputFile, {
+    String quality = 'high',
+    Function(double)? onProgress,
+  }) async {
     onProgress?.call(0.1);
 
     final document = await native.PdfDocument.openFile(inputFile.path);
     final directory = await getApplicationDocumentsDirectory();
-    final imgDir = Directory(p.join(directory.path, 'caseflow_images_${DateTime.now().millisecondsSinceEpoch}'));
+    final imgDir = Directory(
+      p.join(
+        directory.path,
+        'caseflow_images_${DateTime.now().millisecondsSinceEpoch}',
+      ),
+    );
     await imgDir.create(recursive: true);
 
     // Determine scale and quality based on user choice
@@ -255,13 +306,16 @@ class LocalPdfService {
     int jpgQuality;
     switch (quality) {
       case 'low':
-        scale = 1.0; jpgQuality = 60;
+        scale = 1.0;
+        jpgQuality = 60;
         break;
       case 'medium':
-        scale = 1.5; jpgQuality = 80;
+        scale = 1.5;
+        jpgQuality = 80;
         break;
       default: // high
-        scale = 2.0; jpgQuality = 95;
+        scale = 2.0;
+        jpgQuality = 95;
     }
 
     final int pageCount = document.pagesCount;
@@ -327,16 +381,23 @@ class LocalPdfService {
 
   static PdfPageRotateAngle _degreesToRotation(int degrees) {
     switch (degrees % 360) {
-      case 90: return PdfPageRotateAngle.rotateAngle90;
-      case 180: return PdfPageRotateAngle.rotateAngle180;
-      case 270: return PdfPageRotateAngle.rotateAngle270;
-      default: return PdfPageRotateAngle.rotateAngle0;
+      case 90:
+        return PdfPageRotateAngle.rotateAngle90;
+      case 180:
+        return PdfPageRotateAngle.rotateAngle180;
+      case 270:
+        return PdfPageRotateAngle.rotateAngle270;
+      default:
+        return PdfPageRotateAngle.rotateAngle0;
     }
   }
 
   static Future<String> _saveDocument(PdfDocument doc, String suffix) async {
     final directory = await getApplicationDocumentsDirectory();
-    final filePath = p.join(directory.path, '${suffix}_caseflow_${DateTime.now().millisecondsSinceEpoch}.pdf');
+    final filePath = p.join(
+      directory.path,
+      '${suffix}_caseflow_${DateTime.now().millisecondsSinceEpoch}.pdf',
+    );
     final List<int> bytes = await doc.save();
     final file = File(filePath);
     await file.writeAsBytes(bytes);

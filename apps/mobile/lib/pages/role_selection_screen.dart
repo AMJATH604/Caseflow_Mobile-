@@ -117,287 +117,368 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
     return Scaffold(
       body: AnimatedBuilder(
         animation: _bgController,
-        builder: (context, _) => Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: const [
-                Color(0xFF050816),
-                Color(0xFF0A0E27),
-                Color(0xFF0F1A3A),
-                Color(0xFF141042),
-                Color(0xFF0A0816),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              stops: [
-                0.0,
-                0.2 + 0.05 * sin(_bgController.value * pi),
-                0.45 + 0.05 * cos(_bgController.value * pi),
-                0.75,
-                1.0,
-              ],
-            ),
-          ),
-          child: Stack(
-            children: [
-              // Floating particles
-              ..._buildParticles(),
+        builder:
+            (context, _) => Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: const [
+                    Color(0xFF050816),
+                    Color(0xFF0A0E27),
+                    Color(0xFF0F1A3A),
+                    Color(0xFF141042),
+                    Color(0xFF0A0816),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  stops: [
+                    0.0,
+                    0.2 + 0.05 * sin(_bgController.value * pi),
+                    0.45 + 0.05 * cos(_bgController.value * pi),
+                    0.75,
+                    1.0,
+                  ],
+                ),
+              ),
+              child: Stack(
+                children: [
+                  // Floating particles
+                  ..._buildParticles(),
 
-              // Radial glow behind logo area
-              Positioned(
-                top: screenHeight * 0.08,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: AnimatedBuilder(
-                    animation: _pulseController,
-                    builder: (context, _) => Container(
-                      width: 200 + 20 * _pulseController.value,
-                      height: 200 + 20 * _pulseController.value,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            const Color(0xFFD4AF37).withValues(alpha: 0.08 + 0.04 * _pulseController.value),
-                            const Color(0xFF2563EB).withValues(alpha: 0.05),
-                            Colors.transparent,
-                          ],
-                          stops: const [0.0, 0.5, 1.0],
+                  // Radial glow behind logo area
+                  Positioned(
+                    top: screenHeight * 0.08,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: AnimatedBuilder(
+                        animation: _pulseController,
+                        builder:
+                            (context, _) => Container(
+                              width: 200 + 20 * _pulseController.value,
+                              height: 200 + 20 * _pulseController.value,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: RadialGradient(
+                                  colors: [
+                                    const Color(0xFFD4AF37).withValues(
+                                      alpha:
+                                          0.08 + 0.04 * _pulseController.value,
+                                    ),
+                                    const Color(
+                                      0xFF2563EB,
+                                    ).withValues(alpha: 0.05),
+                                    Colors.transparent,
+                                  ],
+                                  stops: const [0.0, 0.5, 1.0],
+                                ),
+                              ),
+                            ),
+                      ),
+                    ),
+                  ),
+
+                  // Main content
+                  SafeArea(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight:
+                              screenHeight -
+                              MediaQuery.of(context).padding.top -
+                              MediaQuery.of(context).padding.bottom,
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 24 * scaleFactor,
+                          ),
+                          child: Column(
+                            children: [
+                              SizedBox(height: isSmallScreen ? 30 : 50),
+
+                              // ─── LOGO with golden glow ───
+                              _buildAnimatedEntry(
+                                controller: _logoController,
+                                child: Column(
+                                  children: [
+                                    AnimatedBuilder(
+                                      animation: _pulseController,
+                                      builder:
+                                          (context, child) => Container(
+                                            width: 80 * scaleFactor,
+                                            height: 80 * scaleFactor,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(22),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: const Color(
+                                                    0xFFD4AF37,
+                                                  ).withValues(
+                                                    alpha:
+                                                        0.25 +
+                                                        0.1 *
+                                                            _pulseController
+                                                                .value,
+                                                  ),
+                                                  blurRadius:
+                                                      30 +
+                                                      10 *
+                                                          _pulseController
+                                                              .value,
+                                                  spreadRadius:
+                                                      2 +
+                                                      3 *
+                                                          _pulseController
+                                                              .value,
+                                                ),
+                                                BoxShadow(
+                                                  color: const Color(
+                                                    0xFF2563EB,
+                                                  ).withValues(alpha: 0.15),
+                                                  blurRadius: 40,
+                                                  spreadRadius: 5,
+                                                ),
+                                              ],
+                                            ),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(22),
+                                              child: Image.asset(
+                                                'assets/images/logo.png',
+                                                fit: BoxFit.contain,
+                                              ),
+                                            ),
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              SizedBox(height: isSmallScreen ? 20 : 32),
+
+                              // ─── TITLE ───
+                              _buildAnimatedEntry(
+                                controller: _titleController,
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      "Welcome to CaseFlow",
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.playfairDisplay(
+                                        fontSize: 30 * scaleFactor,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                        letterSpacing: -0.5,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8 * scaleFactor),
+                                    // Gold accent line
+                                    Container(
+                                      width: 60,
+                                      height: 2.5,
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Colors.transparent,
+                                            Color(0xFFD4AF37),
+                                            Colors.transparent,
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                    ),
+                                    SizedBox(height: 12 * scaleFactor),
+                                    Text(
+                                      "How would you like to use CaseFlow?",
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14 * scaleFactor,
+                                        color: Colors.white.withValues(
+                                          alpha: 0.55,
+                                        ),
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              SizedBox(height: isSmallScreen ? 24 : 36),
+
+                              // ─── ADVOCATE CARD (Glassmorphism) ───
+                              _buildAnimatedEntry(
+                                controller: _card1Controller,
+                                offsetY: 40,
+                                child: _buildPremiumRoleCard(
+                                  role: 'advocate',
+                                  icon: Icons.gavel_rounded,
+                                  title: "I'm an Advocate",
+                                  subtitle: "Full-power legal practice suite",
+                                  gradient: const [
+                                    Color(0xFF1E3A6F),
+                                    Color(0xFF2563EB),
+                                    Color(0xFF4F8AFF),
+                                  ],
+                                  accentColor: const Color(0xFF60A5FA),
+                                  features: const [
+                                    "Case & hearing management",
+                                    "Client database & payments",
+                                    "AI legal assistant",
+                                    "E-Filing & court tools",
+                                  ],
+                                  featureIcon: Icons.check_circle_rounded,
+                                  onTap: () => _selectRole('advocate'),
+                                  scaleFactor: scaleFactor,
+                                ),
+                              ),
+
+                              SizedBox(height: 16 * scaleFactor),
+
+                              // ─── CITIZEN CARD (Glassmorphism) ───
+                              _buildAnimatedEntry(
+                                controller: _card2Controller,
+                                offsetY: 40,
+                                child: _buildPremiumRoleCard(
+                                  role: 'citizen',
+                                  icon: Icons.shield_rounded,
+                                  title: "I'm a Citizen",
+                                  subtitle:
+                                      "Know your rights, protect your future",
+                                  gradient: const [
+                                    Color(0xFF064E3B),
+                                    Color(0xFF059669),
+                                    Color(0xFF34D399),
+                                  ],
+                                  accentColor: const Color(0xFF6EE7B7),
+                                  features: const [
+                                    "Know your legal rights",
+                                    "Track your court cases",
+                                    "Legal calculators & tools",
+                                    "AI-powered legal help",
+                                  ],
+                                  featureIcon: Icons.star_rounded,
+                                  onTap: () => _selectRole('citizen'),
+                                  scaleFactor: scaleFactor,
+                                ),
+                              ),
+
+                              SizedBox(height: 20 * scaleFactor),
+
+                              // ─── GUEST MODE ───
+                              _buildAnimatedEntry(
+                                controller: _guestController,
+                                child: Column(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: _enterGuestMode,
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 24 * scaleFactor,
+                                          vertical: 12 * scaleFactor,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            30,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.12,
+                                            ),
+                                            width: 1,
+                                          ),
+                                          color: Colors.white.withValues(
+                                            alpha: 0.04,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.explore_rounded,
+                                              size: 16,
+                                              color: Colors.white.withValues(
+                                                alpha: 0.45,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Text(
+                                              "Just Explore (Guest Mode)",
+                                              style: GoogleFonts.inter(
+                                                fontSize: 13 * scaleFactor,
+                                                color: Colors.white.withValues(
+                                                  alpha: 0.45,
+                                                ),
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+
+                                    SizedBox(height: isSmallScreen ? 24 : 40),
+
+                                    // Decorative gold divider
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          width: 40,
+                                          height: 1,
+                                          color: const Color(
+                                            0xFFD4AF37,
+                                          ).withValues(alpha: 0.3),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Icon(
+                                          Icons.balance_rounded,
+                                          size: 14,
+                                          color: const Color(
+                                            0xFFD4AF37,
+                                          ).withValues(alpha: 0.5),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Container(
+                                          width: 40,
+                                          height: 1,
+                                          color: const Color(
+                                            0xFFD4AF37,
+                                          ).withValues(alpha: 0.3),
+                                        ),
+                                      ],
+                                    ),
+
+                                    SizedBox(height: isSmallScreen ? 12 : 16),
+
+                                    // Bottom tagline
+                                    Text(
+                                      "Every Indian has the right to know the law",
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 11 * scaleFactor,
+                                        color: const Color(
+                                          0xFFD4AF37,
+                                        ).withValues(alpha: 0.45),
+                                        letterSpacing: 1.5,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+
+                                    SizedBox(height: isSmallScreen ? 16 : 24),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-
-              // Main content
-              SafeArea(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: screenHeight - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24 * scaleFactor),
-                      child: Column(
-                        children: [
-                          SizedBox(height: isSmallScreen ? 30 : 50),
-
-                          // ─── LOGO with golden glow ───
-                          _buildAnimatedEntry(
-                            controller: _logoController,
-                            child: Column(
-                              children: [
-                                AnimatedBuilder(
-                                  animation: _pulseController,
-                                  builder: (context, child) => Container(
-                                    width: 80 * scaleFactor,
-                                    height: 80 * scaleFactor,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(22),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: const Color(0xFFD4AF37).withValues(alpha: 0.25 + 0.1 * _pulseController.value),
-                                          blurRadius: 30 + 10 * _pulseController.value,
-                                          spreadRadius: 2 + 3 * _pulseController.value,
-                                        ),
-                                        BoxShadow(
-                                          color: const Color(0xFF2563EB).withValues(alpha: 0.15),
-                                          blurRadius: 40,
-                                          spreadRadius: 5,
-                                        ),
-                                      ],
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(22),
-                                      child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          SizedBox(height: isSmallScreen ? 20 : 32),
-
-                          // ─── TITLE ───
-                          _buildAnimatedEntry(
-                            controller: _titleController,
-                            child: Column(
-                              children: [
-                                Text(
-                                  "Welcome to CaseFlow",
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.playfairDisplay(
-                                    fontSize: 30 * scaleFactor,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                    letterSpacing: -0.5,
-                                  ),
-                                ),
-                                SizedBox(height: 8 * scaleFactor),
-                                // Gold accent line
-                                Container(
-                                  width: 60,
-                                  height: 2.5,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Colors.transparent, Color(0xFFD4AF37), Colors.transparent],
-                                    ),
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                ),
-                                SizedBox(height: 12 * scaleFactor),
-                                Text(
-                                  "How would you like to use CaseFlow?",
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14 * scaleFactor,
-                                    color: Colors.white.withValues(alpha: 0.55),
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          SizedBox(height: isSmallScreen ? 24 : 36),
-
-                          // ─── ADVOCATE CARD (Glassmorphism) ───
-                          _buildAnimatedEntry(
-                            controller: _card1Controller,
-                            offsetY: 40,
-                            child: _buildPremiumRoleCard(
-                              role: 'advocate',
-                              icon: Icons.gavel_rounded,
-                              title: "I'm an Advocate",
-                              subtitle: "Full-power legal practice suite",
-                              gradient: const [Color(0xFF1E3A6F), Color(0xFF2563EB), Color(0xFF4F8AFF)],
-                              accentColor: const Color(0xFF60A5FA),
-                              features: const [
-                                "Case & hearing management",
-                                "Client database & payments",
-                                "AI legal assistant",
-                                "E-Filing & court tools",
-                              ],
-                              featureIcon: Icons.check_circle_rounded,
-                              onTap: () => _selectRole('advocate'),
-                              scaleFactor: scaleFactor,
-                            ),
-                          ),
-
-                          SizedBox(height: 16 * scaleFactor),
-
-                          // ─── CITIZEN CARD (Glassmorphism) ───
-                          _buildAnimatedEntry(
-                            controller: _card2Controller,
-                            offsetY: 40,
-                            child: _buildPremiumRoleCard(
-                              role: 'citizen',
-                              icon: Icons.shield_rounded,
-                              title: "I'm a Citizen",
-                              subtitle: "Know your rights, protect your future",
-                              gradient: const [Color(0xFF064E3B), Color(0xFF059669), Color(0xFF34D399)],
-                              accentColor: const Color(0xFF6EE7B7),
-                              features: const [
-                                "Know your legal rights",
-                                "Track your court cases",
-                                "Legal calculators & tools",
-                                "AI-powered legal help",
-                              ],
-                              featureIcon: Icons.star_rounded,
-                              onTap: () => _selectRole('citizen'),
-                              scaleFactor: scaleFactor,
-                            ),
-                          ),
-
-                          SizedBox(height: 20 * scaleFactor),
-
-                          // ─── GUEST MODE ───
-                          _buildAnimatedEntry(
-                            controller: _guestController,
-                            child: Column(
-                              children: [
-                                GestureDetector(
-                                  onTap: _enterGuestMode,
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 24 * scaleFactor, vertical: 12 * scaleFactor),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(30),
-                                      border: Border.all(
-                                        color: Colors.white.withValues(alpha: 0.12),
-                                        width: 1,
-                                      ),
-                                      color: Colors.white.withValues(alpha: 0.04),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(Icons.explore_rounded, size: 16, color: Colors.white.withValues(alpha: 0.45)),
-                                        const SizedBox(width: 10),
-                                        Text(
-                                          "Just Explore (Guest Mode)",
-                                          style: GoogleFonts.inter(
-                                            fontSize: 13 * scaleFactor,
-                                            color: Colors.white.withValues(alpha: 0.45),
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-
-                                SizedBox(height: isSmallScreen ? 24 : 40),
-
-                                // Decorative gold divider
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: 40,
-                                      height: 1,
-                                      color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Icon(Icons.balance_rounded, size: 14, color: const Color(0xFFD4AF37).withValues(alpha: 0.5)),
-                                    const SizedBox(width: 12),
-                                    Container(
-                                      width: 40,
-                                      height: 1,
-                                      color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
-                                    ),
-                                  ],
-                                ),
-
-                                SizedBox(height: isSmallScreen ? 12 : 16),
-
-                                // Bottom tagline
-                                Text(
-                                  "Every Indian has the right to know the law",
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 11 * scaleFactor,
-                                    color: const Color(0xFFD4AF37).withValues(alpha: 0.45),
-                                    letterSpacing: 1.5,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-
-                                SizedBox(height: isSmallScreen ? 16 : 24),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
       ),
     );
   }
@@ -459,7 +540,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: gradient[1].withValues(alpha: isHovered ? 0.4 : 0.2),
+                      color: gradient[1].withValues(
+                        alpha: isHovered ? 0.4 : 0.2,
+                      ),
                       blurRadius: isHovered ? 30 : 20,
                       offset: const Offset(0, 10),
                       spreadRadius: isHovered ? 2 : 0,
@@ -507,7 +590,11 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                     color: Colors.white.withValues(alpha: 0.15),
                                   ),
                                 ),
-                                child: Icon(icon, color: Colors.white, size: 26 * scaleFactor),
+                                child: Icon(
+                                  icon,
+                                  color: Colors.white,
+                                  size: 26 * scaleFactor,
+                                ),
                               ),
                               SizedBox(width: 16 * scaleFactor),
                               Expanded(
@@ -527,7 +614,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                       subtitle,
                                       style: GoogleFonts.inter(
                                         fontSize: 12 * scaleFactor,
-                                        color: Colors.white.withValues(alpha: 0.65),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.65,
+                                        ),
                                         fontWeight: FontWeight.w400,
                                       ),
                                     ),
@@ -568,30 +657,34 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                           SizedBox(height: 14 * scaleFactor),
 
                           // Feature bullets
-                          ...features.map((feature) => Padding(
-                            padding: EdgeInsets.only(bottom: 8 * scaleFactor),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  featureIcon,
-                                  size: 14 * scaleFactor,
-                                  color: accentColor.withValues(alpha: 0.9),
-                                ),
-                                SizedBox(width: 10 * scaleFactor),
-                                Expanded(
-                                  child: Text(
-                                    feature,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 12 * scaleFactor,
-                                      color: Colors.white.withValues(alpha: 0.8),
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.3,
+                          ...features.map(
+                            (feature) => Padding(
+                              padding: EdgeInsets.only(bottom: 8 * scaleFactor),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    featureIcon,
+                                    size: 14 * scaleFactor,
+                                    color: accentColor.withValues(alpha: 0.9),
+                                  ),
+                                  SizedBox(width: 10 * scaleFactor),
+                                  Expanded(
+                                    child: Text(
+                                      feature,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12 * scaleFactor,
+                                        color: Colors.white.withValues(
+                                          alpha: 0.8,
+                                        ),
+                                        fontWeight: FontWeight.w500,
+                                        height: 1.3,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          )),
+                          ),
                         ],
                       ),
                     ),
@@ -624,7 +717,8 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
 
       return Positioned(
         left: MediaQuery.of(context).size.width * x,
-        top: MediaQuery.of(context).size.height *
+        top:
+            MediaQuery.of(context).size.height *
             ((y + _bgController.value * 0.15) % 1.0),
         child: Container(
           width: size,
@@ -634,9 +728,11 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
             color: (index % 3 == 0
                     ? const Color(0xFFD4AF37)
                     : index % 3 == 1
-                        ? const Color(0xFF2563EB)
-                        : const Color(0xFF6366F1))
-                .withValues(alpha: 0.12 + 0.1 * sin(_bgController.value * 2 * pi + index)),
+                    ? const Color(0xFF2563EB)
+                    : const Color(0xFF6366F1))
+                .withValues(
+                  alpha: 0.12 + 0.1 * sin(_bgController.value * 2 * pi + index),
+                ),
           ),
         ),
       );

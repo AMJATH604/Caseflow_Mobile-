@@ -37,12 +37,13 @@ class PaymentCaptureOverlay extends ConsumerStatefulWidget {
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.black.withValues(alpha: 0.6),
-      builder: (_) => PaymentCaptureOverlay(
-        caseId: caseId,
-        caseTitle: caseTitle,
-        purpose: purpose,
-        certifiedCopyId: certifiedCopyId,
-      ),
+      builder:
+          (_) => PaymentCaptureOverlay(
+            caseId: caseId,
+            caseTitle: caseTitle,
+            purpose: purpose,
+            certifiedCopyId: certifiedCopyId,
+          ),
     );
   }
 
@@ -51,8 +52,7 @@ class PaymentCaptureOverlay extends ConsumerStatefulWidget {
       _PaymentCaptureOverlayState();
 }
 
-class _PaymentCaptureOverlayState
-    extends ConsumerState<PaymentCaptureOverlay>
+class _PaymentCaptureOverlayState extends ConsumerState<PaymentCaptureOverlay>
     with SingleTickerProviderStateMixin {
   final _amountController = TextEditingController();
   final _challanController = TextEditingController();
@@ -87,9 +87,10 @@ class _PaymentCaptureOverlayState
     _scaleAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
       CurvedAnimation(parent: _entryController, curve: Curves.easeOutBack),
     );
-    _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _entryController, curve: Curves.easeOut),
-    );
+    _fadeAnim = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _entryController, curve: Curves.easeOut));
     _entryController.forward();
   }
 
@@ -150,12 +151,15 @@ class _PaymentCaptureOverlayState
     if (amountText.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Please enter the amount paid",
-              style: GoogleFonts.inter(fontSize: 13)),
+          content: Text(
+            "Please enter the amount paid",
+            style: GoogleFonts.inter(fontSize: 13),
+          ),
           backgroundColor: AppTheme.error,
           behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
       return;
@@ -165,12 +169,15 @@ class _PaymentCaptureOverlayState
     if (amount == null || amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Enter a valid amount",
-              style: GoogleFonts.inter(fontSize: 13)),
+          content: Text(
+            "Enter a valid amount",
+            style: GoogleFonts.inter(fontSize: 13),
+          ),
           backgroundColor: AppTheme.error,
           behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
       return;
@@ -222,8 +229,11 @@ class _PaymentCaptureOverlayState
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.check_circle_rounded,
-                    color: Colors.white, size: 18),
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -236,7 +246,8 @@ class _PaymentCaptureOverlayState
             backgroundColor: const Color(0xFF059669),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -248,7 +259,8 @@ class _PaymentCaptureOverlayState
             backgroundColor: AppTheme.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -261,13 +273,11 @@ class _PaymentCaptureOverlayState
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _entryController,
-      builder: (context, child) => Opacity(
-        opacity: _fadeAnim.value,
-        child: Transform.scale(
-          scale: _scaleAnim.value,
-          child: child,
-        ),
-      ),
+      builder:
+          (context, child) => Opacity(
+            opacity: _fadeAnim.value,
+            child: Transform.scale(scale: _scaleAnim.value, child: child),
+          ),
       child: Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
         backgroundColor: Colors.white,
@@ -333,7 +343,11 @@ class _PaymentCaptureOverlayState
               color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(Icons.sync_rounded, color: Colors.white, size: 26),
+            child: const Icon(
+              Icons.sync_rounded,
+              color: Colors.white,
+              size: 26,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -363,12 +377,16 @@ class _PaymentCaptureOverlayState
           // Close button
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: Icon(Icons.close_rounded,
-                color: Colors.white.withValues(alpha: 0.7), size: 22),
+            icon: Icon(
+              Icons.close_rounded,
+              color: Colors.white.withValues(alpha: 0.7),
+              size: 22,
+            ),
             style: IconButton.styleFrom(
               backgroundColor: Colors.white.withValues(alpha: 0.1),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           ),
         ],
@@ -398,8 +416,11 @@ class _PaymentCaptureOverlayState
               color: AppTheme.accent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.folder_rounded,
-                size: 18, color: AppTheme.accent),
+            child: const Icon(
+              Icons.folder_rounded,
+              size: 18,
+              color: AppTheme.accent,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -453,39 +474,49 @@ class _PaymentCaptureOverlayState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("PURPOSE",
-            style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: Colors.grey[400],
-                letterSpacing: 1)),
+        Text(
+          "PURPOSE",
+          style: GoogleFonts.inter(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: Colors.grey[400],
+            letterSpacing: 1,
+          ),
+        ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           value: _selectedPurpose,
           isExpanded: true,
           style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.primary),
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.primary,
+          ),
           decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.category_rounded,
-                color: AppTheme.accent, size: 20),
+            prefixIcon: const Icon(
+              Icons.category_rounded,
+              color: AppTheme.accent,
+              size: 20,
+            ),
             filled: true,
             fillColor: AppTheme.background.withValues(alpha: 0.5),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(color: AppTheme.border)),
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: AppTheme.border),
+            ),
             enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(color: AppTheme.border)),
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: AppTheme.border),
+            ),
             focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide:
-                    const BorderSide(color: AppTheme.accent, width: 1.5)),
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: AppTheme.accent, width: 1.5),
+            ),
           ),
-          items: _purposes
-              .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-              .toList(),
+          items:
+              _purposes
+                  .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                  .toList(),
           onChanged: (v) => setState(() => _selectedPurpose = v!),
         ),
       ],
@@ -496,12 +527,15 @@ class _PaymentCaptureOverlayState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("AMOUNT PAID",
-            style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: Colors.grey[400],
-                letterSpacing: 1)),
+        Text(
+          "AMOUNT PAID",
+          style: GoogleFonts.inter(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: Colors.grey[400],
+            letterSpacing: 1,
+          ),
+        ),
         const SizedBox(height: 8),
         TextField(
           controller: _amountController,
@@ -538,15 +572,19 @@ class _PaymentCaptureOverlayState
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFFBBF7D0), width: 1.5),
+              borderSide: const BorderSide(
+                color: Color(0xFFBBF7D0),
+                width: 1.5,
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide:
-                  const BorderSide(color: Color(0xFF059669), width: 2),
+              borderSide: const BorderSide(color: Color(0xFF059669), width: 2),
             ),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 18,
+            ),
           ),
           autofocus: true,
         ),
@@ -558,32 +596,40 @@ class _PaymentCaptureOverlayState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("CHALLAN / REFERENCE NO.",
-            style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: Colors.grey[400],
-                letterSpacing: 1)),
+        Text(
+          "CHALLAN / REFERENCE NO.",
+          style: GoogleFonts.inter(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: Colors.grey[400],
+            letterSpacing: 1,
+          ),
+        ),
         const SizedBox(height: 8),
         TextField(
           controller: _challanController,
           style: GoogleFonts.inter(fontWeight: FontWeight.w600),
           decoration: InputDecoration(
             hintText: "Optional — e.g. ECH/123456",
-            prefixIcon: const Icon(Icons.receipt_long_rounded,
-                color: AppTheme.accent, size: 20),
+            prefixIcon: const Icon(
+              Icons.receipt_long_rounded,
+              color: AppTheme.accent,
+              size: 20,
+            ),
             filled: true,
             fillColor: AppTheme.background.withValues(alpha: 0.5),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(color: AppTheme.border)),
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: AppTheme.border),
+            ),
             enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(color: AppTheme.border)),
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: AppTheme.border),
+            ),
             focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide:
-                    const BorderSide(color: AppTheme.accent, width: 1.5)),
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: AppTheme.accent, width: 1.5),
+            ),
           ),
         ),
       ],
@@ -594,12 +640,15 @@ class _PaymentCaptureOverlayState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("DATE OF PAYMENT",
-            style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: Colors.grey[400],
-                letterSpacing: 1)),
+        Text(
+          "DATE OF PAYMENT",
+          style: GoogleFonts.inter(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: Colors.grey[400],
+            letterSpacing: 1,
+          ),
+        ),
         const SizedBox(height: 8),
         InkWell(
           onTap: () async {
@@ -621,19 +670,26 @@ class _PaymentCaptureOverlayState
             ),
             child: Row(
               children: [
-                const Icon(Icons.calendar_today_rounded,
-                    color: AppTheme.accent, size: 20),
+                const Icon(
+                  Icons.calendar_today_rounded,
+                  color: AppTheme.accent,
+                  size: 20,
+                ),
                 const SizedBox(width: 12),
                 Text(
                   DateFormat('dd MMMM yyyy').format(_paidDate),
                   style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: AppTheme.primary),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    color: AppTheme.primary,
+                  ),
                 ),
                 const Spacer(),
-                Icon(Icons.edit_calendar_rounded,
-                    size: 16, color: Colors.grey[400]),
+                Icon(
+                  Icons.edit_calendar_rounded,
+                  size: 16,
+                  color: Colors.grey[400],
+                ),
               ],
             ),
           ),
@@ -646,12 +702,15 @@ class _PaymentCaptureOverlayState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("E-CHALLAN RECEIPT",
-            style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: Colors.grey[400],
-                letterSpacing: 1)),
+        Text(
+          "E-CHALLAN RECEIPT",
+          style: GoogleFonts.inter(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: Colors.grey[400],
+            letterSpacing: 1,
+          ),
+        ),
         const SizedBox(height: 8),
         GestureDetector(
           onTap: _pickReceipt,
@@ -659,83 +718,96 @@ class _PaymentCaptureOverlayState
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: _receiptImage != null
-                  ? const Color(0xFFF0FDF4)
-                  : AppTheme.background.withValues(alpha: 0.5),
+              color:
+                  _receiptImage != null
+                      ? const Color(0xFFF0FDF4)
+                      : AppTheme.background.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: _receiptImage != null
-                    ? const Color(0xFF059669).withValues(alpha: 0.4)
-                    : AppTheme.border,
-                style: _receiptImage != null
-                    ? BorderStyle.solid
-                    : BorderStyle.solid,
+                color:
+                    _receiptImage != null
+                        ? const Color(0xFF059669).withValues(alpha: 0.4)
+                        : AppTheme.border,
+                style:
+                    _receiptImage != null
+                        ? BorderStyle.solid
+                        : BorderStyle.solid,
                 width: _receiptImage != null ? 1.5 : 1,
               ),
             ),
-            child: _receiptImage != null
-                ? Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.file(
-                          _receiptImage!,
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.cover,
+            child:
+                _receiptImage != null
+                    ? Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.file(
+                            _receiptImage!,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Receipt attached ✓",
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF059669),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Receipt attached ✓",
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF059669),
+                                ),
                               ),
-                            ),
-                            Text(
-                              "Tap to change",
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                color: Colors.grey[500],
+                              Text(
+                                "Tap to change",
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  color: Colors.grey[500],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        onPressed: () =>
-                            setState(() => _receiptImage = null),
-                        icon: const Icon(Icons.close_rounded,
-                            size: 18, color: Colors.grey),
-                      ),
-                    ],
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.cloud_upload_outlined,
-                          color: Colors.grey[400], size: 22),
-                      const SizedBox(width: 12),
-                      Text(
-                        "Upload e-Challan photo",
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[500],
+                        IconButton(
+                          onPressed: () => setState(() => _receiptImage = null),
+                          icon: const Icon(
+                            Icons.close_rounded,
+                            size: 18,
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text("(Optional)",
+                      ],
+                    )
+                    : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.cloud_upload_outlined,
+                          color: Colors.grey[400],
+                          size: 22,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          "Upload e-Challan photo",
                           style: GoogleFonts.inter(
-                              fontSize: 11, color: Colors.grey[400])),
-                    ],
-                  ),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          "(Optional)",
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                      ],
+                    ),
           ),
         ),
       ],
@@ -751,12 +823,17 @@ class _PaymentCaptureOverlayState
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14)),
+                borderRadius: BorderRadius.circular(14),
+              ),
               side: BorderSide(color: AppTheme.border),
             ),
-            child: Text("Skip",
-                style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w600, color: Colors.grey[600])),
+            child: Text(
+              "Skip",
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[600],
+              ),
+            ),
           ),
         ),
         const SizedBox(width: 16),
@@ -764,13 +841,17 @@ class _PaymentCaptureOverlayState
           flex: 2,
           child: ElevatedButton.icon(
             onPressed: _isSaving ? null : _savePayment,
-            icon: _isSaving
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white))
-                : const Icon(Icons.sync_rounded, size: 18),
+            icon:
+                _isSaving
+                    ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                    : const Icon(Icons.sync_rounded, size: 18),
             label: Text(
               _isSaving ? "Syncing..." : "Sync to Ledger",
               style: GoogleFonts.inter(fontWeight: FontWeight.bold),
@@ -780,7 +861,8 @@ class _PaymentCaptureOverlayState
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14)),
+                borderRadius: BorderRadius.circular(14),
+              ),
               elevation: 0,
             ),
           ),

@@ -44,7 +44,9 @@ class CaseRepository {
     // Apply pagination and ordering in a single chain to avoid type mismatch
     final List response;
     if (limit != null && offset != null) {
-      response = await query.order('created_at', ascending: false).range(offset, offset + limit - 1);
+      response = await query
+          .order('created_at', ascending: false)
+          .range(offset, offset + limit - 1);
     } else if (limit != null) {
       response = await query.order('created_at', ascending: false).limit(limit);
     } else {
@@ -54,11 +56,12 @@ class CaseRepository {
   }
 
   static Future<CaseModel> fetchCaseById(String id) async {
-    final response = await _client
-        .from('cases')
-        .select('*, clients(name, phone, email)')
-        .eq('id', id)
-        .single();
+    final response =
+        await _client
+            .from('cases')
+            .select('*, clients(name, phone, email)')
+            .eq('id', id)
+            .single();
     return CaseModel.fromJson(response);
   }
 
@@ -75,11 +78,16 @@ class CaseRepository {
       maxLength: 300,
     );
 
-    final response = await _client.from('cases').insert({
-      ...caseData,
-      'created_by': user.id,
-      'firm_id': targetFirmId,
-    }).select().single();
+    final response =
+        await _client
+            .from('cases')
+            .insert({
+              ...caseData,
+              'created_by': user.id,
+              'firm_id': targetFirmId,
+            })
+            .select()
+            .single();
 
     final newCase = CaseModel.fromJson(response);
 
@@ -95,7 +103,9 @@ class CaseRepository {
   }
 
   static Future<void> updateCase(
-      String id, Map<String, dynamic> updates) async {
+    String id,
+    Map<String, dynamic> updates,
+  ) async {
     await _client.from('cases').update(updates).eq('id', id);
 
     // Audit log
@@ -126,10 +136,7 @@ class CaseRepository {
     await _client.from('efiling_records').delete().eq('case_id', id);
     await _client.from('certified_copies').delete().eq('case_id', id);
     await _client.from('evidence_checklists').delete().eq('case_id', id);
-    await _client
-        .from('witness_examination_notes')
-        .delete()
-        .eq('case_id', id);
+    await _client.from('witness_examination_notes').delete().eq('case_id', id);
     await _client.from('evidence_photos').delete().eq('case_id', id);
     await _client.from('cases').delete().eq('id', id);
   }
@@ -158,10 +165,9 @@ class CaseRepository {
     if (acts.isEmpty) return;
     final user = BaseRepository.requireAuth();
     final batch = acts.map((a) => {...a, 'created_by': user.id}).toList();
-    await _client.from('case_acts').upsert(
-      batch,
-      onConflict: 'case_id,act_name,section_number',
-    );
+    await _client
+        .from('case_acts')
+        .upsert(batch, onConflict: 'case_id,act_name,section_number');
   }
 
   static Future<void> upsertCaseAct(Map<String, dynamic> data) async {
@@ -187,31 +193,34 @@ class CaseRepository {
 
   static Future<void> createCaseIA(Map<String, dynamic> data) async {
     final user = BaseRepository.requireAuth();
-    await _client
-        .from('case_ia_applications')
-        .insert({...data, 'created_by': user.id});
+    await _client.from('case_ia_applications').insert({
+      ...data,
+      'created_by': user.id,
+    });
   }
 
   static Future<void> upsertCaseIAs(List<Map<String, dynamic>> ias) async {
     if (ias.isEmpty) return;
     final user = BaseRepository.requireAuth();
-    final batch = ias.map((ia) {
-      final copy = Map<String, dynamic>.from(ia);
-      if (copy['filing_date'] != null) {
-        copy['filing_date'] =
-            BaseRepository.normalizeDateStr(copy['filing_date'].toString());
-      }
-      if (copy['next_date'] != null) {
-        copy['next_date'] =
-            BaseRepository.normalizeDateStr(copy['next_date'].toString());
-      }
-      return {...copy, 'created_by': user.id};
-    }).toList();
+    final batch =
+        ias.map((ia) {
+          final copy = Map<String, dynamic>.from(ia);
+          if (copy['filing_date'] != null) {
+            copy['filing_date'] = BaseRepository.normalizeDateStr(
+              copy['filing_date'].toString(),
+            );
+          }
+          if (copy['next_date'] != null) {
+            copy['next_date'] = BaseRepository.normalizeDateStr(
+              copy['next_date'].toString(),
+            );
+          }
+          return {...copy, 'created_by': user.id};
+        }).toList();
 
-    await _client.from('case_ia_applications').upsert(
-      batch,
-      onConflict: 'case_id,ia_number',
-    );
+    await _client
+        .from('case_ia_applications')
+        .upsert(batch, onConflict: 'case_id,ia_number');
   }
 
   static Future<void> upsertCaseIA(Map<String, dynamic> data) async {
@@ -219,7 +228,9 @@ class CaseRepository {
   }
 
   static Future<void> updateCaseIA(
-      String id, Map<String, dynamic> updates) async {
+    String id,
+    Map<String, dynamic> updates,
+  ) async {
     await _client.from('case_ia_applications').update(updates).eq('id', id);
   }
 
@@ -230,7 +241,8 @@ class CaseRepository {
   // ─── eCourt Dossier: Interim Orders ────────────────────
 
   static Future<List<CaseInterimOrder>> fetchInterimOrders(
-      String caseId) async {
+    String caseId,
+  ) async {
     final response = await _client
         .from('case_interim_orders')
         .select()
@@ -243,28 +255,31 @@ class CaseRepository {
 
   static Future<void> createInterimOrder(Map<String, dynamic> data) async {
     final user = BaseRepository.requireAuth();
-    await _client
-        .from('case_interim_orders')
-        .insert({...data, 'created_by': user.id});
+    await _client.from('case_interim_orders').insert({
+      ...data,
+      'created_by': user.id,
+    });
   }
 
   static Future<void> upsertInterimOrders(
-      List<Map<String, dynamic>> orders) async {
+    List<Map<String, dynamic>> orders,
+  ) async {
     if (orders.isEmpty) return;
     final user = BaseRepository.requireAuth();
-    final batch = orders.map((o) {
-      final copy = Map<String, dynamic>.from(o);
-      if (copy['order_date'] != null) {
-        copy['order_date'] =
-            BaseRepository.normalizeDateStr(copy['order_date'].toString());
-      }
-      return {...copy, 'created_by': user.id};
-    }).toList();
+    final batch =
+        orders.map((o) {
+          final copy = Map<String, dynamic>.from(o);
+          if (copy['order_date'] != null) {
+            copy['order_date'] = BaseRepository.normalizeDateStr(
+              copy['order_date'].toString(),
+            );
+          }
+          return {...copy, 'created_by': user.id};
+        }).toList();
 
-    await _client.from('case_interim_orders').upsert(
-      batch,
-      onConflict: 'case_id,order_date,order_summary',
-    );
+    await _client
+        .from('case_interim_orders')
+        .upsert(batch, onConflict: 'case_id,order_date,order_summary');
   }
 
   static Future<void> upsertInterimOrder(Map<String, dynamic> data) async {
@@ -289,10 +304,7 @@ class CaseRepository {
         .ilike('name', '%$query%')
         .limit(5);
 
-    return {
-      'cases': cases as List,
-      'clients': clients as List,
-    };
+    return {'cases': cases as List, 'clients': clients as List};
   }
 
   // ─── Workspace Reset ───────────────────────────────────
@@ -306,19 +318,13 @@ class CaseRepository {
     await _client.from('payments').delete().eq('created_by', userId);
     await _client.from('efiling_records').delete().eq('created_by', userId);
     await _client.from('certified_copies').delete().eq('created_by', userId);
-    await _client
-        .from('evidence_checklists')
-        .delete()
-        .eq('created_by', userId);
+    await _client.from('evidence_checklists').delete().eq('created_by', userId);
     await _client
         .from('witness_examination_notes')
         .delete()
         .eq('created_by', userId);
     await _client.from('evidence_photos').delete().eq('created_by', userId);
-    await _client
-        .from('case_discussions')
-        .delete()
-        .eq('sender_id', userId);
+    await _client.from('case_discussions').delete().eq('sender_id', userId);
     await _client.from('tasks').delete().eq('created_by', userId);
     await _client.from('cases').delete().eq('created_by', userId);
     await _client.from('clients').delete().eq('created_by', userId);

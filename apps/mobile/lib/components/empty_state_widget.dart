@@ -53,7 +53,11 @@ class EmptyStateWidget extends StatelessWidget {
                 ),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 56, color: AppTheme.accent.withValues(alpha: 0.6)),
+              child: Icon(
+                icon,
+                size: 56,
+                color: AppTheme.accent.withValues(alpha: 0.6),
+              ),
             ),
             const SizedBox(height: 28),
             Text(
@@ -80,11 +84,17 @@ class EmptyStateWidget extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onButtonTap,
                 icon: const Icon(Icons.add_rounded, size: 20),
-                label: Text(buttonText!, style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                label: Text(
+                  buttonText!,
+                  style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.accent,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),

@@ -7,17 +7,22 @@ class FilingRepository {
 
   // ─── E-Filing Records ──────────────────────────────────
 
-  static Future<List<EFilingRecord>> fetchEfilingRecords({String? caseId}) async {
+  static Future<List<EFilingRecord>> fetchEfilingRecords({
+    String? caseId,
+  }) async {
     final user = _client.auth.currentUser;
     if (user == null) return [];
 
     final profile = await BaseRepository.getCachedProfile();
-    final visibleCaseIds =
-        await BaseRepository.getVisibleCaseIds(profile, user.id);
+    final visibleCaseIds = await BaseRepository.getVisibleCaseIds(
+      profile,
+      user.id,
+    );
 
     if (visibleCaseIds.isEmpty) return [];
 
-    var query = _client.from('efiling_records')
+    var query = _client
+        .from('efiling_records')
         .select('*, cases(case_title, case_number, cnr_number, firm_id)');
 
     if (caseId != null) {
@@ -34,7 +39,10 @@ class FilingRepository {
 
   static Future<void> createEfilingRecord(Map<String, dynamic> record) async {
     final user = BaseRepository.requireAuth();
-    await _client.from('efiling_records').insert({...record, 'created_by': user.id});
+    await _client.from('efiling_records').insert({
+      ...record,
+      'created_by': user.id,
+    });
   }
 
   // ─── Certified Copies ──────────────────────────────────
@@ -44,8 +52,10 @@ class FilingRepository {
     if (user == null) return [];
 
     final profile = await BaseRepository.getCachedProfile();
-    final visibleCaseIds =
-        await BaseRepository.getVisibleCaseIds(profile, user.id);
+    final visibleCaseIds = await BaseRepository.getVisibleCaseIds(
+      profile,
+      user.id,
+    );
 
     if (visibleCaseIds.isEmpty) return [];
 
@@ -61,11 +71,16 @@ class FilingRepository {
 
   static Future<void> createCertifiedCopy(Map<String, dynamic> data) async {
     final user = BaseRepository.requireAuth();
-    await _client.from('certified_copies').insert({...data, 'created_by': user.id});
+    await _client.from('certified_copies').insert({
+      ...data,
+      'created_by': user.id,
+    });
   }
 
   static Future<void> updateCertifiedCopy(
-      String id, Map<String, dynamic> updates) async {
+    String id,
+    Map<String, dynamic> updates,
+  ) async {
     await _client.from('certified_copies').update(updates).eq('id', id);
   }
 

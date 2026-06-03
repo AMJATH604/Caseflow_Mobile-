@@ -9,11 +9,7 @@ class CaseHeader extends StatelessWidget {
   final CaseModel caseData;
   final VoidCallback onBack;
 
-  const CaseHeader({
-    super.key,
-    required this.caseData,
-    required this.onBack,
-  });
+  const CaseHeader({super.key, required this.caseData, required this.onBack});
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +35,11 @@ class CaseHeader extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: const Color(0xFFE2E8F0)),
                     ),
-                    child: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E293B), size: 16),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Color(0xFF1E293B),
+                      size: 16,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -80,8 +80,16 @@ class CaseHeader extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                _headerChip(context, Icons.tag_rounded, caseData.caseNumber ?? 'NO IDENTIFIER'),
-                _headerChip(context, Icons.account_balance_rounded, caseData.courtName ?? 'UNSPECIFIED FORUM'),
+                _headerChip(
+                  context,
+                  Icons.tag_rounded,
+                  caseData.caseNumber ?? 'NO IDENTIFIER',
+                ),
+                _headerChip(
+                  context,
+                  Icons.account_balance_rounded,
+                  caseData.courtName ?? 'UNSPECIFIED FORUM',
+                ),
                 _buildPayCourtFeeChip(context),
               ],
             ),
@@ -95,11 +103,12 @@ class CaseHeader extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => EPayCourtFeeSheet.show(
-          context,
-          caseTitle: caseData.caseTitle,
-          courtName: caseData.courtName,
-        ),
+        onTap:
+            () => EPayCourtFeeSheet.show(
+              context,
+              caseTitle: caseData.caseTitle,
+              courtName: caseData.courtName,
+            ),
         borderRadius: BorderRadius.circular(6),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -111,12 +120,18 @@ class CaseHeader extends StatelessWidget {
               ],
             ),
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: const Color(0xFF2563EB).withValues(alpha: 0.25)),
+            border: Border.all(
+              color: const Color(0xFF2563EB).withValues(alpha: 0.25),
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.payment_rounded, size: 12, color: const Color(0xFF2563EB).withValues(alpha: 0.8)),
+              Icon(
+                Icons.payment_rounded,
+                size: 12,
+                color: const Color(0xFF2563EB).withValues(alpha: 0.8),
+              ),
               const SizedBox(width: 6),
               const Text(
                 "PAY COURT FEE",
@@ -128,7 +143,11 @@ class CaseHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 4),
-              Icon(Icons.open_in_new_rounded, size: 10, color: const Color(0xFF2563EB).withValues(alpha: 0.6)),
+              Icon(
+                Icons.open_in_new_rounded,
+                size: 10,
+                color: const Color(0xFF2563EB).withValues(alpha: 0.6),
+              ),
             ],
           ),
         ),
@@ -138,7 +157,9 @@ class CaseHeader extends StatelessWidget {
 
   Widget _headerChip(BuildContext context, IconData icon, String text) {
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.6),
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width * 0.6,
+      ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(

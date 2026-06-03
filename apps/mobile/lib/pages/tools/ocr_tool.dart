@@ -21,7 +21,10 @@ class _OcrToolState extends State<OcrTool> {
   Future<void> _pickImage(ImageSource source) async {
     try {
       final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(source: source, imageQuality: 95);
+      final pickedFile = await picker.pickImage(
+        source: source,
+        imageQuality: 95,
+      );
       if (pickedFile != null) {
         setState(() {
           _selectedImage = File(pickedFile.path);
@@ -42,13 +45,18 @@ class _OcrToolState extends State<OcrTool> {
 
     try {
       final inputImage = InputImage.fromFile(_selectedImage!);
-      final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
-      final RecognizedText recognizedText = await textRecognizer.processImage(inputImage);
+      final textRecognizer = TextRecognizer(
+        script: TextRecognitionScript.latin,
+      );
+      final RecognizedText recognizedText = await textRecognizer.processImage(
+        inputImage,
+      );
       await textRecognizer.close();
 
       if (recognizedText.text.isEmpty) {
         setState(() {
-          _error = 'No text found in the image. Try a clearer photo with better lighting.';
+          _error =
+              'No text found in the image. Try a clearer photo with better lighting.';
           _isProcessing = false;
         });
         return;
@@ -70,7 +78,10 @@ class _OcrToolState extends State<OcrTool> {
     if (_extractedText != null) {
       Clipboard.setData(ClipboardData(text: _extractedText!));
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("📋 Text copied to clipboard!"), backgroundColor: Colors.green),
+        const SnackBar(
+          content: Text("📋 Text copied to clipboard!"),
+          backgroundColor: Colors.green,
+        ),
       );
     }
   }
@@ -102,9 +113,20 @@ class _OcrToolState extends State<OcrTool> {
             ),
             child: Column(
               children: [
-                const Icon(Icons.document_scanner_rounded, size: 56, color: Color(0xFF1E293B)),
+                const Icon(
+                  Icons.document_scanner_rounded,
+                  size: 56,
+                  color: Color(0xFF1E293B),
+                ),
                 const SizedBox(height: 16),
-                const Text("OCR Document Scanner", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+                const Text(
+                  "OCR Document Scanner",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
                 const SizedBox(height: 8),
                 const Text(
                   "Extract text from photos of court orders, judgments, and legal documents",
@@ -113,7 +135,10 @@ class _OcrToolState extends State<OcrTool> {
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
@@ -121,9 +146,20 @@ class _OcrToolState extends State<OcrTool> {
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.offline_bolt, size: 14, color: Color(0xFF1E293B)),
+                      Icon(
+                        Icons.offline_bolt,
+                        size: 14,
+                        color: Color(0xFF1E293B),
+                      ),
                       SizedBox(width: 4),
-                      Text("Works Offline · Google ML Kit", style: TextStyle(color: Color(0xFF1E293B), fontSize: 11, fontWeight: FontWeight.bold)),
+                      Text(
+                        "Works Offline · Google ML Kit",
+                        style: TextStyle(
+                          color: Color(0xFF1E293B),
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -132,26 +168,42 @@ class _OcrToolState extends State<OcrTool> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton.icon(
-                      onPressed: _isProcessing ? null : () => _pickImage(ImageSource.camera),
+                      onPressed:
+                          _isProcessing
+                              ? null
+                              : () => _pickImage(ImageSource.camera),
                       icon: const Icon(Icons.camera_alt, size: 18),
                       label: const Text("Camera"),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: const Color(0xFF11998e),
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 14,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
                     OutlinedButton.icon(
-                      onPressed: _isProcessing ? null : () => _pickImage(ImageSource.gallery),
+                      onPressed:
+                          _isProcessing
+                              ? null
+                              : () => _pickImage(ImageSource.gallery),
                       icon: const Icon(Icons.photo_library, size: 18),
                       label: const Text("Gallery"),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.white,
                         side: const BorderSide(color: Colors.white70),
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 14,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ],
@@ -165,7 +217,10 @@ class _OcrToolState extends State<OcrTool> {
             const SizedBox(height: 40),
             const CircularProgressIndicator(),
             const SizedBox(height: 16),
-            const Text("Analyzing document with ML Kit...", style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey)),
+            const Text(
+              "Analyzing document with ML Kit...",
+              style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+            ),
           ],
 
           // ─── Error ───
@@ -182,7 +237,12 @@ class _OcrToolState extends State<OcrTool> {
                 children: [
                   const Icon(Icons.error_outline, color: Colors.red),
                   const SizedBox(width: 12),
-                  Expanded(child: Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 13))),
+                  Expanded(
+                    child: Text(
+                      _error!,
+                      style: const TextStyle(color: Colors.red, fontSize: 13),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -193,10 +253,22 @@ class _OcrToolState extends State<OcrTool> {
             const SizedBox(height: 32),
             Row(
               children: [
-                const Icon(Icons.text_snippet, size: 20, color: AppTheme.primary),
+                const Icon(
+                  Icons.text_snippet,
+                  size: 20,
+                  color: AppTheme.primary,
+                ),
                 const SizedBox(width: 8),
                 const Expanded(
-                  child: Text("EXTRACTED TEXT", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primary, letterSpacing: 1)),
+                  child: Text(
+                    "EXTRACTED TEXT",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primary,
+                      letterSpacing: 1,
+                    ),
+                  ),
                 ),
                 TextButton.icon(
                   onPressed: _copyToClipboard,

@@ -47,7 +47,9 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
             content: Text("Error: $e"),
             backgroundColor: AppTheme.error,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -81,7 +83,9 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(28),
+                ),
               ),
               child: Row(
                 children: [
@@ -91,7 +95,11 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                       color: themeColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(Icons.description_rounded, color: themeColor, size: 24),
+                    child: const Icon(
+                      Icons.description_rounded,
+                      color: themeColor,
+                      size: 24,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -100,12 +108,19 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                       children: [
                         Text(
                           "New CC Application",
-                          style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                          style: GoogleFonts.outfit(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primary,
+                          ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           "Log a certified copy tracking entry",
-                          style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500]),
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: Colors.grey[500],
+                          ),
                         ),
                       ],
                     ),
@@ -124,56 +139,136 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Case Selector
-                      Text("SELECT CASE", style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey[400], letterSpacing: 1)),
+                      Text(
+                        "SELECT CASE",
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey[400],
+                          letterSpacing: 1,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       casesAsync.when(
-                        data: (cases) => DropdownButtonFormField<String>(
-                          value: _selectedCaseId,
-                          style: GoogleFonts.inter(color: AppTheme.primary, fontSize: 15),
-                          decoration: InputDecoration(
-                            hintText: "Choose a case...",
-                            prefixIcon: const Icon(Icons.folder_shared_outlined, color: AppTheme.accent),
-                            filled: true,
-                            fillColor: AppTheme.background.withValues(alpha: 0.5),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.border)),
-                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.border)),
-                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppTheme.accent, width: 1.5)),
-                          ),
-                          items: cases.map((c) => DropdownMenuItem(
-                            value: c.id,
-                            child: Text(
-                              c.caseTitle.isEmpty ? (c.caseNumber ?? "Case #${c.id.substring(0, 4)}") : c.caseTitle,
-                              overflow: TextOverflow.ellipsis,
+                        data:
+                            (cases) => DropdownButtonFormField<String>(
+                              value: _selectedCaseId,
+                              style: GoogleFonts.inter(
+                                color: AppTheme.primary,
+                                fontSize: 15,
+                              ),
+                              decoration: InputDecoration(
+                                hintText: "Choose a case...",
+                                prefixIcon: const Icon(
+                                  Icons.folder_shared_outlined,
+                                  color: AppTheme.accent,
+                                ),
+                                filled: true,
+                                fillColor: AppTheme.background.withValues(
+                                  alpha: 0.5,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide(
+                                    color: AppTheme.border,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide(
+                                    color: AppTheme.border,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: const BorderSide(
+                                    color: AppTheme.accent,
+                                    width: 1.5,
+                                  ),
+                                ),
+                              ),
+                              items:
+                                  cases
+                                      .map(
+                                        (c) => DropdownMenuItem(
+                                          value: c.id,
+                                          child: Text(
+                                            c.caseTitle.isEmpty
+                                                ? (c.caseNumber ??
+                                                    "Case #${c.id.substring(0, 4)}")
+                                                : c.caseTitle,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                              onChanged:
+                                  (val) =>
+                                      setState(() => _selectedCaseId = val),
+                              validator:
+                                  (v) =>
+                                      v == null ? "Please select a case" : null,
                             ),
-                          )).toList(),
-                          onChanged: (val) => setState(() => _selectedCaseId = val),
-                          validator: (v) => v == null ? "Please select a case" : null,
-                        ),
                         loading: () => const LinearProgressIndicator(),
-                        error: (e, s) => Text("Error loading cases: $e", style: const TextStyle(color: AppTheme.error)),
+                        error:
+                            (e, s) => Text(
+                              "Error loading cases: $e",
+                              style: const TextStyle(color: AppTheme.error),
+                            ),
                       ),
                       const SizedBox(height: 20),
 
                       // CA Number
-                      Text("CA NUMBER", style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey[400], letterSpacing: 1)),
+                      Text(
+                        "CA NUMBER",
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey[400],
+                          letterSpacing: 1,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _caNumberController,
                         style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                         decoration: InputDecoration(
                           hintText: "e.g. CA/123/2026 (Optional)",
-                          prefixIcon: const Icon(Icons.numbers_rounded, color: AppTheme.accent),
+                          prefixIcon: const Icon(
+                            Icons.numbers_rounded,
+                            color: AppTheme.accent,
+                          ),
                           filled: true,
                           fillColor: AppTheme.background.withValues(alpha: 0.5),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.border)),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.border)),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppTheme.accent, width: 1.5)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: AppTheme.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: AppTheme.border),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: const BorderSide(
+                              color: AppTheme.accent,
+                              width: 1.5,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 20),
 
                       // Box Drop Date
-                      Text("APPLICATION DATE", style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey[400], letterSpacing: 1)),
+                      Text(
+                        "APPLICATION DATE",
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey[400],
+                          letterSpacing: 1,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       InkWell(
                         onTap: () async {
@@ -183,7 +278,8 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                             firstDate: DateTime(1900),
                             lastDate: DateTime.now(),
                           );
-                          if (picked != null) setState(() => _boxDropDate = picked);
+                          if (picked != null)
+                            setState(() => _boxDropDate = picked);
                         },
                         borderRadius: BorderRadius.circular(14),
                         child: Container(
@@ -195,14 +291,26 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.calendar_today_rounded, color: AppTheme.accent, size: 20),
+                              const Icon(
+                                Icons.calendar_today_rounded,
+                                color: AppTheme.accent,
+                                size: 20,
+                              ),
                               const SizedBox(width: 12),
                               Text(
                                 DateFormat('dd MMMM yyyy').format(_boxDropDate),
-                                style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15, color: AppTheme.primary),
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                  color: AppTheme.primary,
+                                ),
                               ),
                               const Spacer(),
-                              Icon(Icons.edit_calendar_rounded, size: 16, color: Colors.grey[400]),
+                              Icon(
+                                Icons.edit_calendar_rounded,
+                                size: 16,
+                                color: Colors.grey[400],
+                              ),
                             ],
                           ),
                         ),
@@ -210,24 +318,62 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                       const SizedBox(height: 20),
 
                       // Initial Status
-                      Text("INITIAL STATUS", style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey[400], letterSpacing: 1)),
+                      Text(
+                        "INITIAL STATUS",
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey[400],
+                          letterSpacing: 1,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         value: _status,
-                        style: GoogleFonts.inter(color: AppTheme.primary, fontSize: 15),
+                        style: GoogleFonts.inter(
+                          color: AppTheme.primary,
+                          fontSize: 15,
+                        ),
                         decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.track_changes_rounded, color: AppTheme.accent),
+                          prefixIcon: const Icon(
+                            Icons.track_changes_rounded,
+                            color: AppTheme.accent,
+                          ),
                           filled: true,
                           fillColor: AppTheme.background.withValues(alpha: 0.5),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.border)),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppTheme.border)),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppTheme.accent, width: 1.5)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: AppTheme.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: AppTheme.border),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: const BorderSide(
+                              color: AppTheme.accent,
+                              width: 1.5,
+                            ),
+                          ),
                         ),
                         items: const [
-                          DropdownMenuItem(value: "box_drop", child: Text("📦  Box Dropped")),
-                          DropdownMenuItem(value: "memo_filed", child: Text("📋  Memo Filed")),
-                          DropdownMenuItem(value: "ready", child: Text("✅  Ready for Collection")),
-                          DropdownMenuItem(value: "collected", child: Text("🤝  Collected")),
+                          DropdownMenuItem(
+                            value: "box_drop",
+                            child: Text("📦  Box Dropped"),
+                          ),
+                          DropdownMenuItem(
+                            value: "memo_filed",
+                            child: Text("📋  Memo Filed"),
+                          ),
+                          DropdownMenuItem(
+                            value: "ready",
+                            child: Text("✅  Ready for Collection"),
+                          ),
+                          DropdownMenuItem(
+                            value: "collected",
+                            child: Text("🤝  Collected"),
+                          ),
                         ],
                         onChanged: (val) => setState(() => _status = val!),
                       ),
@@ -247,10 +393,18 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                         side: BorderSide(color: AppTheme.border),
                       ),
-                      child: Text("Cancel", style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.grey[600])),
+                      child: Text(
+                        "Cancel",
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[600],
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -261,12 +415,27 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                         backgroundColor: AppTheme.accent,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                         elevation: 0,
                       ),
-                      child: _isSaving
-                          ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                          : Text("Log Application", style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                      child:
+                          _isSaving
+                              ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                              : Text(
+                                "Log Application",
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                     ),
                   ),
                 ],

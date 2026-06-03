@@ -28,14 +28,14 @@ class AnalyticsService {
   // ─── Feature Usage ─────────────────────────────────────
 
   /// Log when a user uses a specific feature/tool.
-  static Future<void> logFeatureUsed(String featureName, {Map<String, Object>? params}) async {
+  static Future<void> logFeatureUsed(
+    String featureName, {
+    Map<String, Object>? params,
+  }) async {
     try {
       await _analytics.logEvent(
         name: 'feature_used',
-        parameters: {
-          'feature_name': featureName,
-          ...?params,
-        },
+        parameters: {'feature_name': featureName, ...?params},
       );
     } catch (e) {
       debugPrint('Analytics: Failed to log feature usage: $e');
@@ -45,7 +45,10 @@ class AnalyticsService {
   // ─── Custom Events ─────────────────────────────────────
 
   /// Log a custom event with optional parameters.
-  static Future<void> logEvent(String name, [Map<String, Object>? params]) async {
+  static Future<void> logEvent(
+    String name, [
+    Map<String, Object>? params,
+  ]) async {
     try {
       await _analytics.logEvent(name: name, parameters: params);
     } catch (e) {
@@ -93,15 +96,20 @@ class AnalyticsService {
   static Future<void> logToolUsed(String toolName) =>
       logFeatureUsed(toolName, params: {'category': 'tool'});
 
-  static Future<void> logPortalAccessed(String state, String district, String type) =>
-      logEvent('portal_accessed', {
-        'state': state,
-        'district': district,
-        'portal_type': type,
-      });
+  static Future<void> logPortalAccessed(
+    String state,
+    String district,
+    String type,
+  ) => logEvent('portal_accessed', {
+    'state': state,
+    'district': district,
+    'portal_type': type,
+  });
 
   static Future<void> logChamberMessageSent({bool hasAttachment = false}) =>
-      logEvent('chamber_message_sent', {'has_attachment': hasAttachment.toString()});
+      logEvent('chamber_message_sent', {
+        'has_attachment': hasAttachment.toString(),
+      });
 
   static Future<void> logBareActViewed(String actName) =>
       logEvent('bare_act_viewed', {'act_name': actName});

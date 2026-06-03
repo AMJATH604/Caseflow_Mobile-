@@ -92,7 +92,6 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
   }
 
   Future<void> _selectAct(Map<String, dynamic> act) async {
-
     setState(() {
       _selectedAct = act;
       _isLoadingSections = true;
@@ -120,33 +119,40 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
   void _filterSections() {
     final query = _searchController.text.toLowerCase().trim();
     // Normalize query by removing common prefixes to match section/article numbers
-    final cleanQuery = query.replaceAll(
-      RegExp(r'^(art\w*|sec\w*|article|section)\s*\.?\s*', caseSensitive: false), 
-      ''
-    ).trim();
+    final cleanQuery =
+        query
+            .replaceAll(
+              RegExp(
+                r'^(art\w*|sec\w*|article|section)\s*\.?\s*',
+                caseSensitive: false,
+              ),
+              '',
+            )
+            .trim();
 
     setState(() {
       if (query.isEmpty) {
         _filteredSections = _sections;
       } else {
-        _filteredSections = _sections.where((section) {
-          final sectionNo =
-              section['section_number']?.toString().toLowerCase() ?? '';
-          final title =
-              section['section_title']?.toString().toLowerCase() ?? '';
-          final text =
-              section['section_text']?.toString().toLowerCase() ?? '';
+        _filteredSections =
+            _sections.where((section) {
+              final sectionNo =
+                  section['section_number']?.toString().toLowerCase() ?? '';
+              final title =
+                  section['section_title']?.toString().toLowerCase() ?? '';
+              final text =
+                  section['section_text']?.toString().toLowerCase() ?? '';
 
-          bool matchesClean = false;
-          if (cleanQuery.isNotEmpty && cleanQuery != query) {
-            matchesClean = sectionNo.contains(cleanQuery);
-          }
+              bool matchesClean = false;
+              if (cleanQuery.isNotEmpty && cleanQuery != query) {
+                matchesClean = sectionNo.contains(cleanQuery);
+              }
 
-          return sectionNo.contains(query) ||
-              title.contains(query) ||
-              text.contains(query) ||
-              matchesClean;
-        }).toList();
+              return sectionNo.contains(query) ||
+                  title.contains(query) ||
+                  text.contains(query) ||
+                  matchesClean;
+            }).toList();
       }
     });
   }
@@ -187,9 +193,9 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Could not open PDF")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Could not open PDF")));
       }
     }
   }
@@ -204,8 +210,10 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
             children: [
               CircularProgressIndicator(color: AppTheme.primary),
               SizedBox(height: 16),
-              Text("Loading Legal Library...",
-                  style: TextStyle(color: Colors.grey, fontSize: 14)),
+              Text(
+                "Loading Legal Library...",
+                style: TextStyle(color: Colors.grey, fontSize: 14),
+              ),
             ],
           ),
         ),
@@ -258,27 +266,34 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                             color: Colors.white.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.library_books_rounded,
-                              color: Color(0xFF1E293B), size: 24),
+                          child: const Icon(
+                            Icons.library_books_rounded,
+                            color: Color(0xFF1E293B),
+                            size: 24,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         const Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Legal Library",
-                                  style: TextStyle(
-                                    color: Color(0xFF1E293B),
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: -0.5,
-                                  )),
+                              Text(
+                                "Legal Library",
+                                style: TextStyle(
+                                  color: Color(0xFF1E293B),
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
                               SizedBox(height: 2),
-                              Text("Browse & Search Indian Statutes",
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 13,
-                                  )),
+                              Text(
+                                "Browse & Search Indian Statutes",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 13,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -290,23 +305,31 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                       onTap: () => setState(() => _showGlobalSearch = true),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 14),
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.2)),
+                            color: Colors.white.withValues(alpha: 0.2),
+                          ),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.search_rounded,
-                                color: Colors.white.withValues(alpha: 0.7),
-                                size: 20),
+                            Icon(
+                              Icons.search_rounded,
+                              color: Colors.white.withValues(alpha: 0.7),
+                              size: 20,
+                            ),
                             const SizedBox(width: 12),
-                            Text("Search across all acts...",
-                                style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.6),
-                                    fontSize: 14)),
+                            Text(
+                              "Search across all acts...",
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.6),
+                                fontSize: 14,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -319,12 +342,17 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
             // Stats Row
             SliverToBoxAdapter(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 child: Row(
                   children: [
                     _buildStatChip(
-                        Icons.book_rounded, "${_acts.length}", "Statutes"),
+                      Icons.book_rounded,
+                      "${_acts.length}",
+                      "Statutes",
+                    ),
                     const SizedBox(width: 8),
                     _buildStatChip(Icons.article_rounded, "—", "Sections"),
                   ],
@@ -347,12 +375,14 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Text("Available Statutes",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.3,
-                        )),
+                    const Text(
+                      "Available Statutes",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -362,22 +392,21 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
             _acts.isEmpty
                 ? SliverToBoxAdapter(child: _buildEmptyState())
                 : SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                    sliver: SliverGrid(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 0.85,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) =>
-                            _buildActCard(_acts[index], index),
-                        childCount: _acts.length,
-                      ),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  sliver: SliverGrid(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 0.85,
+                        ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => _buildActCard(_acts[index], index),
+                      childCount: _acts.length,
                     ),
                   ),
+                ),
           ],
         ),
       ),
@@ -403,12 +432,12 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
         children: [
           Icon(icon, size: 16, color: AppTheme.primary),
           const SizedBox(width: 6),
-          Text(value,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w700, fontSize: 14)),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+          ),
           const SizedBox(width: 4),
-          Text(label,
-              style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+          Text(label, style: TextStyle(color: Colors.grey[500], fontSize: 12)),
         ],
       ),
     );
@@ -417,7 +446,8 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
   Widget _buildActCard(dynamic act, int index) {
     final gradient = _cardGradients[index % _cardGradients.length];
     final icon = _actIcons[index % _actIcons.length];
-    final hasPdf = act['pdf_url'] != null && act['pdf_url'].toString().isNotEmpty;
+    final hasPdf =
+        act['pdf_url'] != null && act['pdf_url'].toString().isNotEmpty;
     final shortTitle = act['short_title'] ?? '';
     final title = act['title'] ?? 'Untitled';
 
@@ -446,8 +476,11 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
             Positioned(
               right: -15,
               bottom: -15,
-              child: Icon(icon,
-                  size: 80, color: Colors.white.withValues(alpha: 0.08)),
+              child: Icon(
+                icon,
+                size: 80,
+                color: Colors.white.withValues(alpha: 0.08),
+              ),
             ),
 
             // Content
@@ -466,13 +499,18 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                           color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child:
-                            Icon(icon, color: const Color(0xFF1E293B), size: 22),
+                        child: Icon(
+                          icon,
+                          color: const Color(0xFF1E293B),
+                          size: 22,
+                        ),
                       ),
                       if (hasPdf)
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
@@ -480,15 +518,20 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.picture_as_pdf_rounded,
-                                  color: Color(0xFF1E293B), size: 12),
+                              Icon(
+                                Icons.picture_as_pdf_rounded,
+                                color: Color(0xFF1E293B),
+                                size: 12,
+                              ),
                               SizedBox(width: 3),
-                              Text("PDF",
-                                  style: TextStyle(
-                                    color: Color(0xFF1E293B),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                  )),
+                              Text(
+                                "PDF",
+                                style: TextStyle(
+                                  color: Color(0xFF1E293B),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -499,24 +542,28 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
 
                   // Short Title
                   if (shortTitle.isNotEmpty)
-                    Text(shortTitle,
-                        style: const TextStyle(
-                          color: Color(0xFF1E293B),
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
-                        )),
+                    Text(
+                      shortTitle,
+                      style: const TextStyle(
+                        color: Color(0xFF1E293B),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                   const SizedBox(height: 4),
 
                   // Full Title
-                  Text(title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 11,
-                        height: 1.3,
-                      )),
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: 11,
+                      height: 1.3,
+                    ),
+                  ),
 
                   const SizedBox(height: 8),
 
@@ -532,9 +579,11 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                         ),
                       ),
                       const Spacer(),
-                      Icon(Icons.arrow_forward_ios_rounded,
-                          color: Colors.white.withValues(alpha: 0.5),
-                          size: 12),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Colors.white.withValues(alpha: 0.5),
+                        size: 12,
+                      ),
                     ],
                   ),
                 ],
@@ -559,18 +608,26 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                 color: AppTheme.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.library_books_outlined,
-                  size: 48, color: AppTheme.primary.withValues(alpha: 0.4)),
+              child: Icon(
+                Icons.library_books_outlined,
+                size: 48,
+                color: AppTheme.primary.withValues(alpha: 0.4),
+              ),
             ),
             const SizedBox(height: 20),
-            const Text("No Statutes Yet",
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87)),
+            const Text(
+              "No Statutes Yet",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
             const SizedBox(height: 8),
-            Text("Upload bare acts from the admin dashboard",
-                style: TextStyle(color: Colors.grey[500], fontSize: 13)),
+            Text(
+              "Upload bare acts from the admin dashboard",
+              style: TextStyle(color: Colors.grey[500], fontSize: 13),
+            ),
           ],
         ),
       ),
@@ -587,23 +644,24 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => setState(() {
-            _showGlobalSearch = false;
-            _globalSearchResults = [];
-            _globalSearchController.clear();
-          }),
+          onPressed:
+              () => setState(() {
+                _showGlobalSearch = false;
+                _globalSearchResults = [];
+                _globalSearchController.clear();
+              }),
         ),
-        title: const Text("Search All Acts",
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 17)),
+        title: const Text(
+          "Search All Acts",
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
+        ),
       ),
       body: Column(
         children: [
           // Search Input & Filters
           Container(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            decoration: const BoxDecoration(
-              color: Color(0xFF1A1A2E),
-            ),
+            decoration: const BoxDecoration(color: Color(0xFF1A1A2E)),
             child: Column(
               children: [
                 TextField(
@@ -612,27 +670,33 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   style: const TextStyle(color: Colors.white, fontSize: 15),
                   decoration: InputDecoration(
                     hintText: "Search sections, titles, or keywords...",
-                    hintStyle:
-                        TextStyle(color: Colors.white.withValues(alpha: 0.4)),
+                    hintStyle: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.4),
+                    ),
                     filled: true,
                     fillColor: Colors.white.withValues(alpha: 0.12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
                     ),
-                    prefixIcon: Icon(Icons.search_rounded,
-                        color: Colors.white.withValues(alpha: 0.6)),
-                    suffixIcon: _globalSearchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: Icon(Icons.clear_rounded,
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: Colors.white.withValues(alpha: 0.6),
+                    ),
+                    suffixIcon:
+                        _globalSearchController.text.isNotEmpty
+                            ? IconButton(
+                              icon: Icon(
+                                Icons.clear_rounded,
                                 color: Colors.white.withValues(alpha: 0.6),
-                                size: 20),
-                            onPressed: () {
-                              _globalSearchController.clear();
-                              setState(() => _globalSearchResults = []);
-                            },
-                          )
-                        : null,
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                _globalSearchController.clear();
+                                setState(() => _globalSearchResults = []);
+                              },
+                            )
+                            : null,
                     contentPadding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   onChanged: (value) {
@@ -650,7 +714,12 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   child: Row(
                     children: [
                       _buildFilterChip(null, "All Acts"),
-                      ..._acts.map((act) => _buildFilterChip(act['id'], act['short_title'] ?? act['title'])),
+                      ..._acts.map(
+                        (act) => _buildFilterChip(
+                          act['id'],
+                          act['short_title'] ?? act['title'],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -661,37 +730,43 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
 
           // Results
           Expanded(
-            child: _isSearchingGlobal
-                ? const Center(
-                    child: CircularProgressIndicator(color: AppTheme.primary))
-                : _globalSearchResults.isEmpty
+            child:
+                _isSearchingGlobal
+                    ? const Center(
+                      child: CircularProgressIndicator(color: AppTheme.primary),
+                    )
+                    : _globalSearchResults.isEmpty
                     ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.search_rounded,
-                                size: 56,
-                                color: Colors.grey[300]),
-                            const SizedBox(height: 12),
-                            Text(
-                              _globalSearchController.text.isEmpty
-                                  ? "Search for any section or keyword"
-                                  : "No results found",
-                              style: TextStyle(
-                                  color: Colors.grey[500], fontSize: 14),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_rounded,
+                            size: 56,
+                            color: Colors.grey[300],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            _globalSearchController.text.isEmpty
+                                ? "Search for any section or keyword"
+                                : "No results found",
+                            style: TextStyle(
+                              color: Colors.grey[500],
+                              fontSize: 14,
                             ),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _globalSearchResults.length,
-                        itemBuilder: (context, index) {
-                          final result = _globalSearchResults[index];
-                          final actInfo = result['bare_acts'];
-                          return _buildSearchResultCard(result, actInfo);
-                        },
+                          ),
+                        ],
                       ),
+                    )
+                    : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _globalSearchResults.length,
+                      itemBuilder: (context, index) {
+                        final result = _globalSearchResults[index];
+                        final actInfo = result['bare_acts'];
+                        return _buildSearchResultCard(result, actInfo);
+                      },
+                    ),
           ),
         ],
       ),
@@ -702,7 +777,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
     return GestureDetector(
       onTap: () async {
         if (actInfo == null) return;
-        
+
         // 1. Exit search
         setState(() {
           _showGlobalSearch = false;
@@ -749,15 +824,18 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   Text(
                     actInfo?['short_title'] ?? 'Unknown Act',
                     style: const TextStyle(
-                      color: Colors.white, 
-                      fontWeight: FontWeight.w800, 
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
                       fontSize: 12,
                       letterSpacing: 0.5,
-                    )
+                    ),
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.amber.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(6),
@@ -765,9 +843,9 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                     child: Text(
                       "${(actInfo?['short_title']?.toString().toLowerCase().contains('constitution') ?? false) ? 'Art' : 'Sec'} ${result['section_number'] ?? '—'}",
                       style: const TextStyle(
-                        color: Colors.black, 
-                        fontWeight: FontWeight.w900, 
-                        fontSize: 11
+                        color: Colors.black,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 11,
                       ),
                     ),
                   ),
@@ -781,16 +859,23 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(result['section_title'] ?? '',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 14)),
+                  Text(
+                    result['section_title'] ?? '',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   Text(
                     result['section_text'] ?? '',
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                        color: Colors.grey[600], fontSize: 13, height: 1.5),
+                      color: Colors.grey[600],
+                      fontSize: 13,
+                      height: 1.5,
+                    ),
                   ),
                 ],
               ),
@@ -805,7 +890,8 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
   Widget _buildSectionsView() {
     String? currentChapter;
     final hasPdf =
-        _selectedAct!['pdf_url'] != null && _selectedAct!['pdf_url'].toString().isNotEmpty;
+        _selectedAct!['pdf_url'] != null &&
+        _selectedAct!['pdf_url'].toString().isNotEmpty;
     final hasSections = _sections.isNotEmpty;
 
     return Scaffold(
@@ -828,17 +914,24 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   padding: const EdgeInsets.only(right: 8),
                   child: TextButton.icon(
                     onPressed: _openPdf,
-                    icon: const Icon(Icons.picture_as_pdf_rounded,
-                        color: Color(0xFF1E293B), size: 18),
-                    label: const Text("PDF",
-                        style: TextStyle(
-                            color: Color(0xFF1E293B),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13)),
+                    icon: const Icon(
+                      Icons.picture_as_pdf_rounded,
+                      color: Color(0xFF1E293B),
+                      size: 18,
+                    ),
+                    label: const Text(
+                      "PDF",
+                      style: TextStyle(
+                        color: Color(0xFF1E293B),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
                     style: TextButton.styleFrom(
                       backgroundColor: Colors.white.withValues(alpha: 0.15),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                 ),
@@ -898,15 +991,22 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   decoration: InputDecoration(
                     hintText: "Search sections or keywords...",
                     hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-                    prefixIcon: const Icon(Icons.search_rounded,
-                        color: AppTheme.primary, size: 20),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: Icon(Icons.clear_rounded,
-                                size: 18, color: Colors.grey[400]),
-                            onPressed: () => _searchController.clear(),
-                          )
-                        : null,
+                    prefixIcon: const Icon(
+                      Icons.search_rounded,
+                      color: AppTheme.primary,
+                      size: 20,
+                    ),
+                    suffixIcon:
+                        _searchController.text.isNotEmpty
+                            ? IconButton(
+                              icon: Icon(
+                                Icons.clear_rounded,
+                                size: 18,
+                                color: Colors.grey[400],
+                              ),
+                              onPressed: () => _searchController.clear(),
+                            )
+                            : null,
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -919,8 +1019,10 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide:
-                          const BorderSide(color: AppTheme.primary, width: 1.5),
+                      borderSide: const BorderSide(
+                        color: AppTheme.primary,
+                        width: 1.5,
+                      ),
                     ),
                     contentPadding: const EdgeInsets.symmetric(vertical: 14),
                   ),
@@ -950,13 +1052,20 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                           color: Colors.red.withValues(alpha: 0.08),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.picture_as_pdf_rounded,
-                            size: 48, color: Colors.red),
+                        child: const Icon(
+                          Icons.picture_as_pdf_rounded,
+                          size: 48,
+                          color: Colors.red,
+                        ),
                       ),
                       const SizedBox(height: 24),
-                      const Text("PDF Available",
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w700)),
+                      const Text(
+                        "PDF Available",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       Text(
                         "This statute is available as a PDF.\nSection-wise search will be available when sections are uploaded.",
@@ -969,14 +1078,17 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                         child: ElevatedButton.icon(
                           onPressed: _openPdf,
                           icon: const Icon(Icons.open_in_new_rounded),
-                          label: const Text("Open Full PDF",
-                              style: TextStyle(fontWeight: FontWeight.w600)),
+                          label: const Text(
+                            "Open Full PDF",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF1A1A2E),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14)),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
                           ),
                         ),
                       ),
@@ -992,16 +1104,24 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.hourglass_empty_rounded,
-                        size: 48, color: Colors.grey[300]),
+                    Icon(
+                      Icons.hourglass_empty_rounded,
+                      size: 48,
+                      color: Colors.grey[300],
+                    ),
                     const SizedBox(height: 16),
-                    const Text("Coming Soon",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w600)),
+                    const Text(
+                      "Coming Soon",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Text(
-                        "Sections for this act will be uploaded soon.",
-                        style: TextStyle(color: Colors.grey[500])),
+                      "Sections for this act will be uploaded soon.",
+                      style: TextStyle(color: Colors.grey[500]),
+                    ),
                   ],
                 ),
               ),
@@ -1011,90 +1131,92 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final section = _filteredSections[index];
-                    final chapterNo = section['chapter_number'];
-                    final chapterTitle = section['chapter_title'];
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final section = _filteredSections[index];
+                  final chapterNo = section['chapter_number'];
+                  final chapterTitle = section['chapter_title'];
 
-                    bool showChapterHeader = false;
-                    if (_searchController.text.isEmpty &&
-                        currentChapter != chapterNo) {
-                      showChapterHeader = true;
-                      currentChapter = chapterNo;
-                    }
+                  bool showChapterHeader = false;
+                  if (_searchController.text.isEmpty &&
+                      currentChapter != chapterNo) {
+                    showChapterHeader = true;
+                    currentChapter = chapterNo;
+                  }
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (showChapterHeader &&
-                            chapterNo != null &&
-                            chapterNo.toString().isNotEmpty) ...[
-                          if (index > 0) const SizedBox(height: 20),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16, horizontal: 20),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF1E293B),
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 4,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    color: Colors.amber,
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                          "CHAPTER $chapterNo",
-                                          style: const TextStyle(
-                                          color: Colors.amber,
-                                          fontWeight: FontWeight.w900,
-                                          fontSize: 12,
-                                          letterSpacing: 2.0,
-                                        )),
-                                      if (chapterTitle != null &&
-                                          chapterTitle.toString().isNotEmpty)
-                                        Padding(
-                                          padding: const EdgeInsets.only(top: 4),
-                                          child: Text(chapterTitle.toString(),
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 15,
-                                              )),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (showChapterHeader &&
+                          chapterNo != null &&
+                          chapterNo.toString().isNotEmpty) ...[
+                        if (index > 0) const SizedBox(height: 20),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 16,
+                            horizontal: 20,
                           ),
-                          const SizedBox(height: 16),
-                        ],
-                        // Section Card
-                        _buildSectionCard(section),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E293B),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 4,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: Colors.amber,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "CHAPTER $chapterNo",
+                                      style: const TextStyle(
+                                        color: Colors.amber,
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 12,
+                                        letterSpacing: 2.0,
+                                      ),
+                                    ),
+                                    if (chapterTitle != null &&
+                                        chapterTitle.toString().isNotEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 4),
+                                        child: Text(
+                                          chapterTitle.toString(),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                       ],
-                    );
-                  },
-                  childCount: _filteredSections.length,
-                ),
+                      // Section Card
+                      _buildSectionCard(section),
+                    ],
+                  );
+                }, childCount: _filteredSections.length),
               ),
             ),
         ],
@@ -1126,14 +1248,15 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF1E293B), Color(0xFF334155)],
                   ),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.1),
+                  ),
                 ),
                 child: Text(
                   "${(_selectedAct?['short_title']?.toString().toLowerCase().contains('constitution') ?? false) ? 'Article' : 'Section'} ${section['section_number'] ?? '—'}",

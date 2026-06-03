@@ -18,9 +18,10 @@ class DailyBoardWidget extends ConsumerWidget {
         final today = DateTime.now();
         final todayStr = DateFormat('yyyy-MM-dd').format(today);
 
-        final todayHearings = allHearings.where((h) {
-          return DateFormat('yyyy-MM-dd').format(h.hearingDate) == todayStr;
-        }).toList();
+        final todayHearings =
+            allHearings.where((h) {
+              return DateFormat('yyyy-MM-dd').format(h.hearingDate) == todayStr;
+            }).toList();
 
         if (todayHearings.isEmpty) {
           return _buildEmptyBoard(today);
@@ -47,7 +48,11 @@ class DailyBoardWidget extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.calendar_view_day_rounded, color: AppTheme.accent, size: 18),
+                      const Icon(
+                        Icons.calendar_view_day_rounded,
+                        color: AppTheme.accent,
+                        size: 18,
+                      ),
                       const SizedBox(width: 10),
                       Text(
                         "TODAY'S SCHEDULE",
@@ -81,15 +86,26 @@ class DailyBoardWidget extends ConsumerWidget {
               return InkWell(
                 onTap: () => context.push('/cases/${h.caseId}'),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border(
                       left: const BorderSide(color: AppTheme.border),
                       right: const BorderSide(color: AppTheme.border),
-                      bottom: BorderSide(color: AppTheme.border, width: isLast ? 1 : 0.5),
+                      bottom: BorderSide(
+                        color: AppTheme.border,
+                        width: isLast ? 1 : 0.5,
+                      ),
                     ),
-                    borderRadius: isLast ? const BorderRadius.vertical(bottom: Radius.circular(16)) : null,
+                    borderRadius:
+                        isLast
+                            ? const BorderRadius.vertical(
+                              bottom: Radius.circular(16),
+                            )
+                            : null,
                   ),
                   child: Row(
                     children: [
@@ -129,7 +145,11 @@ class DailyBoardWidget extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF94A3B8), size: 14),
+                      const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Color(0xFF94A3B8),
+                        size: 14,
+                      ),
                     ],
                   ),
                 ),
@@ -150,7 +170,11 @@ class DailyBoardWidget extends ConsumerWidget {
       decoration: AppTheme.cardDecoration(),
       child: Column(
         children: [
-          const Icon(Icons.event_available_rounded, size: 32, color: Color(0xFF94A3B8)),
+          const Icon(
+            Icons.event_available_rounded,
+            size: 32,
+            color: Color(0xFF94A3B8),
+          ),
           const SizedBox(height: 16),
           Text(
             "NO HEARINGS TODAY",
@@ -176,7 +200,13 @@ class DailyBoardWidget extends ConsumerWidget {
   }
 
   Color _itemColor(int index) {
-    const colors = [AppTheme.accent, AppTheme.accentViolet, Color(0xFF10B981), Color(0xFF3B82F6), Color(0xFFF59E0B)];
+    const colors = [
+      AppTheme.accent,
+      AppTheme.accentViolet,
+      Color(0xFF10B981),
+      Color(0xFF3B82F6),
+      Color(0xFFF59E0B),
+    ];
     return colors[index % colors.length];
   }
 }

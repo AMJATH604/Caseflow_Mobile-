@@ -7,7 +7,9 @@ class FirmService {
   /// Fetches all members of a firm.
   /// If [explicitOwnerId] is provided, fetches members for that firm (used by associates).
   /// Otherwise, fetches for the current user's own firm.
-  static Future<List<FirmMember>> fetchFirmMembers({String? explicitOwnerId}) async {
+  static Future<List<FirmMember>> fetchFirmMembers({
+    String? explicitOwnerId,
+  }) async {
     final user = client.auth.currentUser;
     if (user == null) throw Exception("Not authenticated");
 
@@ -17,10 +19,9 @@ class FirmService {
         .from('firm_members')
         .select('*, profiles:member_id(full_name)')
         .eq('owner_id', targetId);
-    
+
     return (response as List).map((json) => FirmMember.fromJson(json)).toList();
   }
-
 
   /// Invites a member to the firm by email. No member limit.
   static Future<void> inviteMember(String email) async {
@@ -28,31 +29,36 @@ class FirmService {
     if (user == null) throw Exception("Not authenticated");
 
     // Check if they are already in the firm (or pending)
-    final existing = await client
-        .from('firm_members')
-        .select()
-        .eq('owner_id', user.id)
-        .eq('member_email', email)
-        .maybeSingle();
+    final existing =
+        await client
+            .from('firm_members')
+            .select()
+            .eq('owner_id', user.id)
+            .eq('member_email', email)
+            .maybeSingle();
 
     if (existing != null) {
       if (existing['status'] == 'accepted') {
-        throw Exception("An advocate with this email is already a member of your team.");
+        throw Exception(
+          "An advocate with this email is already a member of your team.",
+        );
       } else {
         // Refresh the pending invitation
-        await client.from('firm_members').update({
-          'created_at': DateTime.now().toIso8601String(),
-        }).eq('id', existing['id']);
-        return; 
+        await client
+            .from('firm_members')
+            .update({'created_at': DateTime.now().toIso8601String()})
+            .eq('id', existing['id']);
+        return;
       }
     }
 
     // Check if member already has a profile to pre-link
-    final memberProfile = await client
-        .from('profiles')
-        .select('id')
-        .eq('email', email)
-        .maybeSingle();
+    final memberProfile =
+        await client
+            .from('profiles')
+            .select('id')
+            .eq('email', email)
+            .maybeSingle();
 
     await client.from('firm_members').insert({
       'owner_id': user.id,
@@ -65,30 +71,32 @@ class FirmService {
   /// Removes a member from the firm and cleans up their access/assignments.
   static Future<void> removeMember(String recordId) async {
     // 1. Get the member_id from the record
-    final record = await client
-        .from('firm_members')
-        .select('member_id')
-        .eq('id', recordId)
-        .maybeSingle();
-    
+    final record =
+        await client
+            .from('firm_members')
+            .select('member_id')
+            .eq('id', recordId)
+            .maybeSingle();
+
     final memberId = record?['member_id'];
 
     if (memberId != null) {
       // 2. Clear their firm_id in profiles
-      await client.from('profiles').update({
-        'firm_id': null,
-      }).eq('id', memberId);
+      await client
+          .from('profiles')
+          .update({'firm_id': null})
+          .eq('id', memberId);
 
       // 3. Unassign all cases currently assigned to them
-      await client.from('cases').update({
-        'assigned_to': null,
-      }).eq('assigned_to', memberId);
+      await client
+          .from('cases')
+          .update({'assigned_to': null})
+          .eq('assigned_to', memberId);
     }
 
     // 4. Delete the firm membership record
     await client.from('firm_members').delete().eq('id', recordId);
   }
-
 
   /// For Members: Fetch invitations addressed to their email.
   static Future<List<FirmMember>> fetchInvitations() async {
@@ -110,27 +118,30 @@ class FirmService {
     if (user == null) throw Exception("Not authenticated");
 
     // 1. Update invitation status
-    await client.from('firm_members').update({
-      'member_id': user.id,
-      'status': 'accepted',
-    }).eq('id', invitationId);
+    await client
+        .from('firm_members')
+        .update({'member_id': user.id, 'status': 'accepted'})
+        .eq('id', invitationId);
 
     // 2. Link the profile to the firm (Owner's ID)
-    final invitation = await client
-        .from('firm_members')
-        .select('owner_id')
-        .eq('id', invitationId)
-        .single();
+    final invitation =
+        await client
+            .from('firm_members')
+            .select('owner_id')
+            .eq('id', invitationId)
+            .single();
 
-    await client.from('profiles').update({
-      'firm_id': invitation['owner_id'],
-    }).eq('id', user.id);
+    await client
+        .from('profiles')
+        .update({'firm_id': invitation['owner_id']})
+        .eq('id', user.id);
   }
 
   /// Assigns a case to a specific member.
   static Future<void> assignCase(String caseId, String? memberId) async {
-    await client.from('cases').update({
-      'assigned_to': memberId,
-    }).eq('id', caseId);
+    await client
+        .from('cases')
+        .update({'assigned_to': memberId})
+        .eq('id', caseId);
   }
 }

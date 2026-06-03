@@ -115,7 +115,10 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 1500),
     );
     _scaleLineWidth = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _scaleLineController, curve: Curves.easeInOutCubic),
+      CurvedAnimation(
+        parent: _scaleLineController,
+        curve: Curves.easeInOutCubic,
+      ),
     );
 
     // Particle controller
@@ -161,9 +164,7 @@ class _SplashScreenState extends State<SplashScreen>
       begin: const Offset(0, 0.15),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(
-        parent: _quoteController,
-        curve: Curves.easeOutCubic),
+      CurvedAnimation(parent: _quoteController, curve: Curves.easeOutCubic),
     );
 
     // --- ANIMATION SCHEDULING ---
@@ -239,7 +240,11 @@ class _SplashScreenState extends State<SplashScreen>
         children: [
           // ─── LAYER 1: MIDNIGHT NAVY TECH SPLASH SCREEN ───
           AnimatedBuilder(
-            animation: Listenable.merge([_bgController, _particleController, _navyOpacity]),
+            animation: Listenable.merge([
+              _bgController,
+              _particleController,
+              _navyOpacity,
+            ]),
             builder: (context, _) {
               return Opacity(
                 opacity: _navyOpacity.value,
@@ -247,10 +252,10 @@ class _SplashScreenState extends State<SplashScreen>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: const [
-                        Color(0xFF0A0E27),  // Deep midnight
-                        Color(0xFF141B3D),  // Dark navy
-                        Color(0xFF0D1B3E),  // Royal navy
-                        Color(0xFF1A1040),  // Deep purple navy
+                        Color(0xFF0A0E27), // Deep midnight
+                        Color(0xFF141B3D), // Dark navy
+                        Color(0xFF0D1B3E), // Royal navy
+                        Color(0xFF1A1040), // Deep purple navy
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -271,21 +276,26 @@ class _SplashScreenState extends State<SplashScreen>
                       Center(
                         child: AnimatedBuilder(
                           animation: _logoController,
-                          builder: (context, _) => Container(
-                            width: 280,
-                            height: 280,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  const Color(0xFF2563EB).withValues(alpha: _glowOpacity.value * 0.35),
-                                  const Color(0xFF6366F1).withValues(alpha: _glowOpacity.value * 0.15),
-                                  Colors.transparent,
-                                ],
-                                stops: const [0.0, 0.5, 1.0],
+                          builder:
+                              (context, _) => Container(
+                                width: 280,
+                                height: 280,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: RadialGradient(
+                                    colors: [
+                                      const Color(0xFF2563EB).withValues(
+                                        alpha: _glowOpacity.value * 0.35,
+                                      ),
+                                      const Color(0xFF6366F1).withValues(
+                                        alpha: _glowOpacity.value * 0.15,
+                                      ),
+                                      Colors.transparent,
+                                    ],
+                                    stops: const [0.0, 0.5, 1.0],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
                         ),
                       ),
 
@@ -297,133 +307,145 @@ class _SplashScreenState extends State<SplashScreen>
                             children: [
                               const Spacer(flex: 3),
 
-                            // Animated Logo
-                            AnimatedBuilder(
-                              animation: _logoController,
-                              builder: (context, child) => Opacity(
-                                opacity: _logoOpacity.value,
-                                child: Transform.scale(
-                                  scale: _logoScale.value,
-                                  child: child,
-                                ),
-                              ),
-                              child: Container(
-                                width: logoSize,
-                                height: logoSize,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(30),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFF2563EB).withValues(alpha: 0.4),
-                                      blurRadius: 40,
-                                      spreadRadius: 5,
+                              // Animated Logo
+                              AnimatedBuilder(
+                                animation: _logoController,
+                                builder:
+                                    (context, child) => Opacity(
+                                      opacity: _logoOpacity.value,
+                                      child: Transform.scale(
+                                        scale: _logoScale.value,
+                                        child: child,
+                                      ),
                                     ),
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(30),
-                                  child: Image.asset(
-                                    'assets/images/logo.png',
-                                    fit: BoxFit.contain,
+                                child: Container(
+                                  width: logoSize,
+                                  height: logoSize,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(
+                                          0xFF2563EB,
+                                        ).withValues(alpha: 0.4),
+                                        blurRadius: 40,
+                                        spreadRadius: 5,
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(height: 12),
-
-                            // Animated scale of justice line
-                            AnimatedBuilder(
-                              animation: _scaleLineController,
-                              builder: (context, _) => SizedBox(
-                                width: 200 * _scaleLineWidth.value,
-                                child: CustomPaint(
-                                  size: const Size(200, 30),
-                                  painter: _ScalesLinePainter(
-                                    progress: _scaleLineWidth.value,
-                                    color: const Color(0xFFD4AF37),
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(height: 20),
-
-                            // App Name
-                            AnimatedBuilder(
-                              animation: _textController,
-                              builder: (context, _) => SlideTransition(
-                                position: _titleSlide,
-                                child: Opacity(
-                                  opacity: _titleOpacity.value,
-                                  child: Text(
-                                    AppConstants.appName.toUpperCase(),
-                                    style: GoogleFonts.playfairDisplay(
-                                      fontSize: titleFontSize,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                      letterSpacing: 6,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(30),
+                                    child: Image.asset(
+                                      'assets/images/logo.png',
+                                      fit: BoxFit.contain,
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
 
-                            const SizedBox(height: 12),
+                              const SizedBox(height: 12),
 
-                            // Tagline
-                            AnimatedBuilder(
-                              animation: _textController,
-                              builder: (context, _) => Opacity(
-                                opacity: _taglineOpacity.value,
-                                child: Text(
-                                  "Empowering Justice, Streamlining Law",
-                                  style: GoogleFonts.inter(
-                                    fontSize: taglineFontSize,
-                                    fontWeight: FontWeight.w400,
-                                    color: const Color(0xFFD4AF37),
-                                    letterSpacing: 2,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            const Spacer(flex: 2),
-
-                            // Loading indicator
-                            AnimatedBuilder(
-                              animation: _textController,
-                              builder: (context, _) => Opacity(
-                                opacity: _indicatorOpacity.value,
-                                child: Column(
-                                  children: [
-                                    SizedBox(
-                                      width: 160,
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(4),
-                                        child: LinearProgressIndicator(
-                                          backgroundColor: Colors.white.withValues(alpha: 0.12),
-                                          valueColor: const AlwaysStoppedAnimation<Color>(
-                                            Color(0xFFD4AF37),
-                                          ),
-                                          minHeight: 3.0,
+                              // Animated scale of justice line
+                              AnimatedBuilder(
+                                animation: _scaleLineController,
+                                builder:
+                                    (context, _) => SizedBox(
+                                      width: 200 * _scaleLineWidth.value,
+                                      child: CustomPaint(
+                                        size: const Size(200, 30),
+                                        painter: _ScalesLinePainter(
+                                          progress: _scaleLineWidth.value,
+                                          color: const Color(0xFFD4AF37),
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(height: 14),
-                                    Text(
-                                      "Preparing your workspace\u2026",
-                                      style: GoogleFonts.inter(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white.withValues(alpha: 0.75),
-                                        letterSpacing: 1.2,
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              // App Name
+                              AnimatedBuilder(
+                                animation: _textController,
+                                builder:
+                                    (context, _) => SlideTransition(
+                                      position: _titleSlide,
+                                      child: Opacity(
+                                        opacity: _titleOpacity.value,
+                                        child: Text(
+                                          AppConstants.appName.toUpperCase(),
+                                          style: GoogleFonts.playfairDisplay(
+                                            fontSize: titleFontSize,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white,
+                                            letterSpacing: 6,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ],
-                                ),
                               ),
-                            ),
+
+                              const SizedBox(height: 12),
+
+                              // Tagline
+                              AnimatedBuilder(
+                                animation: _textController,
+                                builder:
+                                    (context, _) => Opacity(
+                                      opacity: _taglineOpacity.value,
+                                      child: Text(
+                                        "Empowering Justice, Streamlining Law",
+                                        style: GoogleFonts.inter(
+                                          fontSize: taglineFontSize,
+                                          fontWeight: FontWeight.w400,
+                                          color: const Color(0xFFD4AF37),
+                                          letterSpacing: 2,
+                                        ),
+                                      ),
+                                    ),
+                              ),
+
+                              const Spacer(flex: 2),
+
+                              // Loading indicator
+                              AnimatedBuilder(
+                                animation: _textController,
+                                builder:
+                                    (context, _) => Opacity(
+                                      opacity: _indicatorOpacity.value,
+                                      child: Column(
+                                        children: [
+                                          SizedBox(
+                                            width: 160,
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              child: LinearProgressIndicator(
+                                                backgroundColor: Colors.white
+                                                    .withValues(alpha: 0.12),
+                                                valueColor:
+                                                    const AlwaysStoppedAnimation<
+                                                      Color
+                                                    >(Color(0xFFD4AF37)),
+                                                minHeight: 3.0,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 14),
+                                          Text(
+                                            "Preparing your workspace\u2026",
+                                            style: GoogleFonts.inter(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.white.withValues(
+                                                alpha: 0.75,
+                                              ),
+                                              letterSpacing: 1.2,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                              ),
 
                               const SizedBox(height: 40),
                             ],
@@ -439,7 +461,10 @@ class _SplashScreenState extends State<SplashScreen>
 
           // ─── LAYER 2: PARCHMENT & GOLD AMBEDKAR SPLASH SCREEN ───
           AnimatedBuilder(
-            animation: Listenable.merge([_portraitController, _quoteController]),
+            animation: Listenable.merge([
+              _portraitController,
+              _quoteController,
+            ]),
             builder: (context, _) {
               if (_portraitOpacity.value == 0.0) return const SizedBox.shrink();
               return Opacity(
@@ -450,10 +475,10 @@ class _SplashScreenState extends State<SplashScreen>
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Color(0xFF0A0E27),  // Deep midnight navy
-                        Color(0xFF141B3D),  // Dark navy
-                        Color(0xFF1A1040),  // Deep purple navy
-                        Color(0xFF0D1117),  // Near black
+                        Color(0xFF0A0E27), // Deep midnight navy
+                        Color(0xFF141B3D), // Dark navy
+                        Color(0xFF1A1040), // Deep purple navy
+                        Color(0xFF0D1117), // Near black
                       ],
                       stops: [0.0, 0.3, 0.7, 1.0],
                       begin: Alignment.topCenter,
@@ -480,12 +505,16 @@ class _SplashScreenState extends State<SplashScreen>
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+                                  color: const Color(
+                                    0xFFD4AF37,
+                                  ).withValues(alpha: 0.3),
                                   blurRadius: 50,
                                   spreadRadius: 8,
                                 ),
                                 BoxShadow(
-                                  color: const Color(0xFF6B531F).withValues(alpha: 0.4),
+                                  color: const Color(
+                                    0xFF6B531F,
+                                  ).withValues(alpha: 0.4),
                                   blurRadius: 35,
                                   spreadRadius: 3,
                                   offset: const Offset(0, 12),
@@ -552,10 +581,13 @@ class _SplashScreenState extends State<SplashScreen>
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(4),
                                   child: LinearProgressIndicator(
-                                    backgroundColor: Colors.white.withValues(alpha: 0.1),
-                                    valueColor: const AlwaysStoppedAnimation<Color>(
-                                      Color(0xFFD4AF37),
+                                    backgroundColor: Colors.white.withValues(
+                                      alpha: 0.1,
                                     ),
+                                    valueColor:
+                                        const AlwaysStoppedAnimation<Color>(
+                                          Color(0xFFD4AF37),
+                                        ),
                                     minHeight: 3.0,
                                   ),
                                 ),
@@ -597,7 +629,8 @@ class _SplashScreenState extends State<SplashScreen>
 
       return Positioned(
         left: MediaQuery.of(context).size.width * x,
-        top: MediaQuery.of(context).size.height *
+        top:
+            MediaQuery.of(context).size.height *
             ((y + _particleController.value * speed * 0.3) % 1.0),
         child: Container(
           width: size,
@@ -607,9 +640,13 @@ class _SplashScreenState extends State<SplashScreen>
             color: (index % 3 == 0
                     ? const Color(0xFFD4AF37)
                     : index % 3 == 1
-                        ? const Color(0xFF2563EB)
-                        : const Color(0xFF6366F1))
-                .withValues(alpha: 0.15 + 0.15 * sin(_particleController.value * 2 * pi + index)),
+                    ? const Color(0xFF2563EB)
+                    : const Color(0xFF6366F1))
+                .withValues(
+                  alpha:
+                      0.15 +
+                      0.15 * sin(_particleController.value * 2 * pi + index),
+                ),
           ),
         ),
       );
@@ -626,21 +663,18 @@ class _ScalesLinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color.withValues(alpha: 0.6 * progress)
-      ..strokeWidth = 1.2
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
+    final paint =
+        Paint()
+          ..color = color.withValues(alpha: 0.6 * progress)
+          ..strokeWidth = 1.2
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round;
 
     final midX = size.width / 2;
     final midY = size.height / 2;
 
     // Left line
-    canvas.drawLine(
-      Offset(0, midY),
-      Offset(midX - 20 * progress, midY),
-      paint,
-    );
+    canvas.drawLine(Offset(0, midY), Offset(midX - 20 * progress, midY), paint);
 
     // Right line
     canvas.drawLine(
@@ -651,9 +685,10 @@ class _ScalesLinePainter extends CustomPainter {
 
     // Center diamond
     if (progress > 0.5) {
-      final diamondPaint = Paint()
-        ..color = color.withValues(alpha: (progress - 0.5) * 2 * 0.8)
-        ..style = PaintingStyle.fill;
+      final diamondPaint =
+          Paint()
+            ..color = color.withValues(alpha: (progress - 0.5) * 2 * 0.8)
+            ..style = PaintingStyle.fill;
 
       final path = Path();
       const ds = 5.0;

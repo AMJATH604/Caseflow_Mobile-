@@ -15,7 +15,11 @@ class AppSidebar extends ConsumerWidget {
       width: 260,
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
-        border: Border(right: BorderSide(color: Theme.of(context).dividerTheme.color ?? Colors.grey)),
+        border: Border(
+          right: BorderSide(
+            color: Theme.of(context).dividerTheme.color ?? Colors.grey,
+          ),
+        ),
       ),
       child: Column(
         children: [
@@ -29,7 +33,10 @@ class AppSidebar extends ConsumerWidget {
                 "REGISTRY MODULES",
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFCBD5E1) : Colors.black38,
+                  color:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? const Color(0xFFCBD5E1)
+                          : Colors.black38,
                   letterSpacing: 1.5,
                 ),
               ),
@@ -39,18 +46,102 @@ class AppSidebar extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                _buildMenuItem(context, ref, 0, Icons.grid_view_rounded, "Dashboard", "/"),
-                _buildMenuItem(context, ref, 1, Icons.people_alt_rounded, "Directory", "/clients"),
-                _buildMenuItem(context, ref, 2, Icons.folder_copy_rounded, "Case Archive", "/cases"),
-                _buildMenuItem(context, ref, 3, Icons.upload_file_rounded, "E-Filing", "/efiling"),
-                _buildMenuItem(context, ref, 4, Icons.calendar_month_rounded, "Schedule", "/hearings"),
-                _buildMenuItem(context, ref, 5, Icons.snippet_folder_rounded, "Cert. Copies", "/certified-copies"),
-                _buildMenuItem(context, ref, 6, Icons.account_balance_rounded, "Portals", "/portals"),
-                _buildMenuItem(context, ref, 7, Icons.wallet_rounded, "Finances", "/payments"),
-                _buildMenuItem(context, ref, 8, Icons.terminal_rounded, "Admin Tools", "/tools"),
-                _buildMenuItem(context, ref, 9, Icons.assignment_ind_rounded, "Commissioner", "/commissions"),
-                _buildMenuItem(context, ref, 10, Icons.gavel_rounded, "Caveat Tracker", "/caveats"),
-                _buildMenuItem(context, ref, 11, Icons.hub_rounded, "Advocate Hub", "/firm"),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  0,
+                  Icons.grid_view_rounded,
+                  "Dashboard",
+                  "/",
+                ),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  1,
+                  Icons.people_alt_rounded,
+                  "Directory",
+                  "/clients",
+                ),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  2,
+                  Icons.folder_copy_rounded,
+                  "Case Archive",
+                  "/cases",
+                ),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  3,
+                  Icons.upload_file_rounded,
+                  "E-Filing",
+                  "/efiling",
+                ),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  4,
+                  Icons.calendar_month_rounded,
+                  "Schedule",
+                  "/hearings",
+                ),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  5,
+                  Icons.snippet_folder_rounded,
+                  "Cert. Copies",
+                  "/certified-copies",
+                ),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  6,
+                  Icons.account_balance_rounded,
+                  "Portals",
+                  "/portals",
+                ),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  7,
+                  Icons.wallet_rounded,
+                  "Finances",
+                  "/payments",
+                ),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  8,
+                  Icons.terminal_rounded,
+                  "Admin Tools",
+                  "/tools",
+                ),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  9,
+                  Icons.assignment_ind_rounded,
+                  "Commissioner",
+                  "/commissions",
+                ),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  10,
+                  Icons.gavel_rounded,
+                  "Caveat Tracker",
+                  "/caveats",
+                ),
+                _buildMenuItem(
+                  context,
+                  ref,
+                  11,
+                  Icons.hub_rounded,
+                  "Advocate Hub",
+                  "/firm",
+                ),
               ],
             ),
           ),
@@ -72,7 +163,11 @@ class AppSidebar extends ConsumerWidget {
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: AppTheme.accent.withValues(alpha: 0.1)),
             ),
-            child: const Icon(Icons.gavel_rounded, color: AppTheme.accent, size: 22),
+            child: const Icon(
+              Icons.gavel_rounded,
+              color: AppTheme.accent,
+              size: 22,
+            ),
           ),
           const SizedBox(width: 14),
           Column(
@@ -88,7 +183,10 @@ class AppSidebar extends ConsumerWidget {
               Text(
                 "Professional v1.2",
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFCBD5E1) : Colors.black38,
+                  color:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? const Color(0xFFCBD5E1)
+                          : Colors.black38,
                   fontSize: 9,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.5,
@@ -101,18 +199,26 @@ class AppSidebar extends ConsumerWidget {
     );
   }
 
-  Widget _buildMenuItem(BuildContext context, WidgetRef ref, int index, IconData icon, String label, String route) {
+  Widget _buildMenuItem(
+    BuildContext context,
+    WidgetRef ref,
+    int index,
+    IconData icon,
+    String label,
+    String route,
+  ) {
     final isActive = ref.watch(navigationIndexProvider) == index;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.symmetric(vertical: 2),
-      decoration: isActive 
-        ? BoxDecoration(
-            color: AppTheme.accent.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(12),
-          )
-        : null,
+      decoration:
+          isActive
+              ? BoxDecoration(
+                color: AppTheme.accent.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+              )
+              : null,
       child: ListTile(
         onTap: () {
           ref.read(navigationIndexProvider.notifier).state = index;
@@ -121,13 +227,25 @@ class AppSidebar extends ConsumerWidget {
         dense: true,
         leading: Icon(
           icon,
-          color: isActive ? AppTheme.accent : (Theme.of(context).brightness == Brightness.dark ? const Color(0xFFCBD5E1) : Colors.black38),
+          color:
+              isActive
+                  ? AppTheme.accent
+                  : (Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFFCBD5E1)
+                      : Colors.black38),
           size: 18,
         ),
         title: Text(
           label,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: isActive ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87) : (Theme.of(context).brightness == Brightness.dark ? const Color(0xFFCBD5E1) : Colors.black38),
+            color:
+                isActive
+                    ? (Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black87)
+                    : (Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFFCBD5E1)
+                        : Colors.black38),
             fontSize: 13,
             fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
           ),
@@ -142,57 +260,89 @@ class AppSidebar extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Theme.of(context).dividerTheme.color ?? Colors.grey)),
+        border: Border(
+          top: BorderSide(
+            color: Theme.of(context).dividerTheme.color ?? Colors.grey,
+          ),
+        ),
       ),
       child: Column(
         children: [
-          ref.watch(userProfileProvider).when(
-            data: (profile) => Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(12),
-                  decoration: AppTheme.cardDecoration(
-                    isDark: Theme.of(context).brightness == Brightness.dark,
-                    color: Theme.of(context).brightness == Brightness.dark ? AppTheme.surfaceLight : Colors.black.withValues(alpha: 0.04),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.verified_rounded,
-                        color: AppTheme.accent,
-                        size: 18,
+          ref
+              .watch(userProfileProvider)
+              .when(
+                data:
+                    (profile) => Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: AppTheme.cardDecoration(
+                        isDark: Theme.of(context).brightness == Brightness.dark,
+                        color:
+                            Theme.of(context).brightness == Brightness.dark
+                                ? AppTheme.surfaceLight
+                                : Colors.black.withValues(alpha: 0.04),
                       ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                          Text(
-                            "BETA ACCESS",
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
-                              fontWeight: FontWeight.w800,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.verified_rounded,
+                            color: AppTheme.accent,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "BETA ACCESS",
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.labelSmall?.copyWith(
+                                    color:
+                                        Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? Colors.white
+                                            : Colors.black87,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                Text(
+                                  "Unlimited Professional Suite",
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.labelSmall?.copyWith(
+                                    color:
+                                        Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? const Color(0xFFCBD5E1)
+                                            : Colors.black38,
+                                    fontSize: 8,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          Text(
-                            "Unlimited Professional Suite",
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFCBD5E1) : Colors.black38, fontSize: 8),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                loading: () => const SizedBox(height: 40),
+                error: (_, __) => const SizedBox(),
               ),
-            ),
-            loading: () => const SizedBox(height: 40),
-            error: (_, __) => const SizedBox(),
-          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _footerIconBtn(Icons.settings_rounded, () {
-                showDialog(context: context, builder: (context) => const ResetWorkspaceDialog());
+                showDialog(
+                  context: context,
+                  builder: (context) => const ResetWorkspaceDialog(),
+                );
               }, context: context),
-              _footerIconBtn(Icons.logout_rounded, () => SupabaseService.signOut(), context: context),
+              _footerIconBtn(
+                Icons.logout_rounded,
+                () => SupabaseService.signOut(),
+                context: context,
+              ),
             ],
           ),
         ],
@@ -200,10 +350,22 @@ class AppSidebar extends ConsumerWidget {
     );
   }
 
-  Widget _footerIconBtn(IconData icon, VoidCallback onTap, {Color? color, BuildContext? context}) {
-    final isDark = context != null ? Theme.of(context).brightness == Brightness.dark : true;
+  Widget _footerIconBtn(
+    IconData icon,
+    VoidCallback onTap, {
+    Color? color,
+    BuildContext? context,
+  }) {
+    final isDark =
+        context != null
+            ? Theme.of(context).brightness == Brightness.dark
+            : true;
     return IconButton(
-      icon: Icon(icon, color: color ?? (isDark ? const Color(0xFFCBD5E1) : Colors.black26), size: 20),
+      icon: Icon(
+        icon,
+        color: color ?? (isDark ? const Color(0xFFCBD5E1) : Colors.black26),
+        size: 20,
+      ),
       onPressed: onTap,
       visualDensity: VisualDensity.compact,
     );

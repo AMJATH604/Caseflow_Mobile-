@@ -21,7 +21,11 @@ class CitizenBottomNav extends ConsumerWidget {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
-        border: Border(top: BorderSide(color: Theme.of(context).dividerTheme.color ?? Colors.grey)),
+        border: Border(
+          top: BorderSide(
+            color: Theme.of(context).dividerTheme.color ?? Colors.grey,
+          ),
+        ),
       ),
       child: SafeArea(
         child: SizedBox(
@@ -29,10 +33,38 @@ class CitizenBottomNav extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(ref, context, Icons.home_rounded, "Home", homeRoute, location == homeRoute || (location == "/" && !isGuest)),
-              _buildNavItem(ref, context, Icons.menu_book_rounded, "Library", libraryRoute, location == libraryRoute),
-              _buildNavItem(ref, context, Icons.search_rounded, "Track Case", trackRoute, location == trackRoute),
-              _buildNavItem(ref, context, Icons.auto_awesome_rounded, "AI Help", aiRoute, location == aiRoute),
+              _buildNavItem(
+                ref,
+                context,
+                Icons.home_rounded,
+                "Home",
+                homeRoute,
+                location == homeRoute || (location == "/" && !isGuest),
+              ),
+              _buildNavItem(
+                ref,
+                context,
+                Icons.menu_book_rounded,
+                "Library",
+                libraryRoute,
+                location == libraryRoute,
+              ),
+              _buildNavItem(
+                ref,
+                context,
+                Icons.search_rounded,
+                "Track Case",
+                trackRoute,
+                location == trackRoute,
+              ),
+              _buildNavItem(
+                ref,
+                context,
+                Icons.auto_awesome_rounded,
+                "AI Help",
+                aiRoute,
+                location == aiRoute,
+              ),
             ],
           ),
         ),
@@ -40,7 +72,14 @@ class CitizenBottomNav extends ConsumerWidget {
     );
   }
 
-  Widget _buildNavItem(WidgetRef ref, BuildContext context, IconData icon, String label, String route, bool isActive) {
+  Widget _buildNavItem(
+    WidgetRef ref,
+    BuildContext context,
+    IconData icon,
+    String label,
+    String route,
+    bool isActive,
+  ) {
     final location = GoRouterState.of(context).matchedLocation;
     final isGuest = location.startsWith('/guest');
 
@@ -70,7 +109,8 @@ class CitizenBottomNav extends ConsumerWidget {
             ),
             Icon(
               icon,
-              color: isActive ? const Color(0xFF10B981) : const Color(0xFF4B5563),
+              color:
+                  isActive ? const Color(0xFF10B981) : const Color(0xFF4B5563),
               size: 22,
             ),
             const SizedBox(height: 4),
@@ -79,7 +119,10 @@ class CitizenBottomNav extends ConsumerWidget {
               style: GoogleFonts.inter(
                 fontSize: 10,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-                color: isActive ? const Color(0xFF10B981) : const Color(0xFF4B5563),
+                color:
+                    isActive
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFF4B5563),
               ),
             ),
           ],
@@ -91,61 +134,69 @@ class CitizenBottomNav extends ConsumerWidget {
   void _showAuthRequiredDialog(BuildContext context, String featureName) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        backgroundColor: Theme.of(context).brightness == Brightness.dark
-            ? const Color(0xFF1E293B)
-            : Colors.white,
-        title: Text(
-          "Sign In Required",
-          style: GoogleFonts.outfit(
-            fontWeight: FontWeight.w700,
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.white
-                : const Color(0xFF0F172A),
-          ),
-        ),
-        content: Text(
-          "You need to sign in or create an account to use $featureName.\n\nIt takes less than a minute and unlocks personalized legal tools, saved cases, and AI legal help.",
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            height: 1.5,
-            color: Theme.of(context).brightness == Brightness.dark
-                ? const Color(0xFF94A3B8)
-                : const Color(0xFF4B5563),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              "Cancel",
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF94A3B8),
-              ),
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.go('/login?role=citizen');
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF10B981),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              elevation: 0,
-            ),
-            child: Text(
-              "Sign In / Sign Up",
-              style: GoogleFonts.inter(
+            backgroundColor:
+                Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF1E293B)
+                    : Colors.white,
+            title: Text(
+              "Sign In Required",
+              style: GoogleFonts.outfit(
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color:
+                    Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : const Color(0xFF0F172A),
               ),
             ),
+            content: Text(
+              "You need to sign in or create an account to use $featureName.\n\nIt takes less than a minute and unlocks personalized legal tools, saved cases, and AI legal help.",
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                height: 1.5,
+                color:
+                    Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF4B5563),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "Cancel",
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF94A3B8),
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  context.go('/login?role=citizen');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF10B981),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 0,
+                ),
+                child: Text(
+                  "Sign In / Sign Up",
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 }

@@ -38,7 +38,9 @@ class MobileMoreSheet extends ConsumerWidget {
               children: [
                 Text(
                   "More Hub",
-                  style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 22),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.displayLarge?.copyWith(fontSize: 22),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
@@ -55,16 +57,76 @@ class MobileMoreSheet extends ConsumerWidget {
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
             children: [
-              _buildMenuItem(context, Icons.people, "Clients", Colors.blue, "/clients"),
-              _buildMenuItem(context, Icons.description, "E-Filing", Colors.green, "/efiling"),
-              _buildMenuItem(context, Icons.copy, "CC Copies", Colors.amber, "/certified-copies"),
-              _buildMenuItem(context, Icons.account_balance, "Portals", Colors.indigo, "/portals"),
-              _buildMenuItem(context, Icons.credit_card, "Payments", Colors.purple, "/payments"),
-              _buildMenuItem(context, Icons.handyman_rounded, "Tools", Colors.teal, "/tools"),
-              _buildMenuItem(context, Icons.assignment_ind_rounded, "Commissioner", const Color(0xFF7C3AED), "/commissions"),
-              _buildMenuItem(context, Icons.gavel_rounded, "Caveats", const Color(0xFFEA580C), "/caveats"),
-              _buildMenuItem(context, Icons.newspaper_rounded, "Legal Pulse", const Color(0xFFDC2626), "/legal-pulse"),
-              _buildMenuItem(context, Icons.notifications, "Updates", Colors.pink, "/notifications"),
+              _buildMenuItem(
+                context,
+                Icons.people,
+                "Clients",
+                Colors.blue,
+                "/clients",
+              ),
+              _buildMenuItem(
+                context,
+                Icons.description,
+                "E-Filing",
+                Colors.green,
+                "/efiling",
+              ),
+              _buildMenuItem(
+                context,
+                Icons.copy,
+                "CC Copies",
+                Colors.amber,
+                "/certified-copies",
+              ),
+              _buildMenuItem(
+                context,
+                Icons.account_balance,
+                "Portals",
+                Colors.indigo,
+                "/portals",
+              ),
+              _buildMenuItem(
+                context,
+                Icons.credit_card,
+                "Payments",
+                Colors.purple,
+                "/payments",
+              ),
+              _buildMenuItem(
+                context,
+                Icons.handyman_rounded,
+                "Tools",
+                Colors.teal,
+                "/tools",
+              ),
+              _buildMenuItem(
+                context,
+                Icons.assignment_ind_rounded,
+                "Commissioner",
+                const Color(0xFF7C3AED),
+                "/commissions",
+              ),
+              _buildMenuItem(
+                context,
+                Icons.gavel_rounded,
+                "Caveats",
+                const Color(0xFFEA580C),
+                "/caveats",
+              ),
+              _buildMenuItem(
+                context,
+                Icons.newspaper_rounded,
+                "Legal Pulse",
+                const Color(0xFFDC2626),
+                "/legal-pulse",
+              ),
+              _buildMenuItem(
+                context,
+                Icons.notifications,
+                "Updates",
+                Colors.pink,
+                "/notifications",
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -74,7 +136,10 @@ class MobileMoreSheet extends ConsumerWidget {
             leading: const Icon(Icons.logout, color: AppTheme.error),
             title: const Text(
               "Sign Out",
-              style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: AppTheme.error,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             onTap: () async {
               // Pop the sheet first to avoid blank screen/navigation conflicts
@@ -86,12 +151,21 @@ class MobileMoreSheet extends ConsumerWidget {
             leading: const Icon(Icons.refresh_rounded, color: AppTheme.error),
             title: const Text(
               "Reset Workspace",
-              style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: AppTheme.error,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            subtitle: const Text("Delete all cases and data", style: TextStyle(fontSize: 10)),
+            subtitle: const Text(
+              "Delete all cases and data",
+              style: TextStyle(fontSize: 10),
+            ),
             onTap: () {
               Navigator.pop(context);
-              showDialog(context: context, builder: (context) => const ResetWorkspaceDialog());
+              showDialog(
+                context: context,
+                builder: (context) => const ResetWorkspaceDialog(),
+              );
             },
           ),
           const SizedBox(height: 40),
@@ -100,7 +174,13 @@ class MobileMoreSheet extends ConsumerWidget {
     );
   }
 
-  Widget _buildMenuItem(BuildContext context, IconData icon, String label, Color color, String route) {
+  Widget _buildMenuItem(
+    BuildContext context,
+    IconData icon,
+    String label,
+    Color color,
+    String route,
+  ) {
     return InkWell(
       onTap: () {
         Navigator.pop(context);

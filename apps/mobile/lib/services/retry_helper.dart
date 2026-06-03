@@ -13,43 +13,44 @@ class RetryHelper {
     int initialDelay = 1000,
   }) async {
     int attempt = 0;
-    
+
     while (true) {
       try {
         return await operation().timeout(
           const Duration(seconds: 15),
-          onTimeout: () => throw TimeoutException('Request timed out after 15 seconds'),
+          onTimeout:
+              () =>
+                  throw TimeoutException('Request timed out after 15 seconds'),
         );
       } catch (e) {
         attempt++;
-        
+
         // If we've exhausted retries, throw the error
         if (attempt >= maxRetries) {
           rethrow;
         }
-        
+
         // If it's an auth-related error, try to recover the session
         if (_isAuthError(e)) {
           await _tryRecoverSession();
         }
-        
-        // If it's a network error but NOT specifically auth, 
+
+        // If it's a network error but NOT specifically auth,
         // we just wait for the backoff delay below.
-        
+
         // Exponential backoff: 1s, 2s, 4s...
         final delay = initialDelay * (1 << (attempt - 1));
         await Future.delayed(Duration(milliseconds: delay));
       }
     }
   }
-  
+
   /// Check if the error is an auth-related timeout or network issue
   static bool _isAuthError(Object e) {
     final errorStr = e.toString().toLowerCase();
     return errorStr.contains('authretryablefetchexception') ||
-           errorStr.contains('refresh_token');
+        errorStr.contains('refresh_token');
   }
-
 
   /// Attempt to recover the session by refreshing it
   static Future<void> _tryRecoverSession() async {

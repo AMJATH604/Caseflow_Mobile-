@@ -53,25 +53,35 @@ class DossierSection extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -0.3),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF1E293B),
+                    letterSpacing: -0.3,
+                  ),
                 ),
               ),
               if (badgeText != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: (badgeColor ?? color).withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     badgeText!,
-                    style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: badgeColor ?? color, letterSpacing: 0.5),
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
+                      color: badgeColor ?? color,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
-              if (trailing != null) ...[
-                const SizedBox(width: 8),
-                trailing!,
-              ],
+              if (trailing != null) ...[const SizedBox(width: 8), trailing!],
             ],
           ),
           children: children,
@@ -103,9 +113,22 @@ class DossierHelper {
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Row(
         children: [
-          const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFFCBD5E1)),
+          const Icon(
+            Icons.info_outline_rounded,
+            size: 16,
+            color: Color(0xFFCBD5E1),
+          ),
           const SizedBox(width: 10),
-          Expanded(child: Text(text, style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8), fontStyle: FontStyle.italic))),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Color(0xFF94A3B8),
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -118,12 +141,24 @@ class DossierHelper {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Color(0xFF94A3B8),
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(width: 12),
           Flexible(
             child: Text(
               value,
-              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF1E293B), letterSpacing: -0.3),
+              style: const TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 13,
+                color: Color(0xFF1E293B),
+                letterSpacing: -0.3,
+              ),
               textAlign: TextAlign.end,
             ),
           ),
@@ -144,8 +179,24 @@ class DossierHelper {
         children: [
           Icon(icon, color: const Color(0xFFCBD5E1), size: 16),
           const SizedBox(height: 12),
-          Text("$count", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF1E293B), letterSpacing: -1)),
-          Text(label, style: const TextStyle(fontSize: 9, color: Color(0xFF94A3B8), fontWeight: FontWeight.w900, letterSpacing: 1)),
+          Text(
+            "$count",
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF1E293B),
+              letterSpacing: -1,
+            ),
+          ),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 9,
+              color: Color(0xFF94A3B8),
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1,
+            ),
+          ),
         ],
       ),
     );

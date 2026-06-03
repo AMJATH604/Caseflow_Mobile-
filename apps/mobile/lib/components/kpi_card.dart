@@ -81,9 +81,10 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
           color: isDark ? const Color(0xFF1E2030) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isDark
-                ? widget.accentColor.withValues(alpha: 0.15)
-                : const Color(0xFFE2E8F0),
+            color:
+                isDark
+                    ? widget.accentColor.withValues(alpha: 0.15)
+                    : const Color(0xFFE2E8F0),
           ),
           boxShadow: [
             BoxShadow(
@@ -130,7 +131,11 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
                           color: widget.accentColor.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Icon(widget.icon, size: 18, color: widget.accentColor),
+                        child: Icon(
+                          widget.icon,
+                          size: 18,
+                          color: widget.accentColor,
+                        ),
                       ),
                       const Spacer(),
                       if (widget.showPulse && numValue > 0)
@@ -144,7 +149,9 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: widget.accentColor.withValues(alpha: 0.5),
+                                  color: widget.accentColor.withValues(
+                                    alpha: 0.5,
+                                  ),
                                   blurRadius: 8,
                                   spreadRadius: 2,
                                 ),
@@ -158,9 +165,10 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
                           child: Icon(
                             Icons.arrow_forward_ios_rounded,
                             size: 12,
-                            color: isDark
-                                ? const Color(0xFF64748B)
-                                : const Color(0xFFCBD5E1),
+                            color:
+                                isDark
+                                    ? const Color(0xFF64748B)
+                                    : const Color(0xFFCBD5E1),
                           ),
                         ),
                     ],
@@ -170,13 +178,15 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
                   AnimatedBuilder(
                     animation: _countAnimation,
                     builder: (context, child) {
-                      final displayValue = (_countAnimation.value * numValue).round();
+                      final displayValue =
+                          (_countAnimation.value * numValue).round();
                       return Text(
                         "$displayValue",
                         style: GoogleFonts.outfit(
                           fontSize: 30,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          color:
+                              isDark ? Colors.white : const Color(0xFF0F172A),
                           letterSpacing: -0.5,
                         ),
                       );
@@ -186,9 +196,10 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
                   Text(
                     widget.title.toUpperCase(),
                     style: GoogleFonts.inter(
-                      color: isDark
-                          ? const Color(0xFF94A3B8)
-                          : const Color(0xFF64748B),
+                      color:
+                          isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 1.2,
@@ -237,9 +248,10 @@ class StatChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
-          color: isDark
-              ? color.withValues(alpha: 0.08)
-              : color.withValues(alpha: 0.04),
+          color:
+              isDark
+                  ? color.withValues(alpha: 0.08)
+                  : color.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: color.withValues(alpha: 0.12)),
         ),

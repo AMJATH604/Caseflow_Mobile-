@@ -25,7 +25,6 @@ import 'tools/maintenance_calculator.dart';
 import 'tools/legal_dictionary.dart';
 import 'tools/english_dictionary.dart';
 
-
 class ToolsScreen extends ConsumerStatefulWidget {
   const ToolsScreen({super.key});
 
@@ -361,16 +360,24 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
               ],
             ),
           ),
-          _buildToolSection("Legal Tools", _legalTools.where((t) {
-            if (kIsWeb && t['id'] == 'import_export') return false;
-            return true;
-          }).toList(), isMobile),
+          _buildToolSection(
+            "Legal Tools",
+            _legalTools.where((t) {
+              if (kIsWeb && t['id'] == 'import_export') return false;
+              return true;
+            }).toList(),
+            isMobile,
+          ),
           const SizedBox(height: 20),
           if (!kIsWeb) ...[
-            _buildToolSection("Document Tools", _documentTools.where((t) {
-              // Hide OCR and generic PDF tools on web for now
-              return !['pdfocr', 'ocr'].contains(t['id']);
-            }).toList(), isMobile),
+            _buildToolSection(
+              "Document Tools",
+              _documentTools.where((t) {
+                // Hide OCR and generic PDF tools on web for now
+                return !['pdfocr', 'ocr'].contains(t['id']);
+              }).toList(),
+              isMobile,
+            ),
             const SizedBox(height: 20),
           ],
           // Separate Chambers sections for high visibility
@@ -521,8 +528,6 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
     }
   }
 
-
-
   Widget _buildToolView() {
     final allTools = [..._documentTools, ..._legalTools, ..._chambersTools];
     final tool = allTools.firstWhere((t) => t['id'] == _activeToolId);
@@ -541,7 +546,9 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
         toolParams: tool['params'],
       );
       */
-      toolWidget = const Center(child: Text("PDF Tools are currently mobile-only. Check back soon!"));
+      toolWidget = const Center(
+        child: Text("PDF Tools are currently mobile-only. Check back soon!"),
+      );
     } else {
       switch (_activeToolId) {
         case 'court-fee':
@@ -575,13 +582,18 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
           toolWidget = const BareActsLibraryScreen();
           break;
         case 'import_export':
-          toolWidget = kIsWeb
-              ? const Center(child: Text("Import/Export is currently mobile-only."))
-              : const CaseImportExportScreen();
+          toolWidget =
+              kIsWeb
+                  ? const Center(
+                    child: Text("Import/Export is currently mobile-only."),
+                  )
+                  : const CaseImportExportScreen();
           break;
         case 'ocr':
           // toolWidget = const OcrTool();
-          toolWidget = const Center(child: Text("OCR Scanner is currently mobile-only."));
+          toolWidget = const Center(
+            child: Text("OCR Scanner is currently mobile-only."),
+          );
           break;
         case 'broadcast':
           toolWidget = const BroadcastNode();
@@ -609,7 +621,6 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (true) // Enable header for all tools including broadcast
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(

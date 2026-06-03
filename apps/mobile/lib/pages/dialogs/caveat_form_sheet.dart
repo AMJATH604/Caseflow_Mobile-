@@ -27,20 +27,32 @@ class _CaveatFormSheetState extends ConsumerState<CaveatFormSheet> {
   late TextEditingController _subjectMatterController;
   late TextEditingController _caveatNumberController;
   late TextEditingController _notesController;
-  
+
   DateTime _filingDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    _courtNameController = TextEditingController(text: widget.caveat?.courtName ?? '');
-    _caseTypeController = TextEditingController(text: widget.caveat?.caseType ?? '');
-    _caveatorNameController = TextEditingController(text: widget.caveat?.caveatorName ?? '');
-    _opponentNameController = TextEditingController(text: widget.caveat?.opponentName ?? '');
-    _subjectMatterController = TextEditingController(text: widget.caveat?.subjectMatter ?? '');
-    _caveatNumberController = TextEditingController(text: widget.caveat?.caveatNumber ?? '');
+    _courtNameController = TextEditingController(
+      text: widget.caveat?.courtName ?? '',
+    );
+    _caseTypeController = TextEditingController(
+      text: widget.caveat?.caseType ?? '',
+    );
+    _caveatorNameController = TextEditingController(
+      text: widget.caveat?.caveatorName ?? '',
+    );
+    _opponentNameController = TextEditingController(
+      text: widget.caveat?.opponentName ?? '',
+    );
+    _subjectMatterController = TextEditingController(
+      text: widget.caveat?.subjectMatter ?? '',
+    );
+    _caveatNumberController = TextEditingController(
+      text: widget.caveat?.caveatNumber ?? '',
+    );
     _notesController = TextEditingController(text: widget.caveat?.notes ?? '');
-    
+
     if (widget.caveat != null) {
       _filingDate = widget.caveat!.filingDate;
     }
@@ -68,43 +80,71 @@ class _CaveatFormSheetState extends ConsumerState<CaveatFormSheet> {
         // Create new
         await CaveatService.createCaveat(
           courtName: _courtNameController.text.trim(),
-          caseType: _caseTypeController.text.trim().isNotEmpty ? _caseTypeController.text.trim() : null,
+          caseType:
+              _caseTypeController.text.trim().isNotEmpty
+                  ? _caseTypeController.text.trim()
+                  : null,
           caveatorName: _caveatorNameController.text.trim(),
           opponentName: _opponentNameController.text.trim(),
-          subjectMatter: _subjectMatterController.text.trim().isNotEmpty ? _subjectMatterController.text.trim() : null,
-          caveatNumber: _caveatNumberController.text.trim().isNotEmpty ? _caveatNumberController.text.trim() : null,
+          subjectMatter:
+              _subjectMatterController.text.trim().isNotEmpty
+                  ? _subjectMatterController.text.trim()
+                  : null,
+          caveatNumber:
+              _caveatNumberController.text.trim().isNotEmpty
+                  ? _caveatNumberController.text.trim()
+                  : null,
           filingDate: _filingDate,
-          notes: _notesController.text.trim().isNotEmpty ? _notesController.text.trim() : null,
+          notes:
+              _notesController.text.trim().isNotEmpty
+                  ? _notesController.text.trim()
+                  : null,
         );
       } else {
         // Update existing
         await CaveatService.updateCaveat(widget.caveat!.id, {
           'court_name': _courtNameController.text.trim(),
-          'case_type': _caseTypeController.text.trim().isNotEmpty ? _caseTypeController.text.trim() : null,
+          'case_type':
+              _caseTypeController.text.trim().isNotEmpty
+                  ? _caseTypeController.text.trim()
+                  : null,
           'caveator_name': _caveatorNameController.text.trim(),
           'opponent_name': _opponentNameController.text.trim(),
-          'subject_matter': _subjectMatterController.text.trim().isNotEmpty ? _subjectMatterController.text.trim() : null,
-          'caveat_number': _caveatNumberController.text.trim().isNotEmpty ? _caveatNumberController.text.trim() : null,
+          'subject_matter':
+              _subjectMatterController.text.trim().isNotEmpty
+                  ? _subjectMatterController.text.trim()
+                  : null,
+          'caveat_number':
+              _caveatNumberController.text.trim().isNotEmpty
+                  ? _caveatNumberController.text.trim()
+                  : null,
           'filing_date': _filingDate.toIso8601String().split('T')[0],
-          'notes': _notesController.text.trim().isNotEmpty ? _notesController.text.trim() : null,
+          'notes':
+              _notesController.text.trim().isNotEmpty
+                  ? _notesController.text.trim()
+                  : null,
         });
       }
 
       ref.invalidate(caveatsProvider);
-      
+
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(widget.caveat == null ? 'Caveat filed successfully' : 'Caveat updated successfully'),
+            content: Text(
+              widget.caveat == null
+                  ? 'Caveat filed successfully'
+                  : 'Caveat updated successfully',
+            ),
             backgroundColor: AppTheme.success,
-          )
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error)
+          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
         );
       }
     } finally {
@@ -127,12 +167,12 @@ class _CaveatFormSheetState extends ConsumerState<CaveatFormSheet> {
         children: [
           const SizedBox(height: 12),
           Container(
-            width: 40, 
-            height: 4, 
+            width: 40,
+            height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey.shade300, 
-              borderRadius: BorderRadius.circular(2)
-            )
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(20),
@@ -142,19 +182,19 @@ class _CaveatFormSheetState extends ConsumerState<CaveatFormSheet> {
                 Text(
                   widget.caveat == null ? 'File New Caveat' : 'Edit Caveat',
                   style: GoogleFonts.outfit(
-                    fontSize: 22, 
-                    fontWeight: FontWeight.w700, 
-                    color: isDark ? Colors.white : const Color(0xFF1E293B)
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : const Color(0xFF1E293B),
                   ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () => Navigator.pop(context),
-                )
+                ),
               ],
             ),
           ),
-          
+
           Expanded(
             child: Form(
               key: _formKey,
@@ -166,29 +206,32 @@ class _CaveatFormSheetState extends ConsumerState<CaveatFormSheet> {
                     label: 'Court Name *',
                     controller: _courtNameController,
                     isDark: isDark,
-                    validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                    validator:
+                        (v) => v == null || v.isEmpty ? 'Required' : null,
                   ),
                   _buildTextField(
                     label: 'Caveat Number (If available)',
                     controller: _caveatNumberController,
                     isDark: isDark,
                   ),
-                  
+
                   const SizedBox(height: 16),
                   _buildSectionLabel('Parties', isDark),
                   _buildTextField(
                     label: 'Caveator Name (Your Client) *',
                     controller: _caveatorNameController,
                     isDark: isDark,
-                    validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                    validator:
+                        (v) => v == null || v.isEmpty ? 'Required' : null,
                   ),
                   _buildTextField(
                     label: 'Opponent/Anticipated Petitioner *',
                     controller: _opponentNameController,
                     isDark: isDark,
-                    validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                    validator:
+                        (v) => v == null || v.isEmpty ? 'Required' : null,
                   ),
-                  
+
                   const SizedBox(height: 16),
                   _buildSectionLabel('Case Information', isDark),
                   _buildTextField(
@@ -202,14 +245,16 @@ class _CaveatFormSheetState extends ConsumerState<CaveatFormSheet> {
                     isDark: isDark,
                     maxLines: 2,
                   ),
-                  
+
                   const SizedBox(height: 16),
                   _buildSectionLabel('Timeline', isDark),
                   Container(
                     decoration: BoxDecoration(
                       color: AppTheme.accent.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppTheme.accent.withValues(alpha: 0.2)),
+                      border: Border.all(
+                        color: AppTheme.accent.withValues(alpha: 0.2),
+                      ),
                     ),
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -217,16 +262,31 @@ class _CaveatFormSheetState extends ConsumerState<CaveatFormSheet> {
                       children: [
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: Text('Filing Date', style: GoogleFonts.inter(fontSize: 14, color: isDark ? Colors.white70 : Colors.black87)),
+                          title: Text(
+                            'Filing Date',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: isDark ? Colors.white70 : Colors.black87,
+                            ),
+                          ),
                           trailing: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
-                              color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+                              color:
+                                  isDark
+                                      ? Colors.white10
+                                      : Colors.black.withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               DateFormat('dd MMM yyyy').format(_filingDate),
-                              style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: isDark ? Colors.white : Colors.black),
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
                             ),
                           ),
                           onTap: () async {
@@ -248,21 +308,40 @@ class _CaveatFormSheetState extends ConsumerState<CaveatFormSheet> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Auto-Expiry Date', style: GoogleFonts.inter(fontSize: 14, color: isDark ? Colors.white70 : Colors.black87)),
+                                Text(
+                                  'Auto-Expiry Date',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    color:
+                                        isDark
+                                            ? Colors.white70
+                                            : Colors.black87,
+                                  ),
+                                ),
                                 const SizedBox(height: 4),
-                                Text('Strictly 90 days from filing', style: GoogleFonts.inter(fontSize: 11, color: AppTheme.warning)),
+                                Text(
+                                  'Strictly 90 days from filing',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 11,
+                                    color: AppTheme.warning,
+                                  ),
+                                ),
                               ],
                             ),
                             Text(
                               DateFormat('dd MMM yyyy').format(expiryDate),
-                              style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: AppTheme.error, fontSize: 16),
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.error,
+                                fontSize: 16,
+                              ),
                             ),
                           ],
                         ),
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 16),
                   _buildSectionLabel('Additional Notes', isDark),
                   _buildTextField(
@@ -276,11 +355,15 @@ class _CaveatFormSheetState extends ConsumerState<CaveatFormSheet> {
               ),
             ),
           ),
-          
+
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: isDark ? Colors.white10 : AppTheme.borderLight)),
+              border: Border(
+                top: BorderSide(
+                  color: isDark ? Colors.white10 : AppTheme.borderLight,
+                ),
+              ),
               color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
             ),
             child: SizedBox(
@@ -291,11 +374,29 @@ class _CaveatFormSheetState extends ConsumerState<CaveatFormSheet> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.accent,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
-                child: _isLoading 
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : Text(widget.caveat == null ? 'Save Caveat Record' : 'Update Caveat', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600)),
+                child:
+                    _isLoading
+                        ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                        : Text(
+                          widget.caveat == null
+                              ? 'Save Caveat Record'
+                              : 'Update Caveat',
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
               ),
             ),
           ),
@@ -310,8 +411,8 @@ class _CaveatFormSheetState extends ConsumerState<CaveatFormSheet> {
       child: Text(
         text,
         style: GoogleFonts.inter(
-          fontSize: 13, 
-          fontWeight: FontWeight.w600, 
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
           color: isDark ? const Color(0xFFCBD5E1) : Colors.black54,
           letterSpacing: 0.5,
         ),
@@ -332,25 +433,41 @@ class _CaveatFormSheetState extends ConsumerState<CaveatFormSheet> {
         controller: controller,
         validator: validator,
         maxLines: maxLines,
-        style: GoogleFonts.inter(fontSize: 14, color: isDark ? Colors.white : const Color(0xFF1E293B)),
+        style: GoogleFonts.inter(
+          fontSize: 14,
+          color: isDark ? Colors.white : const Color(0xFF1E293B),
+        ),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.inter(fontSize: 13, color: isDark ? Colors.white38 : Colors.black38),
+          labelStyle: GoogleFonts.inter(
+            fontSize: 13,
+            color: isDark ? Colors.white38 : Colors.black38,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: isDark ? Colors.white10 : AppTheme.borderLight)
+            borderSide: BorderSide(
+              color: isDark ? Colors.white10 : AppTheme.borderLight,
+            ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: isDark ? Colors.white10 : AppTheme.borderLight)
+            borderSide: BorderSide(
+              color: isDark ? Colors.white10 : AppTheme.borderLight,
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppTheme.accent)
+            borderSide: const BorderSide(color: AppTheme.accent),
           ),
           filled: true,
-          fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.02),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12)
+          fillColor:
+              isDark
+                  ? Colors.white.withValues(alpha: 0.05)
+                  : Colors.black.withValues(alpha: 0.02),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 12,
+          ),
         ),
       ),
     );

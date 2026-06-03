@@ -33,9 +33,13 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
     _nameController = TextEditingController(text: widget.client.name);
     _phoneController = TextEditingController(text: widget.client.phone ?? '');
     _emailController = TextEditingController(text: widget.client.email ?? '');
-    _addressController = TextEditingController(text: widget.client.address ?? '');
+    _addressController = TextEditingController(
+      text: widget.client.address ?? '',
+    );
     _stateController = TextEditingController(text: widget.client.state ?? '');
-    _districtController = TextEditingController(text: widget.client.district ?? '');
+    _districtController = TextEditingController(
+      text: widget.client.district ?? '',
+    );
   }
 
   @override
@@ -56,30 +60,51 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
     try {
       final updates = <String, dynamic>{
         'name': _nameController.text.trim(),
-        'phone': _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-        'email': _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
-        'address': _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
-        'state': _stateController.text.trim().isEmpty ? null : _stateController.text.trim(),
-        'district': _districtController.text.trim().isEmpty ? null : _districtController.text.trim(),
+        'phone':
+            _phoneController.text.trim().isEmpty
+                ? null
+                : _phoneController.text.trim(),
+        'email':
+            _emailController.text.trim().isEmpty
+                ? null
+                : _emailController.text.trim(),
+        'address':
+            _addressController.text.trim().isEmpty
+                ? null
+                : _addressController.text.trim(),
+        'state':
+            _stateController.text.trim().isEmpty
+                ? null
+                : _stateController.text.trim(),
+        'district':
+            _districtController.text.trim().isEmpty
+                ? null
+                : _districtController.text.trim(),
       };
 
       await SupabaseService.updateClient(widget.client.id, updates);
       ref.invalidate(clientsProvider);
-      
+
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
                 const SizedBox(width: 10),
                 Text("${_nameController.text.trim()} updated successfully"),
               ],
             ),
             backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -90,7 +115,9 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
             content: Text("Error: $e"),
             backgroundColor: const Color(0xFFEF4444),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -126,7 +153,11 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                         color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.edit_rounded, color: Color(0xFF3B82F6), size: 22),
+                      child: const Icon(
+                        Icons.edit_rounded,
+                        color: Color(0xFF3B82F6),
+                        size: 22,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -138,7 +169,10 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                             style: GoogleFonts.outfit(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              color:
+                                  isDark
+                                      ? Colors.white
+                                      : const Color(0xFF0F172A),
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -156,8 +190,13 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.close_rounded, size: 20),
                       style: IconButton.styleFrom(
-                        backgroundColor: isDark ? const Color(0xFF2D3748) : const Color(0xFFF1F5F9),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        backgroundColor:
+                            isDark
+                                ? const Color(0xFF2D3748)
+                                : const Color(0xFFF1F5F9),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
                   ],
@@ -169,7 +208,11 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                   controller: _nameController,
                   label: "Full Name",
                   icon: Icons.person_rounded,
-                  validator: (v) => v == null || v.trim().isEmpty ? "Name is required" : null,
+                  validator:
+                      (v) =>
+                          v == null || v.trim().isEmpty
+                              ? "Name is required"
+                              : null,
                 ),
                 _buildField(
                   controller: _phoneController,
@@ -212,24 +255,34 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                       backgroundColor: AppTheme.accent,
                       foregroundColor: Colors.white,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
-                    child: _isSaving
-                        ? const SizedBox(
-                            height: 20, width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.save_rounded, size: 18),
-                              const SizedBox(width: 8),
-                              Text(
-                                "Save Changes",
-                                style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 14),
+                    child:
+                        _isSaving
+                            ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
                               ),
-                            ],
-                          ),
+                            )
+                            : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.save_rounded, size: 18),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "Save Changes",
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
                   ),
                 ),
               ],
@@ -273,17 +326,24 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
           fillColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0)),
+            borderSide: BorderSide(
+              color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0),
+            ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0)),
+            borderSide: BorderSide(
+              color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0),
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: const BorderSide(color: AppTheme.accent, width: 1.5),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
         ),
       ),
     );

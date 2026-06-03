@@ -34,15 +34,21 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to load stamps: $e")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Failed to load stamps: $e")));
       }
     }
   }
 
-  static const List<String> _categories = ['All', 'Civil', 'Criminal', 'Documents', 'Appeals'];
-  
+  static const List<String> _categories = [
+    'All',
+    'Civil',
+    'Criminal',
+    'Documents',
+    'Appeals',
+  ];
+
   static const Map<String, Color> _categoryColors = {
     'Civil': Color(0xFF3B82F6),
     'Criminal': Color(0xFFEF4444),
@@ -86,9 +92,13 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
 
   List<Map<String, dynamic>> get _filteredData {
     return _allStamps.where((item) {
-      final matchesCategory = _selectedCategory == 'All' || item['category'] == _selectedCategory;
-      final matchesSearch = _searchQuery.isEmpty || 
-          item['name'].toString().toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchesCategory =
+          _selectedCategory == 'All' || item['category'] == _selectedCategory;
+      final matchesSearch =
+          _searchQuery.isEmpty ||
+          item['name'].toString().toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          );
       return matchesCategory && matchesSearch;
     }).toList();
   }
@@ -96,7 +106,7 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
   @override
   Widget build(BuildContext context) {
     final filtered = _filteredData;
-    
+
     return Column(
       children: [
         // Search Bar
@@ -109,18 +119,26 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
               hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
               prefixIcon: const Icon(Icons.search, color: Colors.grey),
               filled: true,
-              fillColor: Theme.of(context).brightness == Brightness.dark 
-                  ? Colors.grey[900] 
-                  : const Color(0xFFF1F5F9),
+              fillColor:
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Colors.grey[900]
+                      : const Color(0xFFF1F5F9),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide.none,
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 14),
-              suffixIcon: _isLoading ? const Padding(
-                padding: EdgeInsets.all(12.0),
-                child: SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2)),
-              ) : null,
+              suffixIcon:
+                  _isLoading
+                      ? const Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                      : null,
             ),
           ),
         ),
@@ -136,7 +154,7 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
               final cat = _categories[index];
               final isSelected = _selectedCategory == cat;
               final color = _categoryColors[cat] ?? AppTheme.accent;
-              
+
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: FilterChip(
@@ -202,109 +220,134 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
 
         // Stamp Value List
         Expanded(
-          child: _isLoading && _allStamps.isEmpty
-              ? _buildSkeletonList()
-              : filtered.isEmpty
+          child:
+              _isLoading && _allStamps.isEmpty
+                  ? _buildSkeletonList()
+                  : filtered.isEmpty
                   ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.search_off, size: 64, color: Colors.grey[300]),
-                          const SizedBox(height: 12),
-                          Text(
-                            'No petitions found',
-                            style: TextStyle(color: Colors.grey[400], fontSize: 16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.search_off,
+                          size: 64,
+                          color: Colors.grey[300],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'No petitions found',
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 16,
                           ),
-                        ],
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: _loadStamps,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        itemCount: filtered.length,
-                        itemBuilder: (context, index) {
-                          final item = filtered[index];
-                          final color = _categoryColors[item['category']] ?? AppTheme.accent;
-                          final iconKey = item['icon_name'] ?? 'description';
-                          final icon = _iconMap[iconKey] ?? Icons.description;
-                          
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).brightness == Brightness.dark
-                                  ? const Color(0xFF1E293B)
-                                  : Colors.white,
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: Theme.of(context).brightness == Brightness.dark
-                                    ? Colors.grey[800]!
-                                    : const Color(0xFFE2E8F0),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.03),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                              leading: Container(
-                                width: 42,
-                                height: 42,
-                                decoration: BoxDecoration(
-                                  color: color.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  icon,
-                                  color: color,
-                                  size: 20,
-                                ),
-                              ),
-                              title: Text(
-                                item['name'],
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: Theme.of(context).brightness == Brightness.dark
-                                      ? Colors.white
-                                      : const Color(0xFF1E293B),
-                                ),
-                              ),
-                              subtitle: Text(
-                                item['category'],
-                                style: TextStyle(
-                                  color: color,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              trailing: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [color.withValues(alpha: 0.15), color.withValues(alpha: 0.05)],
-                                  ),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: color.withValues(alpha: 0.2)),
-                                ),
-                                child: Text(
-                                  item['value'],
-                                  style: TextStyle(
-                                    color: color,
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                        ),
+                      ],
                     ),
+                  )
+                  : RefreshIndicator(
+                    onRefresh: _loadStamps,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      itemCount: filtered.length,
+                      itemBuilder: (context, index) {
+                        final item = filtered[index];
+                        final color =
+                            _categoryColors[item['category']] ??
+                            AppTheme.accent;
+                        final iconKey = item['icon_name'] ?? 'description';
+                        final icon = _iconMap[iconKey] ?? Icons.description;
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? const Color(0xFF1E293B)
+                                    : Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color:
+                                  Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Colors.grey[800]!
+                                      : const Color(0xFFE2E8F0),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.03),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
+                            ),
+                            leading: Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: color.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(icon, color: color, size: 20),
+                            ),
+                            title: Text(
+                              item['name'],
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color:
+                                    Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? Colors.white
+                                        : const Color(0xFF1E293B),
+                              ),
+                            ),
+                            subtitle: Text(
+                              item['category'],
+                              style: TextStyle(
+                                color: color,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            trailing: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    color.withValues(alpha: 0.15),
+                                    color.withValues(alpha: 0.05),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: color.withValues(alpha: 0.2),
+                                ),
+                              ),
+                              child: Text(
+                                item['value'],
+                                style: TextStyle(
+                                  color: color,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
         ),
       ],
     );
@@ -314,14 +357,18 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: 8,
-      itemBuilder: (context, index) => Container(
-        height: 70,
-        margin: const EdgeInsets.only(bottom: 8),
-        decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[900] : Colors.grey[100],
-          borderRadius: BorderRadius.circular(14),
-        ),
-      ),
+      itemBuilder:
+          (context, index) => Container(
+            height: 70,
+            margin: const EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              color:
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Colors.grey[900]
+                      : Colors.grey[100],
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
     );
   }
 }

@@ -6,10 +6,7 @@ class GlobalSearchDelegate extends SearchDelegate {
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
-      IconButton(
-        icon: const Icon(Icons.clear),
-        onPressed: () => query = '',
-      ),
+      IconButton(icon: const Icon(Icons.clear), onPressed: () => query = ''),
     ];
   }
 
@@ -41,7 +38,8 @@ class GlobalSearchDelegate extends SearchDelegate {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (!snapshot.hasData || snapshot.data!.values.every((v) => v.isEmpty)) {
+        if (!snapshot.hasData ||
+            snapshot.data!.values.every((v) => v.isEmpty)) {
           return const Center(child: Text("No results found."));
         }
 
@@ -53,31 +51,47 @@ class GlobalSearchDelegate extends SearchDelegate {
             if (cases.isNotEmpty) ...[
               const Padding(
                 padding: EdgeInsets.all(16),
-                child: Text("CASES", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                child: Text(
+                  "CASES",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
               ),
-              ...cases.map((c) => ListTile(
-                    leading: const Icon(Icons.work),
-                    title: Text(c['case_title']),
-                    subtitle: Text(c['case_number'] ?? ''),
-                    onTap: () {
-                      close(context, null);
-                      context.push('/cases/${c['id']}');
-                    },
-                  )),
+              ...cases.map(
+                (c) => ListTile(
+                  leading: const Icon(Icons.work),
+                  title: Text(c['case_title']),
+                  subtitle: Text(c['case_number'] ?? ''),
+                  onTap: () {
+                    close(context, null);
+                    context.push('/cases/${c['id']}');
+                  },
+                ),
+              ),
             ],
             if (clients.isNotEmpty) ...[
               const Padding(
                 padding: EdgeInsets.all(16),
-                child: Text("CLIENTS", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                child: Text(
+                  "CLIENTS",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
               ),
-              ...clients.map((c) => ListTile(
-                    leading: const Icon(Icons.people),
-                    title: Text(c['name']),
-                    onTap: () {
-                      close(context, null);
-                      context.go('/clients');
-                    },
-                  )),
+              ...clients.map(
+                (c) => ListTile(
+                  leading: const Icon(Icons.people),
+                  title: Text(c['name']),
+                  onTap: () {
+                    close(context, null);
+                    context.go('/clients');
+                  },
+                ),
+              ),
             ],
           ],
         );

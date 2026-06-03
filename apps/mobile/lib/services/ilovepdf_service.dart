@@ -26,10 +26,7 @@ class ILovePdfService {
     try {
       final response = await Supabase.instance.client.functions.invoke(
         'pdf-proxy',
-        body: {
-          'action': 'start',
-          'tool': tool,
-        },
+        body: {'action': 'start', 'tool': tool},
       );
 
       if (response.status != 200) {
@@ -46,23 +43,25 @@ class ILovePdfService {
   /// Step 2: Upload a file directly to iLovePDF server.
   /// Uses the token obtained from the proxy in step 1.
   static Future<void> uploadFile(
-      String server, String taskId, String token, File file) async {
+    String server,
+    String taskId,
+    String token,
+    File file,
+  ) async {
     try {
       final String uploadUrl = 'https://$server/v1/upload';
       final formData = dio.FormData.fromMap({
         'task': taskId,
-        'file': await dio.MultipartFile.fromFile(file.path,
-            filename: p.basename(file.path)),
+        'file': await dio.MultipartFile.fromFile(
+          file.path,
+          filename: p.basename(file.path),
+        ),
       });
 
       await _dio.post(
         uploadUrl,
         data: formData,
-        options: dio.Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
+        options: dio.Options(headers: {'Authorization': 'Bearer $token'}),
       );
     } catch (e) {
       throw Exception('Failed to upload file to iLovePDF: ${e.toString()}');
@@ -70,8 +69,13 @@ class ILovePdfService {
   }
 
   /// Step 3: Process the task via the Edge Function proxy.
-  static Future<void> processTask(String server, String taskId, String tool,
-      String token, {Map<String, dynamic>? params}) async {
+  static Future<void> processTask(
+    String server,
+    String taskId,
+    String tool,
+    String token, {
+    Map<String, dynamic>? params,
+  }) async {
     try {
       final String processUrl = 'https://$server/v1/process';
       final Map<String, dynamic> payload = {
@@ -97,24 +101,27 @@ class ILovePdfService {
 
   /// Step 4: Download the result directly from iLovePDF server.
   /// Returns the local path to the downloaded file.
-  static Future<String> downloadFile(String server, String taskId, String token,
-      String originalFileName, String targetExtension) async {
+  static Future<String> downloadFile(
+    String server,
+    String taskId,
+    String token,
+    String originalFileName,
+    String targetExtension,
+  ) async {
     try {
       final String downloadUrl = 'https://$server/v1/download/$taskId';
       final directory = await getApplicationDocumentsDirectory();
 
       final nameWithoutExt = p.basenameWithoutExtension(originalFileName);
       final String filePath = p.join(
-          directory.path, '${nameWithoutExt}_caseflow.$targetExtension');
+        directory.path,
+        '${nameWithoutExt}_caseflow.$targetExtension',
+      );
 
       await _dio.download(
         downloadUrl,
         filePath,
-        options: dio.Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
+        options: dio.Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
       return filePath;
@@ -149,7 +156,12 @@ class ILovePdfService {
     // 4. Download (direct from iLovePDF with token)
     if (onProgress != null) onProgress(0.8);
     final outputPath = await downloadFile(
-        server, taskId, token, inputFile.path, targetExtension);
+      server,
+      taskId,
+      token,
+      inputFile.path,
+      targetExtension,
+    );
 
     if (onProgress != null) onProgress(1.0);
     return outputPath;

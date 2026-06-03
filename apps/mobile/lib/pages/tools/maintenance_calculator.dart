@@ -11,7 +11,11 @@ class MaintenanceCalculator extends StatefulWidget {
 }
 
 class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
-  final fmt = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+  final fmt = NumberFormat.currency(
+    locale: 'en_IN',
+    symbol: '₹',
+    decimalDigits: 0,
+  );
 
   // ─── Inputs ──
   final TextEditingController _husbandIncomeCtrl = TextEditingController();
@@ -28,25 +32,34 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
   double _totalMaintenance = 0;
 
   @override
-  void dispose() { _husbandIncomeCtrl.dispose(); _wifeIncomeCtrl.dispose(); super.dispose(); }
+  void dispose() {
+    _husbandIncomeCtrl.dispose();
+    _wifeIncomeCtrl.dispose();
+    super.dispose();
+  }
 
   void _calculate() {
     _results.clear();
     _steps.clear();
     _totalMaintenance = 0;
 
-    double husbandIncome = double.tryParse(_husbandIncomeCtrl.text.replaceAll(',', '')) ?? 0;
-    double wifeIncome = double.tryParse(_wifeIncomeCtrl.text.replaceAll(',', '')) ?? 0;
+    double husbandIncome =
+        double.tryParse(_husbandIncomeCtrl.text.replaceAll(',', '')) ?? 0;
+    double wifeIncome =
+        double.tryParse(_wifeIncomeCtrl.text.replaceAll(',', '')) ?? 0;
 
     if (husbandIncome <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the husband\'s monthly income'), backgroundColor: Colors.red),
+        const SnackBar(
+          content: Text('Please enter the husband\'s monthly income'),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
 
     double netHusbandIncome = husbandIncome;
-    
+
     _steps.add("⚖️ Maintenance Calculation");
     _steps.add("Law: $_lawType");
     _steps.add("Type: $_maintenanceType Maintenance");
@@ -55,14 +68,16 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
     } else if (_lawType == 'Hindu (HAMA)') {
       _steps.add("Authority: Hindu Adoptions & Maintenance Act, 1956");
     } else {
-      _steps.add("Authority: Muslim Personal Law (Shariat) Application Act, 1937");
+      _steps.add(
+        "Authority: Muslim Personal Law (Shariat) Application Act, 1937",
+      );
     }
     _steps.add("");
 
     // Step 1: Husband's Net Income
     _steps.add("Step 1: Determine Husband's Net Monthly Income");
     _steps.add("  Gross monthly income = ${fmt.format(husbandIncome)}");
-    
+
     // Rajnesh v. Neha: Deduct tax and essential expenses (approx 10%)
     double taxDeduction = husbandIncome * 0.10;
     netHusbandIncome = husbandIncome - taxDeduction;
@@ -72,7 +87,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
 
     // Step 2: Wife's Maintenance
     _steps.add("Step 2: Calculate Wife's Maintenance");
-    
+
     double wifeMaintenancePct;
     if (_maintenanceType == 'Interim') {
       wifeMaintenancePct = 0.25; // 25% for interim
@@ -83,31 +98,46 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
       _steps.add("  Final maintenance rate: 30% of net income");
       _steps.add("  (Courts typically award 25%-33% as permanent)");
     }
-    
+
     double wifeMaintenanceGross = netHusbandIncome * wifeMaintenancePct;
-    
+
     // Deduct wife's own income if she's earning
     double wifeMaintenanceFinal = wifeMaintenanceGross;
     if (wifeIncome > 0) {
-      wifeMaintenanceFinal = wifeMaintenanceGross - (wifeIncome * 0.5); // Deduct 50% of wife's income
+      wifeMaintenanceFinal =
+          wifeMaintenanceGross -
+          (wifeIncome * 0.5); // Deduct 50% of wife's income
       if (wifeMaintenanceFinal < 0) wifeMaintenanceFinal = 0;
-      _steps.add("  Gross wife maintenance = ${fmt.format(netHusbandIncome)} × ${(wifeMaintenancePct * 100).toStringAsFixed(0)}% = ${fmt.format(wifeMaintenanceGross)}");
+      _steps.add(
+        "  Gross wife maintenance = ${fmt.format(netHusbandIncome)} × ${(wifeMaintenancePct * 100).toStringAsFixed(0)}% = ${fmt.format(wifeMaintenanceGross)}",
+      );
       _steps.add("  Wife's own income = ${fmt.format(wifeIncome)}");
-      _steps.add("  Less 50% of wife's income = ${fmt.format(wifeIncome * 0.5)}");
-      _steps.add("  Net wife maintenance = ${fmt.format(wifeMaintenanceFinal)}");
+      _steps.add(
+        "  Less 50% of wife's income = ${fmt.format(wifeIncome * 0.5)}",
+      );
+      _steps.add(
+        "  Net wife maintenance = ${fmt.format(wifeMaintenanceFinal)}",
+      );
     } else {
-      _steps.add("  Wife maintenance = ${fmt.format(netHusbandIncome)} × ${(wifeMaintenancePct * 100).toStringAsFixed(0)}% = ${fmt.format(wifeMaintenanceFinal)}");
+      _steps.add(
+        "  Wife maintenance = ${fmt.format(netHusbandIncome)} × ${(wifeMaintenancePct * 100).toStringAsFixed(0)}% = ${fmt.format(wifeMaintenanceFinal)}",
+      );
       _steps.add("  Wife has no independent income.");
     }
 
-    _results.add({'head': 'Wife\'s Maintenance', 'amount': wifeMaintenanceFinal, 'details': '${(wifeMaintenancePct*100).toStringAsFixed(0)}% of ${fmt.format(netHusbandIncome)}'});
+    _results.add({
+      'head': 'Wife\'s Maintenance',
+      'amount': wifeMaintenanceFinal,
+      'details':
+          '${(wifeMaintenancePct * 100).toStringAsFixed(0)}% of ${fmt.format(netHusbandIncome)}',
+    });
     _totalMaintenance += wifeMaintenanceFinal;
     _steps.add("");
 
     // Step 3: Children's Maintenance
     if (_childCount > 0) {
       _steps.add("Step 3: Calculate Children's Maintenance");
-      
+
       double childPct;
       if (_maintenanceType == 'Interim') {
         childPct = 0.075; // 7.5% per child for interim
@@ -128,21 +158,31 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
       double totalChildren = perChild * _childCount;
 
       _steps.add("  Per child = ${fmt.format(perChild)}/month");
-      _steps.add("  Total for $_childCount child(ren) = ${fmt.format(totalChildren)}/month");
+      _steps.add(
+        "  Total for $_childCount child(ren) = ${fmt.format(totalChildren)}/month",
+      );
 
       for (int i = 1; i <= _childCount; i++) {
-        _results.add({'head': _childCount == 1 ? 'Child Maintenance' : 'Child $i Maintenance', 'amount': perChild, 'details': '${(childPct*100).toStringAsFixed(1)}% of ${fmt.format(netHusbandIncome)}'});
+        _results.add({
+          'head':
+              _childCount == 1 ? 'Child Maintenance' : 'Child $i Maintenance',
+          'amount': perChild,
+          'details':
+              '${(childPct * 100).toStringAsFixed(1)}% of ${fmt.format(netHusbandIncome)}',
+        });
       }
       _totalMaintenance += totalChildren;
       _steps.add("");
     }
 
     // Capping check
-    _steps.add("Step ${_childCount > 0 ? '4' : '3'}: Total Maintenance Cap Check");
+    _steps.add(
+      "Step ${_childCount > 0 ? '4' : '3'}: Total Maintenance Cap Check",
+    );
     double capPct = _totalMaintenance / netHusbandIncome;
     _steps.add("  Total maintenance = ${fmt.format(_totalMaintenance)}/month");
     _steps.add("  As % of net income = ${(capPct * 100).toStringAsFixed(1)}%");
-    
+
     if (capPct > 0.50) {
       double cappedTotal = netHusbandIncome * 0.50;
       _steps.add("  ⚠️ Exceeds 50% cap. Courts generally do not award > 50%.");
@@ -156,7 +196,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
     } else {
       _steps.add("  ✅ Within acceptable range (courts allow up to 50%)");
     }
-    
+
     _steps.add("");
     _steps.add("═══════════════════════════════════════");
     _steps.add("TOTAL MONTHLY MAINTENANCE = ${fmt.format(_totalMaintenance)}");
@@ -181,28 +221,45 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
     sb.writeln("Law Applied       : $_lawType");
     sb.writeln("Type              : $_maintenanceType");
     sb.writeln("Husband's Income  : ${_husbandIncomeCtrl.text}");
-    sb.writeln("Wife's Income     : ${_wifeIncomeCtrl.text.isEmpty ? 'Nil' : _wifeIncomeCtrl.text}");
+    sb.writeln(
+      "Wife's Income     : ${_wifeIncomeCtrl.text.isEmpty ? 'Nil' : _wifeIncomeCtrl.text}",
+    );
     sb.writeln("Children          : $_childCount");
     sb.writeln("───────────────────────────────────────────\n");
     sb.writeln("MAINTENANCE SCHEDULE:\n");
     int sno = 1;
     for (var r in _results) {
-      sb.writeln("${sno.toString().padLeft(2)}. ${r['head'].toString().padRight(24)} ${fmt.format(r['amount'])}/month");
+      sb.writeln(
+        "${sno.toString().padLeft(2)}. ${r['head'].toString().padRight(24)} ${fmt.format(r['amount'])}/month",
+      );
       sno++;
     }
     sb.writeln("──────────────────────────────────────────");
     sb.writeln("   TOTAL PER MONTH:          ${fmt.format(_totalMaintenance)}");
-    sb.writeln("   TOTAL PER YEAR:           ${fmt.format(_totalMaintenance * 12)}");
+    sb.writeln(
+      "   TOTAL PER YEAR:           ${fmt.format(_totalMaintenance * 12)}",
+    );
     sb.writeln("\nCOMPUTATION:\n");
-    for (var s in _steps) { if (s.isNotEmpty) sb.writeln("  $s"); }
+    for (var s in _steps) {
+      if (s.isNotEmpty) sb.writeln("  $s");
+    }
     sb.writeln("\n═══════════════════════════════════════════");
-    sb.writeln("Generated by CaseFlow on ${DateFormat('dd.MM.yyyy').format(DateTime.now())}");
+    sb.writeln(
+      "Generated by CaseFlow on ${DateFormat('dd.MM.yyyy').format(DateTime.now())}",
+    );
 
     Clipboard.setData(ClipboardData(text: sb.toString()));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Row(children: [Icon(Icons.check_circle, color: Colors.white, size: 18), SizedBox(width: 8), Text('Maintenance memo copied!')]),
-        backgroundColor: Colors.green[700], behavior: SnackBarBehavior.floating,
+        content: const Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.white, size: 18),
+            SizedBox(width: 8),
+            Text('Maintenance memo copied!'),
+          ],
+        ),
+        backgroundColor: Colors.green[700],
+        behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
@@ -218,168 +275,437 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
       child: Column(
         children: [
           // ─── Inputs ──
-          _card(isDark, Icons.family_restroom, Colors.pink, "Maintenance Parameters", children: [
-            DropdownButtonFormField<String>(
-              value: _lawType, isExpanded: true,
-              decoration: const InputDecoration(labelText: 'Applicable Law', border: OutlineInputBorder()),
-              items: const [
-                DropdownMenuItem(value: 'Sec 144 BNSS', child: Text('Sec 144 BNSS (Criminal Maintenance)')),
-                DropdownMenuItem(value: 'Hindu (HAMA)', child: Text('Hindu Adoptions & Maintenance Act')),
-                DropdownMenuItem(value: 'Muslim', child: Text('Muslim Personal Law')),
-              ],
-              onChanged: (v) => setState(() { _lawType = v!; _showResults = false; }),
-            ),
-            const SizedBox(height: 12),
-            if (isMobile) ...[
+          _card(
+            isDark,
+            Icons.family_restroom,
+            Colors.pink,
+            "Maintenance Parameters",
+            children: [
               DropdownButtonFormField<String>(
-                value: _maintenanceType, isExpanded: true,
-                decoration: const InputDecoration(labelText: 'Maintenance Type', border: OutlineInputBorder()),
+                value: _lawType,
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'Applicable Law',
+                  border: OutlineInputBorder(),
+                ),
                 items: const [
-                  DropdownMenuItem(value: 'Interim', child: Text('Interim (Pendente Lite)')),
-                  DropdownMenuItem(value: 'Final', child: Text('Final / Permanent')),
-                ],
-                onChanged: (v) => setState(() { _maintenanceType = v!; _showResults = false; }),
-              ),
-              const SizedBox(height: 12),
-              TextField(controller: _husbandIncomeCtrl, decoration: const InputDecoration(labelText: 'Husband\'s Monthly Income (₹)', border: OutlineInputBorder(), prefixText: '₹ '), keyboardType: TextInputType.number),
-              const SizedBox(height: 12),
-              TextField(controller: _wifeIncomeCtrl, decoration: const InputDecoration(labelText: 'Wife\'s Monthly Income (₹) — if any', border: OutlineInputBorder(), prefixText: '₹ '), keyboardType: TextInputType.number),
-            ] else ...[
-              Row(children: [
-                Expanded(child: DropdownButtonFormField<String>(
-                  value: _maintenanceType, isExpanded: true,
-                  decoration: const InputDecoration(labelText: 'Maintenance Type', border: OutlineInputBorder()),
-                  items: const [
-                    DropdownMenuItem(value: 'Interim', child: Text('Interim (Pendente Lite)')),
-                    DropdownMenuItem(value: 'Final', child: Text('Final / Permanent')),
-                  ],
-                  onChanged: (v) => setState(() { _maintenanceType = v!; _showResults = false; }),
-                )),
-                const SizedBox(width: 12),
-                Expanded(child: TextField(controller: _husbandIncomeCtrl, decoration: const InputDecoration(labelText: 'Husband\'s Monthly Income (₹)', border: OutlineInputBorder(), prefixText: '₹ '), keyboardType: TextInputType.number)),
-              ]),
-              const SizedBox(height: 12),
-              Row(children: [
-                Expanded(child: TextField(controller: _wifeIncomeCtrl, decoration: const InputDecoration(labelText: 'Wife\'s Monthly Income (₹) — if any', border: OutlineInputBorder(), prefixText: '₹ '), keyboardType: TextInputType.number)),
-                const SizedBox(width: 12),
-                const Expanded(child: SizedBox()), // Placeholder for alignment
-              ]),
-            ],
-            const SizedBox(height: 12),
-            
-            // Children counter
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Expanded(child: Text("Number of Children", style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15))),
-                  Container(
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[100]),
-                    child: Row(mainAxisSize: MainAxisSize.min, children: [
-                      IconButton(onPressed: _childCount > 0 ? () => setState(() { _childCount--; _showResults = false; }) : null, icon: const Icon(Icons.remove_circle_outline, size: 22), color: Colors.red[400], visualDensity: VisualDensity.compact),
-                      SizedBox(width: 32, child: Text(_childCount.toString(), textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
-                      IconButton(onPressed: () => setState(() { _childCount++; _showResults = false; }), icon: const Icon(Icons.add_circle_outline, size: 22), color: Colors.green[400], visualDensity: VisualDensity.compact),
-                    ]),
+                  DropdownMenuItem(
+                    value: 'Sec 144 BNSS',
+                    child: Text('Sec 144 BNSS (Criminal Maintenance)'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'Hindu (HAMA)',
+                    child: Text('Hindu Adoptions & Maintenance Act'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'Muslim',
+                    child: Text('Muslim Personal Law'),
                   ),
                 ],
+                onChanged:
+                    (v) => setState(() {
+                      _lawType = v!;
+                      _showResults = false;
+                    }),
               ),
-            ),
+              const SizedBox(height: 12),
+              if (isMobile) ...[
+                DropdownButtonFormField<String>(
+                  value: _maintenanceType,
+                  isExpanded: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Maintenance Type',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'Interim',
+                      child: Text('Interim (Pendente Lite)'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Final',
+                      child: Text('Final / Permanent'),
+                    ),
+                  ],
+                  onChanged:
+                      (v) => setState(() {
+                        _maintenanceType = v!;
+                        _showResults = false;
+                      }),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _husbandIncomeCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Husband\'s Monthly Income (₹)',
+                    border: OutlineInputBorder(),
+                    prefixText: '₹ ',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _wifeIncomeCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Wife\'s Monthly Income (₹) — if any',
+                    border: OutlineInputBorder(),
+                    prefixText: '₹ ',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ] else ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: _maintenanceType,
+                        isExpanded: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Maintenance Type',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'Interim',
+                            child: Text('Interim (Pendente Lite)'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Final',
+                            child: Text('Final / Permanent'),
+                          ),
+                        ],
+                        onChanged:
+                            (v) => setState(() {
+                              _maintenanceType = v!;
+                              _showResults = false;
+                            }),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        controller: _husbandIncomeCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'Husband\'s Monthly Income (₹)',
+                          border: OutlineInputBorder(),
+                          prefixText: '₹ ',
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _wifeIncomeCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'Wife\'s Monthly Income (₹) — if any',
+                          border: OutlineInputBorder(),
+                          prefixText: '₹ ',
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: SizedBox(),
+                    ), // Placeholder for alignment
+                  ],
+                ),
+              ],
+              const SizedBox(height: 12),
 
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity, height: 52,
-              child: ElevatedButton.icon(
-                onPressed: _calculate,
-                icon: const Icon(Icons.calculate_rounded, size: 20),
-                label: const Text("CALCULATE MAINTENANCE", style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1)),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.pink[700], foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+              // Children counter
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        "Number of Children",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color:
+                            isDark
+                                ? Colors.white.withValues(alpha: 0.05)
+                                : Colors.grey[100],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            onPressed:
+                                _childCount > 0
+                                    ? () => setState(() {
+                                      _childCount--;
+                                      _showResults = false;
+                                    })
+                                    : null,
+                            icon: const Icon(
+                              Icons.remove_circle_outline,
+                              size: 22,
+                            ),
+                            color: Colors.red[400],
+                            visualDensity: VisualDensity.compact,
+                          ),
+                          SizedBox(
+                            width: 32,
+                            child: Text(
+                              _childCount.toString(),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed:
+                                () => setState(() {
+                                  _childCount++;
+                                  _showResults = false;
+                                }),
+                            icon: const Icon(
+                              Icons.add_circle_outline,
+                              size: 22,
+                            ),
+                            color: Colors.green[400],
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ]),
+
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton.icon(
+                  onPressed: _calculate,
+                  icon: const Icon(Icons.calculate_rounded, size: 20),
+                  label: const Text(
+                    "CALCULATE MAINTENANCE",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.pink[700],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
 
           if (_showResults) ...[
             const SizedBox(height: 16),
 
             // ─── Results ──
-            _card(isDark, Icons.account_balance_wallet, Colors.green, "Maintenance Award", trailing: TextButton.icon(
-              onPressed: _copyToClipboard,
-              icon: const Icon(Icons.copy_rounded, size: 14), label: const Text("Copy", style: TextStyle(fontSize: 12)),
-            ), children: [
-              // Total
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [Colors.pink.withValues(alpha: 0.1), AppTheme.primary.withValues(alpha: 0.05)]),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  children: [
-                    const Text("TOTAL MONTHLY MAINTENANCE", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, letterSpacing: 1)),
-                    const SizedBox(height: 8),
-                    Text(fmt.format(_totalMaintenance), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 28, color: Colors.pink)),
-                    const SizedBox(height: 4),
-                    Text("per month (${fmt.format(_totalMaintenance * 12)}/year)", style: TextStyle(fontSize: 12, color: Colors.grey[500])),
-                  ],
-                ),
+            _card(
+              isDark,
+              Icons.account_balance_wallet,
+              Colors.green,
+              "Maintenance Award",
+              trailing: TextButton.icon(
+                onPressed: _copyToClipboard,
+                icon: const Icon(Icons.copy_rounded, size: 14),
+                label: const Text("Copy", style: TextStyle(fontSize: 12)),
               ),
-              const SizedBox(height: 12),
-
-              ..._results.map((r) => Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.grey[50],
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: isDark ? Colors.white10 : Colors.grey[200]!),
-                ),
-                child: Row(children: [
-                  Container(width: 40, height: 40,
-                    decoration: BoxDecoration(color: Colors.pink.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                    child: const Icon(Icons.person, color: Colors.pink, size: 20),
+              children: [
+                // Total
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.pink.withValues(alpha: 0.1),
+                        AppTheme.primary.withValues(alpha: 0.05),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(r['head'], style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-                    if (r['details'] != null) Text(r['details'], style: TextStyle(fontSize: 11, color: Colors.grey[500])),
-                  ])),
-                  Text("${fmt.format(r['amount'])}/mo", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: AppTheme.primary)),
-                ]),
-              )),
-            ]),
+                  child: Column(
+                    children: [
+                      const Text(
+                        "TOTAL MONTHLY MAINTENANCE",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        fmt.format(_totalMaintenance),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 28,
+                          color: Colors.pink,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "per month (${fmt.format(_totalMaintenance * 12)}/year)",
+                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                ..._results.map(
+                  (r) => Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color:
+                          isDark
+                              ? Colors.white.withValues(alpha: 0.04)
+                              : Colors.grey[50],
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isDark ? Colors.white10 : Colors.grey[200]!,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.pink.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.person,
+                            color: Colors.pink,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                r['head'],
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              if (r['details'] != null)
+                                Text(
+                                  r['details'],
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          "${fmt.format(r['amount'])}/mo",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 14,
+                            color: AppTheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
 
             const SizedBox(height: 16),
 
             // ─── How It Was Calculated ──
-            _card(isDark, Icons.school_rounded, Colors.deepPurple, "How It Was Calculated", children: [
-              Text("Step-by-step computation based on court guidelines:", style: TextStyle(fontSize: 12, color: Colors.grey[500])),
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: isDark ? Colors.white10 : const Color(0xFFE2E8F0)),
+            _card(
+              isDark,
+              Icons.school_rounded,
+              Colors.deepPurple,
+              "How It Was Calculated",
+              children: [
+                Text(
+                  "Step-by-step computation based on court guidelines:",
+                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: _steps.map((s) {
-                    if (s.isEmpty) return const SizedBox(height: 8);
-                    bool isHeader = s.startsWith("Step") || s.startsWith("⚖") || s.startsWith("Authority") || s.startsWith("═") || s.startsWith("TOTAL") || s.startsWith("ANNUAL");
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 3),
-                      child: Text(s, style: TextStyle(
-                        fontSize: 13, fontWeight: isHeader ? FontWeight.w700 : FontWeight.normal,
-                        color: isDark ? (isHeader ? Colors.white : Colors.grey[300]) : (isHeader ? Colors.black87 : Colors.grey[700]),
-                        height: 1.5,
-                      )),
-                    );
-                  }).toList(),
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color:
+                        isDark
+                            ? const Color(0xFF0F172A)
+                            : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children:
+                        _steps.map((s) {
+                          if (s.isEmpty) return const SizedBox(height: 8);
+                          bool isHeader =
+                              s.startsWith("Step") ||
+                              s.startsWith("⚖") ||
+                              s.startsWith("Authority") ||
+                              s.startsWith("═") ||
+                              s.startsWith("TOTAL") ||
+                              s.startsWith("ANNUAL");
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 3),
+                            child: Text(
+                              s,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight:
+                                    isHeader
+                                        ? FontWeight.w700
+                                        : FontWeight.normal,
+                                color:
+                                    isDark
+                                        ? (isHeader
+                                            ? Colors.white
+                                            : Colors.grey[300])
+                                        : (isHeader
+                                            ? Colors.black87
+                                            : Colors.grey[700]),
+                                height: 1.5,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                  ),
                 ),
-              ),
-            ]),
+              ],
+            ),
           ],
 
           const SizedBox(height: 100),
@@ -388,21 +714,46 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
     );
   }
 
-  Widget _card(bool isDark, IconData icon, Color iconColor, String title, {Widget? trailing, required List<Widget> children}) {
+  Widget _card(
+    bool isDark,
+    IconData icon,
+    Color iconColor,
+    String title, {
+    Widget? trailing,
+    required List<Widget> children,
+  }) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: AppTheme.cardDecoration(isDark: isDark),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-            child: Icon(icon, color: iconColor, size: 18)),
-          const SizedBox(width: 10),
-          Expanded(child: Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
-          if (trailing != null) trailing,
-        ]),
-        const SizedBox(height: 16),
-        ...children,
-      ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: iconColor, size: 18),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              if (trailing != null) trailing,
+            ],
+          ),
+          const SizedBox(height: 16),
+          ...children,
+        ],
+      ),
     );
   }
 }

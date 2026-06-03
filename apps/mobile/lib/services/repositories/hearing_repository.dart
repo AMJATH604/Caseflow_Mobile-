@@ -14,13 +14,18 @@ class HearingRepository {
     if (user == null) return [];
 
     final profile = await BaseRepository.getCachedProfile();
-    final visibleCaseIds =
-        await BaseRepository.getVisibleCaseIds(profile, user.id);
+    final visibleCaseIds = await BaseRepository.getVisibleCaseIds(
+      profile,
+      user.id,
+    );
 
     if (visibleCaseIds.isEmpty) return [];
 
-    var query = _client.from('hearings').select(
-        '*, cases(case_title, court_name, case_number, cnr_number, firm_id)');
+    var query = _client
+        .from('hearings')
+        .select(
+          '*, cases(case_title, court_name, case_number, cnr_number, firm_id)',
+        );
 
     if (caseId != null) {
       query = query.eq('case_id', caseId);
@@ -31,7 +36,9 @@ class HearingRepository {
     // Apply pagination and ordering in a single chain to avoid type mismatch
     final List response;
     if (limit != null && offset != null) {
-      response = await query.order('hearing_date').range(offset, offset + limit - 1);
+      response = await query
+          .order('hearing_date')
+          .range(offset, offset + limit - 1);
     } else if (limit != null) {
       response = await query.order('hearing_date').limit(limit);
     } else {
@@ -40,15 +47,16 @@ class HearingRepository {
     return response.map((json) => Hearing.fromJson(json)).toList();
   }
 
-  static Future<Hearing> createHearing(
-      Map<String, dynamic> hearingData) async {
+  static Future<Hearing> createHearing(Map<String, dynamic> hearingData) async {
     final user = BaseRepository.requireAuth();
-    final response = await _client
-        .from('hearings')
-        .insert({...hearingData, 'created_by': user.id})
-        .select(
-            '*, cases(case_title, court_name, case_number, cnr_number, firm_id)')
-        .single();
+    final response =
+        await _client
+            .from('hearings')
+            .insert({...hearingData, 'created_by': user.id})
+            .select(
+              '*, cases(case_title, court_name, case_number, cnr_number, firm_id)',
+            )
+            .single();
     return Hearing.fromJson(response);
   }
 
@@ -57,7 +65,9 @@ class HearingRepository {
   /// 2. If not disposed/dismissed, create a new future hearing
   /// 3. Update the case status and next_hearing_date
   static Future<Hearing?> adjournHearing(
-      String id, Map<String, dynamic> data) async {
+    String id,
+    Map<String, dynamic> data,
+  ) async {
     final user = BaseRepository.requireAuth();
 
     final String nextStage = data['next_stage'] ?? 'Next Hearing';
@@ -71,14 +81,19 @@ class HearingRepository {
 
     if (!isFinal) {
       // 2. Create new future hearing
-      final response = await _client.from('hearings').insert({
-        'case_id': data['case_id'],
-        'hearing_date': data['next_date'],
-        'stage': nextStage,
-        'created_by': user.id,
-      }).select(
-          '*, cases(case_title, court_name, case_number, cnr_number, firm_id)')
-          .single();
+      final response =
+          await _client
+              .from('hearings')
+              .insert({
+                'case_id': data['case_id'],
+                'hearing_date': data['next_date'],
+                'stage': nextStage,
+                'created_by': user.id,
+              })
+              .select(
+                '*, cases(case_title, court_name, case_number, cnr_number, firm_id)',
+              )
+              .single();
       newHearing = Hearing.fromJson(response);
     }
 
@@ -92,10 +107,7 @@ class HearingRepository {
       caseUpdates['next_hearing_date'] = data['next_date'];
     }
 
-    await _client
-        .from('cases')
-        .update(caseUpdates)
-        .eq('id', data['case_id']);
+    await _client.from('cases').update(caseUpdates).eq('id', data['case_id']);
 
     return newHearing;
   }

@@ -19,12 +19,42 @@ class _DelayCalculatorState extends State<DelayCalculator> {
 
   // Expanded legal-specific presets with statutory references
   final List<Map<String, dynamic>> _presets = [
-    {"days": 30, "label": "30 days", "desc": "First Appeal (CPC O.41 R.1)", "icon": Icons.looks_one_outlined},
-    {"days": 30, "label": "30 days", "desc": "NI Act §138 Complaint", "icon": Icons.credit_card},
-    {"days": 60, "label": "60 days", "desc": "Family Court Appeal", "icon": Icons.family_restroom},
-    {"days": 90, "label": "90 days", "desc": "Second Appeal (CPC §100)", "icon": Icons.looks_two_outlined},
-    {"days": 90, "label": "90 days", "desc": "Revision (CPC §115)", "icon": Icons.replay},
-    {"days": 120, "label": "120 days", "desc": "Suit (Specific Relief)", "icon": Icons.article},
+    {
+      "days": 30,
+      "label": "30 days",
+      "desc": "First Appeal (CPC O.41 R.1)",
+      "icon": Icons.looks_one_outlined,
+    },
+    {
+      "days": 30,
+      "label": "30 days",
+      "desc": "NI Act §138 Complaint",
+      "icon": Icons.credit_card,
+    },
+    {
+      "days": 60,
+      "label": "60 days",
+      "desc": "Family Court Appeal",
+      "icon": Icons.family_restroom,
+    },
+    {
+      "days": 90,
+      "label": "90 days",
+      "desc": "Second Appeal (CPC §100)",
+      "icon": Icons.looks_two_outlined,
+    },
+    {
+      "days": 90,
+      "label": "90 days",
+      "desc": "Revision (CPC §115)",
+      "icon": Icons.replay,
+    },
+    {
+      "days": 120,
+      "label": "120 days",
+      "desc": "Suit (Specific Relief)",
+      "icon": Icons.article,
+    },
   ];
 
   Map<String, dynamic>? _result;
@@ -61,8 +91,14 @@ class _DelayCalculatorState extends State<DelayCalculator> {
     }
 
     // Affidavit text
-    final presetLabel = _selectedPreset != null ? _presets.firstWhere((p) => "${p['days']}|${p['desc']}" == _selectedPreset)['desc'] : 'prescribed period';
-    final affidavitText = """AFFIDAVIT IN SUPPORT OF APPLICATION U/S 5 OF THE LIMITATION ACT, 1963
+    final presetLabel =
+        _selectedPreset != null
+            ? _presets.firstWhere(
+              (p) => "${p['days']}|${p['desc']}" == _selectedPreset,
+            )['desc']
+            : 'prescribed period';
+    final affidavitText =
+        """AFFIDAVIT IN SUPPORT OF APPLICATION U/S 5 OF THE LIMITATION ACT, 1963
 
 I, _____________ S/o/D/o/W/o _____________, aged about ___ years, residing at _____________, do hereby solemnly affirm and state as follows:
 
@@ -106,87 +142,180 @@ DEPONENT""";
       child: Column(
         children: [
           // ─── Input Card ──
-          _buildCard(isDark, icon: Icons.schedule_rounded, iconColor: Colors.red, title: "Delay Parameters", children: [
-            Text("Select the limitation period and dates to calculate delay under Section 5, Limitation Act 1963",
-                style: TextStyle(fontSize: 12, color: Colors.grey[500])),
-            const Divider(height: 20),
+          _buildCard(
+            isDark,
+            icon: Icons.schedule_rounded,
+            iconColor: Colors.red,
+            title: "Delay Parameters",
+            children: [
+              Text(
+                "Select the limitation period and dates to calculate delay under Section 5, Limitation Act 1963",
+                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+              ),
+              const Divider(height: 20),
 
-            // Limitation Period Presets
-            Text("LIMITATION PERIOD", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey[500], letterSpacing: 0.5)),
-            const SizedBox(height: 10),
-            ...(_presets.map((p) {
-              final key = "${p['days']}|${p['desc']}";
-              final isSelected = _selectedPreset == key;
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: InkWell(
-                  onTap: () { setState(() => _selectedPreset = key); _calculate(); },
-                  borderRadius: BorderRadius.circular(10),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: isSelected ? AppTheme.accent.withValues(alpha: 0.08) : (isDark ? Colors.white.withValues(alpha: 0.04) : Colors.grey[50]),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: isSelected ? AppTheme.accent.withValues(alpha: 0.4) : (isDark ? Colors.white10 : Colors.grey[200]!),
-                        width: isSelected ? 1.5 : 1,
+              // Limitation Period Presets
+              Text(
+                "LIMITATION PERIOD",
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey[500],
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 10),
+              ...(_presets.map((p) {
+                final key = "${p['days']}|${p['desc']}";
+                final isSelected = _selectedPreset == key;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: InkWell(
+                    onTap: () {
+                      setState(() => _selectedPreset = key);
+                      _calculate();
+                    },
+                    borderRadius: BorderRadius.circular(10),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            isSelected
+                                ? AppTheme.accent.withValues(alpha: 0.08)
+                                : (isDark
+                                    ? Colors.white.withValues(alpha: 0.04)
+                                    : Colors.grey[50]),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color:
+                              isSelected
+                                  ? AppTheme.accent.withValues(alpha: 0.4)
+                                  : (isDark
+                                      ? Colors.white10
+                                      : Colors.grey[200]!),
+                          width: isSelected ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            p['icon'] as IconData,
+                            size: 18,
+                            color:
+                                isSelected ? AppTheme.accent : Colors.grey[400],
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  p['desc'],
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color:
+                                        isSelected
+                                            ? AppTheme.accent
+                                            : (isDark
+                                                ? Colors.white
+                                                : Colors.black87),
+                                  ),
+                                ),
+                                Text(
+                                  p['label'],
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (isSelected)
+                            Icon(
+                              Icons.check_circle_rounded,
+                              size: 18,
+                              color: AppTheme.accent,
+                            ),
+                        ],
                       ),
                     ),
-                    child: Row(
-                      children: [
-                        Icon(p['icon'] as IconData, size: 18, color: isSelected ? AppTheme.accent : Colors.grey[400]),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(p['desc'], style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: isSelected ? AppTheme.accent : (isDark ? Colors.white : Colors.black87))),
-                              Text(p['label'], style: TextStyle(fontSize: 11, color: Colors.grey[500])),
-                            ],
-                          ),
-                        ),
-                        if (isSelected) Icon(Icons.check_circle_rounded, size: 18, color: AppTheme.accent),
-                      ],
+                  ),
+                );
+              })),
+
+              const SizedBox(height: 20),
+
+              // Date pickers
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildDatePicker(
+                      "Date of Order/Judgment",
+                      _dateOfOrder,
+                      isDark,
+                      (d) => setState(() {
+                        _dateOfOrder = d;
+                        _calculate();
+                      }),
                     ),
                   ),
-                ),
-              );
-            })),
-
-            const SizedBox(height: 20),
-
-            // Date pickers
-            Row(
-              children: [
-                Expanded(child: _buildDatePicker("Date of Order/Judgment", _dateOfOrder, isDark, (d) => setState(() { _dateOfOrder = d; _calculate(); }))),
-                const SizedBox(width: 12),
-                Expanded(child: _buildDatePicker("Date of Filing", _dateOfFiling, isDark, (d) => setState(() { _dateOfFiling = d; _calculate(); }))),
-              ],
-            ),
-
-            // Section 4 note
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.amber.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.info_outline, size: 16, color: Colors.amber[700]),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(
-                    "If the due date falls on a day when the court is closed, the period is extended to the next working day under §4, Limitation Act.",
-                    style: TextStyle(fontSize: 11, color: Colors.amber[800], fontWeight: FontWeight.w500, height: 1.4),
-                  )),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildDatePicker(
+                      "Date of Filing",
+                      _dateOfFiling,
+                      isDark,
+                      (d) => setState(() {
+                        _dateOfFiling = d;
+                        _calculate();
+                      }),
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ]),
+
+              // Section 4 note
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.amber.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: 16,
+                      color: Colors.amber[700],
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        "If the due date falls on a day when the court is closed, the period is extended to the next working day under §4, Limitation Act.",
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.amber[800],
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
 
           // ─── Result Card ──
           if (_result != null) ...[
@@ -197,21 +326,44 @@ DEPONENT""";
               duration: const Duration(milliseconds: 300),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: (_result!['statusColor'] as Color).withValues(alpha: 0.08),
+                color: (_result!['statusColor'] as Color).withValues(
+                  alpha: 0.08,
+                ),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: (_result!['statusColor'] as Color).withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: (_result!['statusColor'] as Color).withValues(
+                    alpha: 0.3,
+                  ),
+                ),
               ),
               child: Row(
                 children: [
-                  Icon(_result!['statusIcon'], color: _result!['statusColor'], size: 28),
+                  Icon(
+                    _result!['statusIcon'],
+                    color: _result!['statusColor'],
+                    size: 28,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(_result!['status'], style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: _result!['statusColor'])),
+                        Text(
+                          _result!['status'],
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            color: _result!['statusColor'],
+                          ),
+                        ),
                         const SizedBox(height: 4),
-                        Text("Last date: ${_result!['dueDate']}", style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                        Text(
+                          "Last date: ${_result!['dueDate']}",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -223,41 +375,81 @@ DEPONENT""";
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(child: _buildStatBlock("Limitation", "${_result!['limitationDays']} days", Colors.blue, isDark)),
+                Expanded(
+                  child: _buildStatBlock(
+                    "Limitation",
+                    "${_result!['limitationDays']} days",
+                    Colors.blue,
+                    isDark,
+                  ),
+                ),
                 const SizedBox(width: 8),
-                Expanded(child: _buildStatBlock("Elapsed", "${_result!['totalDays']} days", Colors.orange, isDark)),
+                Expanded(
+                  child: _buildStatBlock(
+                    "Elapsed",
+                    "${_result!['totalDays']} days",
+                    Colors.orange,
+                    isDark,
+                  ),
+                ),
                 const SizedBox(width: 8),
-                Expanded(child: _buildStatBlock("Delay", "${_result!['delay']} days", _result!['isDelayed'] ? Colors.red : Colors.green, isDark)),
+                Expanded(
+                  child: _buildStatBlock(
+                    "Delay",
+                    "${_result!['delay']} days",
+                    _result!['isDelayed'] ? Colors.red : Colors.green,
+                    isDark,
+                  ),
+                ),
               ],
             ),
 
             // Affidavit text (only show if delayed)
             if (_result!['isDelayed']) ...[
               const SizedBox(height: 16),
-              _buildCard(isDark, icon: Icons.description_rounded, iconColor: Colors.indigo, title: "Affidavit Draft",
-                  trailing: TextButton.icon(
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: _result!['affidavitText']));
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Affidavit text copied!")));
-                    },
-                    icon: const Icon(Icons.copy_rounded, size: 14),
-                    label: const Text("Copy", style: TextStyle(fontSize: 12)),
-                  ),
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: isDark ? Colors.white10 : const Color(0xFFE2E8F0)),
-                      ),
-                      child: Text(
-                        _result!['affidavitText'],
-                        style: GoogleFonts.sourceCodePro(fontSize: 11, height: 1.6, color: isDark ? Colors.grey[300] : Colors.grey[700]),
+              _buildCard(
+                isDark,
+                icon: Icons.description_rounded,
+                iconColor: Colors.indigo,
+                title: "Affidavit Draft",
+                trailing: TextButton.icon(
+                  onPressed: () {
+                    Clipboard.setData(
+                      ClipboardData(text: _result!['affidavitText']),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Affidavit text copied!")),
+                    );
+                  },
+                  icon: const Icon(Icons.copy_rounded, size: 14),
+                  label: const Text("Copy", style: TextStyle(fontSize: 12)),
+                ),
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color:
+                          isDark
+                              ? const Color(0xFF0F172A)
+                              : const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color:
+                            isDark ? Colors.white10 : const Color(0xFFE2E8F0),
                       ),
                     ),
-                  ]),
+                    child: Text(
+                      _result!['affidavitText'],
+                      style: GoogleFonts.sourceCodePro(
+                        fontSize: 11,
+                        height: 1.6,
+                        color: isDark ? Colors.grey[300] : Colors.grey[700],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ],
 
@@ -277,39 +469,85 @@ DEPONENT""";
       ),
       child: Column(
         children: [
-          Text(label.toUpperCase(), style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: Colors.grey[500], letterSpacing: 0.5)),
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+              color: Colors.grey[500],
+              letterSpacing: 0.5,
+            ),
+          ),
           const SizedBox(height: 6),
-          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: color)),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+              color: color,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildDatePicker(String label, DateTime? value, bool isDark, ValueChanged<DateTime?> onChanged) {
+  Widget _buildDatePicker(
+    String label,
+    DateTime? value,
+    bool isDark,
+    ValueChanged<DateTime?> onChanged,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey[500], letterSpacing: 0.5)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: Colors.grey[500],
+            letterSpacing: 0.5,
+          ),
+        ),
         const SizedBox(height: 8),
         InkWell(
           onTap: () async {
-            final picked = await showDatePicker(context: context, initialDate: value ?? DateTime.now(), firstDate: DateTime(1900), lastDate: DateTime(2100));
+            final picked = await showDatePicker(
+              context: context,
+              initialDate: value ?? DateTime.now(),
+              firstDate: DateTime(1900),
+              lastDate: DateTime(2100),
+            );
             onChanged(picked);
           },
           borderRadius: BorderRadius.circular(10),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             decoration: BoxDecoration(
-              border: Border.all(color: isDark ? Colors.white12 : Colors.grey[300]!),
+              border: Border.all(
+                color: isDark ? Colors.white12 : Colors.grey[300]!,
+              ),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               children: [
-                Icon(Icons.calendar_today_rounded, size: 16, color: AppTheme.accent),
+                Icon(
+                  Icons.calendar_today_rounded,
+                  size: 16,
+                  color: AppTheme.accent,
+                ),
                 const SizedBox(width: 8),
                 Text(
-                  value == null ? "Select" : DateFormat('dd MMM yyyy').format(value),
-                  style: TextStyle(fontSize: 13, fontWeight: value != null ? FontWeight.w600 : FontWeight.w400, color: value != null ? null : Colors.grey[400]),
+                  value == null
+                      ? "Select"
+                      : DateFormat('dd MMM yyyy').format(value),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight:
+                        value != null ? FontWeight.w600 : FontWeight.w400,
+                    color: value != null ? null : Colors.grey[400],
+                  ),
                 ),
               ],
             ),
@@ -319,7 +557,14 @@ DEPONENT""";
     );
   }
 
-  Widget _buildCard(bool isDark, {required IconData icon, required Color iconColor, required String title, Widget? trailing, required List<Widget> children}) {
+  Widget _buildCard(
+    bool isDark, {
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    Widget? trailing,
+    required List<Widget> children,
+  }) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: AppTheme.cardDecoration(isDark: isDark),
@@ -330,11 +575,21 @@ DEPONENT""";
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Icon(icon, color: iconColor, size: 18),
               ),
               const SizedBox(width: 10),
-              Expanded(child: Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
               if (trailing != null) trailing,
             ],
           ),

@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 class PaymentCaptureService {
-  static final PaymentCaptureService _instance = PaymentCaptureService._internal();
+  static final PaymentCaptureService _instance =
+      PaymentCaptureService._internal();
   factory PaymentCaptureService() => _instance;
   PaymentCaptureService._internal();
 
@@ -37,16 +38,16 @@ class PaymentCaptureService {
     final file = await _getFile();
     if (await file.exists()) {
       final content = await file.readAsString();
-      await file.delete(); 
-      
+      await file.delete();
+
       final data = json.decode(content);
       final timestamp = DateTime.parse(data['timestamp']);
-      
+
       // If the intent is older than 2 hours, ignore it
       if (DateTime.now().difference(timestamp).inHours > 2) {
         return null;
       }
-      
+
       return data;
     }
     return null;

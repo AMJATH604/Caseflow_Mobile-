@@ -7,7 +7,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// **Security:** All AI calls are routed through the `gemini-proxy` Edge Function.
 /// No API keys are present in the client binary.
 class EcourtParserService {
-  static const String _parserPrompt = '''You are a legal data parser for Indian court records.
+  static const String _parserPrompt =
+      '''You are a legal data parser for Indian court records.
 Parse the following text copied/extracted from the eCourts India or eFiling portal and extract structured data.
 
 IMPORTANT RULES:
@@ -78,7 +79,8 @@ Return this exact JSON structure:
   }
 }''';
 
-  static const String _dashboardPrompt = '''You are a legal data parser for Indian eFiling portal dashboards.
+  static const String _dashboardPrompt =
+      '''You are a legal data parser for Indian eFiling portal dashboards.
 Parse the following text which contains a list of cases from an advocate's dashboard (typically a table with columns like Case No, CNR, Parties, etc.)
 Extract a structured list of all cases found.
 
@@ -130,13 +132,13 @@ Return this exact JSON structure:
 
   /// Parse raw advocate dashboard text into a structured list of cases.
   static Future<Map<String, dynamic>?> parsePortalDashboard(
-      String rawText) async {
+    String rawText,
+  ) async {
     try {
       final response = await Supabase.instance.client.functions.invoke(
         'gemini-proxy',
         body: {
-          'prompt':
-              '$_dashboardPrompt\n\nTEXT TO PARSE:\n---\n$rawText\n---',
+          'prompt': '$_dashboardPrompt\n\nTEXT TO PARSE:\n---\n$rawText\n---',
         },
       );
 
@@ -167,12 +169,12 @@ Return this exact JSON structure:
       if (cnrMatch != null) result['cnr_number'] = cnrMatch.group(0);
 
       // Try to extract dates (DD-MM-YYYY or DD/MM/YYYY)
-      final dateMatches =
-          RegExp(r'(\d{2}[-/]\d{2}[-/]\d{4})').allMatches(text);
-      final dates = dateMatches.map((m) {
-        final parts = m.group(1)!.split(RegExp(r'[-/]'));
-        return '${parts[2]}-${parts[1]}-${parts[0]}';
-      }).toList();
+      final dateMatches = RegExp(r'(\d{2}[-/]\d{2}[-/]\d{4})').allMatches(text);
+      final dates =
+          dateMatches.map((m) {
+            final parts = m.group(1)!.split(RegExp(r'[-/]'));
+            return '${parts[2]}-${parts[1]}-${parts[0]}';
+          }).toList();
 
       if (dates.isNotEmpty) {
         result['next_hearing_date'] = dates.last;
@@ -180,8 +182,7 @@ Return this exact JSON structure:
 
       // Try to extract case status
       final statusLower = text.toLowerCase();
-      if (statusLower.contains('disposed') ||
-          statusLower.contains('closed')) {
+      if (statusLower.contains('disposed') || statusLower.contains('closed')) {
         result['case_status'] = 'disposed';
       } else if (statusLower.contains('pending') ||
           statusLower.contains('listed')) {

@@ -70,7 +70,8 @@ class ClientDetailSheet extends ConsumerWidget {
               // Drag handle
               Center(
                 child: Container(
-                  width: 40, height: 4,
+                  width: 40,
+                  height: 4,
                   margin: const EdgeInsets.only(bottom: 24),
                   decoration: BoxDecoration(
                     color: const Color(0xFFCBD5E1),
@@ -84,7 +85,8 @@ class ClientDetailSheet extends ConsumerWidget {
                 children: [
                   // Gradient avatar
                   Container(
-                    width: 64, height: 64,
+                    width: 64,
+                    height: 64,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [color, color.withValues(alpha: 0.6)],
@@ -121,7 +123,8 @@ class ClientDetailSheet extends ConsumerWidget {
                           style: GoogleFonts.outfit(
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            color:
+                                isDark ? Colors.white : const Color(0xFF0F172A),
                             letterSpacing: -0.5,
                           ),
                         ),
@@ -129,31 +132,41 @@ class ClientDetailSheet extends ConsumerWidget {
                         Row(
                           children: [
                             Container(
-                              width: 6, height: 6,
+                              width: 6,
+                              height: 6,
                               decoration: BoxDecoration(
-                                color: client.hasActiveCases
-                                    ? const Color(0xFF10B981)
-                                    : const Color(0xFF94A3B8),
+                                color:
+                                    client.hasActiveCases
+                                        ? const Color(0xFF10B981)
+                                        : const Color(0xFF94A3B8),
                                 shape: BoxShape.circle,
                               ),
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              client.hasActiveCases ? "Active Client" : "No Active Cases",
+                              client.hasActiveCases
+                                  ? "Active Client"
+                                  : "No Active Cases",
                               style: GoogleFonts.inter(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: client.hasActiveCases
-                                    ? const Color(0xFF10B981)
-                                    : const Color(0xFF94A3B8),
+                                color:
+                                    client.hasActiveCases
+                                        ? const Color(0xFF10B981)
+                                        : const Color(0xFF94A3B8),
                               ),
                             ),
                             const SizedBox(width: 12),
                             if (client.caseCount > 0)
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                                  color: const Color(
+                                    0xFF6366F1,
+                                  ).withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
@@ -224,15 +237,45 @@ class ClientDetailSheet extends ConsumerWidget {
               // ─── Contact Information ─────────────────
               _buildSection("CONTACT INFORMATION", [
                 if (client.phone != null && client.phone!.isNotEmpty)
-                  _buildInfoRow(Icons.phone_rounded, "Phone", client.phone!, const Color(0xFF10B981), context),
+                  _buildInfoRow(
+                    Icons.phone_rounded,
+                    "Phone",
+                    client.phone!,
+                    const Color(0xFF10B981),
+                    context,
+                  ),
                 if (client.email != null && client.email!.isNotEmpty)
-                  _buildInfoRow(Icons.email_rounded, "Email", client.email!, const Color(0xFF3B82F6), context),
+                  _buildInfoRow(
+                    Icons.email_rounded,
+                    "Email",
+                    client.email!,
+                    const Color(0xFF3B82F6),
+                    context,
+                  ),
                 if (client.address != null && client.address!.isNotEmpty)
-                  _buildInfoRow(Icons.location_on_rounded, "Address", client.address!, const Color(0xFFF59E0B), context),
+                  _buildInfoRow(
+                    Icons.location_on_rounded,
+                    "Address",
+                    client.address!,
+                    const Color(0xFFF59E0B),
+                    context,
+                  ),
                 if (client.state != null && client.state!.isNotEmpty)
-                  _buildInfoRow(Icons.map_rounded, "State", client.state!, const Color(0xFF6366F1), context),
+                  _buildInfoRow(
+                    Icons.map_rounded,
+                    "State",
+                    client.state!,
+                    const Color(0xFF6366F1),
+                    context,
+                  ),
                 if (client.district != null && client.district!.isNotEmpty)
-                  _buildInfoRow(Icons.domain_rounded, "District", client.district!, const Color(0xFF0EA5E9), context),
+                  _buildInfoRow(
+                    Icons.domain_rounded,
+                    "District",
+                    client.district!,
+                    const Color(0xFF0EA5E9),
+                    context,
+                  ),
               ]),
 
               const SizedBox(height: 20),
@@ -242,31 +285,52 @@ class ClientDetailSheet extends ConsumerWidget {
               const SizedBox(height: 12),
               casesAsync.when(
                 data: (cases) {
-                  final clientCases = cases.where((c) => c.clientId == client.id).toList();
+                  final clientCases =
+                      cases.where((c) => c.clientId == client.id).toList();
                   if (clientCases.isEmpty) {
                     return Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1E2030) : const Color(0xFFF8FAFC),
+                        color:
+                            isDark
+                                ? const Color(0xFF1E2030)
+                                : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0)),
+                        border: Border.all(
+                          color:
+                              isDark
+                                  ? const Color(0xFF2D3748)
+                                  : const Color(0xFFE2E8F0),
+                        ),
                       ),
                       child: Center(
                         child: Text(
                           "No cases linked to this client",
-                          style: GoogleFonts.inter(fontSize: 13, color: const Color(0xFF94A3B8)),
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: const Color(0xFF94A3B8),
+                          ),
                         ),
                       ),
                     );
                   }
                   return Column(
-                    children: clientCases.map((c) => _buildCaseCard(context, c, isDark)).toList(),
+                    children:
+                        clientCases
+                            .map((c) => _buildCaseCard(context, c, isDark))
+                            .toList(),
                   );
                 },
-                loading: () => const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Center(child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.accent)),
-                ),
+                loading:
+                    () => const Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppTheme.accent,
+                        ),
+                      ),
+                    ),
                 error: (_, __) => const SizedBox.shrink(),
               ),
 
@@ -276,12 +340,19 @@ class ClientDetailSheet extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E2030) : const Color(0xFFF1F5F9),
+                  color:
+                      isDark
+                          ? const Color(0xFF1E2030)
+                          : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.access_time_rounded, size: 14, color: const Color(0xFF94A3B8)),
+                    Icon(
+                      Icons.access_time_rounded,
+                      size: 14,
+                      color: const Color(0xFF94A3B8),
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       "Member since ${DateFormat('MMMM d, yyyy').format(client.createdAt)}",
@@ -302,7 +373,8 @@ class ClientDetailSheet extends ConsumerWidget {
     );
   }
 
-  Widget _buildAction(BuildContext context, {
+  Widget _buildAction(
+    BuildContext context, {
     required IconData icon,
     required String label,
     required Color color,
@@ -353,7 +425,8 @@ class ClientDetailSheet extends ConsumerWidget {
     return Row(
       children: [
         Container(
-          width: 3, height: 14,
+          width: 3,
+          height: 14,
           decoration: BoxDecoration(
             color: AppTheme.accent,
             borderRadius: BorderRadius.circular(2),
@@ -373,7 +446,13 @@ class ClientDetailSheet extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value, Color color, BuildContext context) {
+  Widget _buildInfoRow(
+    IconData icon,
+    String label,
+    String value,
+    Color color,
+    BuildContext context,
+  ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -385,7 +464,9 @@ class ClientDetailSheet extends ConsumerWidget {
               content: Text("Copied: $value"),
               duration: const Duration(seconds: 1),
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
           Clipboard.setData(ClipboardData(text: value));
@@ -396,7 +477,9 @@ class ClientDetailSheet extends ConsumerWidget {
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1E2030) : const Color(0xFFF8FAFC),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0)),
+            border: Border.all(
+              color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0),
+            ),
           ),
           child: Row(
             children: [
@@ -434,7 +517,11 @@ class ClientDetailSheet extends ConsumerWidget {
                   ],
                 ),
               ),
-              Icon(Icons.copy_rounded, size: 14, color: const Color(0xFFCBD5E1)),
+              Icon(
+                Icons.copy_rounded,
+                size: 14,
+                color: const Color(0xFFCBD5E1),
+              ),
             ],
           ),
         ),
@@ -442,10 +529,15 @@ class ClientDetailSheet extends ConsumerWidget {
     );
   }
 
-  Widget _buildCaseCard(BuildContext context, CaseModel caseModel, bool isDark) {
-    final statusColor = caseModel.status == CaseStatus.active
-        ? const Color(0xFF10B981)
-        : const Color(0xFF64748B);
+  Widget _buildCaseCard(
+    BuildContext context,
+    CaseModel caseModel,
+    bool isDark,
+  ) {
+    final statusColor =
+        caseModel.status == CaseStatus.active
+            ? const Color(0xFF10B981)
+            : const Color(0xFF64748B);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -453,12 +545,15 @@ class ClientDetailSheet extends ConsumerWidget {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E2030) : Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0)),
+        border: Border.all(
+          color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0),
+        ),
       ),
       child: Row(
         children: [
           Container(
-            width: 3, height: 32,
+            width: 3,
+            height: 32,
             decoration: BoxDecoration(
               color: statusColor,
               borderRadius: BorderRadius.circular(2),
@@ -491,7 +586,11 @@ class ClientDetailSheet extends ConsumerWidget {
               ],
             ),
           ),
-          Icon(Icons.arrow_forward_ios_rounded, size: 12, color: const Color(0xFFCBD5E1)),
+          Icon(
+            Icons.arrow_forward_ios_rounded,
+            size: 12,
+            color: const Color(0xFFCBD5E1),
+          ),
         ],
       ),
     );

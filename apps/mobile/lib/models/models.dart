@@ -57,36 +57,46 @@ class CaseModel {
   });
 
   factory CaseModel.fromJson(Map<String, dynamic> json) => CaseModel(
-        id: json['id'] ?? '',
-        caseTitle: json['case_title'] ?? '',
-        caseNumber: json['case_number'],
-        caseType: json['case_type'],
-        courtName: json['court_name'],
-        clientId: json['client_id'] ?? '',
-        status: CaseStatus.fromString(json['status'] ?? 'active'),
-        stage: CaseStage.fromString(json['stage'] ?? 'filing'),
-        filingDate: json['filing_date'] != null ? DateTime.parse(json['filing_date']) : null,
-        nextHearingDate: json['next_hearing_date'] != null ? DateTime.parse(json['next_hearing_date']) : null,
-        createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
-        clientName: json['clients'] != null ? json['clients']['name'] : null,
-        state: json['state'],
-        district: json['district'],
-        cnrNumber: json['cnr_number'],
-        firmId: json['firm_id'],
-        assignedTo: json['assigned_to'],
-        representationType: json['representation_type'] != null 
+    id: json['id'] ?? '',
+    caseTitle: json['case_title'] ?? '',
+    caseNumber: json['case_number'],
+    caseType: json['case_type'],
+    courtName: json['court_name'],
+    clientId: json['client_id'] ?? '',
+    status: CaseStatus.fromString(json['status'] ?? 'active'),
+    stage: CaseStage.fromString(json['stage'] ?? 'filing'),
+    filingDate:
+        json['filing_date'] != null
+            ? DateTime.parse(json['filing_date'])
+            : null,
+    nextHearingDate:
+        json['next_hearing_date'] != null
+            ? DateTime.parse(json['next_hearing_date'])
+            : null,
+    createdBy: json['created_by'] ?? '',
+    createdAt: DateTime.parse(
+      json['created_at'] ?? DateTime.now().toIso8601String(),
+    ),
+    clientName: json['clients'] != null ? json['clients']['name'] : null,
+    state: json['state'],
+    district: json['district'],
+    cnrNumber: json['cnr_number'],
+    firmId: json['firm_id'],
+    assignedTo: json['assigned_to'],
+    representationType:
+        json['representation_type'] != null
             ? RepresentationType.fromString(json['representation_type'])
             : RepresentationType.petitioner,
-        courtType: json['court_type'] != null
+    courtType:
+        json['court_type'] != null
             ? CourtType.fromString(json['court_type'])
             : CourtType.trial,
-        opposingParty: json['opposing_party'],
-        opposingAdvocate: json['opposing_advocate'],
-        opposingAdvocatePhone: json['opposing_advocate_phone'],
-        petitionerAdvocate: json['petitioner_advocate'],
-        petitionerAdvocatePhone: json['petitioner_advocate_phone'],
-      );
+    opposingParty: json['opposing_party'],
+    opposingAdvocate: json['opposing_advocate'],
+    opposingAdvocatePhone: json['opposing_advocate_phone'],
+    petitionerAdvocate: json['petitioner_advocate'],
+    petitionerAdvocatePhone: json['petitioner_advocate_phone'],
+  );
 
   bool isTeamCase(String userId) {
     // If firmId exists and it's NOT the user's ID, it's a team case
@@ -150,20 +160,23 @@ class ClientModel {
   });
 
   factory ClientModel.fromJson(Map<String, dynamic> json) => ClientModel(
-        id: json['id'] ?? '',
-        name: json['name'] ?? '',
-        email: json['email'],
-        phone: json['phone'],
-        address: json['address'],
-        state: json['state'],
-        district: json['district'],
-        createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
-        firmId: json['firm_id'],
-        caseCount: json['case_count'] is int
+    id: json['id'] ?? '',
+    name: json['name'] ?? '',
+    email: json['email'],
+    phone: json['phone'],
+    address: json['address'],
+    state: json['state'],
+    district: json['district'],
+    createdBy: json['created_by'] ?? '',
+    createdAt: DateTime.parse(
+      json['created_at'] ?? DateTime.now().toIso8601String(),
+    ),
+    firmId: json['firm_id'],
+    caseCount:
+        json['case_count'] is int
             ? json['case_count']
             : (json['cases'] is List ? (json['cases'] as List).length : 0),
-      );
+  );
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -220,23 +233,26 @@ class Hearing {
   });
 
   factory Hearing.fromJson(Map<String, dynamic> json) => Hearing(
-        id: json['id'] ?? '',
-        caseId: json['case_id'] ?? '',
-        hearingDate: DateTime.parse(json['hearing_date'] ?? DateTime.now().toIso8601String()),
-        stage: json['stage'],
-        notes: json['notes'],
-        nextAction: json['next_action'],
-        createdBy: json['created_by'] ?? '',
-        status: json['status'] ?? "scheduled",
-        purpose: json['purpose'],
-        caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
-        courtName: json['cases'] != null ? json['cases']['court_name'] : null,
-        caseNumber: json['cases'] != null ? json['cases']['case_number'] : null,
-        firmId: json['cases'] != null ? json['cases']['firm_id'] : null,
-        judgeName: json['judge_name'],
-        nextDate: json['next_date'] != null ? DateTime.parse(json['next_date']) : null,
-        businessDone: json['business_done'],
-      );
+    id: json['id'] ?? '',
+    caseId: json['case_id'] ?? '',
+    hearingDate: DateTime.parse(
+      json['hearing_date'] ?? DateTime.now().toIso8601String(),
+    ),
+    stage: json['stage'],
+    notes: json['notes'],
+    nextAction: json['next_action'],
+    createdBy: json['created_by'] ?? '',
+    status: json['status'] ?? "scheduled",
+    purpose: json['purpose'],
+    caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
+    courtName: json['cases'] != null ? json['cases']['court_name'] : null,
+    caseNumber: json['cases'] != null ? json['cases']['case_number'] : null,
+    firmId: json['cases'] != null ? json['cases']['firm_id'] : null,
+    judgeName: json['judge_name'],
+    nextDate:
+        json['next_date'] != null ? DateTime.parse(json['next_date']) : null,
+    businessDone: json['business_done'],
+  );
 
   bool isTeamCase(String userId) => firmId != null && firmId != userId;
 
@@ -287,16 +303,19 @@ class EFilingRecord {
   });
 
   factory EFilingRecord.fromJson(Map<String, dynamic> json) => EFilingRecord(
-        id: json['id'] ?? '',
-        caseId: json['case_id'] ?? '',
-        documentType: json['document_type'] ?? '',
-        status: FilingStatus.fromString(json['status'] ?? 'drafting'),
-        filingDate: json['filing_date'] != null ? DateTime.parse(json['filing_date']) : null,
-        createdBy: json['created_by'] ?? '',
-        caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
-        defectNotes: json['defect_notes'],
-        firmId: json['cases'] != null ? json['cases']['firm_id'] : null,
-      );
+    id: json['id'] ?? '',
+    caseId: json['case_id'] ?? '',
+    documentType: json['document_type'] ?? '',
+    status: FilingStatus.fromString(json['status'] ?? 'drafting'),
+    filingDate:
+        json['filing_date'] != null
+            ? DateTime.parse(json['filing_date'])
+            : null,
+    createdBy: json['created_by'] ?? '',
+    caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
+    defectNotes: json['defect_notes'],
+    firmId: json['cases'] != null ? json['cases']['firm_id'] : null,
+  );
 
   bool isTeamCase(String userId) => firmId != null && firmId != userId;
 }
@@ -331,19 +350,20 @@ class Payment {
   });
 
   factory Payment.fromJson(Map<String, dynamic> json) => Payment(
-        id: json['id'] ?? '',
-        caseId: json['case_id'] ?? '',
-        totalFee: (json['total_fee'] ?? 0).toDouble(),
-        paidAmount: (json['paid_amount'] ?? 0).toDouble(),
-        balanceAmount: (json['balance_amount'] ?? 0).toDouble(),
-        paidDate: json['paid_date'] != null ? DateTime.parse(json['paid_date']) : null,
-        paymentMode: json['payment_mode'],
-        createdBy: json['created_by'] ?? '',
-        caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
-        firmId: json['cases'] != null ? json['cases']['firm_id'] : null,
-        notes: json['notes'],
-        transactionType: json['transaction_type'] ?? 'revenue',
-      );
+    id: json['id'] ?? '',
+    caseId: json['case_id'] ?? '',
+    totalFee: (json['total_fee'] ?? 0).toDouble(),
+    paidAmount: (json['paid_amount'] ?? 0).toDouble(),
+    balanceAmount: (json['balance_amount'] ?? 0).toDouble(),
+    paidDate:
+        json['paid_date'] != null ? DateTime.parse(json['paid_date']) : null,
+    paymentMode: json['payment_mode'],
+    createdBy: json['created_by'] ?? '',
+    caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
+    firmId: json['cases'] != null ? json['cases']['firm_id'] : null,
+    notes: json['notes'],
+    transactionType: json['transaction_type'] ?? 'revenue',
+  );
 
   bool isTeamCase(String userId) => firmId != null && firmId != userId;
 }
@@ -380,20 +400,31 @@ class CertifiedCopy {
   });
 
   factory CertifiedCopy.fromJson(Map<String, dynamic> json) => CertifiedCopy(
-        id: json['id'] ?? '',
-        caseId: json['case_id'] ?? '',
-        caNumber: json['ca_number'],
-        boxDropDate: json['box_drop_date'] != null ? DateTime.parse(json['box_drop_date']) : null,
-        memoDate: json['memo_date'] != null ? DateTime.parse(json['memo_date']) : null,
-        readyDate: json['ready_date'] != null ? DateTime.parse(json['ready_date']) : null,
-        collectedDate: json['collected_date'] != null ? DateTime.parse(json['collected_date']) : null,
-        status: json['status'] ?? 'box_drop',
-        createdBy: json['created_by'] ?? '',
-        caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
-        firmId: json['cases'] != null ? json['cases']['firm_id'] : null,
-        paidAmount: json['paid_amount'] != null ? (json['paid_amount'] as num).toDouble() : null,
-        portalReceiptUrl: json['portal_receipt_url'],
-      );
+    id: json['id'] ?? '',
+    caseId: json['case_id'] ?? '',
+    caNumber: json['ca_number'],
+    boxDropDate:
+        json['box_drop_date'] != null
+            ? DateTime.parse(json['box_drop_date'])
+            : null,
+    memoDate:
+        json['memo_date'] != null ? DateTime.parse(json['memo_date']) : null,
+    readyDate:
+        json['ready_date'] != null ? DateTime.parse(json['ready_date']) : null,
+    collectedDate:
+        json['collected_date'] != null
+            ? DateTime.parse(json['collected_date'])
+            : null,
+    status: json['status'] ?? 'box_drop',
+    createdBy: json['created_by'] ?? '',
+    caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
+    firmId: json['cases'] != null ? json['cases']['firm_id'] : null,
+    paidAmount:
+        json['paid_amount'] != null
+            ? (json['paid_amount'] as num).toDouble()
+            : null,
+    portalReceiptUrl: json['portal_receipt_url'],
+  );
 
   bool isTeamCase(String userId) => firmId != null && firmId != userId;
 }
@@ -412,11 +443,11 @@ class TaskModel {
   });
 
   factory TaskModel.fromJson(Map<String, dynamic> json) => TaskModel(
-        id: json['id'] ?? '',
-        title: json['title'] ?? '',
-        isCompleted: json['is_completed'] ?? false,
-        createdAt: json['created_at'] ?? '',
-      );
+    id: json['id'] ?? '',
+    title: json['title'] ?? '',
+    isCompleted: json['is_completed'] ?? false,
+    createdAt: json['created_at'] ?? '',
+  );
 }
 
 class EvidenceChecklist {
@@ -436,13 +467,16 @@ class EvidenceChecklist {
     required this.createdAt,
   });
 
-  factory EvidenceChecklist.fromJson(Map<String, dynamic> json) => EvidenceChecklist(
+  factory EvidenceChecklist.fromJson(Map<String, dynamic> json) =>
+      EvidenceChecklist(
         id: json['id'] ?? '',
         caseId: json['case_id'] ?? '',
         itemType: json['item_type'] ?? 'pending',
         itemName: json['item_name'] ?? '',
         isCompleted: json['is_completed'] ?? false,
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+        createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String(),
+        ),
       );
 }
 
@@ -464,13 +498,15 @@ class WitnessNote {
   });
 
   factory WitnessNote.fromJson(Map<String, dynamic> json) => WitnessNote(
-        id: json['id'] ?? '',
-        caseId: json['case_id'] ?? '',
-        witnessTag: json['witness_tag'] ?? '',
-        witnessName: json['witness_name'] ?? '',
-        notes: json['notes'],
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
-      );
+    id: json['id'] ?? '',
+    caseId: json['case_id'] ?? '',
+    witnessTag: json['witness_tag'] ?? '',
+    witnessName: json['witness_name'] ?? '',
+    notes: json['notes'],
+    createdAt: DateTime.parse(
+      json['created_at'] ?? DateTime.now().toIso8601String(),
+    ),
+  );
 }
 
 class EvidencePhoto {
@@ -491,13 +527,15 @@ class EvidencePhoto {
   });
 
   factory EvidencePhoto.fromJson(Map<String, dynamic> json) => EvidencePhoto(
-        id: json['id'] ?? '',
-        caseId: json['case_id'] ?? '',
-        photoUrl: json['file_url'] ?? json['photo_url'] ?? '',
-        description: json['description'],
-        tags: List<String>.from(json['tags'] ?? []),
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
-      );
+    id: json['id'] ?? '',
+    caseId: json['case_id'] ?? '',
+    photoUrl: json['file_url'] ?? json['photo_url'] ?? '',
+    description: json['description'],
+    tags: List<String>.from(json['tags'] ?? []),
+    createdAt: DateTime.parse(
+      json['created_at'] ?? DateTime.now().toIso8601String(),
+    ),
+  );
 }
 
 class UserProfile {
@@ -509,7 +547,7 @@ class UserProfile {
   final DateTime? currentPeriodEnd;
   final String? firmId;
   final String? email;
-  
+
   // New Professional Fields for Directory
   final String? mobileNumber;
   final String? registrationNumber;
@@ -536,21 +574,27 @@ class UserProfile {
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
-        id: json['id'] ?? '',
-        fullName: json['full_name'],
-        subscriptionTier: json['subscription_tier'] ?? 'free',
-        userRole: json['user_role'] ?? 'advocate',
-        trialEndsAt: json['trial_ends_at'] != null ? DateTime.parse(json['trial_ends_at']) : null,
-        currentPeriodEnd: json['current_period_end'] != null ? DateTime.parse(json['current_period_end']) : null,
-        firmId: json['firm_id'],
-        email: json['email'],
-        mobileNumber: json['mobile_number'],
-        registrationNumber: json['registration_number'],
-        practiceState: json['practice_state'],
-        practiceDistrict: json['practice_district'],
-        officeAddress: json['office_address'],
-        isPublicDirectoryEnabled: json['is_public_directory_enabled'] ?? true,
-      );
+    id: json['id'] ?? '',
+    fullName: json['full_name'],
+    subscriptionTier: json['subscription_tier'] ?? 'free',
+    userRole: json['user_role'] ?? 'advocate',
+    trialEndsAt:
+        json['trial_ends_at'] != null
+            ? DateTime.parse(json['trial_ends_at'])
+            : null,
+    currentPeriodEnd:
+        json['current_period_end'] != null
+            ? DateTime.parse(json['current_period_end'])
+            : null,
+    firmId: json['firm_id'],
+    email: json['email'],
+    mobileNumber: json['mobile_number'],
+    registrationNumber: json['registration_number'],
+    practiceState: json['practice_state'],
+    practiceDistrict: json['practice_district'],
+    officeAddress: json['office_address'],
+    isPublicDirectoryEnabled: json['is_public_directory_enabled'] ?? true,
+  );
 
   /// Feature gating: Based on subscription tier from the database.
   /// Respects trial periods and subscription expiration.
@@ -622,7 +666,6 @@ class UserProfile {
   };
 }
 
-
 class FirmMember {
   final String id;
   final String ownerId;
@@ -647,16 +690,18 @@ class FirmMember {
   });
 
   factory FirmMember.fromJson(Map<String, dynamic> json) => FirmMember(
-        id: json['id'] ?? '',
-        ownerId: json['owner_id'] ?? '',
-        memberEmail: json['member_email'] ?? '',
-        memberId: json['member_id'],
-        role: json['role'] ?? 'member',
-        status: json['status'] ?? 'pending',
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
-        memberName: json['profiles'] != null ? json['profiles']['full_name'] : null,
-        ownerName: json['profiles'] != null ? json['profiles']['full_name'] : null,
-      );
+    id: json['id'] ?? '',
+    ownerId: json['owner_id'] ?? '',
+    memberEmail: json['member_email'] ?? '',
+    memberId: json['member_id'],
+    role: json['role'] ?? 'member',
+    status: json['status'] ?? 'pending',
+    createdAt: DateTime.parse(
+      json['created_at'] ?? DateTime.now().toIso8601String(),
+    ),
+    memberName: json['profiles'] != null ? json['profiles']['full_name'] : null,
+    ownerName: json['profiles'] != null ? json['profiles']['full_name'] : null,
+  );
 }
 
 class CaseComment {
@@ -691,20 +736,22 @@ class CaseComment {
   });
 
   factory CaseComment.fromJson(Map<String, dynamic> json) => CaseComment(
-        id: json['id'] ?? '',
-        caseId: json['case_id'],
-        firmId: json['firm_id'] ?? '',
-        senderId: json['sender_id'] ?? '',
-        message: json['message'] ?? '',
-        isSystem: json['is_system'] ?? false,
-        createdAt: _parseUtc(json['created_at']),
-        senderName: json['sender_name'] ?? (json['profiles'] != null ? json['profiles']['full_name'] : null),
-        attachmentUrl: json['attachment_url'],
-        attachmentType: json['attachment_type'],
-        replyToId: json['reply_to_id'],
-        replyToMessage: json['reply_to_message'],
-        replyToSender: json['reply_to_sender'],
-      );
+    id: json['id'] ?? '',
+    caseId: json['case_id'],
+    firmId: json['firm_id'] ?? '',
+    senderId: json['sender_id'] ?? '',
+    message: json['message'] ?? '',
+    isSystem: json['is_system'] ?? false,
+    createdAt: _parseUtc(json['created_at']),
+    senderName:
+        json['sender_name'] ??
+        (json['profiles'] != null ? json['profiles']['full_name'] : null),
+    attachmentUrl: json['attachment_url'],
+    attachmentType: json['attachment_type'],
+    replyToId: json['reply_to_id'],
+    replyToMessage: json['reply_to_message'],
+    replyToSender: json['reply_to_sender'],
+  );
 
   bool get hasAttachment => attachmentUrl != null && attachmentUrl!.isNotEmpty;
   bool get isImage => attachmentType == 'image';
@@ -737,13 +784,16 @@ class CaseCollaboration {
     this.caseTitle,
   });
 
-  factory CaseCollaboration.fromJson(Map<String, dynamic> json) => CaseCollaboration(
+  factory CaseCollaboration.fromJson(Map<String, dynamic> json) =>
+      CaseCollaboration(
         id: json['id'] ?? '',
         caseId: json['case_id'] ?? '',
         collaboratorId: json['collaborator_id'],
         collaboratorEmail: json['collaborator_email'] ?? '',
         status: json['status'] ?? 'pending',
-        createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+        createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String(),
+        ),
         caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
       );
 }
@@ -770,11 +820,11 @@ class LegalTemplate {
   });
 
   factory LegalTemplate.fromJson(Map<String, dynamic> json) => LegalTemplate(
-        id: json['id'] ?? '',
-        title: json['title'] ?? '',
-        description: json['description'],
-        category: json['category'] ?? 'General',
-        pdfUrl: json['pdf_url'] ?? json['file_url'],
-        docxUrl: json['docx_url'],
-      );
+    id: json['id'] ?? '',
+    title: json['title'] ?? '',
+    description: json['description'],
+    category: json['category'] ?? 'General',
+    pdfUrl: json['pdf_url'] ?? json['file_url'],
+    docxUrl: json['docx_url'],
+  );
 }

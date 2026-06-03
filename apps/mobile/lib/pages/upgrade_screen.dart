@@ -16,7 +16,10 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
     return Scaffold(
       backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title: const Text("Plan Information", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          "Plan Information",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -32,7 +35,11 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
                   color: AppTheme.accent.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.rocket_launch_rounded, size: 64, color: AppTheme.accent),
+                child: const Icon(
+                  Icons.rocket_launch_rounded,
+                  size: 64,
+                  color: AppTheme.accent,
+                ),
               ),
               const SizedBox(height: 32),
               const Text(
@@ -60,8 +67,13 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primary,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
             ],
@@ -91,16 +103,28 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
         boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
-        children: features.map((f) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            children: [
-              const Icon(Icons.check_circle_rounded, color: Colors.green, size: 20),
-              const SizedBox(width: 12),
-              Text(f, style: const TextStyle(fontWeight: FontWeight.w500)),
-            ],
-          ),
-        )).toList(),
+        children:
+            features
+                .map(
+                  (f) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.check_circle_rounded,
+                          color: Colors.green,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          f,
+                          style: const TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+                .toList(),
       ),
     );
   }

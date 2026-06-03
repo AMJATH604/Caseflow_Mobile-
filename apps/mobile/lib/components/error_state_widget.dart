@@ -19,7 +19,8 @@ class ErrorStateWidget extends StatelessWidget {
     return FutureBuilder<List<ConnectivityResult>>(
       future: Connectivity().checkConnectivity(),
       builder: (context, snapshot) {
-        final isOffline = snapshot.hasData && 
+        final isOffline =
+            snapshot.hasData &&
             snapshot.data!.any((result) => result == ConnectivityResult.none);
 
         return Center(
@@ -40,7 +41,7 @@ class ErrorStateWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  isOffline 
+                  isOffline
                       ? "Please check your network settings and try again."
                       : (message ?? error.toString()),
                   textAlign: TextAlign.center,
@@ -64,7 +65,10 @@ class ErrorStateWidget extends StatelessWidget {
                       children: [
                         Icon(Icons.refresh_rounded, size: 18),
                         SizedBox(width: 8),
-                        Text("Try Again", style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                          "Try Again",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ],
                     ),
                   ),
@@ -93,7 +97,9 @@ class ErrorStateWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: (isOffline ? Colors.orange : AppTheme.error).withValues(alpha: 0.1),
+        color: (isOffline ? Colors.orange : AppTheme.error).withValues(
+          alpha: 0.1,
+        ),
         shape: BoxShape.circle,
       ),
       child: Icon(

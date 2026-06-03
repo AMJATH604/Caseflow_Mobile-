@@ -14,33 +14,44 @@ class InterimOrdersSection extends ConsumerStatefulWidget {
   const InterimOrdersSection({super.key, required this.caseId});
 
   @override
-  ConsumerState<InterimOrdersSection> createState() => _InterimOrdersSectionState();
+  ConsumerState<InterimOrdersSection> createState() =>
+      _InterimOrdersSectionState();
 }
 
 class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
-
   void _deleteItem(String id) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text("Delete order?"),
-        content: const Text("Are you sure you want to remove this order entry?"),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Cancel")),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text("Delete"),
+      builder:
+          (ctx) => AlertDialog(
+            title: const Text("Delete order?"),
+            content: const Text(
+              "Are you sure you want to remove this order entry?",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.error,
+                ),
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text("Delete"),
+              ),
+            ],
           ),
-        ],
-      ),
     );
     if (confirm != true) return;
     try {
       await SupabaseService.deleteInterimOrder(id);
       ref.invalidate(caseInterimOrdersProvider(widget.caseId));
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
     }
   }
 
@@ -53,79 +64,162 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheetState) => Container(
-          padding: EdgeInsets.only(left: 24, right: 24, top: 24, bottom: MediaQuery.of(ctx).viewInsets.bottom + 24),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)))),
-                const SizedBox(height: 20),
-                const Text("Add Interim Order", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF1E293B))),
-                const SizedBox(height: 20),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text("Order Date"),
-                  subtitle: Text(DateFormat('dd MMM yyyy').format(orderDate)),
-                  trailing: const Icon(Icons.calendar_today, color: AppTheme.accent),
-                  onTap: () async {
-                    final d = await showDatePicker(context: ctx, initialDate: orderDate, firstDate: DateTime(2000), lastDate: DateTime.now().add(const Duration(days: 365)));
-                    if (d != null) setSheetState(() => orderDate = d);
-                  },
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  value: orderType,
-                  decoration: InputDecoration(labelText: "Order Type", border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                  items: ['deposition', 'interim_order', 'stay_order'].map((s) {
-                    final label = s.replaceAll('_', ' ');
-                    return DropdownMenuItem(value: s, child: Text(label[0].toUpperCase() + label.substring(1)));
-                  }).toList(),
-                  onChanged: (v) => orderType = v ?? 'deposition',
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: summaryCtrl,
-                  maxLines: 3,
-                  decoration: InputDecoration(labelText: "Order Summary / Notes", border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton.icon(
-                    onPressed: () async {
-                      Navigator.pop(ctx);
-                      try {
-                        final existing = ref.read(caseInterimOrdersProvider(widget.caseId)).value ?? [];
-                        await SupabaseService.createInterimOrder({
-                          'case_id': widget.caseId,
-                          'order_number': existing.length + 1,
-                          'order_date': orderDate.toIso8601String().split('T')[0],
-                          'order_type': orderType,
-                          'order_summary': summaryCtrl.text.trim().isNotEmpty ? summaryCtrl.text.trim() : null,
-                        });
-                        ref.invalidate(caseInterimOrdersProvider(widget.caseId));
-                      } catch (e) {
-                        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
-                      }
-                    },
-                    icon: const Icon(Icons.check, size: 18),
-                    label: const Text("Add Order", style: TextStyle(fontWeight: FontWeight.w900)),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+      builder:
+          (ctx) => StatefulBuilder(
+            builder:
+                (ctx, setSheetState) => Container(
+                  padding: EdgeInsets.only(
+                    left: 24,
+                    right: 24,
+                    top: 24,
+                    bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+                  ),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Add Interim Order",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text("Order Date"),
+                          subtitle: Text(
+                            DateFormat('dd MMM yyyy').format(orderDate),
+                          ),
+                          trailing: const Icon(
+                            Icons.calendar_today,
+                            color: AppTheme.accent,
+                          ),
+                          onTap: () async {
+                            final d = await showDatePicker(
+                              context: ctx,
+                              initialDate: orderDate,
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime.now().add(
+                                const Duration(days: 365),
+                              ),
+                            );
+                            if (d != null) setSheetState(() => orderDate = d);
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<String>(
+                          value: orderType,
+                          decoration: InputDecoration(
+                            labelText: "Order Type",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          items:
+                              [
+                                'deposition',
+                                'interim_order',
+                                'stay_order',
+                              ].map((s) {
+                                final label = s.replaceAll('_', ' ');
+                                return DropdownMenuItem(
+                                  value: s,
+                                  child: Text(
+                                    label[0].toUpperCase() + label.substring(1),
+                                  ),
+                                );
+                              }).toList(),
+                          onChanged: (v) => orderType = v ?? 'deposition',
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: summaryCtrl,
+                          maxLines: 3,
+                          decoration: InputDecoration(
+                            labelText: "Order Summary / Notes",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              Navigator.pop(ctx);
+                              try {
+                                final existing =
+                                    ref
+                                        .read(
+                                          caseInterimOrdersProvider(
+                                            widget.caseId,
+                                          ),
+                                        )
+                                        .value ??
+                                    [];
+                                await SupabaseService.createInterimOrder({
+                                  'case_id': widget.caseId,
+                                  'order_number': existing.length + 1,
+                                  'order_date':
+                                      orderDate.toIso8601String().split('T')[0],
+                                  'order_type': orderType,
+                                  'order_summary':
+                                      summaryCtrl.text.trim().isNotEmpty
+                                          ? summaryCtrl.text.trim()
+                                          : null,
+                                });
+                                ref.invalidate(
+                                  caseInterimOrdersProvider(widget.caseId),
+                                );
+                              } catch (e) {
+                                if (mounted)
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("Error: $e")),
+                                  );
+                              }
+                            },
+                            icon: const Icon(Icons.check, size: 18),
+                            label: const Text(
+                              "Add Order",
+                              style: TextStyle(fontWeight: FontWeight.w900),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.accent,
+                              foregroundColor: Colors.black,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            ),
           ),
-        ),
-      ),
     );
   }
 
@@ -146,9 +240,42 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
             ),
             child: const Row(
               children: [
-                Expanded(flex: 1, child: Text("ORDER #", style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Color(0xFF64748B), letterSpacing: 0.5))),
-                Expanded(flex: 2, child: Text("ORDER DATE", style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Color(0xFF64748B), letterSpacing: 0.5))),
-                Expanded(flex: 3, child: Text("DETAILS", style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Color(0xFF64748B), letterSpacing: 0.5))),
+                Expanded(
+                  flex: 1,
+                  child: Text(
+                    "ORDER #",
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF64748B),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    "ORDER DATE",
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF64748B),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    "DETAILS",
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF64748B),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
                 SizedBox(width: 24),
               ],
             ),
@@ -165,33 +292,67 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                 children: [
                   Expanded(
                     flex: 1,
-                    child: Text("${order.orderNumber ?? idx + 1}", style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Color(0xFF1E293B))),
+                    child: Text(
+                      "${order.orderNumber ?? idx + 1}",
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
                   ),
                   Expanded(
                     flex: 2,
-                    child: Text(df.format(order.orderDate), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+                    child: Text(
+                      df.format(order.orderDate),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
                   ),
                   Expanded(
                     flex: 3,
-                    child: order.documentUrl != null
-                        ? GestureDetector(
-                            onTap: () async {
-                              final uri = Uri.parse(order.documentUrl!);
-                              if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
-                            },
-                            child: Text(
-                              order.orderSummary ?? "Copy Of ${order.orderType == 'deposition' ? 'Deposition' : 'Order'}",
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF059669), decoration: TextDecoration.underline),
+                    child:
+                        order.documentUrl != null
+                            ? GestureDetector(
+                              onTap: () async {
+                                final uri = Uri.parse(order.documentUrl!);
+                                if (await canLaunchUrl(uri))
+                                  await launchUrl(
+                                    uri,
+                                    mode: LaunchMode.externalApplication,
+                                  );
+                              },
+                              child: Text(
+                                order.orderSummary ??
+                                    "Copy Of ${order.orderType == 'deposition' ? 'Deposition' : 'Order'}",
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF059669),
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            )
+                            : Text(
+                              order.orderSummary ??
+                                  "Copy Of ${order.orderType == 'deposition' ? 'Deposition' : 'Order'}",
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF64748B),
+                              ),
                             ),
-                          )
-                        : Text(
-                            order.orderSummary ?? "Copy Of ${order.orderType == 'deposition' ? 'Deposition' : 'Order'}",
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
-                          ),
                   ),
                   GestureDetector(
                     onTap: () => _deleteItem(order.id),
-                    child: const Icon(Icons.close_rounded, size: 16, color: Color(0xFFDC2626)),
+                    child: const Icon(
+                      Icons.close_rounded,
+                      size: 16,
+                      color: Color(0xFFDC2626),
+                    ),
                   ),
                 ],
               ),
@@ -213,10 +374,18 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
       trailing: DossierHelper.addButton(() => _showAddInterimOrderDialog()),
       children: [
         ordersAsync.when(
-          data: (orders) => orders.isEmpty
-              ? DossierHelper.emptyHint("No interim orders recorded. Tap + to add depositions.")
-              : _buildInterimOrdersTable(orders),
-          loading: () => const Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+          data:
+              (orders) =>
+                  orders.isEmpty
+                      ? DossierHelper.emptyHint(
+                        "No interim orders recorded. Tap + to add depositions.",
+                      )
+                      : _buildInterimOrdersTable(orders),
+          loading:
+              () => const Padding(
+                padding: EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              ),
           error: (e, _) => DossierHelper.emptyHint("Error loading orders"),
         ),
       ],

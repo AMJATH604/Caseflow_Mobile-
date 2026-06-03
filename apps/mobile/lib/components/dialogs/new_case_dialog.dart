@@ -74,7 +74,8 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
         final members = await FirmService.fetchFirmMembers();
         if (mounted) {
           setState(() {
-            _firmMembers = members.where((m) => m.status == 'accepted').toList();
+            _firmMembers =
+                members.where((m) => m.status == 'accepted').toList();
           });
         }
       } catch (e) {
@@ -109,10 +110,19 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
     try {
       // 1. Auto-create or find client from the selected representing party
       final isRepresentingA = _representing == RepresentationType.petitioner;
-      final clientName = isRepresentingA ? _plaintiffNameController.text.trim() : _defendantNameController.text.trim();
-      final clientPhone = isRepresentingA ? _plaintiffPhoneController.text : _defendantPhoneController.text;
-      final clientEmail = isRepresentingA ? _plaintiffEmailController.text : _defendantEmailController.text;
-      
+      final clientName =
+          isRepresentingA
+              ? _plaintiffNameController.text.trim()
+              : _defendantNameController.text.trim();
+      final clientPhone =
+          isRepresentingA
+              ? _plaintiffPhoneController.text
+              : _defendantPhoneController.text;
+      final clientEmail =
+          isRepresentingA
+              ? _plaintiffEmailController.text
+              : _defendantEmailController.text;
+
       String? clientId;
 
       final existingClients = await SupabaseService.fetchClients();
@@ -135,9 +145,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
       String caseTitle = _titleController.text.trim();
       if (caseTitle.isEmpty) {
         final defName = _defendantNameController.text.trim();
-        caseTitle = defName.isNotEmpty
-            ? '$clientName vs $defName'
-            : clientName;
+        caseTitle = defName.isNotEmpty ? '$clientName vs $defName' : clientName;
       }
 
       // 3. Create the case
@@ -153,12 +161,16 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
         'assigned_to': _assignedTo,
         'court_type': _courtType.name,
         'representation_type': _representing.name,
-        'opposing_party': isRepresentingA ? _defendantNameController.text : _plaintiffNameController.text,
+        'opposing_party':
+            isRepresentingA
+                ? _defendantNameController.text
+                : _plaintiffNameController.text,
         'opposing_advocate': _defendantAdvocateController.text,
         'opposing_advocate_phone': _defendantAdvocatePhoneController.text,
         'petitioner_advocate_phone': _plaintiffAdvocatePhoneController.text,
         'cnr_number': _cnrController.text.trim().toUpperCase(),
-        'is_auto_sync_enabled': _cnrController.text.trim().isNotEmpty && _isAutoTrackingEnabled,
+        'is_auto_sync_enabled':
+            _cnrController.text.trim().isNotEmpty && _isAutoTrackingEnabled,
       });
 
       ref.invalidate(casesProvider);
@@ -167,7 +179,9 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -183,15 +197,23 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
         return _buildForm(context);
       },
 
-      loading: () => const AlertDialog(content: Center(child: CircularProgressIndicator())),
+      loading:
+          () => const AlertDialog(
+            content: Center(child: CircularProgressIndicator()),
+          ),
       error: (e, s) => AlertDialog(content: Text("Error loading profile: $e")),
     );
-
   }
 
   Widget _buildForm(BuildContext context) {
     return AlertDialog(
-      title: const Text("Create New Case", style: TextStyle(fontFamily: 'Playfair Display', fontWeight: FontWeight.bold)),
+      title: const Text(
+        "Create New Case",
+        style: TextStyle(
+          fontFamily: 'Playfair Display',
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -204,11 +226,18 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               const SizedBox(height: 8),
               SegmentedButton<String>(
                 segments: const [
-                  ButtonSegment(value: 'Civil', label: Text('Civil', style: TextStyle(fontSize: 12))),
-                  ButtonSegment(value: 'Criminal', label: Text('Criminal', style: TextStyle(fontSize: 12))),
+                  ButtonSegment(
+                    value: 'Civil',
+                    label: Text('Civil', style: TextStyle(fontSize: 12)),
+                  ),
+                  ButtonSegment(
+                    value: 'Criminal',
+                    label: Text('Criminal', style: TextStyle(fontSize: 12)),
+                  ),
                 ],
                 selected: {_caseCategory},
-                onSelectionChanged: (val) => setState(() => _caseCategory = val.first),
+                onSelectionChanged:
+                    (val) => setState(() => _caseCategory = val.first),
               ),
               const SizedBox(height: 16),
 
@@ -216,22 +245,44 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               _sectionLabel("Court Type"),
               const SizedBox(height: 8),
               SegmentedButton<CourtType>(
-                segments: CourtType.values.map((t) => ButtonSegment(
-                  value: t,
-                  label: Text(t.label, style: const TextStyle(fontSize: 12)),
-                )).toList(),
+                segments:
+                    CourtType.values
+                        .map(
+                          (t) => ButtonSegment(
+                            value: t,
+                            label: Text(
+                              t.label,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ),
+                        )
+                        .toList(),
                 selected: {_courtType},
-                onSelectionChanged: (val) => setState(() => _courtType = val.first),
+                onSelectionChanged:
+                    (val) => setState(() => _courtType = val.first),
               ),
               const SizedBox(height: 20),
 
               SegmentedButton<RepresentationType>(
                 segments: [
-                  ButtonSegment(value: RepresentationType.petitioner, label: Text(_partyALabel, style: const TextStyle(fontSize: 12))),
-                  ButtonSegment(value: RepresentationType.respondent, label: Text(_partyBLabel, style: const TextStyle(fontSize: 12))),
+                  ButtonSegment(
+                    value: RepresentationType.petitioner,
+                    label: Text(
+                      _partyALabel,
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ),
+                  ButtonSegment(
+                    value: RepresentationType.respondent,
+                    label: Text(
+                      _partyBLabel,
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ),
                 ],
                 selected: {_representing},
-                onSelectionChanged: (val) => setState(() => _representing = val.first),
+                onSelectionChanged:
+                    (val) => setState(() => _representing = val.first),
               ),
               const SizedBox(height: 24),
 
@@ -249,9 +300,14 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
                   labelText: "CNR Number",
                   prefixIcon: const Icon(Icons.qr_code_rounded),
                   hintText: "E.g. PBJL010012342024",
-                  suffixIcon: _cnrController.text.isNotEmpty 
-                    ? IconButton(icon: const Icon(Icons.clear), onPressed: () => setState(() => _cnrController.clear()))
-                    : null,
+                  suffixIcon:
+                      _cnrController.text.isNotEmpty
+                          ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed:
+                                () => setState(() => _cnrController.clear()),
+                          )
+                          : null,
                 ),
                 onChanged: (v) => setState(() {}),
                 textCapitalization: TextCapitalization.characters,
@@ -260,10 +316,20 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
                 Padding(
                   padding: const EdgeInsets.only(top: 12),
                   child: SwitchListTile(
-                    title: const Text("Enable Background Tracking", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                    subtitle: const Text("We'll poll eCourts daily for updates", style: TextStyle(fontSize: 11)),
+                    title: const Text(
+                      "Enable Background Tracking",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: const Text(
+                      "We'll poll eCourts daily for updates",
+                      style: TextStyle(fontSize: 11),
+                    ),
                     value: _isAutoTrackingEnabled,
-                    onChanged: (v) => setState(() => _isAutoTrackingEnabled = v),
+                    onChanged:
+                        (v) => setState(() => _isAutoTrackingEnabled = v),
                     activeColor: AppTheme.accent,
                     contentPadding: EdgeInsets.zero,
                   ),
@@ -274,7 +340,10 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               _buildPartySectionHeader(
                 icon: Icons.person_rounded,
                 label: '$_partyALabel Details',
-                subtitle: _representing == RepresentationType.petitioner ? 'Your Client' : 'Opposing Side',
+                subtitle:
+                    _representing == RepresentationType.petitioner
+                        ? 'Your Client'
+                        : 'Opposing Side',
                 color: const Color(0xFF2563EB),
               ),
               const SizedBox(height: 12),
@@ -285,7 +354,8 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
                   prefixIcon: const Icon(Icons.person_outline),
                   hintText: 'Enter full name',
                 ),
-                validator: (v) => (v == null || v.trim().isEmpty) ? "Required" : null,
+                validator:
+                    (v) => (v == null || v.trim().isEmpty) ? "Required" : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -328,7 +398,10 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               _buildPartySectionHeader(
                 icon: Icons.person_off_rounded,
                 label: '$_partyBLabel Details',
-                subtitle: _representing == RepresentationType.respondent ? 'Your Client' : 'Opposing Side',
+                subtitle:
+                    _representing == RepresentationType.respondent
+                        ? 'Your Client'
+                        : 'Opposing Side',
                 color: const Color(0xFFDC2626),
               ),
               const SizedBox(height: 12),
@@ -339,7 +412,12 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
                   prefixIcon: const Icon(Icons.person_outline),
                   hintText: 'Enter full name',
                 ),
-                validator: (v) => (_representing == RepresentationType.respondent && (v == null || v.trim().isEmpty)) ? "Required" : null,
+                validator:
+                    (v) =>
+                        (_representing == RepresentationType.respondent &&
+                                (v == null || v.trim().isEmpty))
+                            ? "Required"
+                            : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -432,27 +510,46 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               DropdownButtonFormField<CaseStatus>(
                 initialValue: _status,
                 decoration: const InputDecoration(labelText: "Initial Status"),
-                items: CaseStatus.values.map((s) => DropdownMenuItem(value: s, child: Text(s.label))).toList(),
+                items:
+                    CaseStatus.values
+                        .map(
+                          (s) =>
+                              DropdownMenuItem(value: s, child: Text(s.label)),
+                        )
+                        .toList(),
                 onChanged: (val) => setState(() => _status = val!),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<CaseStage>(
                 initialValue: _stage,
                 decoration: const InputDecoration(labelText: "Initial Stage"),
-                items: CaseStage.values.map((s) => DropdownMenuItem(value: s, child: Text(s.label))).toList(),
+                items:
+                    CaseStage.values
+                        .map(
+                          (s) =>
+                              DropdownMenuItem(value: s, child: Text(s.label)),
+                        )
+                        .toList(),
                 onChanged: (val) => setState(() => _stage = val!),
               ),
               if (_firmMembers.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   initialValue: _assignedTo,
-                  decoration: const InputDecoration(labelText: "Assign to Advocate"),
+                  decoration: const InputDecoration(
+                    labelText: "Assign to Advocate",
+                  ),
                   items: [
-                    const DropdownMenuItem(value: null, child: Text("Me (Senior)")),
-                    ..._firmMembers.map((m) => DropdownMenuItem(
-                      value: m.memberId,
-                      child: Text(m.memberName ?? m.memberEmail),
-                    )),
+                    const DropdownMenuItem(
+                      value: null,
+                      child: Text("Me (Senior)"),
+                    ),
+                    ..._firmMembers.map(
+                      (m) => DropdownMenuItem(
+                        value: m.memberId,
+                        child: Text(m.memberName ?? m.memberEmail),
+                      ),
+                    ),
                   ],
                   onChanged: (val) => setState(() => _assignedTo = val),
                 ),
@@ -462,13 +559,27 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Cancel"),
+        ),
         ElevatedButton(
           onPressed: _isSaving ? null : _save,
-          style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
-          child: _isSaving
-              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-              : const Text("Create Case"),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppTheme.primary,
+            foregroundColor: Colors.white,
+          ),
+          child:
+              _isSaving
+                  ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                  : const Text("Create Case"),
         ),
       ],
     );
@@ -479,7 +590,12 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
   Widget _sectionLabel(String text) {
     return Text(
       text.toUpperCase(),
-      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey, letterSpacing: 1),
+      style: const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w800,
+        color: Colors.grey,
+        letterSpacing: 1,
+      ),
     );
   }
 
@@ -510,8 +626,18 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: color)),
-              Text(subtitle, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+              Text(
+                label,
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  color: color,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: const TextStyle(fontSize: 10, color: Colors.grey),
+              ),
             ],
           ),
         ],

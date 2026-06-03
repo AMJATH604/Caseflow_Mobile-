@@ -328,12 +328,17 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.receipt_long_rounded,
-                    color: Color(0xFF1E293B), size: 20),
+                child: const Icon(
+                  Icons.receipt_long_rounded,
+                  color: Color(0xFF1E293B),
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 12),
-              const Text("Stamp Duty Calculator",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                "Stamp Duty Calculator",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -344,14 +349,18 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
             decoration: InputDecoration(
               labelText: "Select State",
               prefixIcon: const Icon(Icons.location_on_outlined, size: 20),
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
             ),
-            items: _states
-                .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                .toList(),
+            items:
+                _states
+                    .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                    .toList(),
             onChanged: (val) {
               setState(() {
                 _selectedState = val;
@@ -372,39 +381,47 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.person_outline,
-                      size: 18, color: Color(0xFF764ba2)),
+                  const Icon(
+                    Icons.person_outline,
+                    size: 18,
+                    color: Color(0xFF764ba2),
+                  ),
                   const SizedBox(width: 8),
-                  const Text("Buyer Gender:",
-                      style: TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.w500)),
+                  const Text(
+                    "Buyer Gender:",
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                  ),
                   const Spacer(),
                   ChoiceChip(
                     label: const Text("Male"),
                     selected: !_isFemale,
-                    onSelected: (_) => setState(() {
-                      _isFemale = false;
-                      _selectedDocType = null;
-                      _result = null;
-                    }),
+                    onSelected:
+                        (_) => setState(() {
+                          _isFemale = false;
+                          _selectedDocType = null;
+                          _result = null;
+                        }),
                     selectedColor: const Color(0xFF667eea),
                     labelStyle: TextStyle(
-                        color: !_isFemale ? Colors.white : Colors.black54,
-                        fontSize: 12),
+                      color: !_isFemale ? Colors.white : Colors.black54,
+                      fontSize: 12,
+                    ),
                   ),
                   const SizedBox(width: 6),
                   ChoiceChip(
                     label: const Text("Female"),
                     selected: _isFemale,
-                    onSelected: (_) => setState(() {
-                      _isFemale = true;
-                      _selectedDocType = null;
-                      _result = null;
-                    }),
+                    onSelected:
+                        (_) => setState(() {
+                          _isFemale = true;
+                          _selectedDocType = null;
+                          _result = null;
+                        }),
                     selectedColor: const Color(0xFF764ba2),
                     labelStyle: TextStyle(
-                        color: _isFemale ? Colors.white : Colors.black54,
-                        fontSize: 12),
+                      color: _isFemale ? Colors.white : Colors.black54,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
@@ -417,17 +434,22 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
             decoration: InputDecoration(
               labelText: "Document Type",
               prefixIcon: const Icon(Icons.description_outlined, size: 20),
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
             ),
-            items: _docTypes
-                .map((d) => DropdownMenuItem(value: d, child: Text(d)))
-                .toList(),
-            onChanged: _selectedState == null
-                ? null
-                : (val) => setState(() {
+            items:
+                _docTypes
+                    .map((d) => DropdownMenuItem(value: d, child: Text(d)))
+                    .toList(),
+            onChanged:
+                _selectedState == null
+                    ? null
+                    : (val) => setState(() {
                       _selectedDocType = val;
                       _result = null;
                     }),
@@ -440,12 +462,14 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: "Property / Transaction Value (₹)",
-              prefixIcon:
-                  const Icon(Icons.currency_rupee_outlined, size: 20),
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              prefixIcon: const Icon(Icons.currency_rupee_outlined, size: 20),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
             ),
           ),
           const SizedBox(height: 20),
@@ -463,7 +487,8 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
@@ -471,9 +496,13 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
               OutlinedButton(
                 onPressed: _reset,
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 20,
+                  ),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: const Text("Reset"),
               ),
@@ -485,8 +514,11 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
   }
 
   Widget _buildResultCard() {
-    final cur =
-        NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+    final cur = NumberFormat.currency(
+      locale: 'en_IN',
+      symbol: '₹',
+      decimalDigits: 0,
+    );
     final r = _result!;
 
     return Container(
@@ -517,21 +549,28 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.receipt_long_rounded,
-                    color: Color(0xFF1E293B), size: 20),
+                child: const Icon(
+                  Icons.receipt_long_rounded,
+                  color: Color(0xFF1E293B),
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Stamp Duty Breakdown",
-                      style: TextStyle(
-                          color: Color(0xFF1E293B),
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold)),
-                  Text("$_selectedState • $_selectedDocType",
-                      style: const TextStyle(
-                          color: Colors.white70, fontSize: 11)),
+                  const Text(
+                    "Stamp Duty Breakdown",
+                    style: TextStyle(
+                      color: Color(0xFF1E293B),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    "$_selectedState • $_selectedDocType",
+                    style: const TextStyle(color: Colors.white70, fontSize: 11),
+                  ),
                 ],
               ),
             ],
@@ -541,13 +580,22 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
           // Breakdown rows
           _resultRow("Property Value", cur.format(r['value']), null),
           _divider(),
-          _resultRow("Stamp Duty (${r['dutyRate']}%)",
-              cur.format(r['duty']), Icons.receipt_outlined),
-          _resultRow("Registration Fee (${r['regRate']}%)",
-              cur.format(r['reg']), Icons.app_registration_outlined),
+          _resultRow(
+            "Stamp Duty (${r['dutyRate']}%)",
+            cur.format(r['duty']),
+            Icons.receipt_outlined,
+          ),
+          _resultRow(
+            "Registration Fee (${r['regRate']}%)",
+            cur.format(r['reg']),
+            Icons.app_registration_outlined,
+          ),
           if (r['surcharge']! > 0)
-            _resultRow("Surcharge (${r['surchargeRate']}%)",
-                cur.format(r['surcharge']), Icons.add_circle_outline),
+            _resultRow(
+              "Surcharge (${r['surchargeRate']}%)",
+              cur.format(r['surcharge']),
+              Icons.add_circle_outline,
+            ),
           _divider(),
 
           // Total
@@ -560,17 +608,23 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("TOTAL PAYABLE",
-                    style: TextStyle(
-                        color: Color(0xFF1E293B),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                        letterSpacing: 0.5)),
-                Text(cur.format(r['total']),
-                    style: const TextStyle(
-                        color: Color(0xFF1E293B),
-                        fontWeight: FontWeight.w900,
-                        fontSize: 20)),
+                const Text(
+                  "TOTAL PAYABLE",
+                  style: TextStyle(
+                    color: Color(0xFF1E293B),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                Text(
+                  cur.format(r['total']),
+                  style: const TextStyle(
+                    color: Color(0xFF1E293B),
+                    fontWeight: FontWeight.w900,
+                    fontSize: 20,
+                  ),
+                ),
               ],
             ),
           ),
@@ -579,7 +633,9 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
           Text(
             "Note: Rates are approximate. Check your state's official gazette for the latest rates.",
             style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.5), fontSize: 10),
+              color: Colors.white.withValues(alpha: 0.5),
+              fontSize: 10,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -597,13 +653,19 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
             const SizedBox(width: 8),
           ],
           Expanded(
-              child: Text(label,
-                  style: const TextStyle(color: Colors.white70, fontSize: 13))),
-          Text(value,
-              style: const TextStyle(
-                  color: Color(0xFF1E293B),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600)),
+            child: Text(
+              label,
+              style: const TextStyle(color: Colors.white70, fontSize: 13),
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Color(0xFF1E293B),
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );

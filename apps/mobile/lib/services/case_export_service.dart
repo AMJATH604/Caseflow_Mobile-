@@ -7,7 +7,11 @@ import '../models/models.dart';
 import 'supabase_service.dart';
 
 class CaseExportService {
-  static final _cur = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+  static final _cur = NumberFormat.currency(
+    locale: 'en_IN',
+    symbol: '₹',
+    decimalDigits: 0,
+  );
   static final _dateFmt = DateFormat('dd MMM yyyy');
 
   // ─── PDF EXPORT ─────────────────────────────────────────
@@ -27,29 +31,30 @@ class CaseExportService {
         margin: const pw.EdgeInsets.all(40),
         header: (context) => _buildPdfHeader(caseModel, context),
         footer: (context) => _buildPdfFooter(context),
-        build: (context) => [
-          _buildCaseInfoSection(caseModel),
-          pw.SizedBox(height: 20),
-          if (hearings.isNotEmpty) ...[
-            _buildSectionTitle('Hearing History', '📅'),
-            _buildHearingsTable(hearings),
-            pw.SizedBox(height: 20),
-          ],
-          if (payments.isNotEmpty) ...[
-            _buildSectionTitle('Payment Summary', '💰'),
-            _buildPaymentsTable(payments),
-            pw.SizedBox(height: 20),
-          ],
-          if (efilings.isNotEmpty) ...[
-            _buildSectionTitle('E-Filing Records', '📋'),
-            _buildEFilingTable(efilings),
-            pw.SizedBox(height: 20),
-          ],
-          if (documents.isNotEmpty) ...[
-            _buildSectionTitle('Documents', '📎'),
-            _buildDocumentsList(documents),
-          ],
-        ],
+        build:
+            (context) => [
+              _buildCaseInfoSection(caseModel),
+              pw.SizedBox(height: 20),
+              if (hearings.isNotEmpty) ...[
+                _buildSectionTitle('Hearing History', '📅'),
+                _buildHearingsTable(hearings),
+                pw.SizedBox(height: 20),
+              ],
+              if (payments.isNotEmpty) ...[
+                _buildSectionTitle('Payment Summary', '💰'),
+                _buildPaymentsTable(payments),
+                pw.SizedBox(height: 20),
+              ],
+              if (efilings.isNotEmpty) ...[
+                _buildSectionTitle('E-Filing Records', '📋'),
+                _buildEFilingTable(efilings),
+                pw.SizedBox(height: 20),
+              ],
+              if (documents.isNotEmpty) ...[
+                _buildSectionTitle('Documents', '📎'),
+                _buildDocumentsList(documents),
+              ],
+            ],
       ),
     );
 
@@ -63,7 +68,9 @@ class CaseExportService {
     return pw.Container(
       padding: const pw.EdgeInsets.only(bottom: 12),
       decoration: const pw.BoxDecoration(
-        border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey300, width: 1)),
+        border: pw.Border(
+          bottom: pw.BorderSide(color: PdfColors.grey300, width: 1),
+        ),
       ),
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -71,15 +78,41 @@ class CaseExportService {
           pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('CaseFlow', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColors.indigo900)),
-              pw.Text('Case Report', style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey600)),
+              pw.Text(
+                'CaseFlow',
+                style: pw.TextStyle(
+                  fontSize: 20,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.indigo900,
+                ),
+              ),
+              pw.Text(
+                'Case Report',
+                style: const pw.TextStyle(
+                  fontSize: 10,
+                  color: PdfColors.grey600,
+                ),
+              ),
             ],
           ),
           pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.end,
             children: [
-              pw.Text(c.caseTitle, style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold)),
-              if (c.caseNumber != null) pw.Text(c.caseNumber!, style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600)),
+              pw.Text(
+                c.caseTitle,
+                style: pw.TextStyle(
+                  fontSize: 12,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              if (c.caseNumber != null)
+                pw.Text(
+                  c.caseNumber!,
+                  style: const pw.TextStyle(
+                    fontSize: 9,
+                    color: PdfColors.grey600,
+                  ),
+                ),
             ],
           ),
         ],
@@ -91,15 +124,21 @@ class CaseExportService {
     return pw.Container(
       padding: const pw.EdgeInsets.only(top: 8),
       decoration: const pw.BoxDecoration(
-        border: pw.Border(top: pw.BorderSide(color: PdfColors.grey300, width: 0.5)),
+        border: pw.Border(
+          top: pw.BorderSide(color: PdfColors.grey300, width: 0.5),
+        ),
       ),
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
-          pw.Text('Generated by CaseFlow on ${_dateFmt.format(DateTime.now())}',
-              style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey500)),
-          pw.Text('Page ${context.pageNumber} of ${context.pagesCount}',
-              style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey500)),
+          pw.Text(
+            'Generated by CaseFlow on ${_dateFmt.format(DateTime.now())}',
+            style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey500),
+          ),
+          pw.Text(
+            'Page ${context.pageNumber} of ${context.pagesCount}',
+            style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey500),
+          ),
         ],
       ),
     );
@@ -115,29 +154,45 @@ class CaseExportService {
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
-          pw.Text('Case Information', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.indigo900)),
+          pw.Text(
+            'Case Information',
+            style: pw.TextStyle(
+              fontSize: 14,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColors.indigo900,
+            ),
+          ),
           pw.SizedBox(height: 10),
           pw.Row(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Expanded(child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  _infoRow('Case Title', c.caseTitle),
-                  _infoRow('Case Number', c.caseNumber ?? '—'),
-                  _infoRow('Case Type', c.caseType ?? '—'),
-                  _infoRow('Court', c.courtName ?? '—'),
-                ],
-              )),
-              pw.Expanded(child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  _infoRow('Client', c.clientName ?? '—'),
-                  _infoRow('Status', c.status.name.toUpperCase()),
-                  _infoRow('Stage', c.stage.label),
-                  _infoRow('Filing Date', c.filingDate != null ? _dateFmt.format(c.filingDate!) : '—'),
-                ],
-              )),
+              pw.Expanded(
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _infoRow('Case Title', c.caseTitle),
+                    _infoRow('Case Number', c.caseNumber ?? '—'),
+                    _infoRow('Case Type', c.caseType ?? '—'),
+                    _infoRow('Court', c.courtName ?? '—'),
+                  ],
+                ),
+              ),
+              pw.Expanded(
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _infoRow('Client', c.clientName ?? '—'),
+                    _infoRow('Status', c.status.name.toUpperCase()),
+                    _infoRow('Stage', c.stage.label),
+                    _infoRow(
+                      'Filing Date',
+                      c.filingDate != null
+                          ? _dateFmt.format(c.filingDate!)
+                          : '—',
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ],
@@ -150,9 +205,21 @@ class CaseExportService {
       padding: const pw.EdgeInsets.only(bottom: 4),
       child: pw.Row(
         children: [
-          pw.SizedBox(width: 80, child: pw.Text(label, style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, color: PdfColors.grey700))),
+          pw.SizedBox(
+            width: 80,
+            child: pw.Text(
+              label,
+              style: pw.TextStyle(
+                fontSize: 9,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.grey700,
+              ),
+            ),
+          ),
           pw.SizedBox(width: 8),
-          pw.Expanded(child: pw.Text(value, style: const pw.TextStyle(fontSize: 9))),
+          pw.Expanded(
+            child: pw.Text(value, style: const pw.TextStyle(fontSize: 9)),
+          ),
         ],
       ),
     );
@@ -161,69 +228,124 @@ class CaseExportService {
   static pw.Widget _buildSectionTitle(String title, String emoji) {
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 8),
-      child: pw.Text('$emoji  $title', style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold, color: PdfColors.indigo800)),
+      child: pw.Text(
+        '$emoji  $title',
+        style: pw.TextStyle(
+          fontSize: 13,
+          fontWeight: pw.FontWeight.bold,
+          color: PdfColors.indigo800,
+        ),
+      ),
     );
   }
 
   static pw.Widget _buildHearingsTable(List<Hearing> hearings) {
     return pw.TableHelper.fromTextArray(
-      headerStyle: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+      headerStyle: pw.TextStyle(
+        fontSize: 9,
+        fontWeight: pw.FontWeight.bold,
+        color: PdfColors.white,
+      ),
       headerDecoration: const pw.BoxDecoration(color: PdfColors.indigo),
       cellStyle: const pw.TextStyle(fontSize: 8),
       cellPadding: const pw.EdgeInsets.all(6),
-      cellAlignments: {0: pw.Alignment.centerLeft, 1: pw.Alignment.centerLeft, 2: pw.Alignment.center, 3: pw.Alignment.centerLeft},
+      cellAlignments: {
+        0: pw.Alignment.centerLeft,
+        1: pw.Alignment.centerLeft,
+        2: pw.Alignment.center,
+        3: pw.Alignment.centerLeft,
+      },
       headers: ['Date', 'Purpose / Stage', 'Status', 'Notes'],
-      data: hearings.map((h) => [
-        _dateFmt.format(h.hearingDate),
-        h.purpose ?? h.stage ?? '—',
-        h.status,
-        h.notes ?? '—',
-      ]).toList(),
+      data:
+          hearings
+              .map(
+                (h) => [
+                  _dateFmt.format(h.hearingDate),
+                  h.purpose ?? h.stage ?? '—',
+                  h.status,
+                  h.notes ?? '—',
+                ],
+              )
+              .toList(),
     );
   }
 
   static pw.Widget _buildPaymentsTable(List<Payment> payments) {
     return pw.TableHelper.fromTextArray(
-      headerStyle: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+      headerStyle: pw.TextStyle(
+        fontSize: 9,
+        fontWeight: pw.FontWeight.bold,
+        color: PdfColors.white,
+      ),
       headerDecoration: const pw.BoxDecoration(color: PdfColors.green800),
       cellStyle: const pw.TextStyle(fontSize: 8),
       cellPadding: const pw.EdgeInsets.all(6),
       headers: ['Date', 'Total Fee', 'Paid', 'Balance', 'Mode'],
-      data: payments.map((p) => [
-        p.paidDate != null ? _dateFmt.format(p.paidDate!) : '—',
-        _cur.format(p.totalFee),
-        _cur.format(p.paidAmount),
-        _cur.format(p.balanceAmount),
-        p.paymentMode ?? '—',
-      ]).toList(),
+      data:
+          payments
+              .map(
+                (p) => [
+                  p.paidDate != null ? _dateFmt.format(p.paidDate!) : '—',
+                  _cur.format(p.totalFee),
+                  _cur.format(p.paidAmount),
+                  _cur.format(p.balanceAmount),
+                  p.paymentMode ?? '—',
+                ],
+              )
+              .toList(),
     );
   }
 
   static pw.Widget _buildEFilingTable(List<EFilingRecord> records) {
     return pw.TableHelper.fromTextArray(
-      headerStyle: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+      headerStyle: pw.TextStyle(
+        fontSize: 9,
+        fontWeight: pw.FontWeight.bold,
+        color: PdfColors.white,
+      ),
       headerDecoration: const pw.BoxDecoration(color: PdfColors.blue800),
       cellStyle: const pw.TextStyle(fontSize: 8),
       cellPadding: const pw.EdgeInsets.all(6),
       headers: ['Document Type', 'Filing Date', 'Status'],
-      data: records.map((r) => [
-        r.documentType,
-        r.filingDate != null ? _dateFmt.format(r.filingDate!) : '—',
-        r.status.label,
-      ]).toList(),
+      data:
+          records
+              .map(
+                (r) => [
+                  r.documentType,
+                  r.filingDate != null ? _dateFmt.format(r.filingDate!) : '—',
+                  r.status.label,
+                ],
+              )
+              .toList(),
     );
   }
 
   static pw.Widget _buildDocumentsList(List<Map<String, dynamic>> docs) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: docs.map((d) => pw.Padding(
-        padding: const pw.EdgeInsets.only(bottom: 4),
-        child: pw.Row(children: [
-          pw.Text('• ', style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold)),
-          pw.Text(d['name']?.toString() ?? 'Unknown', style: const pw.TextStyle(fontSize: 9)),
-        ]),
-      )).toList(),
+      children:
+          docs
+              .map(
+                (d) => pw.Padding(
+                  padding: const pw.EdgeInsets.only(bottom: 4),
+                  child: pw.Row(
+                    children: [
+                      pw.Text(
+                        '• ',
+                        style: pw.TextStyle(
+                          fontSize: 9,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
+                      pw.Text(
+                        d['name']?.toString() ?? 'Unknown',
+                        style: const pw.TextStyle(fontSize: 9),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+              .toList(),
     );
   }
 
@@ -256,25 +378,40 @@ class CaseExportService {
         'opposing_advocate': caseModel.opposingAdvocate,
         'opposing_advocate_phone': caseModel.opposingAdvocatePhone,
       },
-      'hearings': hearings.map((h) => {
-        'hearing_date': h.hearingDate.toIso8601String(),
-        'stage': h.stage,
-        'purpose': h.purpose,
-        'status': h.status,
-        'notes': h.notes,
-      }).toList(),
-      'payments': payments.map((p) => {
-        'total_fee': p.totalFee,
-        'paid_amount': p.paidAmount,
-        'balance_amount': p.balanceAmount,
-        'paid_date': p.paidDate?.toIso8601String(),
-        'payment_mode': p.paymentMode,
-      }).toList(),
-      'efiling_records': efilings.map((r) => {
-        'document_type': r.documentType,
-        'status': r.status.name,
-        'filing_date': r.filingDate?.toIso8601String(),
-      }).toList(),
+      'hearings':
+          hearings
+              .map(
+                (h) => {
+                  'hearing_date': h.hearingDate.toIso8601String(),
+                  'stage': h.stage,
+                  'purpose': h.purpose,
+                  'status': h.status,
+                  'notes': h.notes,
+                },
+              )
+              .toList(),
+      'payments':
+          payments
+              .map(
+                (p) => {
+                  'total_fee': p.totalFee,
+                  'paid_amount': p.paidAmount,
+                  'balance_amount': p.balanceAmount,
+                  'paid_date': p.paidDate?.toIso8601String(),
+                  'payment_mode': p.paymentMode,
+                },
+              )
+              .toList(),
+      'efiling_records':
+          efilings
+              .map(
+                (r) => {
+                  'document_type': r.documentType,
+                  'status': r.status.name,
+                  'filing_date': r.filingDate?.toIso8601String(),
+                },
+              )
+              .toList(),
     };
   }
 

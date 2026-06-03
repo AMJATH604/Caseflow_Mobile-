@@ -21,19 +21,97 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
 
   // Limitation Act Schedule of Articles (common ones)
   final List<Map<String, dynamic>> _articles = [
-    {"id": "art58", "article": "Art. 58", "desc": "Specific Performance of Contract", "days": 1095, "label": "3 years"},
-    {"id": "art65", "article": "Art. 65", "desc": "Suit for Possession (12 years)", "days": 4380, "label": "12 years"},
-    {"id": "art113", "article": "Art. 113", "desc": "Personal Suit (Residuary)", "days": 1095, "label": "3 years"},
-    {"id": "art137", "article": "Art. 137", "desc": "Any Application (Residuary)", "days": 1095, "label": "3 years"},
-    {"id": "art54", "article": "Art. 54", "desc": "Suit for Injunction", "days": 1095, "label": "3 years"},
-    {"id": "art62", "article": "Art. 62", "desc": "Declaratory Suit", "days": 1095, "label": "3 years"},
-    {"id": "art36", "article": "Art. 36", "desc": "Execution of Decree", "days": 4380, "label": "12 years"},
-    {"id": "ni138", "article": "NI Act §138", "desc": "Cheque Bounce Complaint", "days": 30, "label": "30 days"},
-    {"id": "consumer", "article": "Consumer", "desc": "Consumer Complaint (CDPA 2019)", "days": 730, "label": "2 years"},
-    {"id": "mact", "article": "MACT", "desc": "Motor Accident Claim", "days": 180, "label": "6 months"},
-    {"id": "art116", "article": "Art. 116", "desc": "Suit by Landlord for Eviction", "days": 4380, "label": "12 years"},
-    {"id": "art55", "article": "Art. 55", "desc": "Suit for Compensation (tort)", "days": 365, "label": "1 year"},
-    {"id": "custom", "article": "Custom", "desc": "Enter custom period", "days": 0, "label": "Custom"},
+    {
+      "id": "art58",
+      "article": "Art. 58",
+      "desc": "Specific Performance of Contract",
+      "days": 1095,
+      "label": "3 years",
+    },
+    {
+      "id": "art65",
+      "article": "Art. 65",
+      "desc": "Suit for Possession (12 years)",
+      "days": 4380,
+      "label": "12 years",
+    },
+    {
+      "id": "art113",
+      "article": "Art. 113",
+      "desc": "Personal Suit (Residuary)",
+      "days": 1095,
+      "label": "3 years",
+    },
+    {
+      "id": "art137",
+      "article": "Art. 137",
+      "desc": "Any Application (Residuary)",
+      "days": 1095,
+      "label": "3 years",
+    },
+    {
+      "id": "art54",
+      "article": "Art. 54",
+      "desc": "Suit for Injunction",
+      "days": 1095,
+      "label": "3 years",
+    },
+    {
+      "id": "art62",
+      "article": "Art. 62",
+      "desc": "Declaratory Suit",
+      "days": 1095,
+      "label": "3 years",
+    },
+    {
+      "id": "art36",
+      "article": "Art. 36",
+      "desc": "Execution of Decree",
+      "days": 4380,
+      "label": "12 years",
+    },
+    {
+      "id": "ni138",
+      "article": "NI Act §138",
+      "desc": "Cheque Bounce Complaint",
+      "days": 30,
+      "label": "30 days",
+    },
+    {
+      "id": "consumer",
+      "article": "Consumer",
+      "desc": "Consumer Complaint (CDPA 2019)",
+      "days": 730,
+      "label": "2 years",
+    },
+    {
+      "id": "mact",
+      "article": "MACT",
+      "desc": "Motor Accident Claim",
+      "days": 180,
+      "label": "6 months",
+    },
+    {
+      "id": "art116",
+      "article": "Art. 116",
+      "desc": "Suit by Landlord for Eviction",
+      "days": 4380,
+      "label": "12 years",
+    },
+    {
+      "id": "art55",
+      "article": "Art. 55",
+      "desc": "Suit for Compensation (tort)",
+      "days": 365,
+      "label": "1 year",
+    },
+    {
+      "id": "custom",
+      "article": "Custom",
+      "desc": "Enter custom period",
+      "days": 0,
+      "label": "Custom",
+    },
   ];
 
   // ─── FIX: Proper month arithmetic (no overflow bug) ──
@@ -88,7 +166,12 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
     }
   }
 
-  void _buildResult(DateTime expiryDate, int periodDays, String periodLabel, String articleRef) {
+  void _buildResult(
+    DateTime expiryDate,
+    int periodDays,
+    String periodLabel,
+    String articleRef,
+  ) {
     final now = DateTime.now();
     final daysRemaining = expiryDate.difference(now).inDays;
     final isExpired = daysRemaining < 0;
@@ -120,96 +203,190 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
       child: Column(
         children: [
           // ─── Input Card ──
-          _buildCard(isDark, icon: Icons.timer_rounded, iconColor: Colors.teal, title: "Limitation Period", children: [
-            Text("Select the article from the Limitation Act, 1963 or enter a custom period.",
-                style: TextStyle(fontSize: 12, color: Colors.grey[500])),
-            const Divider(height: 20),
+          _buildCard(
+            isDark,
+            icon: Icons.timer_rounded,
+            iconColor: Colors.teal,
+            title: "Limitation Period",
+            children: [
+              Text(
+                "Select the article from the Limitation Act, 1963 or enter a custom period.",
+                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+              ),
+              const Divider(height: 20),
 
-            // Date of Accrual
-            _buildDatePicker("Date of Cause of Action / Accrual", _accrualDate, isDark, (d) => setState(() { _accrualDate = d; _calculate(); })),
-            const SizedBox(height: 20),
+              // Date of Accrual
+              _buildDatePicker(
+                "Date of Cause of Action / Accrual",
+                _accrualDate,
+                isDark,
+                (d) => setState(() {
+                  _accrualDate = d;
+                  _calculate();
+                }),
+              ),
+              const SizedBox(height: 20),
 
-            // Article Selection
-            Text("LIMITATION ACT ARTICLE", style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey[500], letterSpacing: 0.5)),
-            const SizedBox(height: 10),
+              // Article Selection
+              Text(
+                "LIMITATION ACT ARTICLE",
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey[500],
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 10),
 
-            ...(_articles.map((art) {
-              final isSelected = _selectedArticle == art['id'];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: InkWell(
-                  onTap: () { setState(() => _selectedArticle = art['id']); _calculate(); },
-                  borderRadius: BorderRadius.circular(10),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: isSelected ? AppTheme.accent.withValues(alpha: 0.08) : (isDark ? Colors.white.withValues(alpha: 0.04) : Colors.grey[50]),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: isSelected ? AppTheme.accent.withValues(alpha: 0.4) : (isDark ? Colors.white10 : Colors.grey[200]!),
-                        width: isSelected ? 1.5 : 1,
+              ...(_articles.map((art) {
+                final isSelected = _selectedArticle == art['id'];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: InkWell(
+                    onTap: () {
+                      setState(() => _selectedArticle = art['id']);
+                      _calculate();
+                    },
+                    borderRadius: BorderRadius.circular(10),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            isSelected
+                                ? AppTheme.accent.withValues(alpha: 0.08)
+                                : (isDark
+                                    ? Colors.white.withValues(alpha: 0.04)
+                                    : Colors.grey[50]),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color:
+                              isSelected
+                                  ? AppTheme.accent.withValues(alpha: 0.4)
+                                  : (isDark
+                                      ? Colors.white10
+                                      : Colors.grey[200]!),
+                          width: isSelected ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color:
+                                  isSelected
+                                      ? AppTheme.accent.withValues(alpha: 0.15)
+                                      : Colors.grey.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              art['article'],
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color:
+                                    isSelected
+                                        ? AppTheme.accent
+                                        : Colors.grey[500],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  art['desc'],
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color:
+                                        isSelected
+                                            ? AppTheme.accent
+                                            : (isDark
+                                                ? Colors.white
+                                                : Colors.black87),
+                                  ),
+                                ),
+                                Text(
+                                  art['label'],
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (isSelected)
+                            Icon(
+                              Icons.check_circle_rounded,
+                              size: 18,
+                              color: AppTheme.accent,
+                            ),
+                        ],
                       ),
                     ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: isSelected ? AppTheme.accent.withValues(alpha: 0.15) : Colors.grey.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(art['article'], style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: isSelected ? AppTheme.accent : Colors.grey[500])),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(art['desc'], style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: isSelected ? AppTheme.accent : (isDark ? Colors.white : Colors.black87))),
-                              Text(art['label'], style: TextStyle(fontSize: 11, color: Colors.grey[500])),
-                            ],
-                          ),
-                        ),
-                        if (isSelected) Icon(Icons.check_circle_rounded, size: 18, color: AppTheme.accent),
-                      ],
-                    ),
                   ),
-                ),
-              );
-            })),
+                );
+              })),
 
-            // Custom period inputs
-            if (_selectedArticle == "custom") ...[
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: TextField(
-                      controller: _customPeriodController,
-                      keyboardType: TextInputType.number,
-                      onChanged: (_) => _calculate(),
-                      decoration: const InputDecoration(labelText: "Period Value", border: OutlineInputBorder()),
+              // Custom period inputs
+              if (_selectedArticle == "custom") ...[
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: TextField(
+                        controller: _customPeriodController,
+                        keyboardType: TextInputType.number,
+                        onChanged: (_) => _calculate(),
+                        decoration: const InputDecoration(
+                          labelText: "Period Value",
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: _customUnit,
-                      decoration: const InputDecoration(border: OutlineInputBorder(), labelText: "Unit"),
-                      items: const [
-                        DropdownMenuItem(value: "days", child: Text("Days")),
-                        DropdownMenuItem(value: "months", child: Text("Months")),
-                        DropdownMenuItem(value: "years", child: Text("Years")),
-                      ],
-                      onChanged: (v) { setState(() => _customUnit = v!); _calculate(); },
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        value: _customUnit,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: "Unit",
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: "days", child: Text("Days")),
+                          DropdownMenuItem(
+                            value: "months",
+                            child: Text("Months"),
+                          ),
+                          DropdownMenuItem(
+                            value: "years",
+                            child: Text("Years"),
+                          ),
+                        ],
+                        onChanged: (v) {
+                          setState(() => _customUnit = v!);
+                          _calculate();
+                        },
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ],
-          ]),
+          ),
 
           // ─── Result ──
           if (_result != null) ...[
@@ -220,29 +397,49 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: _result!['isExpired']
-                      ? [const Color(0xFFDC2626).withValues(alpha: 0.08), const Color(0xFFDC2626).withValues(alpha: 0.03)]
-                      : [const Color(0xFF059669).withValues(alpha: 0.08), const Color(0xFF059669).withValues(alpha: 0.03)],
+                  colors:
+                      _result!['isExpired']
+                          ? [
+                            const Color(0xFFDC2626).withValues(alpha: 0.08),
+                            const Color(0xFFDC2626).withValues(alpha: 0.03),
+                          ]
+                          : [
+                            const Color(0xFF059669).withValues(alpha: 0.08),
+                            const Color(0xFF059669).withValues(alpha: 0.03),
+                          ],
                 ),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: _result!['isExpired'] ? const Color(0xFFDC2626).withValues(alpha: 0.3) : const Color(0xFF059669).withValues(alpha: 0.3),
+                  color:
+                      _result!['isExpired']
+                          ? const Color(0xFFDC2626).withValues(alpha: 0.3)
+                          : const Color(0xFF059669).withValues(alpha: 0.3),
                 ),
               ),
               child: Column(
                 children: [
                   Icon(
-                    _result!['isExpired'] ? Icons.error_rounded : Icons.verified_rounded,
-                    color: _result!['isExpired'] ? const Color(0xFFDC2626) : const Color(0xFF059669),
+                    _result!['isExpired']
+                        ? Icons.error_rounded
+                        : Icons.verified_rounded,
+                    color:
+                        _result!['isExpired']
+                            ? const Color(0xFFDC2626)
+                            : const Color(0xFF059669),
                     size: 40,
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    _result!['isExpired'] ? "LIMITATION EXPIRED" : "WITHIN LIMITATION",
+                    _result!['isExpired']
+                        ? "LIMITATION EXPIRED"
+                        : "WITHIN LIMITATION",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
-                      color: _result!['isExpired'] ? const Color(0xFFDC2626) : const Color(0xFF059669),
+                      color:
+                          _result!['isExpired']
+                              ? const Color(0xFFDC2626)
+                              : const Color(0xFF059669),
                       letterSpacing: 1,
                     ),
                   ),
@@ -251,12 +448,23 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                     _result!['isExpired']
                         ? "Expired ${(-_result!['daysRemaining'])} day${(-_result!['daysRemaining']) == 1 ? '' : 's'} ago"
                         : "${_result!['daysRemaining']} day${_result!['daysRemaining'] == 1 ? '' : 's'} remaining",
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: _result!['isExpired'] ? const Color(0xFFDC2626) : const Color(0xFF059669)),
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color:
+                          _result!['isExpired']
+                              ? const Color(0xFFDC2626)
+                              : const Color(0xFF059669),
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Text(
                     "Expiry: ${DateFormat('dd MMMM yyyy (EEEE)').format(_result!['expiryDate'])}",
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: isDark ? Colors.grey[300] : Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.grey[300] : Colors.grey[600],
+                    ),
                   ),
                 ],
               ),
@@ -264,39 +472,60 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
 
             // Info card
             const SizedBox(height: 12),
-            _buildCard(isDark, icon: Icons.bookmark_rounded, iconColor: AppTheme.accent, title: "Legal Reference",
-                trailing: TextButton.icon(
-                  onPressed: () {
-                    final text = "Limitation: ${_result!['articleRef']}\nPeriod: ${_result!['periodLabel']}\nDate of Accrual: ${DateFormat('dd-MM-yyyy').format(_accrualDate!)}\nExpiry: ${DateFormat('dd-MM-yyyy').format(_result!['expiryDate'])}\n${_result!['isExpired'] ? 'EXPIRED ${(-_result!['daysRemaining'])} days ago' : '${_result!['daysRemaining']} days remaining'}\n\nGenerated by CaseFlow";
-                    Clipboard.setData(ClipboardData(text: text));
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Limitation memo copied!")));
-                  },
-                  icon: const Icon(Icons.copy_rounded, size: 14),
-                  label: const Text("Copy", style: TextStyle(fontSize: 12)),
-                ),
-                children: [
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: isDark ? Colors.white10 : const Color(0xFFE2E8F0)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildInfoRow("Article", _result!['articleRef']),
-                        const SizedBox(height: 8),
-                        _buildInfoRow("Period", _result!['periodLabel']),
-                        const SizedBox(height: 8),
-                        _buildInfoRow("From", DateFormat('dd MMMM yyyy').format(_accrualDate!)),
-                        const SizedBox(height: 8),
-                        _buildInfoRow("Expires", DateFormat('dd MMMM yyyy').format(_result!['expiryDate'])),
-                      ],
+            _buildCard(
+              isDark,
+              icon: Icons.bookmark_rounded,
+              iconColor: AppTheme.accent,
+              title: "Legal Reference",
+              trailing: TextButton.icon(
+                onPressed: () {
+                  final text =
+                      "Limitation: ${_result!['articleRef']}\nPeriod: ${_result!['periodLabel']}\nDate of Accrual: ${DateFormat('dd-MM-yyyy').format(_accrualDate!)}\nExpiry: ${DateFormat('dd-MM-yyyy').format(_result!['expiryDate'])}\n${_result!['isExpired'] ? 'EXPIRED ${(-_result!['daysRemaining'])} days ago' : '${_result!['daysRemaining']} days remaining'}\n\nGenerated by CaseFlow";
+                  Clipboard.setData(ClipboardData(text: text));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Limitation memo copied!")),
+                  );
+                },
+                icon: const Icon(Icons.copy_rounded, size: 14),
+                label: const Text("Copy", style: TextStyle(fontSize: 12)),
+              ),
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color:
+                        isDark
+                            ? const Color(0xFF0F172A)
+                            : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
                     ),
                   ),
-                ]),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildInfoRow("Article", _result!['articleRef']),
+                      const SizedBox(height: 8),
+                      _buildInfoRow("Period", _result!['periodLabel']),
+                      const SizedBox(height: 8),
+                      _buildInfoRow(
+                        "From",
+                        DateFormat('dd MMMM yyyy').format(_accrualDate!),
+                      ),
+                      const SizedBox(height: 8),
+                      _buildInfoRow(
+                        "Expires",
+                        DateFormat(
+                          'dd MMMM yyyy',
+                        ).format(_result!['expiryDate']),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ],
 
           const SizedBox(height: 100),
@@ -309,21 +538,54 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(width: 80, child: Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.grey[500]))),
-        Expanded(child: Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600))),
+        SizedBox(
+          width: 80,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Colors.grey[500],
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildDatePicker(String label, DateTime? value, bool isDark, ValueChanged<DateTime?> onChanged) {
+  Widget _buildDatePicker(
+    String label,
+    DateTime? value,
+    bool isDark,
+    ValueChanged<DateTime?> onChanged,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey[500], letterSpacing: 0.5)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: Colors.grey[500],
+            letterSpacing: 0.5,
+          ),
+        ),
         const SizedBox(height: 8),
         InkWell(
           onTap: () async {
-            final picked = await showDatePicker(context: context, initialDate: value ?? DateTime.now(), firstDate: DateTime(1900), lastDate: DateTime(2100));
+            final picked = await showDatePicker(
+              context: context,
+              initialDate: value ?? DateTime.now(),
+              firstDate: DateTime(1900),
+              lastDate: DateTime(2100),
+            );
             onChanged(picked);
           },
           borderRadius: BorderRadius.circular(10),
@@ -331,16 +593,29 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             decoration: BoxDecoration(
-              border: Border.all(color: isDark ? Colors.white12 : Colors.grey[300]!),
+              border: Border.all(
+                color: isDark ? Colors.white12 : Colors.grey[300]!,
+              ),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
               children: [
-                Icon(Icons.calendar_today_rounded, size: 16, color: AppTheme.accent),
+                Icon(
+                  Icons.calendar_today_rounded,
+                  size: 16,
+                  color: AppTheme.accent,
+                ),
                 const SizedBox(width: 8),
                 Text(
-                  value == null ? "Select date" : DateFormat('dd MMM yyyy').format(value),
-                  style: TextStyle(fontSize: 14, fontWeight: value != null ? FontWeight.w600 : FontWeight.w400, color: value != null ? null : Colors.grey[400]),
+                  value == null
+                      ? "Select date"
+                      : DateFormat('dd MMM yyyy').format(value),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight:
+                        value != null ? FontWeight.w600 : FontWeight.w400,
+                    color: value != null ? null : Colors.grey[400],
+                  ),
                 ),
               ],
             ),
@@ -350,7 +625,14 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
     );
   }
 
-  Widget _buildCard(bool isDark, {required IconData icon, required Color iconColor, required String title, Widget? trailing, required List<Widget> children}) {
+  Widget _buildCard(
+    bool isDark, {
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    Widget? trailing,
+    required List<Widget> children,
+  }) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: AppTheme.cardDecoration(isDark: isDark),
@@ -361,11 +643,21 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Icon(icon, color: iconColor, size: 18),
               ),
               const SizedBox(width: 10),
-              Expanded(child: Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800))),
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
               if (trailing != null) trailing,
             ],
           ),
