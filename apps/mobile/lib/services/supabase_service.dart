@@ -419,4 +419,9 @@ class SupabaseService {
 
   static Future<void> upsertInterimOrders(List<Map<String, dynamic>> orders) =>
       CaseRepository.upsertInterimOrders(orders);
+
+  // ─── Carousel Slides ──────────────────────────────────
+
+  static Future<List<Map<String, dynamic>>> fetchCarouselSlides() =>
+      ContentRepository.fetchCarouselSlides();
 }

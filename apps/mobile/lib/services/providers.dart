@@ -231,3 +231,10 @@ final caveatsProvider = FutureProvider<List<Caveat>>((ref) async {
 final navigationIndexProvider = StateProvider<int>((ref) => 0);
 final pageTitleProvider = StateProvider<String>((ref) => "CaseFlow");
 final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.light);
+
+// ─── Carousel Slides ──────────────────────────────────
+final carouselSlidesProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  ref.watch(authStateProvider);
+  ref.watch(dataRefreshProvider);
+  return RetryHelper.retry(() => SupabaseService.fetchCarouselSlides());
+});

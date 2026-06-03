@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/providers.dart';
 
 class CitizenHomeScreen extends ConsumerStatefulWidget {
   const CitizenHomeScreen({super.key});
@@ -17,6 +18,51 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
   late PageController _carouselController;
   Timer? _carouselTimer;
   int _currentCarouselPage = 0;
+  int _lastSlidesCount = 0;
+
+  List<Color> _parseGradientColors(List<dynamic>? hexList) {
+    if (hexList == null || hexList.isEmpty) {
+      return [const Color(0xFF1E3A8A), const Color(0xFF3B82F6)];
+    }
+    try {
+      return hexList.map((hex) {
+        final cleanHex = hex.toString().replaceAll('#', '').trim();
+        if (cleanHex.length == 6) {
+          return Color(int.parse('FF$cleanHex', radix: 16));
+        } else if (cleanHex.length == 8) {
+          return Color(int.parse(cleanHex, radix: 16));
+        }
+        return const Color(0xFF3B82F6);
+      }).toList();
+    } catch (e) {
+      return [const Color(0xFF1E3A8A), const Color(0xFF3B82F6)];
+    }
+  }
+
+  IconData _parseIconData(String? iconName) {
+    switch (iconName) {
+      case 'balance_rounded':
+        return Icons.balance_rounded;
+      case 'translate_rounded':
+        return Icons.translate_rounded;
+      case 'account_balance_rounded':
+        return Icons.account_balance_rounded;
+      case 'tips_and_updates_rounded':
+        return Icons.tips_and_updates_rounded;
+      case 'spellcheck_rounded':
+        return Icons.spellcheck_rounded;
+      case 'gavel_rounded':
+        return Icons.gavel_rounded;
+      case 'info_rounded':
+        return Icons.info_rounded;
+      case 'record_voice_over_rounded':
+        return Icons.record_voice_over_rounded;
+      case 'menu_book_rounded':
+        return Icons.menu_book_rounded;
+      default:
+        return Icons.gavel_rounded;
+    }
+  }
 
   // ─── CAROUSEL SLIDE DATA ───
   static const List<_CarouselSlide> _carouselSlides = [
@@ -141,13 +187,14 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
     )..forward();
 
     _carouselController = PageController();
-    _startCarouselAutoScroll();
   }
 
-  void _startCarouselAutoScroll() {
+  void _startCarouselAutoScroll(int slidesCount) {
+    _carouselTimer?.cancel();
+    if (slidesCount == 0) return;
     _carouselTimer = Timer.periodic(const Duration(seconds: 6), (timer) {
       if (!mounted) return;
-      _currentCarouselPage = (_currentCarouselPage + 1) % _carouselSlides.length;
+      _currentCarouselPage = (_currentCarouselPage + 1) % slidesCount;
       _carouselController.animateToPage(
         _currentCarouselPage,
         duration: const Duration(milliseconds: 600),
@@ -160,7 +207,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
     _carouselTimer?.cancel();
     // Resume auto-scroll after 8 seconds of inactivity
     Future.delayed(const Duration(seconds: 8), () {
-      if (mounted) _startCarouselAutoScroll();
+      if (mounted) _startCarouselAutoScroll(_lastSlidesCount);
     });
   }
 
@@ -176,6 +223,34 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 768;
 
+    final slidesAsync = ref.watch(carouselSlidesProvider);
+    final List<_CarouselSlide> activeSlides = slidesAsync.maybeWhen(
+      data: (data) {
+        if (data.isEmpty) return _carouselSlides;
+        return data.map((json) {
+          return _CarouselSlide(
+            type: json['type'] ?? '',
+            title: json['title'] ?? '',
+            body: json['body'] ?? '',
+            gradientColors: _parseGradientColors(json['gradient_colors']),
+            icon: _parseIconData(json['icon_name']),
+            action: json['action'] ?? 'Learn More',
+            detailTitle: json['detail_title'] ?? '',
+            detailBody: json['detail_body'] ?? '',
+            customRoutePath: json['custom_route_path'],
+            toolId: json['tool_id'],
+          );
+        }).toList();
+      },
+      orElse: () => _carouselSlides,
+    );
+
+    final activeSlidesCount = activeSlides.length;
+    if (_carouselTimer == null || _lastSlidesCount != activeSlidesCount) {
+      _lastSlidesCount = activeSlidesCount;
+      _startCarouselAutoScroll(activeSlidesCount);
+    }
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -189,7 +264,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
               const SizedBox(height: 20),
 
                // Carousel
-              _buildCarousel(),
+              _buildCarousel(activeSlides),
               const SizedBox(height: 24),
 
               // Quick Actions
@@ -239,7 +314,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
     );
   }
 
-  Widget _buildCarousel() {
+  Widget _buildCarousel(List<_CarouselSlide> activeSlides) {
     final screenWidth = MediaQuery.of(context).size.width;
     final carouselHeight = (screenWidth * 0.52).clamp(180.0, 240.0);
 
@@ -257,12 +332,12 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
             },
             child: PageView.builder(
               controller: _carouselController,
-              itemCount: _carouselSlides.length,
+              itemCount: activeSlides.length,
               onPageChanged: (index) {
                 setState(() => _currentCarouselPage = index);
               },
               itemBuilder: (context, index) {
-                final slide = _carouselSlides[index];
+                final slide = activeSlides[index];
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -387,7 +462,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
         // Page indicator dots
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(_carouselSlides.length, (index) {
+          children: List.generate(activeSlides.length, (index) {
             final isActive = index == _currentCarouselPage;
             return AnimatedContainer(
               duration: const Duration(milliseconds: 300),

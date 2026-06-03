@@ -220,4 +220,21 @@ class ContentRepository {
       return null;
     }
   }
+
+  // ─── Carousel Slides ──────────────────────────────────
+
+  static Future<List<Map<String, dynamic>>> fetchCarouselSlides() async {
+    try {
+      final response = await _client
+          .from('carousel_slides')
+          .select()
+          .eq('active', true)
+          .order('created_at', ascending: false)
+          .limit(8);
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      debugPrint('Error fetching carousel slides: $e');
+      return [];
+    }
+  }
 }
