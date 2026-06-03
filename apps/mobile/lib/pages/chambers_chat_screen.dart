@@ -182,7 +182,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
   Future<void> _sendMessage() async {
     final text = _msgController.text.trim();
     if (text.isEmpty || _firmId == null) return;
-    final senderName = _profile?.fullName ?? "Team Member";
+    final senderName = _profile?.fullName ?? 'Team Member';
 
     final replyId = _replyingTo?.id;
     final replyMessage =
@@ -282,7 +282,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     );
 
     if (url != null) {
-      final senderName = _profile?.fullName ?? "Team Member";
+      final senderName = _profile?.fullName ?? 'Team Member';
       final fileName = file.path.split(Platform.pathSeparator).last;
 
       final replyId = _replyingTo?.id;
@@ -318,7 +318,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Upload failed. Check connection.")),
+          const SnackBar(content: Text('Upload failed. Check connection.')),
         );
       }
     }
@@ -427,8 +427,9 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
   }
 
   void _downloadInBackground(String url, String displayName) async {
-    if (_downloadProgress.containsKey(url) || _localFilesExist[url] == true)
+    if (_downloadProgress.containsKey(url) || _localFilesExist[url] == true) {
       return;
+    }
 
     // Prevent duplicate triggers
     _downloadProgress[url] = 0.0;
@@ -490,7 +491,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Failed to download or open file")),
+          const SnackBar(content: Text('Failed to download or open file')),
         );
       }
     }
@@ -604,7 +605,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
           firmId: _firmId!,
         );
         if (url != null) {
-          final senderName = _profile?.fullName ?? "Team Member";
+          final senderName = _profile?.fullName ?? 'Team Member';
           await SupabaseService.postDiscussion({
             'firm_id': _firmId,
             'message': '🎤 Voice message (${_formatDuration(_recordDuration)})',
@@ -646,7 +647,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
 
     try {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Downloading to save to device...")),
+        const SnackBar(content: Text('Downloading to save to device...')),
       );
 
       if (Platform.isAndroid || Platform.isIOS) {
@@ -657,7 +658,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
             if (!storageStatus.isGranted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text("Permission denied to save media to gallery."),
+                  content: Text('Permission denied to save media to gallery.'),
                 ),
               );
               return;
@@ -668,7 +669,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
           if (!status.isGranted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text("Permission denied to write to storage."),
+                content: Text('Permission denied to write to storage.'),
               ),
             );
             return;
@@ -691,7 +692,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
         if (success && await cachedFile.exists()) {
           await cachedFile.copy(tempPath);
         } else {
-          throw Exception("Download failed");
+          throw Exception('Download failed');
         }
       }
 
@@ -701,12 +702,12 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text("Saved successfully to Gallery! 📥"),
+                content: Text('Saved successfully to Gallery! 📥'),
               ),
             );
           }
         } else {
-          throw Exception("Gallery saving failed");
+          throw Exception('Gallery saving failed');
         }
       } else {
         Directory? downloadDir;
@@ -725,18 +726,18 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
           await File(tempPath).copy(destPath);
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Saved successfully to Downloads! 📂")),
+              const SnackBar(content: Text('Saved successfully to Downloads! 📂')),
             );
           }
         } else {
-          throw Exception("Could not resolve downloads directory");
+          throw Exception('Could not resolve downloads directory');
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Failed to save: $e")));
+        ).showSnackBar(SnackBar(content: Text('Failed to save: $e')));
       }
     }
   }
@@ -771,7 +772,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                     color: isDark ? Colors.white70 : Colors.black87,
                   ),
                   title: Text(
-                    "Reply",
+                    'Reply',
                     style: TextStyle(
                       color: isDark ? Colors.white : Colors.black87,
                     ),
@@ -790,7 +791,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                       color: isDark ? Colors.white70 : Colors.black87,
                     ),
                     title: Text(
-                      "Copy Text",
+                      'Copy Text',
                       style: TextStyle(
                         color: isDark ? Colors.white : Colors.black87,
                       ),
@@ -799,7 +800,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                       Navigator.pop(ctx);
                       Clipboard.setData(ClipboardData(text: msg.message));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Copied to clipboard")),
+                        const SnackBar(content: Text('Copied to clipboard')),
                       );
                     },
                   ),
@@ -810,7 +811,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                       color: isDark ? Colors.white70 : Colors.black87,
                     ),
                     title: Text(
-                      "Save to Device",
+                      'Save to Device',
                       style: TextStyle(
                         color: isDark ? Colors.white : Colors.black87,
                       ),
@@ -827,7 +828,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                       color: Colors.redAccent,
                     ),
                     title: const Text(
-                      "Delete for Everyone",
+                      'Delete for Everyone',
                       style: TextStyle(color: Colors.redAccent),
                     ),
                     onTap: () async {
@@ -841,13 +842,13 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                                       ? const Color(0xFF1F2C34)
                                       : Colors.white,
                               title: Text(
-                                "Delete Message?",
+                                'Delete Message?',
                                 style: TextStyle(
                                   color: isDark ? Colors.white : Colors.black,
                                 ),
                               ),
                               content: Text(
-                                "Are you sure you want to delete this message for everyone?",
+                                'Are you sure you want to delete this message for everyone?',
                                 style: TextStyle(
                                   color:
                                       isDark ? Colors.white70 : Colors.black87,
@@ -856,12 +857,12 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(dial, false),
-                                  child: const Text("Cancel"),
+                                  child: const Text('Cancel'),
                                 ),
                                 TextButton(
                                   onPressed: () => Navigator.pop(dial, true),
                                   child: const Text(
-                                    "Delete",
+                                    'Delete',
                                     style: TextStyle(color: Colors.redAccent),
                                   ),
                                 ),
@@ -873,13 +874,13 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                           await DiscussionRepository.deleteDiscussion(msg.id);
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Message deleted")),
+                              const SnackBar(content: Text('Message deleted')),
                             );
                           }
                         } catch (e) {
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Delete failed: $e")),
+                              SnackBar(content: Text('Delete failed: $e')),
                             );
                           }
                         }
@@ -942,7 +943,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      previewMsg.senderName ?? "Team Member",
+                      previewMsg.senderName ?? 'Team Member',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -1005,7 +1006,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    msg.replyToSender ?? "Team Member",
+                    msg.replyToSender ?? 'Team Member',
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -1043,13 +1044,13 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
       );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Scrolling to original message..."),
+          content: Text('Scrolling to original message...'),
           duration: Duration(milliseconds: 800),
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Original message not found or deleted")),
+        const SnackBar(content: Text('Original message not found or deleted')),
       );
     }
   }
@@ -1110,7 +1111,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    "Downloading video...",
+                    'Downloading video...',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -1145,7 +1146,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    "Tap to Play Video",
+                    'Tap to Play Video',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -1179,7 +1180,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      "VIDEO",
+                      'VIDEO',
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
@@ -1220,7 +1221,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    "Share Attachment",
+                    'Share Attachment',
                     style: GoogleFonts.outfit(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -1232,7 +1233,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                     children: [
                       _attachOption(
                         Icons.camera_alt_rounded,
-                        "Camera",
+                        'Camera',
                         Colors.pink,
                         () {
                           Navigator.pop(ctx);
@@ -1241,7 +1242,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                       ),
                       _attachOption(
                         Icons.photo_library_rounded,
-                        "Gallery",
+                        'Gallery',
                         Colors.purple,
                         () {
                           Navigator.pop(ctx);
@@ -1250,7 +1251,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                       ),
                       _attachOption(
                         Icons.video_library_rounded,
-                        "Video",
+                        'Video',
                         Colors.deepPurple,
                         () {
                           Navigator.pop(ctx);
@@ -1259,7 +1260,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                       ),
                       _attachOption(
                         Icons.description_rounded,
-                        "Document",
+                        'Document',
                         Colors.blue,
                         () {
                           Navigator.pop(ctx);
@@ -1322,8 +1323,8 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     final firmId = _firmId;
     if (firmId == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text("Chambers Chat")),
-        body: const Center(child: Text("No firm connected")),
+        appBar: AppBar(title: const Text('Chambers Chat')),
+        body: const Center(child: Text('No firm connected')),
       );
     }
 
@@ -1395,8 +1396,8 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                           ),
                           child: Text(
                             _isSearching
-                                ? "No matching messages found"
-                                : "🔒 Messages are end-to-end within your firm.\nSay hello to your team! 👋",
+                                ? 'No matching messages found'
+                                : '🔒 Messages are end-to-end within your firm.\nSay hello to your team! 👋',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: isDark ? Colors.white54 : Colors.black45,
@@ -1450,7 +1451,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                   error:
                       (e, _) => Center(
                         child: Text(
-                          "Error: $e",
+                          'Error: $e',
                           style: const TextStyle(fontSize: 12),
                         ),
                       ),
@@ -1487,7 +1488,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
           style: const TextStyle(color: Colors.white, fontSize: 16),
           autofocus: true,
           decoration: const InputDecoration(
-            hintText: "Search messages...",
+            hintText: 'Search messages...',
             hintStyle: TextStyle(color: Colors.white60),
             border: InputBorder.none,
           ),
@@ -1519,7 +1520,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
               ),
             )
             : Text(
-              "Tap here for firm info",
+              'Tap here for firm info',
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.white.withValues(alpha: 0.7),
@@ -1553,7 +1554,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "Chambers Chat",
+                  'Chambers Chat',
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
@@ -1625,8 +1626,8 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     final msgDay = DateTime(date.year, date.month, date.day);
     final diff = today.difference(msgDay).inDays;
 
-    if (diff == 0) return "TODAY";
-    if (diff == 1) return "YESTERDAY";
+    if (diff == 0) return 'TODAY';
+    if (diff == 1) return 'YESTERDAY';
     if (diff < 7) return DateFormat('EEEE').format(date).toUpperCase();
     return DateFormat('dd MMM yyyy').format(date).toUpperCase();
   }
@@ -1704,7 +1705,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 3),
                     child: Text(
-                      msg.senderName ?? "Team Member",
+                      msg.senderName ?? 'Team Member',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
@@ -1958,8 +1959,8 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                       const SizedBox(width: 6),
                       Text(
                         isDownloading
-                            ? "Downloading..."
-                            : (localExists ? "Tap to view" : "Tap to download"),
+                            ? 'Downloading...'
+                            : (localExists ? 'Tap to view' : 'Tap to download'),
                         style: TextStyle(
                           fontSize: 10,
                           color: isDark ? Colors.white38 : Colors.black38,
@@ -2133,7 +2134,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
 
     if (text.isNotEmpty && !_amITyping) {
       _amITyping = true;
-      _typingChannel!.sendBroadcast(
+      _typingChannel!.sendBroadcastMessage(
         event: 'typing',
         payload: {
           'user_id': _profile!.id,
@@ -2147,7 +2148,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     _typingDebounce = Timer(const Duration(seconds: 2), () {
       if (_amITyping) {
         _amITyping = false;
-        _typingChannel?.sendBroadcast(
+        _typingChannel?.sendBroadcastMessage(
           event: 'typing',
           payload: {
             'user_id': _profile!.id,
@@ -2205,7 +2206,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      "Recording voice...",
+                      'Recording voice...',
                       style: TextStyle(
                         fontSize: 14,
                         color: isDark ? Colors.white60 : Colors.grey[600],
@@ -2293,7 +2294,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                         setState(() {});
                       },
                       decoration: InputDecoration(
-                        hintText: "Type a message",
+                        hintText: 'Type a message',
                         hintStyle: TextStyle(
                           color: isDark ? Colors.white38 : Colors.grey[500],
                           fontSize: 15,
