@@ -23,11 +23,11 @@ class _MactCalculatorState extends State<MactCalculator> {
   final TextEditingController _medicalCtrl = TextEditingController();
   String _employmentType = 'Salaried'; // Salaried or Self-Employed
   String _dependentCategory = '2-3 Dependents';
-  bool _isDeathCase = true; // Death or Permanent Disability
+  final bool _isDeathCase = true; // Death or Permanent Disability
 
   // ─── Output ──
-  List<Map<String, dynamic>> _results = [];
-  List<String> _steps = [];
+  final List<Map<String, dynamic>> _results = [];
+  final List<String> _steps = [];
   bool _showResults = false;
   double _totalCompensation = 0;
 
@@ -108,10 +108,10 @@ class _MactCalculatorState extends State<MactCalculator> {
     _steps.clear();
     _totalCompensation = 0;
 
-    double monthlyIncome =
+    final double monthlyIncome =
         double.tryParse(_incomeCtrl.text.replaceAll(',', '')) ?? 0;
-    int age = int.tryParse(_ageCtrl.text) ?? 0;
-    double medicalExp =
+    final int age = int.tryParse(_ageCtrl.text) ?? 0;
+    final double medicalExp =
         double.tryParse(_medicalCtrl.text.replaceAll(',', '')) ?? 0;
 
     if (monthlyIncome <= 0 || age <= 0) {
@@ -124,62 +124,62 @@ class _MactCalculatorState extends State<MactCalculator> {
       return;
     }
 
-    double annualIncome = monthlyIncome * 12;
-    int multiplier = _getMultiplier(age);
-    double futureProspectsPct = _getFutureProspects(age);
-    double deductionFraction = _getDeductionFraction();
+    final double annualIncome = monthlyIncome * 12;
+    final int multiplier = _getMultiplier(age);
+    final double futureProspectsPct = _getFutureProspects(age);
+    final double deductionFraction = _getDeductionFraction();
 
-    _steps.add("🚗 MACT Compensation Calculation");
+    _steps.add('🚗 MACT Compensation Calculation');
     _steps.add(
-      "Authority: Sarla Verma v. Delhi Transport Corp. (2009) 6 SCC 121",
+      'Authority: Sarla Verma v. Delhi Transport Corp. (2009) 6 SCC 121',
     );
     _steps.add(
-      "Future Prospects: National Insurance Co. v. Pranay Sethi (2017) 16 SCC 680",
+      'Future Prospects: National Insurance Co. v. Pranay Sethi (2017) 16 SCC 680',
     );
-    _steps.add("");
+    _steps.add('');
 
     // Step 1: Annual Income
-    _steps.add("Step 1: Determine Annual Income");
-    _steps.add("  Monthly income = ${fmt.format(monthlyIncome)}");
+    _steps.add('Step 1: Determine Annual Income');
+    _steps.add('  Monthly income = ${fmt.format(monthlyIncome)}');
     _steps.add(
-      "  Annual income = ${fmt.format(monthlyIncome)} × 12 = ${fmt.format(annualIncome)}",
+      '  Annual income = ${fmt.format(monthlyIncome)} × 12 = ${fmt.format(annualIncome)}',
     );
-    _steps.add("");
+    _steps.add('');
 
     // Step 2: Future Prospects
-    double futureProspectsAmount = annualIncome * futureProspectsPct;
-    double incomeWithFP = annualIncome + futureProspectsAmount;
-    _steps.add("Step 2: Add Future Prospects (Pranay Sethi)");
+    final double futureProspectsAmount = annualIncome * futureProspectsPct;
+    final double incomeWithFP = annualIncome + futureProspectsAmount;
+    _steps.add('Step 2: Add Future Prospects (Pranay Sethi)');
     _steps.add(
-      "  Age: $age years → Addition: ${_getFutureProspectsLabel(age)}",
+      '  Age: $age years → Addition: ${_getFutureProspectsLabel(age)}',
     );
     _steps.add(
-      "  Future prospects = ${fmt.format(annualIncome)} × ${(futureProspectsPct * 100).toStringAsFixed(0)}% = ${fmt.format(futureProspectsAmount)}",
+      '  Future prospects = ${fmt.format(annualIncome)} × ${(futureProspectsPct * 100).toStringAsFixed(0)}% = ${fmt.format(futureProspectsAmount)}',
     );
-    _steps.add("  Income after future prospects = ${fmt.format(incomeWithFP)}");
-    _steps.add("");
+    _steps.add('  Income after future prospects = ${fmt.format(incomeWithFP)}');
+    _steps.add('');
 
     // Step 3: Deduction for Personal Expenses
-    double deductionAmount = incomeWithFP * deductionFraction;
-    double netAnnualDependency = incomeWithFP - deductionAmount;
-    _steps.add("Step 3: Deduct Personal Expenses");
+    final double deductionAmount = incomeWithFP * deductionFraction;
+    final double netAnnualDependency = incomeWithFP - deductionAmount;
+    _steps.add('Step 3: Deduct Personal Expenses');
     _steps.add(
-      "  Category: $_dependentCategory → Deduction: ${_getDeductionLabel()}",
+      '  Category: $_dependentCategory → Deduction: ${_getDeductionLabel()}',
     );
     _steps.add(
-      "  Deduction = ${fmt.format(incomeWithFP)} × ${_getDeductionLabel()} = ${fmt.format(deductionAmount)}",
+      '  Deduction = ${fmt.format(incomeWithFP)} × ${_getDeductionLabel()} = ${fmt.format(deductionAmount)}',
     );
-    _steps.add("  Net annual dependency = ${fmt.format(netAnnualDependency)}");
-    _steps.add("");
+    _steps.add('  Net annual dependency = ${fmt.format(netAnnualDependency)}');
+    _steps.add('');
 
     // Step 4: Apply Multiplier
-    double lossOfDependency = netAnnualDependency * multiplier;
-    _steps.add("Step 4: Apply Multiplier (Sarla Verma Table)");
-    _steps.add("  Age: $age years → Multiplier: $multiplier");
+    final double lossOfDependency = netAnnualDependency * multiplier;
+    _steps.add('Step 4: Apply Multiplier (Sarla Verma Table)');
+    _steps.add('  Age: $age years → Multiplier: $multiplier');
     _steps.add(
-      "  Loss of dependency = ${fmt.format(netAnnualDependency)} × $multiplier = ${fmt.format(lossOfDependency)}",
+      '  Loss of dependency = ${fmt.format(netAnnualDependency)} × $multiplier = ${fmt.format(lossOfDependency)}',
     );
-    _steps.add("");
+    _steps.add('');
 
     _results.add({
       'head': 'Loss of Dependency',
@@ -189,11 +189,11 @@ class _MactCalculatorState extends State<MactCalculator> {
     _totalCompensation += lossOfDependency;
 
     // Step 5: Conventional Heads (Pranay Sethi)
-    _steps.add("Step 5: Add Conventional Heads (Pranay Sethi)");
+    _steps.add('Step 5: Add Conventional Heads (Pranay Sethi)');
 
     // Funeral Expenses
-    double funeral = 15000;
-    _steps.add("  Funeral expenses = ${fmt.format(funeral)}");
+    const double funeral = 15000;
+    _steps.add('  Funeral expenses = ${fmt.format(funeral)}');
     _results.add({
       'head': 'Funeral Expenses',
       'amount': funeral,
@@ -202,8 +202,8 @@ class _MactCalculatorState extends State<MactCalculator> {
     _totalCompensation += funeral;
 
     // Loss of Estate
-    double lossOfEstate = 15000;
-    _steps.add("  Loss of estate = ${fmt.format(lossOfEstate)}");
+    const double lossOfEstate = 15000;
+    _steps.add('  Loss of estate = ${fmt.format(lossOfEstate)}');
     _results.add({
       'head': 'Loss of Estate',
       'amount': lossOfEstate,
@@ -212,9 +212,9 @@ class _MactCalculatorState extends State<MactCalculator> {
     _totalCompensation += lossOfEstate;
 
     // Loss of Consortium
-    double consortium = 40000;
+    const double consortium = 40000;
     if (_dependentCategory != 'Bachelor / No Dependents') {
-      _steps.add("  Loss of consortium (spouse) = ${fmt.format(consortium)}");
+      _steps.add('  Loss of consortium (spouse) = ${fmt.format(consortium)}');
       _results.add({
         'head': 'Loss of Consortium',
         'amount': consortium,
@@ -223,9 +223,9 @@ class _MactCalculatorState extends State<MactCalculator> {
       _totalCompensation += consortium;
 
       // Filial consortium for minor children (Magma General Insurance v. Nanu Ram, 2018)
-      double filialConsortium = 40000;
+      const double filialConsortium = 40000;
       _steps.add(
-        "  Filial consortium (children) = ${fmt.format(filialConsortium)}",
+        '  Filial consortium (children) = ${fmt.format(filialConsortium)}',
       );
       _results.add({
         'head': 'Filial Consortium',
@@ -237,7 +237,7 @@ class _MactCalculatorState extends State<MactCalculator> {
 
     // Medical Expenses
     if (medicalExp > 0) {
-      _steps.add("  Medical expenses = ${fmt.format(medicalExp)}");
+      _steps.add('  Medical expenses = ${fmt.format(medicalExp)}');
       _results.add({
         'head': 'Medical Expenses',
         'amount': medicalExp,
@@ -246,24 +246,24 @@ class _MactCalculatorState extends State<MactCalculator> {
       _totalCompensation += medicalExp;
     }
 
-    _steps.add("");
-    _steps.add("═══════════════════════════════════════");
-    _steps.add("TOTAL COMPENSATION = ${fmt.format(_totalCompensation)}");
+    _steps.add('');
+    _steps.add('═══════════════════════════════════════');
+    _steps.add('TOTAL COMPENSATION = ${fmt.format(_totalCompensation)}');
 
     setState(() => _showResults = true);
   }
 
   void _copyToClipboard() {
-    StringBuffer sb = StringBuffer();
-    sb.writeln("═══════════════════════════════════════════");
-    sb.writeln("   MACT COMPENSATION CALCULATION MEMO");
-    sb.writeln("═══════════════════════════════════════════");
-    sb.writeln("Deceased/Injured Age: ${_ageCtrl.text} years");
-    sb.writeln("Monthly Income     : ${_incomeCtrl.text}");
-    sb.writeln("Employment Type    : $_employmentType");
-    sb.writeln("Dependents         : $_dependentCategory");
-    sb.writeln("───────────────────────────────────────────\n");
-    sb.writeln("SCHEDULE OF COMPENSATION:\n");
+    final StringBuffer sb = StringBuffer();
+    sb.writeln('═══════════════════════════════════════════');
+    sb.writeln('   MACT COMPENSATION CALCULATION MEMO');
+    sb.writeln('═══════════════════════════════════════════');
+    sb.writeln('Deceased/Injured Age: ${_ageCtrl.text} years');
+    sb.writeln('Monthly Income     : ${_incomeCtrl.text}');
+    sb.writeln('Employment Type    : $_employmentType');
+    sb.writeln('Dependents         : $_dependentCategory');
+    sb.writeln('───────────────────────────────────────────\n');
+    sb.writeln('SCHEDULE OF COMPENSATION:\n');
     int sno = 1;
     for (var r in _results) {
       sb.writeln(
@@ -271,17 +271,17 @@ class _MactCalculatorState extends State<MactCalculator> {
       );
       sno++;
     }
-    sb.writeln("──────────────────────────────────────────");
+    sb.writeln('──────────────────────────────────────────');
     sb.writeln(
-      "   TOTAL:                    ${fmt.format(_totalCompensation)}",
+      '   TOTAL:                    ${fmt.format(_totalCompensation)}',
     );
-    sb.writeln("\nCOMPUTATION STEPS:\n");
+    sb.writeln('\nCOMPUTATION STEPS:\n');
     for (var s in _steps) {
-      if (s.isNotEmpty) sb.writeln("  $s");
+      if (s.isNotEmpty) sb.writeln('  $s');
     }
-    sb.writeln("\n═══════════════════════════════════════════");
-    sb.writeln("Authority: Sarla Verma v. DTC (2009) 6 SCC 121");
-    sb.writeln("           NICL v. Pranay Sethi (2017) 16 SCC 680");
+    sb.writeln('\n═══════════════════════════════════════════');
+    sb.writeln('Authority: Sarla Verma v. DTC (2009) 6 SCC 121');
+    sb.writeln('           NICL v. Pranay Sethi (2017) 16 SCC 680');
     sb.writeln(
       "Generated by CaseFlow on ${DateFormat('dd.MM.yyyy').format(DateTime.now())}",
     );
@@ -313,8 +313,8 @@ class _MactCalculatorState extends State<MactCalculator> {
 
   @override
   Widget build(BuildContext context) {
-    bool isDark = Theme.of(context).brightness == Brightness.dark;
-    bool isMobile = MediaQuery.of(context).size.width < 600;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -325,7 +325,7 @@ class _MactCalculatorState extends State<MactCalculator> {
             isDark,
             Icons.directions_car,
             Colors.red,
-            "Accident Details",
+            'Accident Details',
             children: [
               if (isMobile) ...[
                 TextField(
@@ -378,7 +378,7 @@ class _MactCalculatorState extends State<MactCalculator> {
               const SizedBox(height: 12),
               if (isMobile) ...[
                 DropdownButtonFormField<String>(
-                  value: _employmentType,
+                  initialValue: _employmentType,
                   isExpanded: true,
                   decoration: const InputDecoration(
                     labelText: 'Employment Type',
@@ -398,7 +398,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: _dependentCategory,
+                  initialValue: _dependentCategory,
                   isExpanded: true,
                   decoration: const InputDecoration(
                     labelText: 'Dependents',
@@ -429,7 +429,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: _employmentType,
+                        initialValue: _employmentType,
                         isExpanded: true,
                         decoration: const InputDecoration(
                           labelText: 'Employment Type',
@@ -451,7 +451,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: _dependentCategory,
+                        initialValue: _dependentCategory,
                         isExpanded: true,
                         decoration: const InputDecoration(
                           labelText: 'Dependents',
@@ -499,7 +499,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                   onPressed: _calculate,
                   icon: const Icon(Icons.calculate_rounded, size: 20),
                   label: const Text(
-                    "CALCULATE COMPENSATION",
+                    'CALCULATE COMPENSATION',
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
                       letterSpacing: 1,
@@ -525,7 +525,7 @@ class _MactCalculatorState extends State<MactCalculator> {
               isDark,
               Icons.table_chart,
               Colors.blue,
-              "Sarla Verma Multiplier Applied",
+              'Sarla Verma Multiplier Applied',
               children: [
                 Container(
                   width: double.infinity,
@@ -542,19 +542,19 @@ class _MactCalculatorState extends State<MactCalculator> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _statBubble("Age", "${_ageCtrl.text} yrs", Colors.blue),
+                      _statBubble('Age', '${_ageCtrl.text} yrs', Colors.blue),
                       _statBubble(
-                        "Multiplier",
-                        "${_getMultiplier(int.tryParse(_ageCtrl.text) ?? 0)}×",
+                        'Multiplier',
+                        '${_getMultiplier(int.tryParse(_ageCtrl.text) ?? 0)}×',
                         Colors.red,
                       ),
                       _statBubble(
-                        "Future Prospects",
-                        "${(_getFutureProspects(int.tryParse(_ageCtrl.text) ?? 0) * 100).toStringAsFixed(0)}%",
+                        'Future Prospects',
+                        '${(_getFutureProspects(int.tryParse(_ageCtrl.text) ?? 0) * 100).toStringAsFixed(0)}%',
                         Colors.green,
                       ),
                       _statBubble(
-                        "Deduction",
+                        'Deduction',
                         _getDeductionLabel().split(' ')[0],
                         Colors.orange,
                       ),
@@ -571,11 +571,11 @@ class _MactCalculatorState extends State<MactCalculator> {
               isDark,
               Icons.receipt_long,
               Colors.green,
-              "Compensation Breakdown",
+              'Compensation Breakdown',
               trailing: TextButton.icon(
                 onPressed: _copyToClipboard,
                 icon: const Icon(Icons.copy_rounded, size: 14),
-                label: const Text("Copy", style: TextStyle(fontSize: 12)),
+                label: const Text('Copy', style: TextStyle(fontSize: 12)),
               ),
               children: [
                 // Total
@@ -598,7 +598,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        "TOTAL COMPENSATION",
+                        'TOTAL COMPENSATION',
                         style: TextStyle(
                           fontWeight: FontWeight.w800,
                           fontSize: 14,
@@ -657,7 +657,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                         ),
                         Text(
                           fmt.format(r['amount']),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.w900,
                             fontSize: 15,
                             color: AppTheme.primary,
@@ -677,10 +677,10 @@ class _MactCalculatorState extends State<MactCalculator> {
               isDark,
               Icons.school_rounded,
               Colors.deepPurple,
-              "How It Was Calculated",
+              'How It Was Calculated',
               children: [
                 Text(
-                  "Step-by-step computation based on Supreme Court judgments:",
+                  'Step-by-step computation based on Supreme Court judgments:',
                   style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                 ),
                 const SizedBox(height: 12),
@@ -702,11 +702,11 @@ class _MactCalculatorState extends State<MactCalculator> {
                     children:
                         _steps.map((s) {
                           if (s.isEmpty) return const SizedBox(height: 8);
-                          bool isHeader =
-                              s.startsWith("Step") ||
-                              s.startsWith("🚗") ||
-                              s.startsWith("Authority") ||
-                              s.startsWith("═");
+                          final bool isHeader =
+                              s.startsWith('Step') ||
+                              s.startsWith('🚗') ||
+                              s.startsWith('Authority') ||
+                              s.startsWith('═');
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 3),
                             child: Text(

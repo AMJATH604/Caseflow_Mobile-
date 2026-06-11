@@ -393,7 +393,7 @@ class _SplashScreenState extends State<SplashScreen>
                                     (context, _) => Opacity(
                                       opacity: _taglineOpacity.value,
                                       child: Text(
-                                        "Empowering Justice, Streamlining Law",
+                                        'Empowering Justice, Streamlining Law',
                                         style: GoogleFonts.inter(
                                           fontSize: taglineFontSize,
                                           fontWeight: FontWeight.w400,
@@ -432,7 +432,7 @@ class _SplashScreenState extends State<SplashScreen>
                                           ),
                                           const SizedBox(height: 14),
                                           Text(
-                                            "Preparing your workspace\u2026",
+                                            'Preparing your workspace\u2026',
                                             style: GoogleFonts.inter(
                                               fontSize: 13,
                                               fontWeight: FontWeight.w500,
@@ -555,7 +555,7 @@ class _SplashScreenState extends State<SplashScreen>
                                   ),
                                   const SizedBox(height: 14),
                                   Text(
-                                    "— DR. B.R. AMBEDKAR",
+                                    '— DR. B.R. AMBEDKAR',
                                     style: GoogleFonts.inter(
                                       fontSize: 12 * scaleFactor,
                                       fontWeight: FontWeight.w700,
@@ -594,7 +594,7 @@ class _SplashScreenState extends State<SplashScreen>
                               ),
                               const SizedBox(height: 14),
                               Text(
-                                "Entering Dharma & Document\u2026",
+                                'Entering Dharma & Document\u2026',
                                 style: GoogleFonts.inter(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,

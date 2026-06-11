@@ -6,7 +6,7 @@ class CollaboratorService {
   /// Invites a colleague to collaborate on a specific case.
   static Future<void> inviteCollaborator(String caseId, String email) async {
     final user = _client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     // Check if the user already exists to pre-link the ID
     final profile =
@@ -48,7 +48,7 @@ class CollaboratorService {
     String status,
   ) async {
     final user = _client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     await _client
         .from('case_collaborations')

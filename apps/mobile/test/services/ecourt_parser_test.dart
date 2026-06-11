@@ -9,7 +9,7 @@ void main() {
     // by calling the public static method on offline-like data.
 
     test('extracts CNR number from raw text', () {
-      final text = '''
+      const text = '''
         Case Details
         CNR Number: TNCH000012345678
         Case Status: Pending
@@ -21,7 +21,7 @@ void main() {
     });
 
     test('extracts dates in DD-MM-YYYY format', () {
-      final text = '''
+      const text = '''
         Next Hearing Date: 25-12-2026
       ''';
       final result = _callFallback(text);
@@ -30,28 +30,28 @@ void main() {
     });
 
     test('extracts dates in DD/MM/YYYY format', () {
-      final text = 'Hearing on 01/06/2026';
+      const text = 'Hearing on 01/06/2026';
       final result = _callFallback(text);
       expect(result, isNotNull);
       expect(result!['next_hearing_date'], '2026-06-01');
     });
 
     test('detects disposed status', () {
-      final text = 'Case Status: Disposed on merits';
+      const text = 'Case Status: Disposed on merits';
       final result = _callFallback(text);
       expect(result, isNotNull);
       expect(result!['case_status'], 'disposed');
     });
 
     test('detects pending status', () {
-      final text = 'Status: Case is Pending for arguments';
+      const text = 'Status: Case is Pending for arguments';
       final result = _callFallback(text);
       expect(result, isNotNull);
       expect(result!['case_status'], 'pending');
     });
 
     test('detects transferred status', () {
-      final text = 'Case Transferred to another court';
+      const text = 'Case Transferred to another court';
       final result = _callFallback(text);
       expect(result, isNotNull);
       expect(result!['case_status'], 'transferred');
@@ -63,7 +63,7 @@ void main() {
     });
 
     test('extracts both CNR and date from combined text', () {
-      final text = '''
+      const text = '''
         CNR: TNMD000098765432
         Next Date: 20-05-2026
         Status: Listed for hearing
@@ -71,8 +71,8 @@ void main() {
       final result = _callFallback(text);
       expect(result, isNotNull);
       expect(result!['cnr_number'], 'TNMD000098765432');
-      expect(result!['next_hearing_date'], '2026-05-20');
-      expect(result!['case_status'], 'pending');
+      expect(result['next_hearing_date'], '2026-05-20');
+      expect(result['case_status'], 'pending');
     });
   });
 }

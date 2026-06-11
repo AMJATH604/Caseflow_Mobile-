@@ -21,22 +21,22 @@ class CaseDocumentsTab extends ConsumerWidget {
           data:
               (docs) =>
                   docs.isEmpty
-                      ? Center(
+                      ? const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
                               Icons.folder_shared_rounded,
                               size: 48,
-                              color: const Color(0xFFE2E8F0),
+                              color: Color(0xFFE2E8F0),
                             ),
-                            const SizedBox(height: 24),
+                            SizedBox(height: 24),
                             Text(
-                              "RECORDS VAULT EMPTY",
+                              'RECORDS VAULT EMPTY',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w900,
-                                color: const Color(0xFF94A3B8),
+                                color: Color(0xFF94A3B8),
                                 letterSpacing: 2,
                               ),
                             ),
@@ -81,10 +81,10 @@ class CaseDocumentsTab extends ConsumerWidget {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       const SizedBox(height: 4),
-                                      Text(
-                                        "SECURE VAULT",
+                                      const Text(
+                                        'SECURE VAULT',
                                         style: TextStyle(
-                                          color: const Color(0xFF94A3B8),
+                                          color: Color(0xFF94A3B8),
                                           fontSize: 10,
                                           fontWeight: FontWeight.w900,
                                           letterSpacing: 0.5,
@@ -94,12 +94,12 @@ class CaseDocumentsTab extends ConsumerWidget {
                                   ),
                                 ),
                                 IconButton(
-                                  icon: Icon(
+                                  icon: const Icon(
                                     Icons.download_rounded,
                                     color: AppTheme.accent,
                                     size: 22,
                                   ),
-                                  tooltip: "Download",
+                                  tooltip: 'Download',
                                   onPressed: () async {
                                     final url = doc['url'] as String?;
                                     if (url != null) {
@@ -121,7 +121,7 @@ class CaseDocumentsTab extends ConsumerWidget {
                                     ),
                                     size: 22,
                                   ),
-                                  tooltip: "Delete",
+                                  tooltip: 'Delete',
                                   onPressed:
                                       () => _deleteDocument(
                                         context,
@@ -142,7 +142,7 @@ class CaseDocumentsTab extends ConsumerWidget {
           error:
               (e, s) => Center(
                 child: Text(
-                  "Error: $e",
+                  'Error: $e',
                   style: const TextStyle(color: Color(0xFF1E293B)),
                 ),
               ),
@@ -151,7 +151,7 @@ class CaseDocumentsTab extends ConsumerWidget {
           bottom: 24,
           right: 24,
           child: FloatingActionButton(
-            heroTag: "upload_doc",
+            heroTag: 'upload_doc',
             onPressed: () => _uploadDocument(context, ref, caseId),
             backgroundColor: AppTheme.accent,
             foregroundColor: Colors.black,
@@ -188,14 +188,14 @@ class CaseDocumentsTab extends ConsumerWidget {
       ref.invalidate(caseDocumentsProvider(caseId));
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("\"${file.name}\" uploaded successfully")),
+          SnackBar(content: Text('"${file.name}" uploaded successfully')),
         );
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Upload failed: $e")));
+        ).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
       }
     }
   }
@@ -210,19 +210,19 @@ class CaseDocumentsTab extends ConsumerWidget {
       context: context,
       builder:
           (ctx) => AlertDialog(
-            title: const Text("Delete Document?"),
-            content: Text("Are you sure you want to delete \"$fileName\"?"),
+            title: const Text('Delete Document?'),
+            content: Text('Are you sure you want to delete "$fileName"?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: const Text("Cancel"),
+                child: const Text('Cancel'),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.error,
                 ),
                 onPressed: () => Navigator.pop(ctx, true),
-                child: const Text("Delete"),
+                child: const Text('Delete'),
               ),
             ],
           ),
@@ -235,13 +235,13 @@ class CaseDocumentsTab extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("\"$fileName\" deleted")));
+        ).showSnackBar(SnackBar(content: Text('"$fileName" deleted')));
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Delete failed: $e")));
+        ).showSnackBar(SnackBar(content: Text('Delete failed: $e')));
       }
     }
   }

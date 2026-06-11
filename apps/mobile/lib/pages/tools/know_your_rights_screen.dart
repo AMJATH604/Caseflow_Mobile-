@@ -53,7 +53,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
           children: [
             Icon(Icons.check_circle_rounded, color: Colors.greenAccent),
             SizedBox(width: 8),
-            Text("Rights card copied to clipboard! Share it with others. 🔗"),
+            Text('Rights card copied to clipboard! Share it with others. 🔗'),
           ],
         ),
         duration: Duration(seconds: 2),
@@ -91,7 +91,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
         backgroundColor: isDark ? const Color(0xFF0F172A) : AppTheme.accent,
         foregroundColor: Colors.white,
         title: Text(
-          "Know Your Rights",
+          'Know Your Rights',
           style: GoogleFonts.playfairDisplay(
             fontSize: 22,
             fontWeight: FontWeight.w700,
@@ -119,14 +119,14 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                       backgroundColor:
                           isDark ? const Color(0xFF1E293B) : Colors.white,
                       title: Text(
-                        "About Legal Encyclopedia",
+                        'About Legal Encyclopedia',
                         style: GoogleFonts.playfairDisplay(
                           fontWeight: FontWeight.bold,
                           color: isDark ? Colors.white : Colors.black87,
                         ),
                       ),
                       content: Text(
-                        "Our mission is to translate complex legal statutes into simple, bite-sized summaries that any Indian layman can easily read, understand, and use to protect their rights in everyday life.",
+                        'Our mission is to translate complex legal statutes into simple, bite-sized summaries that any Indian layman can easily read, understand, and use to protect their rights in everyday life.',
                         style: TextStyle(
                           fontSize: 14,
                           color: isDark ? Colors.white70 : Colors.black87,
@@ -137,7 +137,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                         TextButton(
                           onPressed: () => Navigator.pop(ctx),
                           child: const Text(
-                            "Got it",
+                            'Got it',
                             style: TextStyle(color: Color(0xFFD4AF37)),
                           ),
                         ),
@@ -178,7 +178,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "💡 Everyday Legal Hub",
+                            '💡 Everyday Legal Hub',
                             style: GoogleFonts.outfit(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -187,7 +187,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            "We explain complex statutes as if talking to a 10-year-old. Get remedies, helpline contacts, and share cards instantly.",
+                            'We explain complex statutes as if talking to a 10-year-old. Get remedies, helpline contacts, and share cards instantly.',
                             style: TextStyle(
                               fontSize: 13,
                               color: Colors.white.withOpacity(0.9),
@@ -246,7 +246,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                               },
                             )
                             : null,
-                    hintText: "Search laws, rights, or remedies...",
+                    hintText: 'Search laws, rights, or remedies...',
                     hintStyle: TextStyle(
                       color: isDark ? Colors.white38 : Colors.grey[400],
                     ),
@@ -329,7 +329,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        "No Guides Found",
+                        'No Guides Found',
                         style: GoogleFonts.outfit(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -338,7 +338,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        "Try tweaking your search keywords or choosing a different category.",
+                        'Try tweaking your search keywords or choosing a different category.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14,
@@ -499,10 +499,10 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
           ),
           subtitle: Text(
             card.sectionOrStatute,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFFD4AF37), // Gold accent
+              color: Color(0xFFD4AF37), // Gold accent
             ),
           ),
           children: [
@@ -521,7 +521,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
 
                   // ── Pillar 1: What is the Law? ──
                   _buildSubSection(
-                    title: "💡 IN SIMPLE TERMS (THE LAW)",
+                    title: '💡 IN SIMPLE TERMS (THE LAW)',
                     content: card.coreLaw,
                     accentColor: const Color(0xFF2563EB), // Blue
                     isDark: isDark,
@@ -530,7 +530,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
 
                   // ── Pillar 2: When it applies? ──
                   _buildSubSection(
-                    title: "🔍 WHEN DOES IT APPLY?",
+                    title: '🔍 WHEN DOES IT APPLY?',
                     content: card.whenItApplies,
                     accentColor: const Color(0xFF10B981), // Teal/Green
                     isDark: isDark,
@@ -539,7 +539,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
 
                   // ── Pillar 3: Immediate Remedy ──
                   _buildSubSection(
-                    title: "🛡️ YOUR IMMEDIATE REMEDY",
+                    title: '🛡️ YOUR IMMEDIATE REMEDY',
                     content: card.immediateRemedy,
                     accentColor: const Color(0xFFF97316), // Orange
                     isDark: isDark,
@@ -575,7 +575,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
-                                "Emergency Contacts & Helplines",
+                                'Emergency Contacts & Helplines',
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
@@ -620,7 +620,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                         ),
                         icon: const Icon(Icons.share_rounded, size: 16),
                         label: Text(
-                          "Copy & Share Card",
+                          'Copy & Share Card',
                           style: GoogleFonts.outfit(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,

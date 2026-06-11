@@ -17,9 +17,9 @@ class CasesScreen extends ConsumerStatefulWidget {
 }
 
 class _CasesScreenState extends ConsumerState<CasesScreen> {
-  String _searchQuery = "";
-  String _statusFilter = "all";
-  String _sortBy = "recent"; // recent, hearing, filing
+  String _searchQuery = '';
+  String _statusFilter = 'all';
+  String _sortBy = 'recent'; // recent, hearing, filing
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +70,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Case Archive",
+            'Case Archive',
             style: Theme.of(context).textTheme.displayMedium?.copyWith(
               fontSize: 32,
               fontWeight: FontWeight.w700,
@@ -78,7 +78,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            "CENTRALIZED LEGAL DATABASE",
+            'CENTRALIZED LEGAL DATABASE',
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: isDark ? const Color(0xFFCBD5E1) : Colors.black38,
               fontWeight: FontWeight.w800,
@@ -103,11 +103,11 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
-          _summaryChip("$active Active", AppTheme.success, isDark),
+          _summaryChip('$active Active', AppTheme.success, isDark),
           const SizedBox(width: 8),
-          _summaryChip("$closed Closed", AppTheme.error, isDark),
+          _summaryChip('$closed Closed', AppTheme.error, isDark),
           const SizedBox(width: 8),
-          _summaryChip("$pending Pending", AppTheme.warning, isDark),
+          _summaryChip('$pending Pending', AppTheme.warning, isDark),
           const Spacer(),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -119,7 +119,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              "${cases.length} TOTAL",
+              '${cases.length} TOTAL',
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w900,
@@ -180,7 +180,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                 fontWeight: FontWeight.w500,
               ),
               decoration: InputDecoration(
-                hintText: "Search by title, ID or client...",
+                hintText: 'Search by title, ID or client...',
                 hintStyle: GoogleFonts.inter(
                   color: isDark ? const Color(0xFFCBD5E1) : Colors.black38,
                   fontWeight: FontWeight.w500,
@@ -202,10 +202,10 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children:
-                  ["all", "active", "closed", "pending"].map((s) {
+                  ['all', 'active', 'closed', 'pending'].map((s) {
                     final isActive = _statusFilter == s;
                     final count =
-                        s == "all"
+                        s == 'all'
                             ? cases.length
                             : cases
                                 .where(
@@ -270,7 +270,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
       child: Row(
         children: [
           Text(
-            "CLIENT REGISTRY",
+            'CLIENT REGISTRY',
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               fontWeight: FontWeight.w800,
               color: isDark ? const Color(0xFFCBD5E1) : Colors.black38,
@@ -282,10 +282,10 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
             onSelected: (v) => setState(() => _sortBy = v),
             itemBuilder:
                 (_) => [
-                  _sortMenuItem("recent", "Recently Updated"),
-                  _sortMenuItem("hearing", "Next Hearing"),
-                  _sortMenuItem("filing", "Filing Date"),
-                  _sortMenuItem("title", "Alphabetical"),
+                  _sortMenuItem('recent', 'Recently Updated'),
+                  _sortMenuItem('hearing', 'Next Hearing'),
+                  _sortMenuItem('filing', 'Filing Date'),
+                  _sortMenuItem('title', 'Alphabetical'),
                 ],
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -367,18 +367,18 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
   Widget _buildCasesList(bool isMobile, bool isDark, List<CaseModel> cases) {
     final currentUserId = ref.read(userProvider)?.id ?? '';
 
-    var filtered =
+    final filtered =
         cases.where((c) {
           final matchesSearch =
               c.caseTitle.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              (c.caseNumber ?? "").toLowerCase().contains(
+              (c.caseNumber ?? '').toLowerCase().contains(
                 _searchQuery.toLowerCase(),
               ) ||
-              (c.clientName ?? "").toLowerCase().contains(
+              (c.clientName ?? '').toLowerCase().contains(
                 _searchQuery.toLowerCase(),
               );
           final matchesStatus =
-              _statusFilter == "all" ||
+              _statusFilter == 'all' ||
               c.status.name.toLowerCase() == _statusFilter.toLowerCase();
           return matchesSearch && matchesStatus;
         }).toList();
@@ -421,7 +421,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              "ARCHIVE EMPTY",
+              'ARCHIVE EMPTY',
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.w700,
                 fontSize: 12,
@@ -431,7 +431,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
             ),
             const SizedBox(height: 4),
             const Text(
-              "No cases match your filters",
+              'No cases match your filters',
               style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
             ),
           ],
@@ -562,7 +562,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                               ),
                                               SizedBox(width: 3),
                                               Text(
-                                                "SHARED",
+                                                'SHARED',
                                                 style: TextStyle(
                                                   fontSize: 7,
                                                   fontWeight: FontWeight.w900,
@@ -605,7 +605,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                               ),
                                               SizedBox(width: 3),
                                               Text(
-                                                "TEAM",
+                                                'TEAM',
                                                 style: TextStyle(
                                                   fontSize: 7,
                                                   fontWeight: FontWeight.w900,
@@ -652,8 +652,8 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                         child: Text(
                                           c.clientName ??
                                               (c.firmId != null
-                                                  ? "Firm Shared Case"
-                                                  : "Private Entity"),
+                                                  ? 'Firm Shared Case'
+                                                  : 'Private Entity'),
                                           style: Theme.of(
                                             context,
                                           ).textTheme.labelSmall?.copyWith(
@@ -770,10 +770,11 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
     final diff = hearingDay.difference(today).inDays;
 
     if (diff < 0) return "Past: ${DateFormat('dd MMM yyyy').format(date)}";
-    if (diff == 0) return "TODAY";
-    if (diff == 1) return "TOMORROW";
-    if (diff <= 7)
+    if (diff == 0) return 'TODAY';
+    if (diff == 1) return 'TOMORROW';
+    if (diff <= 7) {
       return "In $diff days · ${DateFormat('dd MMM').format(date)}";
+    }
     return "Next: ${DateFormat('dd MMM yyyy').format(date)}";
   }
 
@@ -829,7 +830,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                       color: AppTheme.accent,
                     ),
                     title: const Text(
-                      "Open Case",
+                      'Open Case',
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                     onTap: () {
@@ -844,14 +845,14 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                       color: AppTheme.error,
                     ),
                     title: const Text(
-                      "Delete Case",
+                      'Delete Case',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: AppTheme.error,
                       ),
                     ),
                     subtitle: const Text(
-                      "Permanently remove this case and all records",
+                      'Permanently remove this case and all records',
                       style: TextStyle(fontSize: 11),
                     ),
                     onTap: () async {
@@ -881,14 +882,14 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            title: const Text("Delete Case?"),
+            title: const Text('Delete Case?'),
             content: Text(
-              "Are you sure you want to permanently delete \"$title\" and all related records?",
+              'Are you sure you want to permanently delete "$title" and all related records?',
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: const Text("Cancel"),
+                child: const Text('Cancel'),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -896,7 +897,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                   foregroundColor: Colors.white,
                 ),
                 onPressed: () => Navigator.pop(ctx, true),
-                child: const Text("Delete"),
+                child: const Text('Delete'),
               ),
             ],
           ),
@@ -910,13 +911,13 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text("Case records removed")));
+        ).showSnackBar(const SnackBar(content: Text('Case records removed')));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }

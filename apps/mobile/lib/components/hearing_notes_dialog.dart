@@ -32,7 +32,7 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
   @override
   void initState() {
     super.initState();
-    _notesController = TextEditingController(text: widget.existingNotes ?? "");
+    _notesController = TextEditingController(text: widget.existingNotes ?? '');
   }
 
   @override
@@ -53,13 +53,13 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
         Navigator.pop(context);
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text("Notes saved!")));
+        ).showSnackBar(const SnackBar(content: Text('Notes saved!')));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -98,7 +98,7 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "Hearing Notes",
+                        'Hearing Notes',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -121,7 +121,7 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
 
             // Quick note chips
             const Text(
-              "Quick Notes:",
+              'Quick Notes:',
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
@@ -129,14 +129,14 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
               spacing: 6,
               runSpacing: 6,
               children: [
-                _quickChip("Adjourned"),
-                _quickChip("Arguments heard"),
-                _quickChip("Evidence recorded"),
-                _quickChip("Written arguments filed"),
-                _quickChip("Order reserved"),
-                _quickChip("Matter dismissed"),
-                _quickChip("Judgment pronounced"),
-                _quickChip("Next date fixed"),
+                _quickChip('Adjourned'),
+                _quickChip('Arguments heard'),
+                _quickChip('Evidence recorded'),
+                _quickChip('Written arguments filed'),
+                _quickChip('Order reserved'),
+                _quickChip('Matter dismissed'),
+                _quickChip('Judgment pronounced'),
+                _quickChip('Next date fixed'),
               ],
             ),
             const SizedBox(height: 16),
@@ -147,7 +147,7 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
               maxLines: 6,
               decoration: InputDecoration(
                 hintText:
-                    "Type your hearing notes here...\n\nE.g. Judge asked for written arguments by next date.\nOpposing counsel requested adjournment.",
+                    'Type your hearing notes here...\n\nE.g. Judge asked for written arguments by next date.\nOpposing counsel requested adjournment.',
                 hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -173,7 +173,7 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
                           ),
                         )
                         : const Icon(Icons.save),
-                label: Text(_isSaving ? "Saving..." : "Save Notes"),
+                label: Text(_isSaving ? 'Saving...' : 'Save Notes'),
               ),
             ),
           ],
@@ -186,7 +186,7 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
     return InkWell(
       onTap: () {
         final current = _notesController.text;
-        _notesController.text = current.isEmpty ? text : "$current\n$text";
+        _notesController.text = current.isEmpty ? text : '$current\n$text';
         _notesController.selection = TextSelection.collapsed(
           offset: _notesController.text.length,
         );

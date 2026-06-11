@@ -18,9 +18,9 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
   String? _errorMessage;
 
   Future<void> _handleReset(WidgetRef ref) async {
-    if (_confirmController.text.trim().toUpperCase() != "RESET") {
+    if (_confirmController.text.trim().toUpperCase() != 'RESET') {
       setState(() {
-        _errorMessage = "Please type RESET to confirm";
+        _errorMessage = 'Please type RESET to confirm';
       });
       return;
     }
@@ -44,7 +44,7 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
         Navigator.pop(context); // Close dialog
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Workspace reset successfully"),
+            content: Text('Workspace reset successfully'),
             backgroundColor: Color(0xFF10B981),
           ),
         );
@@ -53,7 +53,7 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
       if (mounted) {
         setState(() {
           _isDeleting = false;
-          _errorMessage = "Reset failed: ${e.toString()}";
+          _errorMessage = 'Reset failed: ${e.toString()}';
         });
       }
     }
@@ -87,7 +87,7 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  "Reset Workspace?",
+                  'Reset Workspace?',
                   style: GoogleFonts.outfit(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
@@ -96,7 +96,7 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  "This action will permanently delete all your Cases, Clients, Hearings, and Documents. This cannot be undone.",
+                  'This action will permanently delete all your Cases, Clients, Hearings, and Documents. This cannot be undone.',
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     color: Colors.grey[600],
@@ -117,7 +117,7 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Type RESET to confirm:",
+                        'Type RESET to confirm:',
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
@@ -129,7 +129,7 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                         controller: _confirmController,
                         autofocus: true,
                         decoration: InputDecoration(
-                          hintText: "RESET",
+                          hintText: 'RESET',
                           hintStyle: TextStyle(
                             color: Colors.grey.withValues(alpha: 0.3),
                           ),
@@ -142,8 +142,9 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                           letterSpacing: 2,
                         ),
                         onChanged: (val) {
-                          if (_errorMessage != null)
+                          if (_errorMessage != null) {
                             setState(() => _errorMessage = null);
+                          }
                         },
                       ),
                     ],
@@ -163,7 +164,7 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                           ),
                         ),
                         child: Text(
-                          "Cancel",
+                          'Cancel',
                           style: GoogleFonts.inter(
                             fontWeight: FontWeight.w600,
                             color: Colors.grey,
@@ -195,7 +196,7 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                                   ),
                                 )
                                 : Text(
-                                  "Delete All",
+                                  'Delete All',
                                   style: GoogleFonts.inter(
                                     fontWeight: FontWeight.w700,
                                   ),

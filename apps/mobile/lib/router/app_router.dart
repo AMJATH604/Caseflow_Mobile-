@@ -208,7 +208,10 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: '/ai-chat',
-          builder: (context, state) => const AiChatScreen(),
+          builder: (context, state) {
+            final sessionId = state.uri.queryParameters['session'];
+            return AiChatScreen(initialSessionId: sessionId);
+          },
         ),
         GoRoute(
           path: '/caveats',

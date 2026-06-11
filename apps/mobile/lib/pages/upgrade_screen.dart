@@ -17,7 +17,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
       backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: const Text(
-          "Plan Information",
+          'Plan Information',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.transparent,
@@ -43,7 +43,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
               ),
               const SizedBox(height: 32),
               const Text(
-                "All Features Unlocked!",
+                'All Features Unlocked!',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -53,7 +53,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
               ),
               const SizedBox(height: 16),
               const Text(
-                "Welcome to the CaseFlow Beta Phase. We have decided to make all Professional and Business features free for all users during this period.",
+                'Welcome to the CaseFlow Beta Phase. We have decided to make all Professional and Business features free for all users during this period.',
                 style: TextStyle(fontSize: 16, color: Colors.grey),
                 textAlign: TextAlign.center,
               ),
@@ -63,7 +63,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
               ElevatedButton.icon(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(Icons.arrow_back_rounded),
-                label: const Text("Go to Dashboard"),
+                label: const Text('Go to Dashboard'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primary,
                   foregroundColor: Colors.white,
@@ -85,12 +85,12 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
 
   Widget _buildBetaFeatureList() {
     final features = [
-      "Unlimited Case Management",
-      "Full OCR & PDF Document Tools",
-      "Team Collaboration & Case Chat",
-      "Firm-wide Notice Board",
-      "Priority Cloud Storage",
-      "Bulk eCourts Data Import",
+      'Unlimited Case Management',
+      'Full OCR & PDF Document Tools',
+      'Team Collaboration & Case Chat',
+      'Firm-wide Notice Board',
+      'Priority Cloud Storage',
+      'Bulk eCourts Data Import',
     ];
 
     return Container(

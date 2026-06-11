@@ -113,7 +113,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text("Could not open file")));
+        ).showSnackBar(const SnackBar(content: Text('Could not open file')));
       }
     }
   }
@@ -129,7 +129,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
               CircularProgressIndicator(color: AppTheme.primary),
               SizedBox(height: 16),
               Text(
-                "Syncing Template Library...",
+                'Syncing Template Library...',
                 style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
             ],
@@ -173,7 +173,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                     ),
                     const SizedBox(width: 8),
                     const Text(
-                      "Template Categories",
+                      'Template Categories',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -252,7 +252,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Template Library",
+                      'Template Library',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 22,
@@ -261,7 +261,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                       ),
                     ),
                     Text(
-                      "Professional Drafting Resources",
+                      'Professional Drafting Resources',
                       style: TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                   ],
@@ -288,7 +288,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    "Search templates by name...",
+                    'Search templates by name...',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.6),
                       fontSize: 14,
@@ -346,7 +346,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                 ),
               ),
               Text(
-                "$count templates",
+                '$count templates',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.6),
                   fontSize: 11,
@@ -405,7 +405,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
               }),
         ),
         title: const Text(
-          "Search Templates",
+          'Search Templates',
           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
         ),
       ),
@@ -419,7 +419,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
               autofocus: true,
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
-                hintText: "Keyword search...",
+                hintText: 'Keyword search...',
                 hintStyle: TextStyle(
                   color: Colors.white.withValues(alpha: 0.4),
                 ),
@@ -440,7 +440,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                 _isSearchingGlobal
                     ? const Center(child: CircularProgressIndicator())
                     : _globalSearchResults.isEmpty
-                    ? const Center(child: Text("No templates found"))
+                    ? const Center(child: Text('No templates found'))
                     : ListView.builder(
                       padding: const EdgeInsets.all(16),
                       itemCount: _globalSearchResults.length,
@@ -504,7 +504,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
               children: [
                 if (template.pdfUrl != null)
                   _fileButton(
-                    "PDF",
+                    'PDF',
                     Icons.picture_as_pdf,
                     Colors.red[700]!,
                     () => _openFile(template.pdfUrl),
@@ -512,7 +512,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                 const SizedBox(width: 8),
                 if (template.docxUrl != null)
                   _fileButton(
-                    "WORD",
+                    'WORD',
                     Icons.description,
                     Colors.blue[800]!,
                     () => _openFile(template.docxUrl),
@@ -570,7 +570,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
             Icon(Icons.cloud_off_rounded, size: 48, color: Colors.grey[300]),
             const SizedBox(height: 12),
             Text(
-              "No templates found in library.",
+              'No templates found in library.',
               style: TextStyle(color: Colors.grey[500]),
             ),
           ],

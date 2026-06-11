@@ -25,16 +25,16 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
   }
 
   void _applyFilters() {
-    String query = _searchCtrl.text.toLowerCase();
+    final String query = _searchCtrl.text.toLowerCase();
     setState(() {
       _expandedIndex = null;
       _filteredWords =
           englishDictionaryData.where((w) {
-            bool matchesQuery =
+            final bool matchesQuery =
                 query.isEmpty ||
                 w.word.toLowerCase().contains(query) ||
                 w.definition.toLowerCase().contains(query);
-            bool matchesLetter =
+            final bool matchesLetter =
                 _selectedLetter.isEmpty ||
                 w.word.toUpperCase().startsWith(_selectedLetter);
             return matchesQuery && matchesLetter;
@@ -61,7 +61,7 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
 
   @override
   Widget build(BuildContext context) {
-    bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -109,9 +109,9 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
               scrollDirection: Axis.horizontal,
               itemCount: 27,
               itemBuilder: (context, index) {
-                String letter =
+                final String letter =
                     index == 0 ? '' : String.fromCharCode(64 + index);
-                bool isSelected = _selectedLetter == letter;
+                final bool isSelected = _selectedLetter == letter;
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: ChoiceChip(
@@ -199,7 +199,7 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                       itemCount: _filteredWords.length,
                       itemBuilder: (context, index) {
                         final w = _filteredWords[index];
-                        bool isExpanded = _expandedIndex == index;
+                        final bool isExpanded = _expandedIndex == index;
 
                         return AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
@@ -340,7 +340,7 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                                             borderRadius: BorderRadius.circular(
                                               8,
                                             ),
-                                            border: Border(
+                                            border: const Border(
                                               left: BorderSide(
                                                 color: AppTheme.accent,
                                                 width: 3,

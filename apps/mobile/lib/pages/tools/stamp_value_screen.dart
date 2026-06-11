@@ -36,7 +36,7 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Failed to load stamps: $e")));
+        ).showSnackBar(SnackBar(content: Text('Failed to load stamps: $e')));
       }
     }
   }

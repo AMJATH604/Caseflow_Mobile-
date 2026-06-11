@@ -39,7 +39,7 @@ class _AppShellState extends ConsumerState<AppShell> {
           false;
     }
 
-    final appTitle = isCitizenMode ? "CaseFlow" : "CaseFlow";
+    final appTitle = isCitizenMode ? 'CaseFlow' : 'CaseFlow';
     final homeRoute =
         widget.isGuest
             ? '/guest-home'
@@ -103,7 +103,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                   surfaceTintColor: Colors.transparent,
                   centerTitle: false,
                   title: Text(
-                    "CaseFlow",
+                    'CaseFlow',
                     style: Theme.of(
                       context,
                     ).appBarTheme.titleTextStyle?.copyWith(
@@ -120,7 +120,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                             Icons.logout_rounded,
                             color: Color(0xFFE11D48),
                           ),
-                          tooltip: "Sign Out",
+                          tooltip: 'Sign Out',
                           onPressed: () async {
                             await SupabaseService.signOut();
                           },
@@ -148,7 +148,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                           color: Color(0xFF10B981),
                         ),
                         label: Text(
-                          "Sign Up",
+                          'Sign Up',
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -191,7 +191,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                       child: Row(
                         children: [
                           Text(
-                            "CaseFlow Registry",
+                            'CaseFlow Registry',
                             style: Theme.of(
                               context,
                             ).textTheme.labelLarge?.copyWith(
@@ -241,7 +241,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                                   ),
                                   const SizedBox(width: 10),
                                   Text(
-                                    "Search cases, clients...",
+                                    'Search cases, clients...',
                                     style: GoogleFonts.inter(
                                       color:
                                           Theme.of(context).brightness ==

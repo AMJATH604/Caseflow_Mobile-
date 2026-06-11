@@ -26,7 +26,7 @@ class TaskWidget extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Daily Tasks",
+                'Daily Tasks',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               IconButton(
@@ -48,7 +48,7 @@ class TaskWidget extends ConsumerWidget {
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 20),
                     child: Text(
-                      "No tasks for today",
+                      'No tasks for today',
                       style: TextStyle(color: Colors.grey),
                     ),
                   ),
@@ -70,7 +70,7 @@ class TaskWidget extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      "Unable to load tasks",
+                      'Unable to load tasks',
                       style: TextStyle(
                         color: Colors.grey,
                         fontSize: 13,
@@ -81,7 +81,7 @@ class TaskWidget extends ConsumerWidget {
                     TextButton.icon(
                       onPressed: () => ref.invalidate(tasksProvider),
                       icon: const Icon(Icons.refresh, size: 16),
-                      label: const Text("Tap to Retry"),
+                      label: const Text('Tap to Retry'),
                     ),
                   ],
                 ),
@@ -140,16 +140,16 @@ class TaskWidget extends ConsumerWidget {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text("New Task"),
+            title: const Text('New Task'),
             content: TextField(
               controller: controller,
-              decoration: const InputDecoration(hintText: "Enter task title"),
+              decoration: const InputDecoration(hintText: 'Enter task title'),
               autofocus: true,
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text("Cancel"),
+                child: const Text('Cancel'),
               ),
               ElevatedButton(
                 onPressed: () async {
@@ -160,7 +160,7 @@ class TaskWidget extends ConsumerWidget {
                     Navigator.pop(context);
                   }
                 },
-                child: const Text("Add"),
+                child: const Text('Add'),
               ),
             ],
           ),

@@ -14,7 +14,7 @@ class CommissionService {
   /// Get current device GPS position with permission handling
   static Future<Position?> getCurrentLocation() async {
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) return null;
 
       LocationPermission permission = await Geolocator.checkPermission();
@@ -64,7 +64,7 @@ class CommissionService {
 
   static Future<Commission> createCommission(Map<String, dynamic> data) async {
     final user = _client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     final response =
         await _client
@@ -106,7 +106,7 @@ class CommissionService {
 
   static Future<CommissionVisit> createVisit(Map<String, dynamic> data) async {
     final user = _client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     final response =
         await _client
@@ -123,7 +123,7 @@ class CommissionService {
     String? address,
   }) async {
     final user = _client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     // Get real GPS coordinates
     final position = await getCurrentLocation();
@@ -227,7 +227,7 @@ class CommissionService {
 
   static Future<void> createObservation(Map<String, dynamic> data) async {
     final user = _client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     await _client.from('commission_observations').insert({
       ...data,
@@ -271,7 +271,7 @@ class CommissionService {
     String? direction,
   }) async {
     final user = _client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     // Get real GPS
     final position = await getCurrentLocation();
@@ -347,7 +347,7 @@ class CommissionService {
 
   static Future<void> createExpense(Map<String, dynamic> data) async {
     final user = _client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     await _client.from('commission_expenses').insert({
       ...data,
@@ -392,7 +392,7 @@ class CommissionService {
     Map<String, dynamic> data,
   ) async {
     final user = _client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     final response =
         await _client
@@ -430,7 +430,7 @@ class CommissionService {
     Map<String, dynamic> data,
   ) async {
     final user = _client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     // Attach GPS coordinates
     final position = await getCurrentLocation();
@@ -565,7 +565,7 @@ class CommissionService {
     Map<String, dynamic> data,
   ) async {
     final user = _client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     final response =
         await _client

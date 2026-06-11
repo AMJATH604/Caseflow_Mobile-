@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import '../services/firm_service.dart';
@@ -70,13 +69,14 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
         setState(() => _members = members);
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text("Invitation sent!")));
+        ).showSnackBar(const SnackBar(content: Text('Invitation sent!')));
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -87,15 +87,17 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
     try {
       await FirmService.acceptInvitation(id);
       await _loadInitialData();
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Firm joined successfully!")),
+          const SnackBar(content: Text('Firm joined successfully!')),
         );
+      }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -118,7 +120,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
     final text = _noticeController.text.trim();
     if (text.isEmpty) return;
     final firmId = _profile?.firmId ?? _profile?.id;
-    final senderName = _profile?.fullName ?? "Team Member";
+    final senderName = _profile?.fullName ?? 'Team Member';
 
     // Optimistic add
     setState(() {
@@ -188,7 +190,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
     );
 
     if (url != null) {
-      final senderName = _profile?.fullName ?? "Team Member";
+      final senderName = _profile?.fullName ?? 'Team Member';
       await SupabaseService.postDiscussion({
         'firm_id': firmId,
         'message':
@@ -205,7 +207,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Failed to upload. Check your internet connection."),
+            content: Text('Failed to upload. Check your internet connection.'),
           ),
         );
       }
@@ -228,7 +230,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "Share",
+                    'Share',
                     style: GoogleFonts.outfit(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -240,7 +242,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                     children: [
                       _buildAttachOption(
                         Icons.camera_alt_rounded,
-                        "Camera",
+                        'Camera',
                         Colors.pink,
                         () {
                           Navigator.pop(ctx);
@@ -249,7 +251,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                       ),
                       _buildAttachOption(
                         Icons.photo_library_rounded,
-                        "Gallery",
+                        'Gallery',
                         Colors.purple,
                         () {
                           Navigator.pop(ctx);
@@ -258,7 +260,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                       ),
                       _buildAttachOption(
                         Icons.insert_drive_file_rounded,
-                        "Document",
+                        'Document',
                         Colors.blue,
                         () {
                           Navigator.pop(ctx);
@@ -335,29 +337,29 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                     children: [
                       if (_profile?.isFirmMember == true ||
                           (_profile?.isFirmOwner ?? false)) ...[
-                        _buildSectionHeader("Digital Chambers"),
+                        _buildSectionHeader('Digital Chambers'),
                         _buildNoticeBoard(),
                         const SizedBox(height: 32),
                       ],
                       if (_invitations.isNotEmpty) ...[
-                        _buildSectionHeader("Firm Invitations"),
+                        _buildSectionHeader('Firm Invitations'),
                         ..._invitations.map((inv) => _buildInvitationCard(inv)),
                         const SizedBox(height: 32),
                       ],
                       if (_profile?.isFirmOwner ?? false) ...[
-                        _buildSectionHeader("Recruit Associate"),
+                        _buildSectionHeader('Recruit Associate'),
                         _buildInviteForm(),
                         const SizedBox(height: 32),
-                        _buildSectionHeader("Legal Professional Hub"),
+                        _buildSectionHeader('Legal Professional Hub'),
                         if (_members.isEmpty)
                           _buildEmptyTeamState()
                         else
                           ..._members.map((m) => _buildMemberCard(m)),
                       ] else if (_profile?.firmId != null) ...[
-                        _buildSectionHeader("Chambers Status"),
+                        _buildSectionHeader('Chambers Status'),
                         _buildStaffFirmCard(),
                         const SizedBox(height: 32),
-                        _buildSectionHeader("The Team"),
+                        _buildSectionHeader('The Team'),
                         ..._members.map((m) => _buildMemberCard(m)),
                       ] else ...[
                         _buildBusinessUpgradePrompt(),
@@ -389,7 +391,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
           ),
           const SizedBox(width: 4),
           Text(
-            "Firm Operating System",
+            'Firm Operating System',
             style: GoogleFonts.inter(
               fontSize: 22,
               fontWeight: FontWeight.w900,
@@ -473,7 +475,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    "Chambers Chat",
+                    'Chambers Chat',
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
@@ -483,7 +485,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Tap to open full conversation",
+                    'Tap to open full conversation',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.white.withValues(alpha: 0.7),
@@ -533,16 +535,16 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
               child: TextField(
                 controller: _emailController,
                 style: const TextStyle(color: Color(0xFF1E293B), fontSize: 13),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: "Junior's Professional Email",
-                  hintStyle: const TextStyle(color: Color(0xFFCBD5E1)),
-                  prefixIcon: const Icon(
+                  hintStyle: TextStyle(color: Color(0xFFCBD5E1)),
+                  prefixIcon: Icon(
                     Icons.alternate_email_rounded,
                     size: 18,
                     color: Color(0xFF94A3B8),
                   ),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(16),
+                  contentPadding: EdgeInsets.all(16),
                 ),
               ),
             ),
@@ -561,7 +563,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                   elevation: 0,
                 ),
                 child: const Text(
-                  "INITIALIZE RECRUITMENT",
+                  'INITIALIZE RECRUITMENT',
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 11,
@@ -602,7 +604,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
         ),
         title: Text(
           isMe
-              ? "${member.memberName ?? member.memberEmail} (Me)"
+              ? '${member.memberName ?? member.memberEmail} (Me)'
               : (member.memberName ?? member.memberEmail),
           style: const TextStyle(
             fontWeight: FontWeight.w900,
@@ -666,7 +668,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "Authenticated Chambers Profile",
+                  'Authenticated Chambers Profile',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF1E293B),
@@ -675,7 +677,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Full professional access to shared documents & cases",
+                  'Full professional access to shared documents & cases',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white.withValues(alpha: 0.5),
@@ -704,14 +706,14 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
           child: Icon(Icons.business_rounded, color: Colors.black),
         ),
         title: const Text(
-          "Professional Invitation",
+          'Professional Invitation',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Color(0xFF1E293B),
           ),
         ),
         subtitle: Text(
-          "Join flow by ${invitation.ownerName ?? invitation.ownerId}",
+          'Join flow by ${invitation.ownerName ?? invitation.ownerId}',
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.5),
             fontSize: 12,
@@ -727,7 +729,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
             ),
           ),
           child: const Text(
-            "Accept",
+            'Accept',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -763,7 +765,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              "Professional Hub",
+              'Professional Hub',
               style: GoogleFonts.inter(
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
@@ -772,11 +774,11 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              "Transform CaseFlow into a shared chambers workspace. Recruit juniors and synchronize your legal operations.",
+            const Text(
+              'Transform CaseFlow into a shared chambers workspace. Recruit juniors and synchronize your legal operations.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: const Color(0xFF94A3B8),
+                color: Color(0xFF94A3B8),
                 fontSize: 13,
                 height: 1.5,
                 fontWeight: FontWeight.w500,
@@ -789,7 +791,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                 onPressed: () => context.push('/upgrade'),
                 icon: const Icon(Icons.flash_on_rounded, size: 18),
                 label: const Text(
-                  "ACTIVATE BUSINESS NODES",
+                  'ACTIVATE BUSINESS NODES',
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 12,
@@ -823,18 +825,18 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
-      child: Column(
+      child: const Column(
         children: [
           Icon(
             Icons.person_add_rounded,
             size: 48,
-            color: const Color(0xFFE2E8F0),
+            color: Color(0xFFE2E8F0),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
-            "Recruit your first professional junior",
+            'Recruit your first professional junior',
             style: TextStyle(
-              color: const Color(0xFFCBD5E1),
+              color: Color(0xFFCBD5E1),
               fontSize: 13,
               fontWeight: FontWeight.bold,
             ),
@@ -849,19 +851,19 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
       context: context,
       builder:
           (ctx) => AlertDialog(
-            title: const Text("Remove Team Member?"),
+            title: const Text('Remove Team Member?'),
             content: const Text(
-              "They will no longer have access to cases in this firm.",
+              'They will no longer have access to cases in this firm.',
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: const Text("Cancel"),
+                child: const Text('Cancel'),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(ctx, true),
                 child: const Text(
-                  "Remove",
+                  'Remove',
                   style: TextStyle(color: Colors.red),
                 ),
               ),

@@ -61,7 +61,7 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Failed to update account: $e"),
+            content: Text('Failed to update account: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -74,7 +74,7 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
   void _handlePaymentFailure(PaymentFailureResponse response) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("Payment Failed: ${response.message}"),
+        content: Text('Payment Failed: ${response.message}'),
         backgroundColor: Colors.red,
       ),
     );
@@ -91,17 +91,17 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
       name: isPro ? AppConfig.proPlanName : AppConfig.businessPlanName,
       description:
           isPro
-              ? "Unlimited Case Management & Document Tools"
-              : "Law Firm Management, Team Collaboration & Pro Features",
-      userEmail: user.email ?? "",
-      userContact: "",
+              ? 'Unlimited Case Management & Document Tools'
+              : 'Law Firm Management, Team Collaboration & Pro Features',
+      userEmail: user.email ?? '',
+      userContact: '',
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final isPro = widget.targetTier == 'pro';
-    final planName = isPro ? "Pro" : "Business";
+    final planName = isPro ? 'Pro' : 'Business';
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -146,7 +146,7 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
             ),
             const SizedBox(height: 20),
             Text(
-              "Unlock CaseFlow $planName",
+              'Unlock CaseFlow $planName',
               style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -156,8 +156,8 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
             const SizedBox(height: 8),
             Text(
               isPro
-                  ? "Everything you need to run a modern legal practice — all in one powerful app."
-                  : "Transform your workspace into a collaborative law firm chambers.",
+                  ? 'Everything you need to run a modern legal practice — all in one powerful app.'
+                  : 'Transform your workspace into a collaborative law firm chambers.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[500], fontSize: 13),
             ),
@@ -172,50 +172,50 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                           ? [
                             _buildFeatureRow(
                               Icons.work_rounded,
-                              "Unlimited Cases",
-                              "No 10-case limit",
+                              'Unlimited Cases',
+                              'No 10-case limit',
                             ),
                             _buildFeatureRow(
                               Icons.picture_as_pdf_rounded,
-                              "Document Tools",
-                              "PDF, Word, OCR conversions",
+                              'Document Tools',
+                              'PDF, Word, OCR conversions',
                             ),
                             _buildFeatureRow(
                               Icons.notifications_active_rounded,
-                              "Smart Notifications",
-                              "Hearing reminders",
+                              'Smart Notifications',
+                              'Hearing reminders',
                             ),
                             _buildFeatureRow(
                               Icons.science_rounded,
-                              "Evidence Lab",
-                              "Evidence & witness notes",
+                              'Evidence Lab',
+                              'Evidence & witness notes',
                             ),
                           ]
                           : [
                             _buildFeatureRow(
                               Icons.business_rounded,
-                              "Law Firm Chambers",
-                              "Shared workspace for team",
+                              'Law Firm Chambers',
+                              'Shared workspace for team',
                             ),
                             _buildFeatureRow(
                               Icons.person_add_rounded,
-                              "Invite Junior Advocates",
-                              "Build your team (Max 5)",
+                              'Invite Junior Advocates',
+                              'Build your team (Max 5)',
                             ),
                             _buildFeatureRow(
                               Icons.forum_rounded,
-                              "Intra-Team Chat",
-                              "Chat safely about case files",
+                              'Intra-Team Chat',
+                              'Chat safely about case files',
                             ),
                             _buildFeatureRow(
                               Icons.assignment_ind_rounded,
-                              "Case Assignment",
-                              "Delegate work to associates",
+                              'Case Assignment',
+                              'Delegate work to associates',
                             ),
                             _buildFeatureRow(
                               Icons.all_inclusive_rounded,
-                              "All Pro Features",
-                              "Includes everything in Pro",
+                              'All Pro Features',
+                              'Includes everything in Pro',
                             ),
                           ],
                 ),
@@ -242,7 +242,7 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "$planName Plan",
+                        '$planName Plan',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -250,8 +250,8 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                       ),
                       Text(
                         isPro
-                            ? "₹${AppConfig.proMonthlyPrice.toInt()}/mo or ₹${AppConfig.proYearlyPrice.toInt()}/yr"
-                            : "₹${AppConfig.businessMonthlyPrice.toInt()}/mo or ₹${AppConfig.businessYearlyPrice.toInt()}/yr",
+                            ? '₹${AppConfig.proMonthlyPrice.toInt()}/mo or ₹${AppConfig.proYearlyPrice.toInt()}/yr'
+                            : '₹${AppConfig.businessMonthlyPrice.toInt()}/mo or ₹${AppConfig.businessYearlyPrice.toInt()}/yr',
                         style: TextStyle(fontSize: 11, color: Colors.grey[500]),
                       ),
                     ],
@@ -259,8 +259,8 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                   const Spacer(),
                   Text(
                     isPro
-                        ? "₹${AppConfig.proPlanPrice.toInt()}"
-                        : "₹${AppConfig.businessPlanPrice.toInt()}",
+                        ? '₹${AppConfig.proPlanPrice.toInt()}'
+                        : '₹${AppConfig.businessPlanPrice.toInt()}',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
@@ -268,7 +268,7 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                     ),
                   ),
                   Text(
-                    "/yr",
+                    '/yr',
                     style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                   ),
                 ],
@@ -297,7 +297,7 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                           ),
                         )
                         : Text(
-                          "Upgrade to $planName",
+                          'Upgrade to $planName',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -317,7 +317,7 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                "Maybe Later",
+                'Maybe Later',
                 style: TextStyle(color: Colors.grey[400], fontSize: 12),
               ),
             ),

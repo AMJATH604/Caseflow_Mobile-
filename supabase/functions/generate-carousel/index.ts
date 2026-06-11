@@ -4,6 +4,35 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 const GEMINI_MODEL = "gemini-2.5-flash";
 
+// Retry helper for transient Gemini errors (503, 429, etc.)
+async function callGeminiWithRetry(
+  url: string,
+  body: object,
+  maxRetries = 3
+): Promise<Response> {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (response.ok) return response;
+
+    // Retry on 503 (overloaded) and 429 (rate limit)
+    if ((response.status === 503 || response.status === 429) && attempt < maxRetries) {
+      const waitMs = attempt * 5000; // 5s, 10s, 15s
+      console.warn(`Gemini returned ${response.status}, retrying in ${waitMs}ms (attempt ${attempt}/${maxRetries})...`);
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+      continue;
+    }
+
+    return response; // Non-retryable error or max retries reached
+  }
+
+  throw new Error("Unexpected: retry loop completed without returning");
+}
+
 Deno.serve(async (req: Request) => {
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -24,14 +53,26 @@ Deno.serve(async (req: Request) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Use today's date as a seed for diversity
+    const today = new Date();
+    const dateStr = today.toISOString().split("T")[0];
+    const dayOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][today.getDay()];
+    const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
+
     const prompt = `
+      Today is ${dateStr} (${dayOfWeek}), day ${dayOfYear} of the year.
+      
       Generate exactly 8 highly educational and engaging daily legal cards (slides) for Indian citizens to learn about their laws, rights, and landmarks.
+      
+      IMPORTANT: These must be DIFFERENT from yesterday's cards. Use today's date (${dateStr}) as your randomization seed.
+      Pick topics you haven't covered recently. Be creative and explore lesser-known but important legal concepts.
+      
       The output must contain a diverse mix of categories:
-      - ⚖️ LEGAL WORD OF THE DAY (e.g. Latin terms, legal vocabulary)
-      - 📜 CONSTITUTIONAL FACT (fundamental rights, interesting articles, duties)
-      - 💡 LEGAL TIP (police interactions, consumer rights, filing FIRs, Zero FIR)
-      - 🏛️ LANDMARK CASE (landmark judgements of Supreme Court of India like Kesavananda Bharati, Maneka Gandhi, etc.)
-      - 💡 KNOW YOUR RIGHT (RTI, women's rights, labor laws, child rights)
+      - ⚖️ LEGAL WORD OF THE DAY (e.g. Latin terms, legal vocabulary — pick a DIFFERENT term each day)
+      - 📜 CONSTITUTIONAL FACT (fundamental rights, interesting articles, duties — cover different articles)
+      - 💡 LEGAL TIP (police interactions, consumer rights, filing FIRs, Zero FIR, cyber crime, property disputes)
+      - 🏛️ LANDMARK CASE (landmark judgements of Supreme Court of India — pick different cases each day)
+      - 💡 KNOW YOUR RIGHT (RTI, women's rights, labor laws, child rights, disability rights, senior citizen rights)
 
       For each card, generate comprehensive and detailed explanations. Ensure legal accuracy. Reference new criminal laws if applicable (BNS, BNSS, BSA).
 
@@ -66,53 +107,50 @@ Deno.serve(async (req: Request) => {
       2. 'icon_name' must be exactly one of: "balance_rounded", "translate_rounded", "account_balance_rounded", "tips_and_updates_rounded", "spellcheck_rounded", "gavel_rounded", "info_rounded", "record_voice_over_rounded", "menu_book_rounded".
       3. 'custom_route_path' must be "/know-your-rights" or "/citizen-tools".
       4. 'tool_id' must be one of: "bare_acts", "legal_dictionary", "court-fee", or null. Omit or set to null if no tool is relevant.
-      5. The generated cards must change daily. Make the topics diverse, spanning civil rights, criminal procedures, consumer rights, constitutional principles, and fundamental legal terms.
+      5. The generated cards must be UNIQUE to today (${dateStr}). Never repeat the same set of topics.
     `;
 
-    console.log("Calling Gemini API to generate daily slides...");
+    console.log(`[${dateStr}] Calling Gemini API to generate daily slides...`);
     const url = "https://generativelanguage.googleapis.com/v1beta/models/" + GEMINI_MODEL + ":generateContent?key=" + GEMINI_API_KEY;
-    const geminiResponse = await fetch(
-      url,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.85,
-            responseMimeType: "application/json",
-            responseSchema: {
-              type: "OBJECT",
-              properties: {
-                slides: {
-                  type: "ARRAY",
-                  items: {
-                    type: "OBJECT",
-                    properties: {
-                      type: { type: "STRING" },
-                      title: { type: "STRING" },
-                      body: { type: "STRING" },
-                      gradient_colors: {
-                        type: "ARRAY",
-                        items: { type: "STRING" }
-                      },
-                      icon_name: { type: "STRING" },
-                      action: { type: "STRING" },
-                      detail_title: { type: "STRING" },
-                      detail_body: { type: "STRING" },
-                      custom_route_path: { type: "STRING" },
-                      tool_id: { type: "STRING", nullable: true }
-                    },
-                    required: ["type", "title", "body", "gradient_colors", "icon_name", "action", "detail_title", "detail_body", "custom_route_path"]
-                  }
-                }
+
+    const geminiResponse = await callGeminiWithRetry(url, {
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.95,
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "OBJECT",
+          properties: {
+            slides: {
+              type: "ARRAY",
+              items: {
+                type: "OBJECT",
+                properties: {
+                  type: { type: "STRING" },
+                  title: { type: "STRING" },
+                  body: { type: "STRING" },
+                  gradient_colors: {
+                    type: "ARRAY",
+                    items: { type: "STRING" },
+                  },
+                  icon_name: { type: "STRING" },
+                  action: { type: "STRING" },
+                  detail_title: { type: "STRING" },
+                  detail_body: { type: "STRING" },
+                  custom_route_path: { type: "STRING" },
+                  tool_id: { type: "STRING", nullable: true },
+                },
+                required: [
+                  "type", "title", "body", "gradient_colors", "icon_name",
+                  "action", "detail_title", "detail_body", "custom_route_path",
+                ],
               },
-              required: ["slides"]
-            }
-          }
-        })
-      }
-    );
+            },
+          },
+          required: ["slides"],
+        },
+      },
+    });
 
     if (!geminiResponse.ok) {
       const errText = await geminiResponse.text();
@@ -130,9 +168,9 @@ Deno.serve(async (req: Request) => {
       throw new Error("Invalid or empty slides array generated by Gemini");
     }
 
-    console.log("Successfully generated " + slides.length + " slides. Updating database...");
+    console.log(`[${dateStr}] Successfully generated ${slides.length} slides. Updating database...`);
 
-    // We mark all existing active slides as inactive
+    // Mark all existing active slides as inactive
     const { error: deactivateError } = await supabase
       .from("carousel_slides")
       .update({ active: false })
@@ -143,10 +181,10 @@ Deno.serve(async (req: Request) => {
     }
 
     // Insert new slides
-    const newSlides = slides.map(slide => ({
+    const newSlides = slides.map((slide: any) => ({
       ...slide,
       active: true,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     }));
 
     const { error: insertError } = await supabase
@@ -170,11 +208,14 @@ Deno.serve(async (req: Request) => {
       console.warn("Failed to clean up old inactive slides:", deleteError.message);
     }
 
+    console.log(`[${dateStr}] Successfully updated carousel with ${newSlides.length} new slides.`);
+
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Generated and inserted " + newSlides.length + " new carousel slides.",
-        slides: newSlides
+        message: `Generated and inserted ${newSlides.length} new carousel slides for ${dateStr}.`,
+        date: dateStr,
+        slides: newSlides,
       }),
       { headers: corsHeaders }
     );

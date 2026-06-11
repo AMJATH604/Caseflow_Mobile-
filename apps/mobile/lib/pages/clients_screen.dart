@@ -17,7 +17,7 @@ class ClientsScreen extends ConsumerStatefulWidget {
 }
 
 class _ClientsScreenState extends ConsumerState<ClientsScreen> {
-  String _searchQuery = "";
+  String _searchQuery = '';
 
   // Generate consistent gradient color from name
   Color _avatarColor(String name) {
@@ -71,7 +71,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              "Connection Error",
+                              'Connection Error',
                               style: GoogleFonts.outfit(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
@@ -79,7 +79,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              "$err",
+                              '$err',
                               textAlign: TextAlign.center,
                               style: GoogleFonts.inter(
                                 color: const Color(0xFF64748B),
@@ -88,7 +88,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                             const SizedBox(height: 16),
                             ElevatedButton(
                               onPressed: () => ref.invalidate(clientsProvider),
-                              child: const Text("Retry Connection"),
+                              child: const Text('Retry Connection'),
                             ),
                           ],
                         ),
@@ -142,7 +142,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Client Directory",
+                        'Client Directory',
                         style: GoogleFonts.outfit(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
@@ -153,7 +153,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        "Manage your professional relationships",
+                        'Manage your professional relationships',
                         style: GoogleFonts.inter(
                           color: const Color(0xFF94A3B8),
                           fontSize: 12,
@@ -171,7 +171,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
               onPressed: () => _showAddClientDialog(context),
               icon: const Icon(Icons.person_add_rounded, size: 18),
               label: Text(
-                "Add Client",
+                'Add Client',
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w700,
                   fontSize: 13,
@@ -220,7 +220,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
             fontSize: 14,
           ),
           decoration: InputDecoration(
-            hintText: "Search clients by name, phone, or email...",
+            hintText: 'Search clients by name, phone, or email...',
             hintStyle: GoogleFonts.inter(
               color: const Color(0xFFCBD5E1),
               fontSize: 13,
@@ -247,8 +247,8 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
         clients.where((c) {
           final q = _searchQuery.toLowerCase();
           return c.name.toLowerCase().contains(q) ||
-              (c.phone ?? "").contains(q) ||
-              (c.email ?? "").toLowerCase().contains(q);
+              (c.phone ?? '').contains(q) ||
+              (c.email ?? '').toLowerCase().contains(q);
         }).toList();
 
     if (filtered.isEmpty) {
@@ -263,7 +263,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              _searchQuery.isEmpty ? "No clients yet" : "No clients found",
+              _searchQuery.isEmpty ? 'No clients yet' : 'No clients found',
               style: GoogleFonts.outfit(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -273,8 +273,8 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
             const SizedBox(height: 6),
             Text(
               _searchQuery.isEmpty
-                  ? "Add your first client to get started"
-                  : "Try a different search term",
+                  ? 'Add your first client to get started'
+                  : 'Try a different search term',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 color: const Color(0xFF94A3B8),
@@ -296,15 +296,15 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
           child: Row(
             children: [
               _buildQuickStat(
-                "Total",
+                'Total',
                 filtered.length,
                 const Color(0xFF6366F1),
               ),
               const SizedBox(width: 8),
-              _buildQuickStat("Active", activeCount, const Color(0xFF10B981)),
+              _buildQuickStat('Active', activeCount, const Color(0xFF10B981)),
               const SizedBox(width: 8),
               _buildQuickStat(
-                "Inactive",
+                'Inactive',
                 filtered.length - activeCount,
                 const Color(0xFF94A3B8),
               ),
@@ -339,7 +339,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
         child: Column(
           children: [
             Text(
-              "$value",
+              '$value',
               style: GoogleFonts.outfit(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -488,7 +488,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                         else
                           Expanded(
                             child: Text(
-                              "No contact info",
+                              'No contact info',
                               style: GoogleFonts.inter(
                                 color: const Color(0xFFCBD5E1),
                                 fontSize: 12,
@@ -600,11 +600,11 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Text("Delete Client?"),
+                const Text('Delete Client?'),
               ],
             ),
             content: Text(
-              "This will permanently remove ${client.name} and unlink all associated cases.",
+              'This will permanently remove ${client.name} and unlink all associated cases.',
               style: GoogleFonts.inter(
                 color: const Color(0xFF64748B),
                 fontSize: 14,
@@ -614,7 +614,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
                 child: Text(
-                  "Cancel",
+                  'Cancel',
                   style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                 ),
               ),
@@ -628,7 +628,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                   ),
                 ),
                 child: Text(
-                  "Delete",
+                  'Delete',
                   style: GoogleFonts.inter(fontWeight: FontWeight.w700),
                 ),
               ),

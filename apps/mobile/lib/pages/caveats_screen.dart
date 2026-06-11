@@ -101,7 +101,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.error_outline,
                             color: AppTheme.error,
                             size: 48,
@@ -403,7 +403,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.person_outline,
                       size: 14,
                       color: AppTheme.accent,

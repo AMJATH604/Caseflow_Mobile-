@@ -170,8 +170,9 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
 
     switch (widget.toolId) {
       case 'merge':
-        if (files.length < 2)
+        if (files.length < 2) {
           throw Exception('Please select at least 2 PDF files to merge.');
+        }
         return await LocalPdfService.mergePdfs(files, onProgress: progress);
 
       case 'split':
@@ -318,7 +319,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
                   Icon(Icons.offline_bolt, size: 13, color: Color(0xFF1E293B)),
                   SizedBox(width: 4),
                   Text(
-                    "Works Offline",
+                    'Works Offline',
                     style: TextStyle(
                       color: Color(0xFF1E293B),
                       fontSize: 10,
@@ -345,10 +346,10 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
               ),
               label: Text(
                 _outputPath != null
-                    ? "Process Another"
+                    ? 'Process Another'
                     : _isMultiFile
-                    ? "Select Files"
-                    : "Select File",
+                    ? 'Select Files'
+                    : 'Select File',
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -403,7 +404,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
                 TextButton.icon(
                   onPressed: _addMoreFiles,
                   icon: const Icon(Icons.add, size: 16),
-                  label: const Text("Add More", style: TextStyle(fontSize: 12)),
+                  label: const Text('Add More', style: TextStyle(fontSize: 12)),
                 ),
             ],
           ),
@@ -466,7 +467,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
             ),
           ),
           Text(
-            "${(f.size / 1024).toStringAsFixed(0)} KB",
+            '${(f.size / 1024).toStringAsFixed(0)} KB',
             style: const TextStyle(fontSize: 10, color: Colors.grey),
           ),
           if (_isMultiFile && _selectedFiles.length > 1) ...[
@@ -508,7 +509,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
               Icon(Icons.tune, size: 18, color: AppTheme.primary),
               SizedBox(width: 8),
               Text(
-                "Options",
+                'Options',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
               ),
             ],
@@ -538,7 +539,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
         return _buildMergeOptions();
       default:
         return const Text(
-          "Ready to process!",
+          'Ready to process!',
           style: TextStyle(color: Colors.grey),
         );
     }
@@ -550,17 +551,17 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Choose rotation direction:",
+          'Choose rotation direction:',
           style: TextStyle(fontSize: 13, color: Colors.grey),
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            _rotateButton(Icons.rotate_left, "90° Left", -90),
+            _rotateButton(Icons.rotate_left, '90° Left', -90),
             const SizedBox(width: 10),
-            _rotateButton(Icons.rotate_right, "90° Right", 90),
+            _rotateButton(Icons.rotate_right, '90° Right', 90),
             const SizedBox(width: 10),
-            _rotateButton(Icons.sync, "180°", 180),
+            _rotateButton(Icons.sync, '180°', 180),
           ],
         ),
       ],
@@ -620,21 +621,21 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "How would you like to split?",
+          'How would you like to split?',
           style: TextStyle(fontSize: 13, color: Colors.grey),
         ),
         const SizedBox(height: 12),
         _optionTile(
-          "All Pages",
-          "Each page becomes a separate PDF",
+          'All Pages',
+          'Each page becomes a separate PDF',
           _splitMode == 'all',
           () => setState(() => _splitMode = 'all'),
           Icons.select_all,
         ),
         const SizedBox(height: 8),
         _optionTile(
-          "Specific Pages",
-          "Choose which pages to extract",
+          'Specific Pages',
+          'Choose which pages to extract',
           _splitMode == 'range',
           () => setState(() => _splitMode = 'range'),
           Icons.filter_list,
@@ -644,8 +645,8 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
           TextField(
             controller: _splitRangeController,
             decoration: InputDecoration(
-              labelText: "Page numbers",
-              hintText: "e.g. 1, 3, 5-8",
+              labelText: 'Page numbers',
+              hintText: 'e.g. 1, 3, 5-8',
               prefixIcon: const Icon(Icons.numbers, size: 18),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -668,29 +669,29 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Choose compression level:",
+          'Choose compression level:',
           style: TextStyle(fontSize: 13, color: Colors.grey),
         ),
         const SizedBox(height: 12),
         _optionTile(
-          "Low Compression",
-          "Best quality, larger file",
+          'Low Compression',
+          'Best quality, larger file',
           _compressLevel == 'low',
           () => setState(() => _compressLevel = 'low'),
           Icons.high_quality,
         ),
         const SizedBox(height: 8),
         _optionTile(
-          "Recommended",
-          "Good quality, balanced size",
+          'Recommended',
+          'Good quality, balanced size',
           _compressLevel == 'recommended',
           () => setState(() => _compressLevel = 'recommended'),
           Icons.recommend,
         ),
         const SizedBox(height: 8),
         _optionTile(
-          "Maximum Compression",
-          "Smallest file, may reduce quality",
+          'Maximum Compression',
+          'Smallest file, may reduce quality',
           _compressLevel == 'maximum',
           () => setState(() => _compressLevel = 'maximum'),
           Icons.compress,
@@ -707,8 +708,8 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
         TextField(
           controller: _watermarkTextController,
           decoration: InputDecoration(
-            labelText: "Watermark Text",
-            hintText: "e.g. CONFIDENTIAL, DRAFT, etc.",
+            labelText: 'Watermark Text',
+            hintText: 'e.g. CONFIDENTIAL, DRAFT, etc.',
             prefixIcon: const Icon(Icons.text_fields, size: 18),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             contentPadding: const EdgeInsets.symmetric(
@@ -722,10 +723,10 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
           children: [
             const Icon(Icons.opacity, size: 16, color: Colors.grey),
             const SizedBox(width: 8),
-            const Text("Opacity", style: TextStyle(fontSize: 13)),
+            const Text('Opacity', style: TextStyle(fontSize: 13)),
             const Spacer(),
             Text(
-              "${(_watermarkOpacity * 100).toInt()}%",
+              '${(_watermarkOpacity * 100).toInt()}%',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
             ),
           ],
@@ -742,10 +743,10 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
           children: [
             const Icon(Icons.format_size, size: 16, color: Colors.grey),
             const SizedBox(width: 8),
-            const Text("Font Size", style: TextStyle(fontSize: 13)),
+            const Text('Font Size', style: TextStyle(fontSize: 13)),
             const Spacer(),
             Text(
-              "${_watermarkFontSize.toInt()}pt",
+              '${_watermarkFontSize.toInt()}pt',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
             ),
           ],
@@ -767,29 +768,29 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Choose image quality:",
+          'Choose image quality:',
           style: TextStyle(fontSize: 13, color: Colors.grey),
         ),
         const SizedBox(height: 12),
         _optionTile(
-          "Low Quality",
-          "Smaller images, faster export",
+          'Low Quality',
+          'Smaller images, faster export',
           _jpgQuality == 'low',
           () => setState(() => _jpgQuality = 'low'),
           Icons.photo_size_select_small,
         ),
         const SizedBox(height: 8),
         _optionTile(
-          "Medium Quality",
-          "Balanced size and quality",
+          'Medium Quality',
+          'Balanced size and quality',
           _jpgQuality == 'medium',
           () => setState(() => _jpgQuality = 'medium'),
           Icons.photo_size_select_large,
         ),
         const SizedBox(height: 8),
         _optionTile(
-          "High Quality",
-          "Best quality for printing",
+          'High Quality',
+          'Best quality for printing',
           _jpgQuality == 'high',
           () => setState(() => _jpgQuality = 'high'),
           Icons.hd,
@@ -804,29 +805,29 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Choose page size:",
+          'Choose page size:',
           style: TextStyle(fontSize: 13, color: Colors.grey),
         ),
         const SizedBox(height: 12),
         _optionTile(
-          "A4 (Standard)",
-          "210 × 297 mm — Most common",
+          'A4 (Standard)',
+          '210 × 297 mm — Most common',
           _pageSize == 'a4',
           () => setState(() => _pageSize = 'a4'),
           Icons.description,
         ),
         const SizedBox(height: 8),
         _optionTile(
-          "Letter (US)",
-          "8.5 × 11 in — US standard",
+          'Letter (US)',
+          '8.5 × 11 in — US standard',
           _pageSize == 'letter',
           () => setState(() => _pageSize = 'letter'),
           Icons.article,
         ),
         const SizedBox(height: 8),
         _optionTile(
-          "Original Size",
-          "Match image dimensions",
+          'Original Size',
+          'Match image dimensions',
           _pageSize == 'original',
           () => setState(() => _pageSize = 'original'),
           Icons.aspect_ratio,
@@ -845,7 +846,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
             const Icon(Icons.swap_vert, size: 16, color: Colors.grey),
             const SizedBox(width: 8),
             Text(
-              "Drag files above to reorder them",
+              'Drag files above to reorder them',
               style: TextStyle(fontSize: 13, color: Colors.grey[600]),
             ),
           ],
@@ -863,7 +864,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  "Files will be merged in the order shown above.",
+                  'Files will be merged in the order shown above.',
                   style: TextStyle(fontSize: 12, color: Colors.blue[700]),
                 ),
               ),
@@ -1059,7 +1060,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
             const Icon(Icons.check_circle, color: Colors.green, size: 56),
             const SizedBox(height: 16),
             const Text(
-              "Success!",
+              'Success!',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
@@ -1069,8 +1070,8 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
             const SizedBox(height: 8),
             Text(
               _isLocalTool
-                  ? "Processed locally on your device"
-                  : "File saved to local storage",
+                  ? 'Processed locally on your device'
+                  : 'File saved to local storage',
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
@@ -1080,7 +1081,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
                 ElevatedButton.icon(
                   onPressed: _openFile,
                   icon: const Icon(Icons.visibility),
-                  label: const Text("Open"),
+                  label: const Text('Open'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.accent,
                     foregroundColor: Colors.white,
@@ -1093,7 +1094,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
                 OutlinedButton.icon(
                   onPressed: _shareFile,
                   icon: const Icon(Icons.share),
-                  label: const Text("Share"),
+                  label: const Text('Share'),
                   style: OutlinedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -1110,15 +1111,15 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
 
   String _getProgressText() {
     if (_isLocalTool) {
-      if (_progress < 0.3) return "Reading file...";
-      if (_progress < 0.7) return "Processing locally on your device...";
-      if (_progress < 0.9) return "Almost done...";
-      return "Saving output file...";
+      if (_progress < 0.3) return 'Reading file...';
+      if (_progress < 0.7) return 'Processing locally on your device...';
+      if (_progress < 0.9) return 'Almost done...';
+      return 'Saving output file...';
     } else {
-      if (_progress < 0.3) return "Starting secure task...";
-      if (_progress < 0.6) return "Uploading to secure server...";
-      if (_progress < 0.8) return "Processing on cloud engines...";
-      return "Downloading results...";
+      if (_progress < 0.3) return 'Starting secure task...';
+      if (_progress < 0.6) return 'Uploading to secure server...';
+      if (_progress < 0.8) return 'Processing on cloud engines...';
+      return 'Downloading results...';
     }
   }
 }

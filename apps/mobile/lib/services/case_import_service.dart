@@ -106,10 +106,12 @@ class CaseImportService {
         data['establishment_name'] ?? data['court_name'] ?? data['court_name1'];
     if (court != null) result['court_name'] = court.toString();
 
-    if (data['state_name'] != null)
+    if (data['state_name'] != null) {
       result['state'] = data['state_name'].toString();
-    if (data['district_name'] != null)
+    }
+    if (data['district_name'] != null) {
       result['district'] = data['district_name'].toString();
+    }
 
     // Case Number Formatting (Type + No + Year)
     if (data['type_name'] != null &&
@@ -124,8 +126,9 @@ class CaseImportService {
     }
 
     // Dates
-    if (data['date_next_list'] != null)
+    if (data['date_next_list'] != null) {
       result['next_hearing_date'] = data['date_next_list'].toString();
+    }
 
     // Title
     if (result.containsKey('petitioner') && result.containsKey('respondent')) {
@@ -136,14 +139,18 @@ class CaseImportService {
     }
 
     // Advocates
-    if (data['pet_adv'] != null)
+    if (data['pet_adv'] != null) {
       result['pet_advocate'] = data['pet_adv'].toString();
-    if (data['res_adv'] != null)
+    }
+    if (data['res_adv'] != null) {
       result['res_advocate'] = data['res_adv'].toString();
-    if (data['pet_adv_phone'] != null)
+    }
+    if (data['pet_adv_phone'] != null) {
       result['pet_adv_phone'] = data['pet_adv_phone'].toString();
-    if (data['res_adv_phone'] != null)
+    }
+    if (data['res_adv_phone'] != null) {
       result['res_adv_phone'] = data['res_adv_phone'].toString();
+    }
 
     return result;
   }
@@ -243,7 +250,7 @@ class CaseImportService {
     Map<int, String> roles,
   ) async {
     final user = SupabaseService.client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     // 1. Pre-fetch ALL existing data ONCE (instead of per-case)
     final allCases = await SupabaseService.fetchCases();
@@ -282,10 +289,10 @@ class CaseImportService {
             parsedCase['respondent'] ?? 'Unknown Respondent';
         String clientName;
         String opposingParty;
-        String? petitionerAdvocate = parsedCase['pet_advocate'];
-        String? petitionerPhone = parsedCase['pet_adv_phone'];
-        String? respondentAdvocate = parsedCase['res_advocate'];
-        String? respondentPhone = parsedCase['res_adv_phone'];
+        final String? petitionerAdvocate = parsedCase['pet_advocate'];
+        final String? petitionerPhone = parsedCase['pet_adv_phone'];
+        final String? respondentAdvocate = parsedCase['res_advocate'];
+        final String? respondentPhone = parsedCase['res_adv_phone'];
 
         if (representationType == 'respondent') {
           clientName = respondent;
@@ -403,7 +410,7 @@ class CaseImportService {
   static Future<String?> importCaseFlowJson(Map<String, dynamic> data) async {
     try {
       final user = SupabaseService.client.auth.currentUser;
-      if (user == null) throw Exception("Not authenticated");
+      if (user == null) throw Exception('Not authenticated');
 
       final caseData = data['case'] as Map<String, dynamic>;
       final hearingsData = data['hearings'] as List? ?? [];

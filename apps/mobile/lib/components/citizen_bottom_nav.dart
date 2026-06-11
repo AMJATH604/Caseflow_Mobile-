@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../services/providers.dart';
-import '../theme/app_theme.dart';
 
 class CitizenBottomNav extends ConsumerWidget {
   const CitizenBottomNav({super.key});
@@ -13,10 +11,10 @@ class CitizenBottomNav extends ConsumerWidget {
     final location = GoRouterState.of(context).matchedLocation;
     final isGuest = location.startsWith('/guest');
 
-    final homeRoute = isGuest ? "/guest-home" : "/citizen-home";
-    final libraryRoute = isGuest ? "/guest-tools" : "/citizen-tools";
-    final trackRoute = isGuest ? "/guest-track-case" : "/track-case";
-    final aiRoute = "/ai-chat";
+    final homeRoute = isGuest ? '/guest-home' : '/citizen-home';
+    final libraryRoute = isGuest ? '/guest-tools' : '/citizen-tools';
+    final trackRoute = isGuest ? '/guest-track-case' : '/track-case';
+    const aiRoute = '/ai-chat';
 
     return Container(
       decoration: BoxDecoration(
@@ -37,15 +35,15 @@ class CitizenBottomNav extends ConsumerWidget {
                 ref,
                 context,
                 Icons.home_rounded,
-                "Home",
+                'Home',
                 homeRoute,
-                location == homeRoute || (location == "/" && !isGuest),
+                location == homeRoute || (location == '/' && !isGuest),
               ),
               _buildNavItem(
                 ref,
                 context,
                 Icons.menu_book_rounded,
-                "Library",
+                'Library',
                 libraryRoute,
                 location == libraryRoute,
               ),
@@ -53,7 +51,7 @@ class CitizenBottomNav extends ConsumerWidget {
                 ref,
                 context,
                 Icons.search_rounded,
-                "Track Case",
+                'Track Case',
                 trackRoute,
                 location == trackRoute,
               ),
@@ -61,7 +59,7 @@ class CitizenBottomNav extends ConsumerWidget {
                 ref,
                 context,
                 Icons.auto_awesome_rounded,
-                "AI Help",
+                'AI Help',
                 aiRoute,
                 location == aiRoute,
               ),
@@ -85,8 +83,8 @@ class CitizenBottomNav extends ConsumerWidget {
 
     return InkWell(
       onTap: () {
-        if (isGuest && route == "/ai-chat") {
-          _showAuthRequiredDialog(context, "AI Legal Help");
+        if (isGuest && route == '/ai-chat') {
+          _showAuthRequiredDialog(context, 'AI Legal Help');
         } else {
           context.go(route);
         }
@@ -144,7 +142,7 @@ class CitizenBottomNav extends ConsumerWidget {
                     ? const Color(0xFF1E293B)
                     : Colors.white,
             title: Text(
-              "Sign In Required",
+              'Sign In Required',
               style: GoogleFonts.outfit(
                 fontWeight: FontWeight.w700,
                 color:
@@ -154,7 +152,7 @@ class CitizenBottomNav extends ConsumerWidget {
               ),
             ),
             content: Text(
-              "You need to sign in or create an account to use $featureName.\n\nIt takes less than a minute and unlocks personalized legal tools, saved cases, and AI legal help.",
+              'You need to sign in or create an account to use $featureName.\n\nIt takes less than a minute and unlocks personalized legal tools, saved cases, and AI legal help.',
               style: GoogleFonts.inter(
                 fontSize: 14,
                 height: 1.5,
@@ -168,7 +166,7 @@ class CitizenBottomNav extends ConsumerWidget {
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  "Cancel",
+                  'Cancel',
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF94A3B8),
@@ -188,7 +186,7 @@ class CitizenBottomNav extends ConsumerWidget {
                   elevation: 0,
                 ),
                 child: Text(
-                  "Sign In / Sign Up",
+                  'Sign In / Sign Up',
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w700,
                     color: Colors.white,

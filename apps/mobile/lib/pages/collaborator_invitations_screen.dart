@@ -33,7 +33,7 @@ class _CollaboratorInvitationsScreenState
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error loading invitations: $e")),
+          SnackBar(content: Text('Error loading invitations: $e')),
         );
       }
       setState(() => _isLoading = false);
@@ -48,8 +48,8 @@ class _CollaboratorInvitationsScreenState
           SnackBar(
             content: Text(
               status == 'accepted'
-                  ? "Invitation Accepted"
-                  : "Invitation Rejected",
+                  ? 'Invitation Accepted'
+                  : 'Invitation Rejected',
             ),
             backgroundColor:
                 status == 'accepted' ? AppTheme.success : AppTheme.darkBorder,
@@ -61,7 +61,7 @@ class _CollaboratorInvitationsScreenState
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -72,7 +72,7 @@ class _CollaboratorInvitationsScreenState
       backgroundColor: AppTheme.primaryLight,
       appBar: AppBar(
         title: Text(
-          "Case Invitations",
+          'Case Invitations',
           style: GoogleFonts.inter(fontWeight: FontWeight.w900, fontSize: 18),
         ),
         backgroundColor: AppTheme.darkCard,
@@ -95,7 +95,7 @@ class _CollaboratorInvitationsScreenState
                   final inviter =
                       invite['profiles'] != null
                           ? invite['profiles']['full_name']
-                          : "A Colleague";
+                          : 'A Colleague';
 
                   return Container(
                     margin: const EdgeInsets.only(bottom: 12),
@@ -128,7 +128,7 @@ class _CollaboratorInvitationsScreenState
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    caseInfo?['case_title'] ?? "Untitled Case",
+                                    caseInfo?['case_title'] ?? 'Untitled Case',
                                     style: GoogleFonts.inter(
                                       fontWeight: FontWeight.w900,
                                       fontSize: 16,
@@ -136,7 +136,7 @@ class _CollaboratorInvitationsScreenState
                                     ),
                                   ),
                                   Text(
-                                    "Invited by $inviter",
+                                    'Invited by $inviter',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: Color(0xFF64748B),
@@ -161,7 +161,7 @@ class _CollaboratorInvitationsScreenState
                                   foregroundColor: const Color(0xFF64748B),
                                 ),
                                 child: const Text(
-                                  "REJECT",
+                                  'REJECT',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w900,
                                     fontSize: 12,
@@ -180,7 +180,7 @@ class _CollaboratorInvitationsScreenState
                                   elevation: 0,
                                 ),
                                 child: const Text(
-                                  "ACCEPT",
+                                  'ACCEPT',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w900,
                                     fontSize: 12,
@@ -203,14 +203,14 @@ class _CollaboratorInvitationsScreenState
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.mail_outline_rounded,
             size: 64,
-            color: const Color(0xFFE2E8F0),
+            color: Color(0xFFE2E8F0),
           ),
           const SizedBox(height: 16),
           Text(
-            "No Pending Invitations",
+            'No Pending Invitations',
             style: GoogleFonts.inter(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -219,7 +219,7 @@ class _CollaboratorInvitationsScreenState
           ),
           const SizedBox(height: 8),
           const Text(
-            "When someone shares a case with you, it will appear here.",
+            'When someone shares a case with you, it will appear here.',
             style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
           ),
         ],

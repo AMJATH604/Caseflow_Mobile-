@@ -336,7 +336,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
               ),
               const SizedBox(width: 12),
               const Text(
-                "Stamp Duty Calculator",
+                'Stamp Duty Calculator',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],
@@ -347,7 +347,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
           DropdownButtonFormField<String>(
             initialValue: _selectedState,
             decoration: InputDecoration(
-              labelText: "Select State",
+              labelText: 'Select State',
               prefixIcon: const Icon(Icons.location_on_outlined, size: 20),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -388,12 +388,12 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
                   ),
                   const SizedBox(width: 8),
                   const Text(
-                    "Buyer Gender:",
+                    'Buyer Gender:',
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
                   ),
                   const Spacer(),
                   ChoiceChip(
-                    label: const Text("Male"),
+                    label: const Text('Male'),
                     selected: !_isFemale,
                     onSelected:
                         (_) => setState(() {
@@ -409,7 +409,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
                   ),
                   const SizedBox(width: 6),
                   ChoiceChip(
-                    label: const Text("Female"),
+                    label: const Text('Female'),
                     selected: _isFemale,
                     onSelected:
                         (_) => setState(() {
@@ -432,7 +432,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
           DropdownButtonFormField<String>(
             initialValue: _selectedDocType,
             decoration: InputDecoration(
-              labelText: "Document Type",
+              labelText: 'Document Type',
               prefixIcon: const Icon(Icons.description_outlined, size: 20),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -461,7 +461,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
             controller: _valueController,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
-              labelText: "Property / Transaction Value (₹)",
+              labelText: 'Property / Transaction Value (₹)',
               prefixIcon: const Icon(Icons.currency_rupee_outlined, size: 20),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -481,7 +481,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
                 child: ElevatedButton.icon(
                   onPressed: _calculate,
                   icon: const Icon(Icons.calculate_rounded, size: 18),
-                  label: const Text("Calculate"),
+                  label: const Text('Calculate'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF667eea),
                     foregroundColor: Colors.white,
@@ -504,7 +504,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text("Reset"),
+                child: const Text('Reset'),
               ),
             ],
           ),
@@ -560,7 +560,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    "Stamp Duty Breakdown",
+                    'Stamp Duty Breakdown',
                     style: TextStyle(
                       color: Color(0xFF1E293B),
                       fontSize: 16,
@@ -568,7 +568,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
                     ),
                   ),
                   Text(
-                    "$_selectedState • $_selectedDocType",
+                    '$_selectedState • $_selectedDocType',
                     style: const TextStyle(color: Colors.white70, fontSize: 11),
                   ),
                 ],
@@ -578,7 +578,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
           const SizedBox(height: 20),
 
           // Breakdown rows
-          _resultRow("Property Value", cur.format(r['value']), null),
+          _resultRow('Property Value', cur.format(r['value']), null),
           _divider(),
           _resultRow(
             "Stamp Duty (${r['dutyRate']}%)",
@@ -609,7 +609,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  "TOTAL PAYABLE",
+                  'TOTAL PAYABLE',
                   style: TextStyle(
                     color: Color(0xFF1E293B),
                     fontWeight: FontWeight.w700,

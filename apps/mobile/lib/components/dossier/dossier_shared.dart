@@ -180,7 +180,7 @@ class DossierHelper {
           Icon(icon, color: const Color(0xFFCBD5E1), size: 16),
           const SizedBox(height: 12),
           Text(
-            "$count",
+            '$count',
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w900,

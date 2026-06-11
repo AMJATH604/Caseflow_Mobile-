@@ -28,22 +28,22 @@ class CaseTimelineTab extends ConsumerWidget {
         final events = _buildEvents(caseData, hearings, payments, efilings);
 
         if (events.isEmpty) {
-          return Center(
+          return const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   Icons.timeline_rounded,
                   size: 48,
-                  color: const Color(0xFFE2E8F0),
+                  color: Color(0xFFE2E8F0),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 Text(
-                  "NO TEMPORAL DATA",
+                  'NO TEMPORAL DATA',
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 11,
-                    color: const Color(0xFF94A3B8),
+                    color: Color(0xFF94A3B8),
                     letterSpacing: 2,
                   ),
                 ),
@@ -161,9 +161,9 @@ class CaseTimelineTab extends ConsumerWidget {
                                       DateFormat(
                                         'dd MMM yyyy, EEEE',
                                       ).format(event.date),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 10,
-                                        color: const Color(0xFF94A3B8),
+                                        color: Color(0xFF94A3B8),
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
@@ -181,7 +181,7 @@ class CaseTimelineTab extends ConsumerWidget {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
-                                    "UPCOMING",
+                                    'UPCOMING',
                                     style: TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.bold,
@@ -201,7 +201,7 @@ class CaseTimelineTab extends ConsumerWidget {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: const Text(
-                                    "STARTED",
+                                    'STARTED',
                                     style: TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.bold,
@@ -224,18 +224,18 @@ class CaseTimelineTab extends ConsumerWidget {
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.notes_rounded,
                                     size: 12,
-                                    color: const Color(0xFFE2E8F0),
+                                    color: Color(0xFFE2E8F0),
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       event.subtitle!,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 11,
-                                        color: const Color(0xFF64748B),
+                                        color: Color(0xFF64748B),
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -255,7 +255,7 @@ class CaseTimelineTab extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text("Error: $e")),
+      error: (e, _) => Center(child: Text('Error: $e')),
     );
   }
 
@@ -274,7 +274,7 @@ class CaseTimelineTab extends ConsumerWidget {
       events.add(
         _TimelineEvent(
           date: caseData.filingDate!,
-          title: "Case Filed",
+          title: 'Case Filed',
           subtitle:
               "Filed at ${caseData.courtName ?? 'Court'} • ${caseData.caseNumber ?? ''}",
           icon: Icons.gavel_rounded,
@@ -293,13 +293,13 @@ class CaseTimelineTab extends ConsumerWidget {
           date: h.hearingDate,
           title:
               isAdjourned
-                  ? "Adjourned"
+                  ? 'Adjourned'
                   : isCompleted
-                  ? "Hearing Completed"
-                  : "Hearing",
+                  ? 'Hearing Completed'
+                  : 'Hearing',
           subtitle: [
             if (h.purpose != null) h.purpose!,
-            if (h.stage != null) "Stage: ${h.stage}",
+            if (h.stage != null) 'Stage: ${h.stage}',
             if (h.notes != null && h.notes!.isNotEmpty) h.notes!,
           ].join(' • '),
           icon:
@@ -321,7 +321,7 @@ class CaseTimelineTab extends ConsumerWidget {
         events.add(
           _TimelineEvent(
             date: p.paidDate!,
-            title: "Payment Received",
+            title: 'Payment Received',
             subtitle:
                 "₹${p.paidAmount.toStringAsFixed(0)} via ${p.paymentMode ?? 'Unknown'}",
             icon: Icons.payment_rounded,
@@ -338,8 +338,8 @@ class CaseTimelineTab extends ConsumerWidget {
         events.add(
           _TimelineEvent(
             date: e.filingDate!,
-            title: "E-Filing: ${e.documentType}",
-            subtitle: "Status: ${e.status.name}",
+            title: 'E-Filing: ${e.documentType}',
+            subtitle: 'Status: ${e.status.name}',
             icon: Icons.cloud_upload_rounded,
             color: const Color(0xFF8B5CF6),
             type: _EventType.efiling,
@@ -360,7 +360,7 @@ class CaseTimelineTab extends ConsumerWidget {
         events.add(
           _TimelineEvent(
             date: caseData.nextHearingDate!,
-            title: "Next Hearing",
+            title: 'Next Hearing',
             subtitle: "Scheduled at ${caseData.courtName ?? 'Court'}",
             icon: Icons.event_rounded,
             color: const Color(0xFFEC4899),

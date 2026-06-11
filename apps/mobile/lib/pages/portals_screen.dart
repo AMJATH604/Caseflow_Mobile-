@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/supabase_service.dart';
@@ -88,17 +87,17 @@ class _PortalsScreenState extends State<PortalsScreen>
         if (await canLaunchUrl(uri)) {
           await launchUrl(uri, mode: LaunchMode.externalApplication);
         } else {
-          _showError("Could not launch $url");
+          _showError('Could not launch $url');
         }
       } else {
         final typeLabel =
             _selectedType == 'certified_copy'
                 ? 'Certified copy'
                 : 'Video conferencing';
-        _showError("$typeLabel portal not available for this district yet.");
+        _showError('$typeLabel portal not available for this district yet.');
       }
     } catch (e) {
-      _showError("An error occurred. Please try again.");
+      _showError('An error occurred. Please try again.');
     } finally {
       if (mounted) setState(() => _isRedirecting = false);
     }
@@ -220,7 +219,7 @@ class _PortalsScreenState extends State<PortalsScreen>
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      "OFFICIAL PORTALS",
+                      'OFFICIAL PORTALS',
                       style: GoogleFonts.inter(
                         fontSize: 9,
                         fontWeight: FontWeight.w800,
@@ -235,7 +234,7 @@ class _PortalsScreenState extends State<PortalsScreen>
           ),
           const SizedBox(height: 20),
           Text(
-            "Court Portals",
+            'Court Portals',
             style: GoogleFonts.outfit(
               fontSize: 28,
               fontWeight: FontWeight.w800,
@@ -245,7 +244,7 @@ class _PortalsScreenState extends State<PortalsScreen>
           ),
           const SizedBox(height: 6),
           Text(
-            "Access official district court services, certified copies,\nvideo conferencing & court fee payments",
+            'Access official district court services, certified copies,\nvideo conferencing & court fee payments',
             style: GoogleFonts.inter(
               fontSize: 13,
               color: Colors.white.withValues(alpha: 0.7),
@@ -265,19 +264,19 @@ class _PortalsScreenState extends State<PortalsScreen>
         children: [
           _buildStatChip(
             Icons.verified_rounded,
-            "36 States",
+            '36 States',
             const Color(0xFF6366F1),
           ),
           const SizedBox(width: 10),
           _buildStatChip(
             Icons.domain_rounded,
-            "600+ Districts",
+            '600+ Districts',
             const Color(0xFF0EA5E9),
           ),
           const SizedBox(width: 10),
           _buildStatChip(
             Icons.security_rounded,
-            "Secure Access",
+            'Secure Access',
             const Color(0xFF10B981),
           ),
         ],
@@ -335,7 +334,7 @@ class _PortalsScreenState extends State<PortalsScreen>
               ),
               const SizedBox(width: 10),
               Text(
-                "SELECT SERVICE",
+                'SELECT SERVICE',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   fontWeight: FontWeight.w900,
@@ -352,8 +351,8 @@ class _PortalsScreenState extends State<PortalsScreen>
                 child: _buildPremiumServiceCard(
                   'certified_copy',
                   Icons.file_copy_rounded,
-                  "Certified\nCopies",
-                  "CC Status & Track",
+                  'Certified\nCopies',
+                  'CC Status & Track',
                   const Color(0xFF6366F1),
                 ),
               ),
@@ -362,8 +361,8 @@ class _PortalsScreenState extends State<PortalsScreen>
                 child: _buildPremiumServiceCard(
                   'video_conference',
                   Icons.videocam_rounded,
-                  "Video\nConference",
-                  "VC Links & Info",
+                  'Video\nConference',
+                  'VC Links & Info',
                   const Color(0xFF0EA5E9),
                 ),
               ),
@@ -376,8 +375,8 @@ class _PortalsScreenState extends State<PortalsScreen>
                 child: _buildPremiumServiceCard(
                   'holiday_list',
                   Icons.event_note_rounded,
-                  "Holiday\nCalendar",
-                  "Court Holidays",
+                  'Holiday\nCalendar',
+                  'Court Holidays',
                   const Color(0xFFF59E0B),
                 ),
               ),
@@ -386,8 +385,8 @@ class _PortalsScreenState extends State<PortalsScreen>
                 child: _buildPremiumServiceCard(
                   'court_fee_payment',
                   Icons.account_balance_wallet_rounded,
-                  "Court Fee\nPayment",
-                  "eCourts ePay",
+                  'Court Fee\nPayment',
+                  'eCourts ePay',
                   const Color(0xFF10B981),
                 ),
               ),
@@ -530,7 +529,7 @@ class _PortalsScreenState extends State<PortalsScreen>
               ),
               const SizedBox(width: 10),
               Text(
-                "SELECT JURISDICTION",
+                'SELECT JURISDICTION',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   fontWeight: FontWeight.w900,
@@ -559,8 +558,8 @@ class _PortalsScreenState extends State<PortalsScreen>
               children: [
                 // State Dropdown
                 _buildPremiumDropdown(
-                  label: "State / UT",
-                  hint: "Select state or union territory",
+                  label: 'State / UT',
+                  hint: 'Select state or union territory',
                   icon: Icons.location_on_rounded,
                   value: _selectedState,
                   items: _locations.keys.toList(),
@@ -574,8 +573,8 @@ class _PortalsScreenState extends State<PortalsScreen>
                 const SizedBox(height: 16),
                 // District Dropdown
                 _buildPremiumDropdown(
-                  label: "District Court",
-                  hint: "Select district",
+                  label: 'District Court',
+                  hint: 'Select district',
                   icon: Icons.gavel_rounded,
                   value: _selectedDistrict,
                   items:
@@ -615,7 +614,7 @@ class _PortalsScreenState extends State<PortalsScreen>
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: value,
+          initialValue: value,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: GoogleFonts.inter(
@@ -729,8 +728,8 @@ class _PortalsScreenState extends State<PortalsScreen>
                           const SizedBox(width: 10),
                           Text(
                             isEPay
-                                ? "Open Court Fee Payment"
-                                : "Access Official Portal",
+                                ? 'Open Court Fee Payment'
+                                : 'Access Official Portal',
                             style: GoogleFonts.inter(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
@@ -767,7 +766,7 @@ class _PortalsScreenState extends State<PortalsScreen>
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                "You will be securely redirected to the official eCourts portal maintained by the Government of India.",
+                'You will be securely redirected to the official eCourts portal maintained by the Government of India.',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: const Color(0xFF64748B),

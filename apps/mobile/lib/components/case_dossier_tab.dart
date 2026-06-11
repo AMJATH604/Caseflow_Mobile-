@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../models/models.dart';
-import '../models/case_dossier_models.dart';
 import '../services/providers.dart';
 import '../theme/app_theme.dart';
 
@@ -44,34 +43,34 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
           // ─── 1. CASE DETAILS ─────────────────────────
           DossierSection(
             icon: Icons.description_rounded,
-            title: "Case Details",
+            title: 'Case Details',
             color: const Color(0xFF6C63FF),
             initiallyExpanded: true,
             children: [
               DossierHelper.dossierRow(
-                "CASE TYPE",
-                caseData.caseType ?? "NOT DEFINED",
+                'CASE TYPE',
+                caseData.caseType ?? 'NOT DEFINED',
               ),
               DossierHelper.dossierRow(
-                "CASE NUMBER",
-                caseData.caseNumber ?? "NOT ASSIGNED",
+                'CASE NUMBER',
+                caseData.caseNumber ?? 'NOT ASSIGNED',
               ),
               DossierHelper.dossierRow(
-                "FILING DATE",
+                'FILING DATE',
                 caseData.filingDate != null
                     ? fmt.format(caseData.filingDate!)
-                    : "PENDING",
+                    : 'PENDING',
               ),
               DossierHelper.dossierRow(
-                "CNR NUMBER",
-                caseData.cnrNumber ?? "NOT AVAILABLE",
+                'CNR NUMBER',
+                caseData.cnrNumber ?? 'NOT AVAILABLE',
               ),
               DossierHelper.dossierRow(
-                "COURT",
-                caseData.courtName ?? "UNSPECIFIED FORUM",
+                'COURT',
+                caseData.courtName ?? 'UNSPECIFIED FORUM',
               ),
               DossierHelper.dossierRow(
-                "STATE / DISTRICT",
+                'STATE / DISTRICT',
                 "${caseData.state ?? '—'} / ${caseData.district ?? '—'}",
               ),
             ],
@@ -82,7 +81,7 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
           // ─── 2. OPERATIONAL STATUS ───────────────────
           DossierSection(
             icon: Icons.insights_rounded,
-            title: "Case Status",
+            title: 'Case Status',
             color: const Color(0xFF3B82F6),
             badgeText: caseData.status.label.toUpperCase(),
             badgeColor:
@@ -94,23 +93,23 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
             initiallyExpanded: true,
             children: [
               DossierHelper.dossierRow(
-                "FIRST HEARING",
+                'FIRST HEARING',
                 caseData.filingDate != null
                     ? fmt.format(caseData.filingDate!)
-                    : "—",
+                    : '—',
               ),
               DossierHelper.dossierRow(
-                "NEXT HEARING",
+                'NEXT HEARING',
                 caseData.nextHearingDate != null
                     ? fmt.format(caseData.nextHearingDate!)
-                    : "NOT SCHEDULED",
+                    : 'NOT SCHEDULED',
               ),
               DossierHelper.dossierRow(
-                "CASE STAGE",
+                'CASE STAGE',
                 caseData.stage.label.toUpperCase(),
               ),
               DossierHelper.dossierRow(
-                "COURT TYPE",
+                'COURT TYPE',
                 caseData.courtType.label.toUpperCase(),
               ),
             ],
@@ -126,12 +125,12 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
           // ─── 4. CLIENT INTELLIGENCE ──────────────────
           DossierSection(
             icon: Icons.person_search_rounded,
-            title: "Client Intelligence",
+            title: 'Client Intelligence',
             color: const Color(0xFF8B5CF6),
             children: [
               DossierHelper.dossierRow(
-                "ENTITY NAME",
-                caseData.clientName ?? "ANONYMOUS",
+                'ENTITY NAME',
+                caseData.clientName ?? 'ANONYMOUS',
               ),
             ],
           ),
@@ -166,7 +165,7 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
             children: [
               Expanded(
                 child: DossierHelper.statMini(
-                  "HEARINGS",
+                  'HEARINGS',
                   ref
                           .watch(caseHearingsProvider(widget.caseId))
                           .value
@@ -179,7 +178,7 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
               const SizedBox(width: 8),
               Expanded(
                 child: DossierHelper.statMini(
-                  "RECORDS",
+                  'RECORDS',
                   ref
                           .watch(caseDocumentsProvider(widget.caseId))
                           .value
@@ -192,7 +191,7 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
               const SizedBox(width: 8),
               Expanded(
                 child: DossierHelper.statMini(
-                  "FINANCE",
+                  'FINANCE',
                   ref
                           .watch(casePaymentsProvider(widget.caseId))
                           .value

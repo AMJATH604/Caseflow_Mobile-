@@ -50,7 +50,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
               () => const Center(
                 child: CircularProgressIndicator(color: AppTheme.accent),
               ),
-          error: (e, _) => Center(child: Text("Error: $e")),
+          error: (e, _) => Center(child: Text('Error: $e')),
         ),
         // FAB
         Positioned(bottom: 24, right: 20, child: _buildAddFab()),
@@ -199,7 +199,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                               ),
                               SizedBox(width: 8),
                               Text(
-                                "Delete Witness",
+                                'Delete Witness',
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: Color(0xFFEF4444),
@@ -226,21 +226,21 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
             child: Row(
               children: [
                 _examChip(
-                  "Chief",
+                  'Chief',
                   Icons.record_voice_over_rounded,
                   const Color(0xFF10B981),
                   true,
                 ),
                 const SizedBox(width: 12),
                 _examChip(
-                  "Cross",
+                  'Cross',
                   Icons.gavel_rounded,
                   const Color(0xFFF59E0B),
                   false,
                 ),
                 const SizedBox(width: 12),
                 _examChip(
-                  "Re-Exam",
+                  'Re-Exam',
                   Icons.replay_rounded,
                   const Color(0xFF94A3B8),
                   false,
@@ -381,7 +381,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
           ),
           const SizedBox(height: 20),
           const Text(
-            "No Witnesses Recorded",
+            'No Witnesses Recorded',
             style: TextStyle(
               fontWeight: FontWeight.w800,
               fontSize: 17,
@@ -390,7 +390,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
           ),
           const SizedBox(height: 8),
           const Text(
-            "Add PW, DW, or CW witnesses\nwith examination notes",
+            'Add PW, DW, or CW witnesses\nwith examination notes',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Color(0xFF64748B),
@@ -420,7 +420,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                 Icon(Icons.add_rounded, color: Colors.white, size: 18),
                 SizedBox(width: 6),
                 Text(
-                  "Add First Witness",
+                  'Add First Witness',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
@@ -460,7 +460,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
             Icon(Icons.person_add_alt_1_rounded, color: Colors.white, size: 20),
             SizedBox(width: 8),
             Text(
-              "Add Witness",
+              'Add Witness',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
@@ -535,7 +535,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Add Witness",
+                              'Add Witness',
                               style: TextStyle(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 18,
@@ -543,7 +543,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                               ),
                             ),
                             Text(
-                              "Record witness details for this case",
+                              'Record witness details for this case',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Color(0xFF64748B),
@@ -558,7 +558,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                     // Witness Name
                     TextField(
                       decoration: InputDecoration(
-                        labelText: "Witness Name",
+                        labelText: 'Witness Name',
                         prefixIcon: const Icon(Icons.person_rounded, size: 20),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -572,7 +572,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
 
                     // Tag Selector
                     const Text(
-                      "Witness Type",
+                      'Witness Type',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
@@ -649,7 +649,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                     // Tag Number
                     TextField(
                       decoration: InputDecoration(
-                        labelText: "Tag (e.g., PW1, DW2)",
+                        labelText: 'Tag (e.g., PW1, DW2)',
                         prefixIcon: const Icon(Icons.tag_rounded, size: 20),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -665,7 +665,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                     // Notes
                     TextField(
                       decoration: InputDecoration(
-                        labelText: "Examination Notes (Optional)",
+                        labelText: 'Examination Notes (Optional)',
                         prefixIcon: const Icon(Icons.notes_rounded, size: 20),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -695,10 +695,11 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                             });
                             ref.invalidate(witnessNotesProvider(widget.caseId));
                           } catch (e) {
-                            if (mounted)
+                            if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Error: $e")),
+                                SnackBar(content: Text('Error: $e')),
                               );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -710,7 +711,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                           elevation: 0,
                         ),
                         child: const Text(
-                          "Save Witness",
+                          'Save Witness',
                           style: TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: 15,

@@ -277,7 +277,7 @@ final caveatsProvider = FutureProvider<List<Caveat>>((ref) async {
 // ─── UI State ────────────────────────────────────────
 
 final navigationIndexProvider = StateProvider<int>((ref) => 0);
-final pageTitleProvider = StateProvider<String>((ref) => "CaseFlow");
+final pageTitleProvider = StateProvider<String>((ref) => 'CaseFlow');
 final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.light);
 
 // ─── Carousel Slides ──────────────────────────────────

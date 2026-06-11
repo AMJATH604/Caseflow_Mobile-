@@ -15,123 +15,123 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
   DateTime? _accrualDate;
   String? _selectedArticle;
   final _customPeriodController = TextEditingController();
-  String _customUnit = "days";
+  String _customUnit = 'days';
 
   Map<String, dynamic>? _result;
 
   // Limitation Act Schedule of Articles (common ones)
   final List<Map<String, dynamic>> _articles = [
     {
-      "id": "art58",
-      "article": "Art. 58",
-      "desc": "Specific Performance of Contract",
-      "days": 1095,
-      "label": "3 years",
+      'id': 'art58',
+      'article': 'Art. 58',
+      'desc': 'Specific Performance of Contract',
+      'days': 1095,
+      'label': '3 years',
     },
     {
-      "id": "art65",
-      "article": "Art. 65",
-      "desc": "Suit for Possession (12 years)",
-      "days": 4380,
-      "label": "12 years",
+      'id': 'art65',
+      'article': 'Art. 65',
+      'desc': 'Suit for Possession (12 years)',
+      'days': 4380,
+      'label': '12 years',
     },
     {
-      "id": "art113",
-      "article": "Art. 113",
-      "desc": "Personal Suit (Residuary)",
-      "days": 1095,
-      "label": "3 years",
+      'id': 'art113',
+      'article': 'Art. 113',
+      'desc': 'Personal Suit (Residuary)',
+      'days': 1095,
+      'label': '3 years',
     },
     {
-      "id": "art137",
-      "article": "Art. 137",
-      "desc": "Any Application (Residuary)",
-      "days": 1095,
-      "label": "3 years",
+      'id': 'art137',
+      'article': 'Art. 137',
+      'desc': 'Any Application (Residuary)',
+      'days': 1095,
+      'label': '3 years',
     },
     {
-      "id": "art54",
-      "article": "Art. 54",
-      "desc": "Suit for Injunction",
-      "days": 1095,
-      "label": "3 years",
+      'id': 'art54',
+      'article': 'Art. 54',
+      'desc': 'Suit for Injunction',
+      'days': 1095,
+      'label': '3 years',
     },
     {
-      "id": "art62",
-      "article": "Art. 62",
-      "desc": "Declaratory Suit",
-      "days": 1095,
-      "label": "3 years",
+      'id': 'art62',
+      'article': 'Art. 62',
+      'desc': 'Declaratory Suit',
+      'days': 1095,
+      'label': '3 years',
     },
     {
-      "id": "art36",
-      "article": "Art. 36",
-      "desc": "Execution of Decree",
-      "days": 4380,
-      "label": "12 years",
+      'id': 'art36',
+      'article': 'Art. 36',
+      'desc': 'Execution of Decree',
+      'days': 4380,
+      'label': '12 years',
     },
     {
-      "id": "ni138",
-      "article": "NI Act §138",
-      "desc": "Cheque Bounce Complaint",
-      "days": 30,
-      "label": "30 days",
+      'id': 'ni138',
+      'article': 'NI Act §138',
+      'desc': 'Cheque Bounce Complaint',
+      'days': 30,
+      'label': '30 days',
     },
     {
-      "id": "consumer",
-      "article": "Consumer",
-      "desc": "Consumer Complaint (CDPA 2019)",
-      "days": 730,
-      "label": "2 years",
+      'id': 'consumer',
+      'article': 'Consumer',
+      'desc': 'Consumer Complaint (CDPA 2019)',
+      'days': 730,
+      'label': '2 years',
     },
     {
-      "id": "mact",
-      "article": "MACT",
-      "desc": "Motor Accident Claim",
-      "days": 180,
-      "label": "6 months",
+      'id': 'mact',
+      'article': 'MACT',
+      'desc': 'Motor Accident Claim',
+      'days': 180,
+      'label': '6 months',
     },
     {
-      "id": "art116",
-      "article": "Art. 116",
-      "desc": "Suit by Landlord for Eviction",
-      "days": 4380,
-      "label": "12 years",
+      'id': 'art116',
+      'article': 'Art. 116',
+      'desc': 'Suit by Landlord for Eviction',
+      'days': 4380,
+      'label': '12 years',
     },
     {
-      "id": "art55",
-      "article": "Art. 55",
-      "desc": "Suit for Compensation (tort)",
-      "days": 365,
-      "label": "1 year",
+      'id': 'art55',
+      'article': 'Art. 55',
+      'desc': 'Suit for Compensation (tort)',
+      'days': 365,
+      'label': '1 year',
     },
     {
-      "id": "custom",
-      "article": "Custom",
-      "desc": "Enter custom period",
-      "days": 0,
-      "label": "Custom",
+      'id': 'custom',
+      'article': 'Custom',
+      'desc': 'Enter custom period',
+      'days': 0,
+      'label': 'Custom',
     },
   ];
 
   // ─── FIX: Proper month arithmetic (no overflow bug) ──
   DateTime _addMonths(DateTime date, int months) {
-    int targetYear = date.year + ((date.month + months - 1) ~/ 12);
-    int targetMonth = ((date.month + months - 1) % 12) + 1;
+    final int targetYear = date.year + ((date.month + months - 1) ~/ 12);
+    final int targetMonth = ((date.month + months - 1) % 12) + 1;
     int targetDay = date.day;
     // Clamp day to valid range for the target month
-    int maxDay = DateTime(targetYear, targetMonth + 1, 0).day;
+    final int maxDay = DateTime(targetYear, targetMonth + 1, 0).day;
     if (targetDay > maxDay) targetDay = maxDay;
     return DateTime(targetYear, targetMonth, targetDay);
   }
 
   DateTime _addPeriod(DateTime from, int value, String unit) {
     switch (unit) {
-      case "days":
+      case 'days':
         return from.add(Duration(days: value));
-      case "months":
+      case 'months':
         return _addMonths(from, value);
-      case "years":
+      case 'years':
         return _addMonths(from, value * 12);
       default:
         return from.add(Duration(days: value));
@@ -142,17 +142,17 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
     if (_accrualDate == null || _selectedArticle == null) return;
 
     int periodDays = 0;
-    String periodLabel = "";
-    String articleRef = "";
+    String periodLabel = '';
+    String articleRef = '';
 
-    if (_selectedArticle == "custom") {
+    if (_selectedArticle == 'custom') {
       final customVal = int.tryParse(_customPeriodController.text);
       if (customVal == null || customVal <= 0) return;
 
       final expiryDate = _addPeriod(_accrualDate!, customVal, _customUnit);
       periodDays = expiryDate.difference(_accrualDate!).inDays;
-      periodLabel = "$customVal $_customUnit";
-      articleRef = "Custom Period";
+      periodLabel = '$customVal $_customUnit';
+      articleRef = 'Custom Period';
 
       _buildResult(expiryDate, periodDays, periodLabel, articleRef);
     } else {
@@ -178,12 +178,12 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
 
     setState(() {
       _result = {
-        "expiryDate": expiryDate,
-        "daysRemaining": daysRemaining,
-        "isExpired": isExpired,
-        "periodDays": periodDays,
-        "periodLabel": periodLabel,
-        "articleRef": articleRef,
+        'expiryDate': expiryDate,
+        'daysRemaining': daysRemaining,
+        'isExpired': isExpired,
+        'periodDays': periodDays,
+        'periodLabel': periodLabel,
+        'articleRef': articleRef,
       };
     });
   }
@@ -196,7 +196,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
 
   @override
   Widget build(BuildContext context) {
-    bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -207,17 +207,17 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
             isDark,
             icon: Icons.timer_rounded,
             iconColor: Colors.teal,
-            title: "Limitation Period",
+            title: 'Limitation Period',
             children: [
               Text(
-                "Select the article from the Limitation Act, 1963 or enter a custom period.",
+                'Select the article from the Limitation Act, 1963 or enter a custom period.',
                 style: TextStyle(fontSize: 12, color: Colors.grey[500]),
               ),
               const Divider(height: 20),
 
               // Date of Accrual
               _buildDatePicker(
-                "Date of Cause of Action / Accrual",
+                'Date of Cause of Action / Accrual',
                 _accrualDate,
                 isDark,
                 (d) => setState(() {
@@ -229,7 +229,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
 
               // Article Selection
               Text(
-                "LIMITATION ACT ARTICLE",
+                'LIMITATION ACT ARTICLE',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -328,7 +328,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                             ),
                           ),
                           if (isSelected)
-                            Icon(
+                            const Icon(
                               Icons.check_circle_rounded,
                               size: 18,
                               color: AppTheme.accent,
@@ -341,7 +341,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
               })),
 
               // Custom period inputs
-              if (_selectedArticle == "custom") ...[
+              if (_selectedArticle == 'custom') ...[
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -352,7 +352,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                         keyboardType: TextInputType.number,
                         onChanged: (_) => _calculate(),
                         decoration: const InputDecoration(
-                          labelText: "Period Value",
+                          labelText: 'Period Value',
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -360,20 +360,20 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: _customUnit,
+                        initialValue: _customUnit,
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: "Unit",
+                          labelText: 'Unit',
                         ),
                         items: const [
-                          DropdownMenuItem(value: "days", child: Text("Days")),
+                          DropdownMenuItem(value: 'days', child: Text('Days')),
                           DropdownMenuItem(
-                            value: "months",
-                            child: Text("Months"),
+                            value: 'months',
+                            child: Text('Months'),
                           ),
                           DropdownMenuItem(
-                            value: "years",
-                            child: Text("Years"),
+                            value: 'years',
+                            child: Text('Years'),
                           ),
                         ],
                         onChanged: (v) {
@@ -431,8 +431,8 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                   const SizedBox(height: 12),
                   Text(
                     _result!['isExpired']
-                        ? "LIMITATION EXPIRED"
-                        : "WITHIN LIMITATION",
+                        ? 'LIMITATION EXPIRED'
+                        : 'WITHIN LIMITATION',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -476,18 +476,18 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
               isDark,
               icon: Icons.bookmark_rounded,
               iconColor: AppTheme.accent,
-              title: "Legal Reference",
+              title: 'Legal Reference',
               trailing: TextButton.icon(
                 onPressed: () {
                   final text =
                       "Limitation: ${_result!['articleRef']}\nPeriod: ${_result!['periodLabel']}\nDate of Accrual: ${DateFormat('dd-MM-yyyy').format(_accrualDate!)}\nExpiry: ${DateFormat('dd-MM-yyyy').format(_result!['expiryDate'])}\n${_result!['isExpired'] ? 'EXPIRED ${(-_result!['daysRemaining'])} days ago' : '${_result!['daysRemaining']} days remaining'}\n\nGenerated by CaseFlow";
                   Clipboard.setData(ClipboardData(text: text));
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Limitation memo copied!")),
+                    const SnackBar(content: Text('Limitation memo copied!')),
                   );
                 },
                 icon: const Icon(Icons.copy_rounded, size: 14),
-                label: const Text("Copy", style: TextStyle(fontSize: 12)),
+                label: const Text('Copy', style: TextStyle(fontSize: 12)),
               ),
               children: [
                 Container(
@@ -506,17 +506,17 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildInfoRow("Article", _result!['articleRef']),
+                      _buildInfoRow('Article', _result!['articleRef']),
                       const SizedBox(height: 8),
-                      _buildInfoRow("Period", _result!['periodLabel']),
+                      _buildInfoRow('Period', _result!['periodLabel']),
                       const SizedBox(height: 8),
                       _buildInfoRow(
-                        "From",
+                        'From',
                         DateFormat('dd MMMM yyyy').format(_accrualDate!),
                       ),
                       const SizedBox(height: 8),
                       _buildInfoRow(
-                        "Expires",
+                        'Expires',
                         DateFormat(
                           'dd MMMM yyyy',
                         ).format(_result!['expiryDate']),
@@ -552,7 +552,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
         Expanded(
           child: Text(
             value,
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -600,7 +600,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.calendar_today_rounded,
                   size: 16,
                   color: AppTheme.accent,
@@ -608,7 +608,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                 const SizedBox(width: 8),
                 Text(
                   value == null
-                      ? "Select date"
+                      ? 'Select date'
                       : DateFormat('dd MMM yyyy').format(value),
                   style: TextStyle(
                     fontSize: 14,

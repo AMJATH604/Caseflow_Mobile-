@@ -39,7 +39,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
         elevation: 4,
         icon: const Icon(Icons.add_rounded),
         label: Text(
-          "New Application",
+          'New Application',
           style: GoogleFonts.inter(
             fontWeight: FontWeight.bold,
             letterSpacing: 0.3,
@@ -127,7 +127,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Certified Copies",
+                            'Certified Copies',
                             style: GoogleFonts.outfit(
                               fontSize: 26,
                               fontWeight: FontWeight.bold,
@@ -136,7 +136,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            "Track your CC applications in real-time",
+                            'Track your CC applications in real-time',
                             style: GoogleFonts.inter(
                               fontSize: 13,
                               color: Colors.white.withValues(alpha: 0.75),
@@ -152,10 +152,10 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                 // Stats Row
                 Row(
                   children: [
-                    _buildHeaderStat("📦", "Box Drop", pending.toString()),
-                    _buildHeaderStat("📋", "Memo", memoFiled.toString()),
-                    _buildHeaderStat("✅", "Ready", ready.toString()),
-                    _buildHeaderStat("🤝", "Collected", collected.toString()),
+                    _buildHeaderStat('📦', 'Box Drop', pending.toString()),
+                    _buildHeaderStat('📋', 'Memo', memoFiled.toString()),
+                    _buildHeaderStat('✅', 'Ready', ready.toString()),
+                    _buildHeaderStat('🤝', 'Collected', collected.toString()),
                   ],
                 ),
               ],
@@ -249,7 +249,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            "No CC Applications Yet",
+            'No CC Applications Yet',
             style: GoogleFonts.outfit(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -258,7 +258,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            "Track your certified copy status real-time.\nTap the + button to log your first application.",
+            'Track your certified copy status real-time.\nTap the + button to log your first application.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               color: Colors.grey[500],
@@ -323,7 +323,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        c.caseTitle ?? "Unknown Case",
+                        c.caseTitle ?? 'Unknown Case',
                         style: GoogleFonts.outfit(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
@@ -345,7 +345,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                "CA: ${c.caNumber}",
+                                'CA: ${c.caNumber}',
                                 style: GoogleFonts.inter(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -357,7 +357,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                             const SizedBox(width: 8),
                           ],
                           Text(
-                            "Filed: ${_formatDate(c.boxDropDate)}",
+                            'Filed: ${_formatDate(c.boxDropDate)}',
                             style: GoogleFonts.inter(
                               fontSize: 11,
                               color: Colors.grey[400],
@@ -415,7 +415,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          "PAID",
+                          'PAID',
                           style: GoogleFonts.inter(
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
@@ -450,8 +450,8 @@ class CertifiedCopiesScreen extends ConsumerWidget {
   }
 
   Widget _buildTimelineStepper(CertifiedCopy c) {
-    final stages = ["box_drop", "memo_filed", "ready", "collected"];
-    final stageLabels = ["Box Drop", "Memo Filed", "Ready", "Collected"];
+    final stages = ['box_drop', 'memo_filed', 'ready', 'collected'];
+    final stageLabels = ['Box Drop', 'Memo Filed', 'Ready', 'Collected'];
     final stageIcons = [
       Icons.inventory_2_rounded,
       Icons.assignment_rounded,
@@ -465,7 +465,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
       c.collectedDate,
     ];
 
-    int currentIdx = stages.indexOf(c.status);
+    final int currentIdx = stages.indexOf(c.status);
 
     return Row(
       children: List.generate(stages.length, (index) {
@@ -592,8 +592,8 @@ class CertifiedCopiesScreen extends ConsumerWidget {
           // Info row
           Row(
             children: [
-              if (expectedDate != null && c.status != "collected") ...[
-                Icon(Icons.schedule_rounded, size: 14, color: AppTheme.warning),
+              if (expectedDate != null && c.status != 'collected') ...[
+                const Icon(Icons.schedule_rounded, size: 14, color: AppTheme.warning),
                 const SizedBox(width: 6),
                 Text(
                   "Expected: ${DateFormat('dd MMM yyyy').format(expectedDate)}",
@@ -608,14 +608,14 @@ class CertifiedCopiesScreen extends ConsumerWidget {
               Icon(Icons.update_rounded, size: 14, color: Colors.grey[400]),
               const SizedBox(width: 6),
               Text(
-                "Updated: ${_formatDate(_getLastUpdateDate(c))}",
+                'Updated: ${_formatDate(_getLastUpdateDate(c))}',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: Colors.grey[400],
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              if (expectedDate == null || c.status == "collected")
+              if (expectedDate == null || c.status == 'collected')
                 const Spacer(),
             ],
           ),
@@ -629,14 +629,14 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                   PaymentCaptureOverlay.show(
                     context,
                     caseId: c.caseId,
-                    caseTitle: c.caseTitle ?? "CC Application",
-                    purpose: "Certified Copy Fee",
+                    caseTitle: c.caseTitle ?? 'CC Application',
+                    purpose: 'Certified Copy Fee',
                     certifiedCopyId: c.id,
                   );
                 },
                 icon: const Icon(Icons.link_rounded, size: 18),
                 label: Text(
-                  "Link Payment & Update Ledger",
+                  'Link Payment & Update Ledger',
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
@@ -656,7 +656,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
             ),
           ],
           // Update Stage Button
-          if (c.status != "collected") ...[
+          if (c.status != 'collected') ...[
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
@@ -664,7 +664,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                 onPressed: () => _showUpdateStatusDialog(context, ref, c),
                 icon: const Icon(Icons.arrow_forward_rounded, size: 18),
                 label: Text(
-                  "Advance to ${_getNextStageLabel(c.status)}",
+                  'Advance to ${_getNextStageLabel(c.status)}',
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
@@ -703,7 +703,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                 children: [
                   Icon(Icons.delete_outline, color: Colors.red, size: 20),
                   SizedBox(width: 12),
-                  Text("Delete Entry", style: TextStyle(color: Colors.red)),
+                  Text('Delete Entry', style: TextStyle(color: Colors.red)),
                 ],
               ),
             ),
@@ -713,41 +713,41 @@ class CertifiedCopiesScreen extends ConsumerWidget {
 
   String _getStatusLabel(String status) {
     switch (status) {
-      case "box_drop":
-        return "BOX DROP";
-      case "memo_filed":
-        return "MEMO FILED";
-      case "ready":
-        return "READY";
-      case "collected":
-        return "COLLECTED";
+      case 'box_drop':
+        return 'BOX DROP';
+      case 'memo_filed':
+        return 'MEMO FILED';
+      case 'ready':
+        return 'READY';
+      case 'collected':
+        return 'COLLECTED';
       default:
-        return "PENDING";
+        return 'PENDING';
     }
   }
 
   String _getNextStageLabel(String status) {
     switch (status) {
-      case "box_drop":
-        return "Memo Filed";
-      case "memo_filed":
-        return "Ready";
-      case "ready":
-        return "Collected";
+      case 'box_drop':
+        return 'Memo Filed';
+      case 'memo_filed':
+        return 'Ready';
+      case 'ready':
+        return 'Collected';
       default:
-        return "Next Stage";
+        return 'Next Stage';
     }
   }
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case "ready":
+      case 'ready':
         return const Color(0xFF10B981);
-      case "memo_filed":
+      case 'memo_filed':
         return const Color(0xFFF59E0B);
-      case "box_drop":
+      case 'box_drop':
         return const Color(0xFF0EA5E9);
-      case "collected":
+      case 'collected':
         return const Color(0xFF6366F1);
       default:
         return Colors.grey;
@@ -763,18 +763,18 @@ class CertifiedCopiesScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(24),
             ),
             title: Text(
-              "Delete Record?",
+              'Delete Record?',
               style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
             ),
             content: Text(
-              "Are you sure you want to delete this Certified Copy record? This action cannot be undone.",
+              'Are you sure you want to delete this Certified Copy record? This action cannot be undone.',
               style: GoogleFonts.inter(color: Colors.grey[600], height: 1.5),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  "Cancel",
+                  'Cancel',
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
                     color: Colors.grey,
@@ -796,7 +796,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                   elevation: 0,
                 ),
                 child: Text(
-                  "Delete",
+                  'Delete',
                   style: GoogleFonts.inter(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -806,10 +806,10 @@ class CertifiedCopiesScreen extends ConsumerWidget {
   }
 
   DateTime? _getExpectedDate(CertifiedCopy c) {
-    if (c.status == "box_drop" && c.boxDropDate != null) {
+    if (c.status == 'box_drop' && c.boxDropDate != null) {
       return c.boxDropDate!.add(const Duration(days: 8));
     }
-    if (c.status == "memo_filed" && c.memoDate != null) {
+    if (c.status == 'memo_filed' && c.memoDate != null) {
       return c.memoDate!.add(const Duration(days: 7));
     }
     return null;
@@ -824,21 +824,21 @@ class CertifiedCopiesScreen extends ConsumerWidget {
     WidgetRef ref,
     CertifiedCopy c,
   ) {
-    String nextStatus = "collected";
-    String dateLabel = "Collected On";
-    String dbField = "collected_date";
-    String headerTitle = "Mark as Collected";
+    String nextStatus = 'collected';
+    String dateLabel = 'Collected On';
+    String dbField = 'collected_date';
+    String headerTitle = 'Mark as Collected';
 
-    if (c.status == "box_drop") {
-      nextStatus = "memo_filed";
-      dateLabel = "Memo Filed Date";
-      dbField = "memo_date";
-      headerTitle = "Advance to Memo Filed";
-    } else if (c.status == "memo_filed") {
-      nextStatus = "ready";
-      dateLabel = "Ready Date";
-      dbField = "ready_date";
-      headerTitle = "Mark as Ready";
+    if (c.status == 'box_drop') {
+      nextStatus = 'memo_filed';
+      dateLabel = 'Memo Filed Date';
+      dbField = 'memo_date';
+      headerTitle = 'Advance to Memo Filed';
+    } else if (c.status == 'memo_filed') {
+      nextStatus = 'ready';
+      dateLabel = 'Ready Date';
+      dbField = 'ready_date';
+      headerTitle = 'Mark as Ready';
     }
 
     final nextColor = _getStatusColor(nextStatus);
@@ -905,7 +905,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      "Update the stage for this CC application",
+                                      'Update the stage for this CC application',
                                       style: GoogleFonts.inter(
                                         fontSize: 12,
                                         color: Colors.grey[500],
@@ -926,7 +926,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                             children: [
                               // CA Number
                               Text(
-                                "CA NUMBER",
+                                'CA NUMBER',
                                 style: GoogleFonts.inter(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -941,7 +941,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                   fontWeight: FontWeight.w600,
                                 ),
                                 decoration: InputDecoration(
-                                  hintText: "e.g. CA/123/2026",
+                                  hintText: 'e.g. CA/123/2026',
                                   prefixIcon: const Icon(
                                     Icons.numbers_rounded,
                                     color: AppTheme.accent,
@@ -952,13 +952,13 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide(
+                                    borderSide: const BorderSide(
                                       color: AppTheme.border,
                                     ),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide(
+                                    borderSide: const BorderSide(
                                       color: AppTheme.border,
                                     ),
                                   ),
@@ -991,8 +991,9 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                     firstDate: DateTime(2020),
                                     lastDate: DateTime(2100),
                                   );
-                                  if (picked != null)
+                                  if (picked != null) {
                                     setState(() => selectedDate = picked);
+                                  }
                                 },
                                 borderRadius: BorderRadius.circular(14),
                                 child: Container(
@@ -1051,10 +1052,10 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(14),
                                     ),
-                                    side: BorderSide(color: AppTheme.border),
+                                    side: const BorderSide(color: AppTheme.border),
                                   ),
                                   child: Text(
-                                    "Cancel",
+                                    'Cancel',
                                     style: GoogleFonts.inter(
                                       fontWeight: FontWeight.w600,
                                       color: Colors.grey[600],
@@ -1070,7 +1071,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                     size: 18,
                                   ),
                                   label: Text(
-                                    "Update Stage",
+                                    'Update Stage',
                                     style: GoogleFonts.inter(
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -1119,7 +1120,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
   }
 
   String _formatDate(DateTime? date) {
-    if (date == null) return "N/A";
+    if (date == null) return 'N/A';
     return DateFormat('dd MMM yyyy').format(date);
   }
 }

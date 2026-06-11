@@ -22,9 +22,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     _OnboardingSlide(
       icon: Icons.dashboard_customize_rounded,
       accentIcon: Icons.gavel_rounded,
-      title: "One Dashboard,\nEvery Case",
+      title: 'One Dashboard,\nEvery Case',
       subtitle:
-          "Track hearings, documents, deadlines, and client communications from a single command center. Never miss a date again.",
+          'Track hearings, documents, deadlines, and client communications from a single command center. Never miss a date again.',
       gradientColors: [Color(0xFF0D47A1), Color(0xFF1565C0), Color(0xFF1E88E5)],
       accentColor: Color(0xFF42A5F5),
       illustrationColors: [Color(0xFF2196F3), Color(0xFF64B5F6)],
@@ -32,9 +32,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     _OnboardingSlide(
       icon: Icons.auto_awesome_rounded,
       accentIcon: Icons.psychology_rounded,
-      title: "AI-Powered Legal\nIntelligence",
+      title: 'AI-Powered Legal\nIntelligence',
       subtitle:
-          "Get instant case summaries, legal research assistance, and smart reminders powered by advanced AI. Your virtual junior is here.",
+          'Get instant case summaries, legal research assistance, and smart reminders powered by advanced AI. Your virtual junior is here.',
       gradientColors: [Color(0xFF4A148C), Color(0xFF6A1B9A), Color(0xFF8E24AA)],
       accentColor: Color(0xFFCE93D8),
       illustrationColors: [Color(0xFF9C27B0), Color(0xFFBA68C8)],
@@ -42,9 +42,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     _OnboardingSlide(
       icon: Icons.verified_user_rounded,
       accentIcon: Icons.shield_rounded,
-      title: "Bank-Grade\nSecurity",
+      title: 'Bank-Grade\nSecurity',
       subtitle:
-          "Your data is encrypted end-to-end, hosted on secure government-compliant servers. Only you can access your practice data.",
+          'Your data is encrypted end-to-end, hosted on secure government-compliant servers. Only you can access your practice data.',
       gradientColors: [Color(0xFF1B5E20), Color(0xFF2E7D32), Color(0xFF388E3C)],
       accentColor: Color(0xFF81C784),
       illustrationColors: [Color(0xFF4CAF50), Color(0xFF66BB6A)],
@@ -156,7 +156,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                               ),
                             ),
                             child: Text(
-                              "Skip",
+                              'Skip',
                               style: GoogleFonts.inter(
                                 color: Colors.white.withValues(alpha: 0.7),
                                 fontSize: 14,
@@ -245,8 +245,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                 children: [
                                   Text(
                                     _currentPage == _slides.length - 1
-                                        ? "Get Started"
-                                        : "Continue",
+                                        ? 'Get Started'
+                                        : 'Continue',
                                     style: GoogleFonts.outfit(
                                       fontSize: 17,
                                       fontWeight: FontWeight.w700,

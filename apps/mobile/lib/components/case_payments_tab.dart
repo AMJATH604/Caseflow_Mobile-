@@ -53,7 +53,7 @@ class CasePaymentsTab extends ConsumerWidget {
           error:
               (e, s) => Center(
                 child: Text(
-                  "Error: $e",
+                  'Error: $e',
                   style: const TextStyle(color: Color(0xFF1E293B)),
                 ),
               ),
@@ -118,7 +118,7 @@ class CasePaymentsTab extends ConsumerWidget {
                   ),
                   const SizedBox(width: 10),
                   const Text(
-                    "Financial Summary",
+                    'Financial Summary',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
@@ -131,21 +131,21 @@ class CasePaymentsTab extends ConsumerWidget {
               Row(
                 children: [
                   _summaryMetric(
-                    "Revenue",
+                    'Revenue',
                     _cur.format(totalRevenue),
                     const Color(0xFF34D399),
                     Icons.trending_up_rounded,
                   ),
                   const SizedBox(width: 12),
                   _summaryMetric(
-                    "Expenses",
+                    'Expenses',
                     _cur.format(totalExpense),
                     const Color(0xFFF87171),
                     Icons.trending_down_rounded,
                   ),
                   const SizedBox(width: 12),
                   _summaryMetric(
-                    "Pending",
+                    'Pending',
                     _cur.format(outstanding),
                     const Color(0xFFFBBF24),
                     Icons.schedule_rounded,
@@ -161,7 +161,7 @@ class CasePaymentsTab extends ConsumerWidget {
         Row(
           children: [
             const Text(
-              "Transactions",
+              'Transactions',
               style: TextStyle(
                 fontWeight: FontWeight.w800,
                 fontSize: 15,
@@ -176,7 +176,7 @@ class CasePaymentsTab extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                "${payments.length} Records",
+                '${payments.length} Records',
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -330,7 +330,7 @@ class CasePaymentsTab extends ConsumerWidget {
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  hasBalance ? "PARTIAL" : "PAID",
+                                  hasBalance ? 'PARTIAL' : 'PAID',
                                   style: TextStyle(
                                     fontSize: 9,
                                     fontWeight: FontWeight.w900,
@@ -349,7 +349,7 @@ class CasePaymentsTab extends ConsumerWidget {
                             children: [
                               // Total Fee
                               Text(
-                                "Total: ${_cur.format(p.totalFee)}",
+                                'Total: ${_cur.format(p.totalFee)}',
                                 style: const TextStyle(
                                   fontSize: 11,
                                   color: Color(0xFF64748B),
@@ -358,11 +358,11 @@ class CasePaymentsTab extends ConsumerWidget {
                               ),
                               if (hasBalance) ...[
                                 const Text(
-                                  " • ",
+                                  ' • ',
                                   style: TextStyle(color: Color(0xFFCBD5E1)),
                                 ),
                                 Text(
-                                  "Due: ${_cur.format(p.balanceAmount)}",
+                                  'Due: ${_cur.format(p.balanceAmount)}',
                                   style: const TextStyle(
                                     fontSize: 11,
                                     color: Color(0xFFEF4444),
@@ -397,16 +397,16 @@ class CasePaymentsTab extends ConsumerWidget {
                               ),
                               const Spacer(),
                               // Date
-                              Icon(
+                              const Icon(
                                 Icons.calendar_today_rounded,
                                 size: 11,
-                                color: const Color(0xFF94A3B8),
+                                color: Color(0xFF94A3B8),
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 p.paidDate != null
                                     ? _dateFmt.format(p.paidDate!)
-                                    : "No Date",
+                                    : 'No Date',
                                 style: const TextStyle(
                                   fontSize: 11,
                                   color: Color(0xFF94A3B8),
@@ -473,7 +473,7 @@ class CasePaymentsTab extends ConsumerWidget {
           ),
           const SizedBox(height: 20),
           const Text(
-            "No Payment Records",
+            'No Payment Records',
             style: TextStyle(
               fontWeight: FontWeight.w800,
               fontSize: 17,
@@ -482,7 +482,7 @@ class CasePaymentsTab extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            "Track fees, expenses, and billing\nfor this case",
+            'Track fees, expenses, and billing\nfor this case',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Color(0xFF64748B),
@@ -520,7 +520,7 @@ class CasePaymentsTab extends ConsumerWidget {
             Icon(Icons.add_rounded, color: Colors.white, size: 20),
             SizedBox(width: 8),
             Text(
-              "Log Payment",
+              'Log Payment',
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
@@ -536,9 +536,9 @@ class CasePaymentsTab extends ConsumerWidget {
   // ─── ADD PAYMENT BOTTOM SHEET ────────────────────────
   void _showAddPaymentSheet(BuildContext context, WidgetRef ref) {
     double totalFee = 0, paidAmount = 0;
-    String mode = "Cash";
-    String type = "revenue";
-    String notes = "";
+    String mode = 'Cash';
+    String type = 'revenue';
+    String notes = '';
 
     showModalBottomSheet(
       context: context,
@@ -598,7 +598,7 @@ class CasePaymentsTab extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Log Payment",
+                                'Log Payment',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w800,
                                   fontSize: 18,
@@ -606,7 +606,7 @@ class CasePaymentsTab extends ConsumerWidget {
                                 ),
                               ),
                               Text(
-                                "Record a financial transaction",
+                                'Record a financial transaction',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Color(0xFF64748B),
@@ -620,7 +620,7 @@ class CasePaymentsTab extends ConsumerWidget {
 
                       // Type Selector (Revenue vs Expense)
                       const Text(
-                        "Transaction Type",
+                        'Transaction Type',
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 13,
@@ -631,21 +631,21 @@ class CasePaymentsTab extends ConsumerWidget {
                       Row(
                         children: [
                           _typeChip(
-                            "Revenue",
-                            "revenue",
+                            'Revenue',
+                            'revenue',
                             Icons.trending_up_rounded,
                             const Color(0xFF10B981),
-                            type == "revenue",
-                            () => setSheetState(() => type = "revenue"),
+                            type == 'revenue',
+                            () => setSheetState(() => type = 'revenue'),
                           ),
                           const SizedBox(width: 10),
                           _typeChip(
-                            "Expense",
-                            "expense",
+                            'Expense',
+                            'expense',
                             Icons.trending_down_rounded,
                             const Color(0xFFEF4444),
-                            type == "expense",
-                            () => setSheetState(() => type = "expense"),
+                            type == 'expense',
+                            () => setSheetState(() => type = 'expense'),
                           ),
                         ],
                       ),
@@ -654,7 +654,7 @@ class CasePaymentsTab extends ConsumerWidget {
                       // Total Fee
                       TextField(
                         decoration: InputDecoration(
-                          labelText: "Total Fee (₹)",
+                          labelText: 'Total Fee (₹)',
                           prefixIcon: const Icon(
                             Icons.currency_rupee_rounded,
                             size: 20,
@@ -673,7 +673,7 @@ class CasePaymentsTab extends ConsumerWidget {
                       // Paid Amount
                       TextField(
                         decoration: InputDecoration(
-                          labelText: "Paid Amount (₹)",
+                          labelText: 'Paid Amount (₹)',
                           prefixIcon: const Icon(
                             Icons.payments_rounded,
                             size: 20,
@@ -691,7 +691,7 @@ class CasePaymentsTab extends ConsumerWidget {
 
                       // Payment Mode Chips
                       const Text(
-                        "Payment Mode",
+                        'Payment Mode',
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 13,
@@ -703,7 +703,7 @@ class CasePaymentsTab extends ConsumerWidget {
                         spacing: 8,
                         runSpacing: 8,
                         children:
-                            ["Cash", "UPI", "Bank Transfer", "Cheque"].map((m) {
+                            ['Cash', 'UPI', 'Bank Transfer', 'Cheque'].map((m) {
                               final sel = mode == m;
                               final color = _modeColors[m]!;
                               return GestureDetector(
@@ -736,7 +736,7 @@ class CasePaymentsTab extends ConsumerWidget {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
-                                        _modeIcons[m]!,
+                                        _modeIcons[m],
                                         size: 16,
                                         color:
                                             sel
@@ -766,7 +766,7 @@ class CasePaymentsTab extends ConsumerWidget {
                       // Notes
                       TextField(
                         decoration: InputDecoration(
-                          labelText: "Notes (Optional)",
+                          labelText: 'Notes (Optional)',
                           prefixIcon: const Icon(Icons.notes_rounded, size: 20),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -800,7 +800,7 @@ class CasePaymentsTab extends ConsumerWidget {
                               if (ctx.mounted) {
                                 ScaffoldMessenger.of(ctx).showSnackBar(
                                   const SnackBar(
-                                    content: Text("Payment logged!"),
+                                    content: Text('Payment logged!'),
                                     backgroundColor: Color(0xFF10B981),
                                   ),
                                 );
@@ -808,7 +808,7 @@ class CasePaymentsTab extends ConsumerWidget {
                             } catch (e) {
                               if (ctx.mounted) {
                                 ScaffoldMessenger.of(ctx).showSnackBar(
-                                  SnackBar(content: Text("Error: $e")),
+                                  SnackBar(content: Text('Error: $e')),
                                 );
                               }
                             }
@@ -822,7 +822,7 @@ class CasePaymentsTab extends ConsumerWidget {
                             elevation: 0,
                           ),
                           child: const Text(
-                            "Save Payment",
+                            'Save Payment',
                             style: TextStyle(
                               fontWeight: FontWeight.w800,
                               fontSize: 15,

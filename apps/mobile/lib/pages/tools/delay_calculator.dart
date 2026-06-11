@@ -20,40 +20,40 @@ class _DelayCalculatorState extends State<DelayCalculator> {
   // Expanded legal-specific presets with statutory references
   final List<Map<String, dynamic>> _presets = [
     {
-      "days": 30,
-      "label": "30 days",
-      "desc": "First Appeal (CPC O.41 R.1)",
-      "icon": Icons.looks_one_outlined,
+      'days': 30,
+      'label': '30 days',
+      'desc': 'First Appeal (CPC O.41 R.1)',
+      'icon': Icons.looks_one_outlined,
     },
     {
-      "days": 30,
-      "label": "30 days",
-      "desc": "NI Act §138 Complaint",
-      "icon": Icons.credit_card,
+      'days': 30,
+      'label': '30 days',
+      'desc': 'NI Act §138 Complaint',
+      'icon': Icons.credit_card,
     },
     {
-      "days": 60,
-      "label": "60 days",
-      "desc": "Family Court Appeal",
-      "icon": Icons.family_restroom,
+      'days': 60,
+      'label': '60 days',
+      'desc': 'Family Court Appeal',
+      'icon': Icons.family_restroom,
     },
     {
-      "days": 90,
-      "label": "90 days",
-      "desc": "Second Appeal (CPC §100)",
-      "icon": Icons.looks_two_outlined,
+      'days': 90,
+      'label': '90 days',
+      'desc': 'Second Appeal (CPC §100)',
+      'icon': Icons.looks_two_outlined,
     },
     {
-      "days": 90,
-      "label": "90 days",
-      "desc": "Revision (CPC §115)",
-      "icon": Icons.replay,
+      'days': 90,
+      'label': '90 days',
+      'desc': 'Revision (CPC §115)',
+      'icon': Icons.replay,
     },
     {
-      "days": 120,
-      "label": "120 days",
-      "desc": "Suit (Specific Relief)",
-      "icon": Icons.article,
+      'days': 120,
+      'label': '120 days',
+      'desc': 'Suit (Specific Relief)',
+      'icon': Icons.article,
     },
   ];
 
@@ -81,7 +81,7 @@ class _DelayCalculatorState extends State<DelayCalculator> {
     Color statusColor;
     IconData statusIcon;
     if (delay <= 0) {
-      status = "WITHIN TIME — No condonation needed";
+      status = 'WITHIN TIME — No condonation needed';
       statusColor = const Color(0xFF059669);
       statusIcon = Icons.check_circle_rounded;
     } else {
@@ -120,22 +120,22 @@ DEPONENT""";
 
     setState(() {
       _result = {
-        "delay": delay > 0 ? delay : 0,
-        "totalDays": totalDays,
-        "limitationDays": limitationDays,
-        "dueDate": fmtDue,
-        "status": status,
-        "statusColor": statusColor,
-        "statusIcon": statusIcon,
-        "isDelayed": delay > 0,
-        "affidavitText": affidavitText,
+        'delay': delay > 0 ? delay : 0,
+        'totalDays': totalDays,
+        'limitationDays': limitationDays,
+        'dueDate': fmtDue,
+        'status': status,
+        'statusColor': statusColor,
+        'statusIcon': statusIcon,
+        'isDelayed': delay > 0,
+        'affidavitText': affidavitText,
       };
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -146,17 +146,17 @@ DEPONENT""";
             isDark,
             icon: Icons.schedule_rounded,
             iconColor: Colors.red,
-            title: "Delay Parameters",
+            title: 'Delay Parameters',
             children: [
               Text(
-                "Select the limitation period and dates to calculate delay under Section 5, Limitation Act 1963",
+                'Select the limitation period and dates to calculate delay under Section 5, Limitation Act 1963',
                 style: TextStyle(fontSize: 12, color: Colors.grey[500]),
               ),
               const Divider(height: 20),
 
               // Limitation Period Presets
               Text(
-                "LIMITATION PERIOD",
+                'LIMITATION PERIOD',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -237,7 +237,7 @@ DEPONENT""";
                             ),
                           ),
                           if (isSelected)
-                            Icon(
+                            const Icon(
                               Icons.check_circle_rounded,
                               size: 18,
                               color: AppTheme.accent,
@@ -256,7 +256,7 @@ DEPONENT""";
                 children: [
                   Expanded(
                     child: _buildDatePicker(
-                      "Date of Order/Judgment",
+                      'Date of Order/Judgment',
                       _dateOfOrder,
                       isDark,
                       (d) => setState(() {
@@ -268,7 +268,7 @@ DEPONENT""";
                   const SizedBox(width: 12),
                   Expanded(
                     child: _buildDatePicker(
-                      "Date of Filing",
+                      'Date of Filing',
                       _dateOfFiling,
                       isDark,
                       (d) => setState(() {
@@ -302,7 +302,7 @@ DEPONENT""";
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        "If the due date falls on a day when the court is closed, the period is extended to the next working day under §4, Limitation Act.",
+                        'If the due date falls on a day when the court is closed, the period is extended to the next working day under §4, Limitation Act.',
                         style: TextStyle(
                           fontSize: 11,
                           color: Colors.amber[800],
@@ -377,7 +377,7 @@ DEPONENT""";
               children: [
                 Expanded(
                   child: _buildStatBlock(
-                    "Limitation",
+                    'Limitation',
                     "${_result!['limitationDays']} days",
                     Colors.blue,
                     isDark,
@@ -386,7 +386,7 @@ DEPONENT""";
                 const SizedBox(width: 8),
                 Expanded(
                   child: _buildStatBlock(
-                    "Elapsed",
+                    'Elapsed',
                     "${_result!['totalDays']} days",
                     Colors.orange,
                     isDark,
@@ -395,7 +395,7 @@ DEPONENT""";
                 const SizedBox(width: 8),
                 Expanded(
                   child: _buildStatBlock(
-                    "Delay",
+                    'Delay',
                     "${_result!['delay']} days",
                     _result!['isDelayed'] ? Colors.red : Colors.green,
                     isDark,
@@ -411,18 +411,18 @@ DEPONENT""";
                 isDark,
                 icon: Icons.description_rounded,
                 iconColor: Colors.indigo,
-                title: "Affidavit Draft",
+                title: 'Affidavit Draft',
                 trailing: TextButton.icon(
                   onPressed: () {
                     Clipboard.setData(
                       ClipboardData(text: _result!['affidavitText']),
                     );
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Affidavit text copied!")),
+                      const SnackBar(content: Text('Affidavit text copied!')),
                     );
                   },
                   icon: const Icon(Icons.copy_rounded, size: 14),
-                  label: const Text("Copy", style: TextStyle(fontSize: 12)),
+                  label: const Text('Copy', style: TextStyle(fontSize: 12)),
                 ),
                 children: [
                   Container(
@@ -532,7 +532,7 @@ DEPONENT""";
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.calendar_today_rounded,
                   size: 16,
                   color: AppTheme.accent,
@@ -540,7 +540,7 @@ DEPONENT""";
                 const SizedBox(width: 8),
                 Text(
                   value == null
-                      ? "Select"
+                      ? 'Select'
                       : DateFormat('dd MMM yyyy').format(value),
                   style: TextStyle(
                     fontSize: 13,

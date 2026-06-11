@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../models/case_dossier_models.dart';
 import '../../services/providers.dart';
 import '../../services/supabase_service.dart';
 import '../../theme/app_theme.dart';
@@ -22,21 +21,21 @@ class _IASectionState extends ConsumerState<IASection> {
       context: context,
       builder:
           (ctx) => AlertDialog(
-            title: const Text("Delete IA?"),
+            title: const Text('Delete IA?'),
             content: const Text(
-              "Are you sure you want to remove this IA entry?",
+              'Are you sure you want to remove this IA entry?',
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: const Text("Cancel"),
+                child: const Text('Cancel'),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.error,
                 ),
                 onPressed: () => Navigator.pop(ctx, true),
-                child: const Text("Delete"),
+                child: const Text('Delete'),
               ),
             ],
           ),
@@ -46,10 +45,11 @@ class _IASectionState extends ConsumerState<IASection> {
       await SupabaseService.deleteCaseIA(id);
       ref.invalidate(caseIAProvider(widget.caseId));
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     }
   }
 
@@ -100,7 +100,7 @@ class _IASectionState extends ConsumerState<IASection> {
                         ),
                         const SizedBox(height: 20),
                         const Text(
-                          "Add IA Application",
+                          'Add IA Application',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w900,
@@ -112,8 +112,8 @@ class _IASectionState extends ConsumerState<IASection> {
                           controller: iaNumberCtrl,
                           autofocus: true,
                           decoration: InputDecoration(
-                            labelText: "IA Number",
-                            hintText: "IA/1/2023",
+                            labelText: 'IA Number',
+                            hintText: 'IA/1/2023',
                             prefixIcon: const Icon(Icons.tag_rounded),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -124,7 +124,7 @@ class _IASectionState extends ConsumerState<IASection> {
                         TextField(
                           controller: partyCtrl,
                           decoration: InputDecoration(
-                            labelText: "Party Name",
+                            labelText: 'Party Name',
                             prefixIcon: const Icon(Icons.person_outline),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -135,8 +135,8 @@ class _IASectionState extends ConsumerState<IASection> {
                         TextField(
                           controller: classCtrl,
                           decoration: InputDecoration(
-                            labelText: "Classification",
-                            hintText: "Injunction / Stay",
+                            labelText: 'Classification',
+                            hintText: 'Injunction / Stay',
                             prefixIcon: const Icon(Icons.category_outlined),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -146,11 +146,11 @@ class _IASectionState extends ConsumerState<IASection> {
                         const SizedBox(height: 12),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: const Text("Filing Date"),
+                          title: const Text('Filing Date'),
                           subtitle: Text(
                             filingDate != null
                                 ? DateFormat('dd MMM yyyy').format(filingDate!)
-                                : "Select date",
+                                : 'Select date',
                           ),
                           trailing: const Icon(
                             Icons.calendar_today,
@@ -170,9 +170,9 @@ class _IASectionState extends ConsumerState<IASection> {
                         ),
                         const SizedBox(height: 12),
                         DropdownButtonFormField<String>(
-                          value: status,
+                          initialValue: status,
                           decoration: InputDecoration(
-                            labelText: "Status",
+                            labelText: 'Status',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -218,15 +218,16 @@ class _IASectionState extends ConsumerState<IASection> {
                                 });
                                 ref.invalidate(caseIAProvider(widget.caseId));
                               } catch (e) {
-                                if (mounted)
+                                if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text("Error: $e")),
+                                    SnackBar(content: Text('Error: $e')),
                                   );
+                                }
                               }
                             },
                             icon: const Icon(Icons.check, size: 18),
                             label: const Text(
-                              "Add IA",
+                              'Add IA',
                               style: TextStyle(fontWeight: FontWeight.w900),
                             ),
                             style: ElevatedButton.styleFrom(
@@ -252,7 +253,7 @@ class _IASectionState extends ConsumerState<IASection> {
 
     return DossierSection(
       icon: Icons.layers_rounded,
-      title: "IA Applications",
+      title: 'IA Applications',
       color: const Color(0xFFF59E0B),
       initiallyExpanded: iaAsync.value?.isNotEmpty == true,
       trailing: DossierHelper.addButton(() => _showAddIADialog()),
@@ -262,7 +263,7 @@ class _IASectionState extends ConsumerState<IASection> {
               (ias) =>
                   ias.isEmpty
                       ? DossierHelper.emptyHint(
-                        "No Interlocutory Applications. Tap + to add.",
+                        'No Interlocutory Applications. Tap + to add.',
                       )
                       : Column(
                         children:
@@ -374,7 +375,7 @@ class _IASectionState extends ConsumerState<IASection> {
                 padding: EdgeInsets.all(16),
                 child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),
-          error: (e, _) => DossierHelper.emptyHint("Error loading IAs"),
+          error: (e, _) => DossierHelper.emptyHint('Error loading IAs'),
         ),
       ],
     );

@@ -76,8 +76,9 @@ class _CommissionWitnessScreenState
   Future<void> _initSpeech() async {
     _speechAvailable = await _speech.initialize(
       onStatus: (s) {
-        if (s == 'done' || s == 'notListening')
+        if (s == 'done' || s == 'notListening') {
           setState(() => _isListening = false);
+        }
       },
     );
     setState(() {});
@@ -308,7 +309,7 @@ class _CommissionWitnessScreenState
         ),
         const SizedBox(height: 14),
         DropdownButtonFormField<String>(
-          value: _idType,
+          initialValue: _idType,
           style: GoogleFonts.inter(
             fontSize: 14,
             color: dk ? Colors.white : const Color(0xFF1E293B),
@@ -539,22 +540,24 @@ class _CommissionWitnessScreenState
                 (d) =>
                     setState(() => _currentSignatureStroke = [d.localPosition]),
             onPanUpdate: (d) {
-              if (_currentSignatureStroke != null)
+              if (_currentSignatureStroke != null) {
                 setState(() => _currentSignatureStroke!.add(d.localPosition));
+              }
             },
             onPanEnd: (_) {
-              if (_currentSignatureStroke != null)
+              if (_currentSignatureStroke != null) {
                 setState(() {
                   _signatureStrokes.add(List.from(_currentSignatureStroke!));
                   _currentSignatureStroke = null;
                 });
+              }
             },
             child: Container(
               height: 150,
               width: double.infinity,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius: const BorderRadius.vertical(
+                borderRadius: BorderRadius.vertical(
                   top: Radius.circular(15),
                 ),
               ),
@@ -758,10 +761,11 @@ class _CommissionWitnessScreenState
         Navigator.pop(context, true);
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
         );
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }

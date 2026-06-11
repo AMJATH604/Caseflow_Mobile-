@@ -30,7 +30,7 @@ class AppSidebar extends ConsumerWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "REGISTRY MODULES",
+                'REGISTRY MODULES',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                   color:
@@ -51,96 +51,96 @@ class AppSidebar extends ConsumerWidget {
                   ref,
                   0,
                   Icons.grid_view_rounded,
-                  "Dashboard",
-                  "/",
+                  'Dashboard',
+                  '/',
                 ),
                 _buildMenuItem(
                   context,
                   ref,
                   1,
                   Icons.people_alt_rounded,
-                  "Directory",
-                  "/clients",
+                  'Directory',
+                  '/clients',
                 ),
                 _buildMenuItem(
                   context,
                   ref,
                   2,
                   Icons.folder_copy_rounded,
-                  "Case Archive",
-                  "/cases",
+                  'Case Archive',
+                  '/cases',
                 ),
                 _buildMenuItem(
                   context,
                   ref,
                   3,
                   Icons.upload_file_rounded,
-                  "E-Filing",
-                  "/efiling",
+                  'E-Filing',
+                  '/efiling',
                 ),
                 _buildMenuItem(
                   context,
                   ref,
                   4,
                   Icons.calendar_month_rounded,
-                  "Schedule",
-                  "/hearings",
+                  'Schedule',
+                  '/hearings',
                 ),
                 _buildMenuItem(
                   context,
                   ref,
                   5,
                   Icons.snippet_folder_rounded,
-                  "Cert. Copies",
-                  "/certified-copies",
+                  'Cert. Copies',
+                  '/certified-copies',
                 ),
                 _buildMenuItem(
                   context,
                   ref,
                   6,
                   Icons.account_balance_rounded,
-                  "Portals",
-                  "/portals",
+                  'Portals',
+                  '/portals',
                 ),
                 _buildMenuItem(
                   context,
                   ref,
                   7,
                   Icons.wallet_rounded,
-                  "Finances",
-                  "/payments",
+                  'Finances',
+                  '/payments',
                 ),
                 _buildMenuItem(
                   context,
                   ref,
                   8,
                   Icons.terminal_rounded,
-                  "Admin Tools",
-                  "/tools",
+                  'Admin Tools',
+                  '/tools',
                 ),
                 _buildMenuItem(
                   context,
                   ref,
                   9,
                   Icons.assignment_ind_rounded,
-                  "Commissioner",
-                  "/commissions",
+                  'Commissioner',
+                  '/commissions',
                 ),
                 _buildMenuItem(
                   context,
                   ref,
                   10,
                   Icons.gavel_rounded,
-                  "Caveat Tracker",
-                  "/caveats",
+                  'Caveat Tracker',
+                  '/caveats',
                 ),
                 _buildMenuItem(
                   context,
                   ref,
                   11,
                   Icons.hub_rounded,
-                  "Advocate Hub",
-                  "/firm",
+                  'Advocate Hub',
+                  '/firm',
                 ),
               ],
             ),
@@ -174,14 +174,14 @@ class AppSidebar extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "CaseFlow",
+                'CaseFlow',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.5,
                 ),
               ),
               Text(
-                "Professional v1.2",
+                'Professional v1.2',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color:
                       Theme.of(context).brightness == Brightness.dark
@@ -284,7 +284,7 @@ class AppSidebar extends ConsumerWidget {
                       ),
                       child: Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.verified_rounded,
                             color: AppTheme.accent,
                             size: 18,
@@ -295,7 +295,7 @@ class AppSidebar extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "BETA ACCESS",
+                                  'BETA ACCESS',
                                   style: Theme.of(
                                     context,
                                   ).textTheme.labelSmall?.copyWith(
@@ -308,7 +308,7 @@ class AppSidebar extends ConsumerWidget {
                                   ),
                                 ),
                                 Text(
-                                  "Unlimited Professional Suite",
+                                  'Unlimited Professional Suite',
                                   style: Theme.of(
                                     context,
                                   ).textTheme.labelSmall?.copyWith(

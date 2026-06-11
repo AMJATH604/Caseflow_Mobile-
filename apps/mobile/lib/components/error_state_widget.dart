@@ -32,7 +32,7 @@ class ErrorStateWidget extends StatelessWidget {
                 _buildIcon(isOffline),
                 const SizedBox(height: 24),
                 Text(
-                  isOffline ? "No Internet Connection" : "Something went wrong",
+                  isOffline ? 'No Internet Connection' : 'Something went wrong',
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -42,7 +42,7 @@ class ErrorStateWidget extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   isOffline
-                      ? "Please check your network settings and try again."
+                      ? 'Please check your network settings and try again.'
                       : (message ?? error.toString()),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey[600], fontSize: 14),
@@ -66,7 +66,7 @@ class ErrorStateWidget extends StatelessWidget {
                         Icon(Icons.refresh_rounded, size: 18),
                         SizedBox(width: 8),
                         Text(
-                          "Try Again",
+                          'Try Again',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -80,7 +80,7 @@ class ErrorStateWidget extends StatelessWidget {
                       // Optional: Open system settings or show more details
                     },
                     child: Text(
-                      "Network Troubleshooting",
+                      'Network Troubleshooting',
                       style: TextStyle(color: Colors.grey[500], fontSize: 12),
                     ),
                   ),

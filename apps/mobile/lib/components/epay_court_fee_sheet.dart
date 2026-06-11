@@ -208,7 +208,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
 
                   // ─── Case Selector (NEW — Smart Sync) ───
                   Text(
-                    "SELECT CASE",
+                    'SELECT CASE',
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
@@ -236,7 +236,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                             ),
                           ),
                           child: DropdownButtonFormField<String>(
-                            value: _selectedCaseId,
+                            initialValue: _selectedCaseId,
                             isExpanded: true,
                             style: GoogleFonts.inter(
                               fontSize: 14,
@@ -244,7 +244,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                               color: AppTheme.primary,
                             ),
                             decoration: InputDecoration(
-                              hintText: "Link a case for auto-sync...",
+                              hintText: 'Link a case for auto-sync...',
                               hintStyle: GoogleFonts.inter(
                                 fontSize: 13,
                                 color: Colors.grey[400],
@@ -272,7 +272,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                                         value: c.id,
                                         child: Text(
                                           c.caseTitle.isEmpty
-                                              ? (c.caseNumber ?? "Case")
+                                              ? (c.caseNumber ?? 'Case')
                                               : c.caseTitle,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -287,7 +287,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                                 _selectedCaseId = val;
                                 _selectedCaseTitle =
                                     selected.caseTitle.isEmpty
-                                        ? (selected.caseNumber ?? "Case")
+                                        ? (selected.caseNumber ?? 'Case')
                                         : selected.caseTitle;
                               });
                             },
@@ -296,7 +296,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                     loading: () => const LinearProgressIndicator(),
                     error:
                         (_, __) => Text(
-                          "Could not load cases",
+                          'Could not load cases',
                           style: GoogleFonts.inter(color: Colors.grey),
                         ),
                   ),
@@ -313,7 +313,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          "Smart Sync ON — payment will auto-link when you return",
+                          'Smart Sync ON — payment will auto-link when you return',
                           style: GoogleFonts.inter(
                             fontSize: 11,
                             color: const Color(0xFF059669),
@@ -334,7 +334,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
 
                   // ─── Payment Type Selector ───
                   Text(
-                    "SELECT PAYMENT TYPE",
+                    'SELECT PAYMENT TYPE',
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
@@ -398,7 +398,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "eCourts ePay",
+                  'eCourts ePay',
                   style: GoogleFonts.outfit(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -408,7 +408,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "Official court fee payment portal for all India",
+                  'Official court fee payment portal for all India',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: Colors.white.withValues(alpha: 0.75),
@@ -424,7 +424,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              "GOV",
+              'GOV',
               style: GoogleFonts.inter(
                 fontSize: 10,
                 fontWeight: FontWeight.w900,
@@ -459,7 +459,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Paying for",
+                  'Paying for',
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     color: Colors.grey[500],
@@ -619,7 +619,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                     const Icon(Icons.launch_rounded, size: 20),
                     const SizedBox(width: 10),
                     Text(
-                      "Open eCourts ePay Portal",
+                      'Open eCourts ePay Portal',
                       style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -652,7 +652,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
               ),
               const SizedBox(width: 8),
               Text(
-                "Smart Sync Enabled",
+                'Smart Sync Enabled',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -662,14 +662,14 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
             ],
           ),
           const SizedBox(height: 10),
-          _buildInfoStep("1", "Select your case above for automatic tracking"),
+          _buildInfoStep('1', 'Select your case above for automatic tracking'),
           _buildInfoStep(
-            "2",
+            '2',
             "You'll be redirected to the official eCourts ePay portal",
           ),
-          _buildInfoStep("3", "Pay via Net Banking / UPI / Card on the portal"),
+          _buildInfoStep('3', 'Pay via Net Banking / UPI / Card on the portal'),
           _buildInfoStep(
-            "4",
+            '4',
             "Return to CaseFlow — we'll ask for the amount & receipt",
           ),
           const SizedBox(height: 12),
@@ -683,7 +683,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  "Secured by Government of India — National Informatics Centre (NIC)",
+                  'Secured by Government of India — National Informatics Centre (NIC)',
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,

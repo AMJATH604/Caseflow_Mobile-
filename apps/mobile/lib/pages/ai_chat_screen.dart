@@ -11,7 +11,8 @@ import '../services/gemini_service.dart';
 import '../services/analytics_service.dart';
 
 class AiChatScreen extends StatefulWidget {
-  const AiChatScreen({super.key});
+  final String? initialSessionId;
+  const AiChatScreen({super.key, this.initialSessionId});
 
   @override
   State<AiChatScreen> createState() => _AiChatScreenState();
@@ -23,6 +24,7 @@ class _AiChatScreenState extends State<AiChatScreen>
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isSending = false;
   File? _pendingFile; // File queued for sending (image or document)
   bool _isLoadingHistory = true;
@@ -34,7 +36,12 @@ class _AiChatScreenState extends State<AiChatScreen>
   }
 
   Future<void> _loadChatHistory() async {
-    await _gemini.loadHistory();
+    if (widget.initialSessionId != null) {
+      await _gemini.fetchSessions();
+      await _gemini.loadSession(widget.initialSessionId!);
+    } else {
+      await _gemini.loadHistory();
+    }
     if (mounted) {
       setState(() => _isLoadingHistory = false);
       _scrollToBottom();
@@ -64,8 +71,8 @@ class _AiChatScreenState extends State<AiChatScreen>
     final prompt =
         text.trim().isEmpty
             ? (fileToSend != null && !_isImageFile(fileToSend.path)
-                ? "Analyze this document"
-                : "Analyze this image")
+                ? 'Analyze this document'
+                : 'Analyze this image')
             : text.trim();
 
     // Use streaming for a ChatGPT-like word-by-word experience
@@ -149,7 +156,7 @@ class _AiChatScreenState extends State<AiChatScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Attach File",
+                  'Attach File',
                   style: GoogleFonts.outfit(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -157,7 +164,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Send images or documents for AI analysis",
+                  'Send images or documents for AI analysis',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color:
@@ -172,7 +179,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                   children: [
                     _buildAttachOption(
                       Icons.camera_alt_rounded,
-                      "Camera",
+                      'Camera',
                       const Color(0xFFEC4899),
                       () {
                         Navigator.pop(ctx);
@@ -181,7 +188,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                     ),
                     _buildAttachOption(
                       Icons.photo_library_rounded,
-                      "Gallery",
+                      'Gallery',
                       const Color(0xFF8B5CF6),
                       () {
                         Navigator.pop(ctx);
@@ -190,7 +197,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                     ),
                     _buildAttachOption(
                       Icons.description_rounded,
-                      "Documents",
+                      'Documents',
                       const Color(0xFF3B82F6),
                       () {
                         Navigator.pop(ctx);
@@ -241,23 +248,90 @@ class _AiChatScreenState extends State<AiChatScreen>
     );
   }
 
+  // ─── Session Drawer Helpers ──────────────────────────────
+
+  Future<void> _onNewChat() async {
+    Navigator.of(context).pop(); // Close drawer
+    await _gemini.startNewChat();
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _onSelectSession(ChatSession session) async {
+    Navigator.of(context).pop(); // Close drawer
+    if (session.id == _gemini.currentSessionId) return;
+    setState(() => _isLoadingHistory = true);
+    await _gemini.loadSession(session.id);
+    if (mounted) {
+      setState(() => _isLoadingHistory = false);
+      _scrollToBottom();
+    }
+  }
+
+  Future<void> _onDeleteSession(ChatSession session) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Text('Delete Chat?'),
+        content: Text('Delete "${session.title}"? This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await _gemini.deleteSession(session.id);
+      if (mounted) setState(() {});
+    }
+  }
+
+  String _formatTimeAgo(DateTime dateTime) {
+    final now = DateTime.now();
+    final diff = now.difference(dateTime);
+    if (diff.inMinutes < 1) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 2) return 'Yesterday';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    if (diff.inDays < 30) return '${(diff.inDays / 7).floor()}w ago';
+    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final messages = _gemini.history;
 
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor:
           isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF8FAFC),
+      drawer: _buildChatDrawer(isDark),
       body: SafeArea(
         child: Column(
           children: [
             _buildHeader(isDark),
             Expanded(
               child:
-                  messages.isEmpty
-                      ? _buildWelcomeView(isDark)
-                      : _buildChatList(isDark, messages),
+                  _isLoadingHistory
+                      ? Center(
+                          child: CircularProgressIndicator(
+                            color: AppTheme.accent,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : messages.isEmpty
+                          ? _buildWelcomeView(isDark)
+                          : _buildChatList(isDark, messages),
             ),
             // Pending image preview
             if (_pendingFile != null) _buildFilePreview(isDark),
@@ -268,9 +342,322 @@ class _AiChatScreenState extends State<AiChatScreen>
     );
   }
 
+  // ─── Chat History Drawer (Sidebar) ──────────────────────
+
+  Widget _buildChatDrawer(bool isDark) {
+    final sessions = _gemini.sessions;
+    final currentId = _gemini.currentSessionId;
+
+    return Drawer(
+      backgroundColor: isDark ? const Color(0xFF0F0F18) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.horizontal(right: Radius.circular(20)),
+      ),
+      child: SafeArea(
+        child: Column(
+          children: [
+            // ── Header ──
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 16, 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF6366F1), Color(0xFF22D3EE)],
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.auto_awesome,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Chat History',
+                    style: GoogleFonts.outfit(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: Icon(
+                      Icons.close_rounded,
+                      color: isDark
+                          ? const Color(0xFF64748B)
+                          : const Color(0xFF94A3B8),
+                      size: 22,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // ── New Chat Button ──
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: InkWell(
+                onTap: _onNewChat,
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF6366F1), Color(0xFF818CF8)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.add_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'New Chat',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // ── Section header ──
+            if (sessions.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'RECENTS',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: isDark
+                          ? const Color(0xFF475569)
+                          : const Color(0xFF94A3B8),
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                ),
+              ),
+
+            // ── Session list ──
+            Expanded(
+              child: sessions.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.chat_bubble_outline_rounded,
+                            size: 48,
+                            color: isDark
+                                ? const Color(0xFF232330)
+                                : const Color(0xFFE2E8F0),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'No conversations yet',
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: isDark
+                                  ? const Color(0xFF475569)
+                                  : const Color(0xFF94A3B8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      itemCount: sessions.length,
+                      itemBuilder: (context, index) {
+                        final session = sessions[index];
+                        final isActive = session.id == currentId;
+                        return _buildSessionTile(
+                          session,
+                          isActive,
+                          isDark,
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSessionTile(
+    ChatSession session,
+    bool isActive,
+    bool isDark,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Dismissible(
+        key: Key(session.id),
+        direction: DismissDirection.endToStart,
+        background: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 20),
+          decoration: BoxDecoration(
+            color: Colors.red.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(
+            Icons.delete_outline_rounded,
+            color: Colors.red,
+            size: 22,
+          ),
+        ),
+        confirmDismiss: (_) async {
+          return await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: const Text('Delete Chat?'),
+              content: Text(
+                'Delete "${session.title}"? This cannot be undone.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: const Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+        onDismissed: (_) async {
+          await _gemini.deleteSession(session.id);
+          if (mounted) setState(() {});
+        },
+        child: InkWell(
+          onTap: () => _onSelectSession(session),
+          onLongPress: () => _onDeleteSession(session),
+          borderRadius: BorderRadius.circular(12),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: isActive
+                  ? (isDark
+                      ? const Color(0xFF1E1E2E)
+                      : const Color(0xFFEEF2FF))
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              border: isActive
+                  ? Border.all(
+                      color: isDark
+                          ? const Color(0xFF6366F1).withValues(alpha: 0.3)
+                          : const Color(0xFF6366F1).withValues(alpha: 0.2),
+                    )
+                  : null,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  isActive
+                      ? Icons.chat_rounded
+                      : Icons.chat_bubble_outline_rounded,
+                  size: 18,
+                  color: isActive
+                      ? const Color(0xFF6366F1)
+                      : (isDark
+                          ? const Color(0xFF64748B)
+                          : const Color(0xFF94A3B8)),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        session.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight:
+                              isActive ? FontWeight.w700 : FontWeight.w500,
+                          color: isActive
+                              ? (isDark
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A))
+                              : (isDark
+                                  ? const Color(0xFFCBD5E1)
+                                  : const Color(0xFF475569)),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        _formatTimeAgo(session.updatedAt),
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: isDark
+                              ? const Color(0xFF475569)
+                              : const Color(0xFF94A3B8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ─── Header ──────────────────────────────────────────────
+
   Widget _buildHeader(bool isDark) {
+    final sessionTitle = _gemini.currentSessionTitle;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161620) : Colors.white,
         border: Border(
@@ -281,32 +668,44 @@ class _AiChatScreenState extends State<AiChatScreen>
       ),
       child: Row(
         children: [
+          // Hamburger menu button to open drawer
+          IconButton(
+            onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+            icon: Icon(
+              Icons.menu_rounded,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+              size: 24,
+            ),
+            tooltip: 'Chat History',
+          ),
           Container(
-            width: 38,
-            height: 38,
+            width: 34,
+            height: 34,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFF6366F1), Color(0xFF22D3EE)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(
               Icons.auto_awesome,
               color: Colors.white,
-              size: 20,
+              size: 18,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "CaseFlow AI",
+                  sessionTitle ?? 'CaseFlow AI',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.outfit(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
@@ -324,9 +723,9 @@ class _AiChatScreenState extends State<AiChatScreen>
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      "Powered by Gemini • Vision enabled",
+                      'Powered by Gemini • Vision enabled',
                       style: GoogleFonts.inter(
-                        fontSize: 11,
+                        fontSize: 10,
                         color:
                             isDark
                                 ? const Color(0xFF94A3B8)
@@ -339,6 +738,19 @@ class _AiChatScreenState extends State<AiChatScreen>
               ],
             ),
           ),
+          // New chat shortcut
+          IconButton(
+            onPressed: () async {
+              await _gemini.startNewChat();
+              if (mounted) setState(() {});
+            },
+            icon: Icon(
+              Icons.edit_square,
+              color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+              size: 20,
+            ),
+            tooltip: 'New Chat',
+          ),
           if (_gemini.history.isNotEmpty)
             IconButton(
               onPressed: () {
@@ -349,23 +761,25 @@ class _AiChatScreenState extends State<AiChatScreen>
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        title: const Text("Clear Chat?"),
+                        title: const Text('Delete Chat?'),
                         content: const Text(
-                          "This will permanently delete all your AI chat history.",
+                          'This will permanently delete this conversation.',
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx),
-                            child: const Text("Cancel"),
+                            child: const Text('Cancel'),
                           ),
                           TextButton(
                             onPressed: () async {
                               Navigator.pop(ctx);
                               await _gemini.clearHistory();
+                              // Refresh sessions list
+                              await _gemini.fetchSessions();
                               if (mounted) setState(() {});
                             },
                             child: const Text(
-                              "Clear",
+                              'Delete',
                               style: TextStyle(color: Colors.red),
                             ),
                           ),
@@ -420,7 +834,7 @@ class _AiChatScreenState extends State<AiChatScreen>
           ),
           const SizedBox(height: 24),
           Text(
-            "CaseFlow AI",
+            'CaseFlow AI',
             style: GoogleFonts.outfit(
               fontSize: 28,
               fontWeight: FontWeight.w800,
@@ -429,7 +843,7 @@ class _AiChatScreenState extends State<AiChatScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            "Your expert Indian legal assistant.\nAsk questions or share images of legal documents.",
+            'Your expert Indian legal assistant.\nAsk questions or share images of legal documents.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 14,
@@ -458,7 +872,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  "📸 Send photos of court orders, FIRs, or legal docs!",
+                  '📸 Send photos of court orders, FIRs, or legal docs!',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -470,7 +884,7 @@ class _AiChatScreenState extends State<AiChatScreen>
           ),
           const SizedBox(height: 32),
           Text(
-            "TRY ASKING",
+            'TRY ASKING',
             style: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -659,7 +1073,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                               children: [
                                 _buildActionChip(
                                   Icons.copy_rounded,
-                                  "Copy",
+                                  'Copy',
                                   () {
                                     Clipboard.setData(
                                       ClipboardData(text: msg.text),
@@ -667,7 +1081,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: const Text(
-                                          "Copied to clipboard",
+                                          'Copied to clipboard',
                                         ),
                                         behavior: SnackBarBehavior.floating,
                                         shape: RoundedRectangleBorder(
@@ -820,8 +1234,8 @@ class _AiChatScreenState extends State<AiChatScreen>
         default:
           children.add(
             Text(
-              "[Unknown Gen UI Widget: $tagType]",
-              style: TextStyle(color: Colors.red),
+              '[Unknown Gen UI Widget: $tagType]',
+              style: const TextStyle(color: Colors.red),
             ),
           );
       }
@@ -917,7 +1331,7 @@ class _AiChatScreenState extends State<AiChatScreen>
           ),
           const SizedBox(height: 12),
           Text(
-            "CNR: $cnr",
+            'CNR: $cnr',
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -926,7 +1340,7 @@ class _AiChatScreenState extends State<AiChatScreen>
           ),
           const SizedBox(height: 4),
           Text(
-            "Court: $court",
+            'Court: $court',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
@@ -942,7 +1356,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                 }
               },
               icon: const Icon(Icons.search_rounded, size: 14),
-              label: const Text("Track this Case"),
+              label: const Text('Track this Case'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF3B82F6),
                 foregroundColor: Colors.white,
@@ -1019,14 +1433,14 @@ class _AiChatScreenState extends State<AiChatScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Paid",
+                    'Paid',
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: const Color(0xFF10B981),
                     ),
                   ),
                   Text(
-                    "₹$paid",
+                    '₹$paid',
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -1039,14 +1453,14 @@ class _AiChatScreenState extends State<AiChatScreen>
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    "Balance",
+                    'Balance',
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: const Color(0xFFEF4444),
                     ),
                   ),
                   Text(
-                    "₹$balance",
+                    '₹$balance',
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -1076,7 +1490,7 @@ class _AiChatScreenState extends State<AiChatScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Popular Calculators",
+            'Popular Calculators',
             style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -1089,22 +1503,22 @@ class _AiChatScreenState extends State<AiChatScreen>
             runSpacing: 8,
             children: [
               _buildCalcChip(
-                "Court Fee",
+                'Court Fee',
                 Icons.account_balance_rounded,
                 isDark,
-                "court-fee",
+                'court-fee',
               ),
               _buildCalcChip(
-                "Limitation",
+                'Limitation',
                 Icons.timer_rounded,
                 isDark,
-                "limitation",
+                'limitation',
               ),
               _buildCalcChip(
-                "Maintenance",
+                'Maintenance',
                 Icons.family_restroom_rounded,
                 isDark,
-                "maintenance_calculator",
+                'maintenance_calculator',
               ),
             ],
           ),
@@ -1189,7 +1603,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    "$act - Section $section",
+                    '$act - Section $section',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -1246,7 +1660,7 @@ class _AiChatScreenState extends State<AiChatScreen>
         _buildDot(2),
         const SizedBox(width: 8),
         Text(
-          "Thinking...",
+          'Thinking...',
           style: GoogleFonts.inter(
             fontSize: 12,
             color: const Color(0xFF94A3B8),
@@ -1362,7 +1776,7 @@ class _AiChatScreenState extends State<AiChatScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  isImage ? "Image attached" : fileName,
+                  isImage ? 'Image attached' : fileName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.inter(
@@ -1374,8 +1788,8 @@ class _AiChatScreenState extends State<AiChatScreen>
                 const SizedBox(height: 2),
                 Text(
                   isImage
-                      ? "Add a message or tap send"
-                      : "Document ready — add a message or tap send",
+                      ? 'Add a message or tap send'
+                      : 'Document ready — add a message or tap send',
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color:
@@ -1481,8 +1895,8 @@ class _AiChatScreenState extends State<AiChatScreen>
                 decoration: InputDecoration(
                   hintText:
                       _pendingFile != null
-                          ? "Describe what to analyze..."
-                          : "Ask about any Indian law...",
+                          ? 'Describe what to analyze...'
+                          : 'Ask about any Indian law...',
                   hintStyle: GoogleFonts.inter(
                     fontSize: 14,
                     color:

@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/providers.dart';
-import '../models/models.dart';
 import '../theme/app_theme.dart';
-import '../components/status_badge.dart';
 import '../components/case_dossier_tab.dart';
 import '../components/case_discussion_tab.dart';
 import '../components/case_documents_tab.dart';
@@ -46,8 +43,9 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
       backgroundColor: AppTheme.primaryLight,
       body: caseAsync.when(
         data: (caseData) {
-          if (caseData == null)
-            return const Center(child: Text("Case not found."));
+          if (caseData == null) {
+            return const Center(child: Text('Case not found.'));
+          }
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -83,7 +81,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
         error:
             (err, stack) => Center(
               child: Text(
-                "Error: $err",
+                'Error: $err',
                 style: const TextStyle(color: Color(0xFF1E293B)),
               ),
             ),
@@ -122,12 +120,12 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
           fontSize: 11,
         ),
         tabs: const [
-          Tab(text: "DOSSIER"),
-          Tab(text: "DISCUSSION"),
-          Tab(text: "DOCUMENTS"),
-          Tab(text: "PAYMENTS"),
-          Tab(text: "EVIDENCE"),
-          Tab(text: "WITNESSES"),
+          Tab(text: 'DOSSIER'),
+          Tab(text: 'DISCUSSION'),
+          Tab(text: 'DOCUMENTS'),
+          Tab(text: 'PAYMENTS'),
+          Tab(text: 'EVIDENCE'),
+          Tab(text: 'WITNESSES'),
         ],
       ),
     );

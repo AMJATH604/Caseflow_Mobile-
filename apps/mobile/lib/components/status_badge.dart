@@ -24,7 +24,7 @@ class StatusBadge extends StatelessWidget {
           Icon(config.icon, size: 10, color: config.color),
           const SizedBox(width: 6),
           Text(
-            status.isEmpty ? "UNKNOWN" : status.toUpperCase(),
+            status.isEmpty ? 'UNKNOWN' : status.toUpperCase(),
             style: GoogleFonts.inter(
               color: config.color,
               fontSize: 9,
@@ -42,25 +42,25 @@ class StatusBadge extends StatelessWidget {
       case 'active':
       case 'approved':
       case 'paid':
-        return _StatusConfig(AppTheme.success, Icons.check_circle_rounded);
+        return const _StatusConfig(AppTheme.success, Icons.check_circle_rounded);
       case 'pending':
       case 'submitted':
       case 'drafting':
       case 'scheduled':
-        return _StatusConfig(AppTheme.warning, Icons.schedule_rounded);
+        return const _StatusConfig(AppTheme.warning, Icons.schedule_rounded);
       case 'closed':
       case 'rejected':
       case 'unpaid':
       case 'disposed':
-        return _StatusConfig(AppTheme.error, Icons.cancel_rounded);
+        return const _StatusConfig(AppTheme.error, Icons.cancel_rounded);
       case 'filing':
-        return _StatusConfig(AppTheme.accent, Icons.upload_file_rounded);
+        return const _StatusConfig(AppTheme.accent, Icons.upload_file_rounded);
       case 'hearing':
       case 'arguments':
-        return _StatusConfig(AppTheme.accentViolet, Icons.gavel_rounded);
+        return const _StatusConfig(AppTheme.accentViolet, Icons.gavel_rounded);
       default:
-        return _StatusConfig(
-          const Color(0xFF6B7280),
+        return const _StatusConfig(
+          Color(0xFF6B7280),
           Icons.info_outline_rounded,
         );
     }

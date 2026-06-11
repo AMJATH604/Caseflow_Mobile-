@@ -29,7 +29,7 @@ class NotificationsScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Updates",
+                      'Updates',
                       style: TextStyle(
                         fontSize: isMobile ? 24 : 28,
                         fontWeight: FontWeight.bold,
@@ -37,7 +37,7 @@ class NotificationsScreen extends ConsumerWidget {
                       ),
                     ),
                     const Text(
-                      "Recent activity across your practice",
+                      'Recent activity across your practice',
                       style: TextStyle(color: Colors.grey),
                     ),
                   ],
@@ -65,9 +65,9 @@ class NotificationsScreen extends ConsumerWidget {
     if (items.isEmpty) {
       return const EmptyStateWidget(
         icon: Icons.notifications_none,
-        title: "No Recent Updates",
+        title: 'No Recent Updates',
         message:
-            "When your cases, clients, or payments are modified, the activity log will appear here.",
+            'When your cases, clients, or payments are modified, the activity log will appear here.',
       );
     }
 
@@ -87,7 +87,7 @@ class NotificationsScreen extends ConsumerWidget {
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
             subtitle: Text(
-              "Updated to ${item.status.name}",
+              'Updated to ${item.status.name}',
               style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
             trailing: Text(
@@ -103,12 +103,12 @@ class NotificationsScreen extends ConsumerWidget {
   Widget _buildIcon(CaseStatus status) {
     IconData icon = Icons.info_outline;
     Color color = Colors.blue;
-    String statusStr = status.toString().split('.').last;
+    final String statusStr = status.toString().split('.').last;
 
-    if (statusStr == "active") {
+    if (statusStr == 'active') {
       icon = Icons.gavel;
       color = Colors.amber;
-    } else if (statusStr == "closed") {
+    } else if (statusStr == 'closed') {
       icon = Icons.check_circle;
       color = Colors.green;
     }

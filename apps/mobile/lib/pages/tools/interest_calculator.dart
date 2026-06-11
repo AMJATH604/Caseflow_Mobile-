@@ -21,51 +21,51 @@ class _InterestCalculatorState extends State<InterestCalculator> {
   final _principalController = TextEditingController();
   final _customRateController = TextEditingController();
 
-  String _rate = "12";
+  String _rate = '12';
   DateTime? _fromDate;
   DateTime? _toDate;
-  String _interestType = "simple";
-  String _phase = "pre_suit"; // NEW: pre_suit, pendente_lite, post_decree
+  String _interestType = 'simple';
+  String _phase = 'pre_suit'; // NEW: pre_suit, pendente_lite, post_decree
 
   Map<String, dynamic>? _result;
 
   // Rate presets with corrected legal labels
   final List<Map<String, dynamic>> _ratePresets = [
     {
-      "value": "6",
-      "label": "6%",
-      "desc": "Post-Decree (CPC §34)",
-      "color": const Color(0xFF3B82F6),
+      'value': '6',
+      'label': '6%',
+      'desc': 'Post-Decree (CPC §34)',
+      'color': const Color(0xFF3B82F6),
     },
     {
-      "value": "9",
-      "label": "9%",
-      "desc": "General Civil",
-      "color": const Color(0xFF8B5CF6),
+      'value': '9',
+      'label': '9%',
+      'desc': 'General Civil',
+      'color': const Color(0xFF8B5CF6),
     },
     {
-      "value": "12",
-      "label": "12%",
-      "desc": "Commercial",
-      "color": const Color(0xFFF59E0B),
+      'value': '12',
+      'label': '12%',
+      'desc': 'Commercial',
+      'color': const Color(0xFFF59E0B),
     },
     {
-      "value": "18",
-      "label": "18%",
-      "desc": "Private Lending",
-      "color": const Color(0xFFEF4444),
+      'value': '18',
+      'label': '18%',
+      'desc': 'Private Lending',
+      'color': const Color(0xFFEF4444),
     },
     {
-      "value": "24",
-      "label": "24%",
-      "desc": "Usurious",
-      "color": const Color(0xFFDC2626),
+      'value': '24',
+      'label': '24%',
+      'desc': 'Usurious',
+      'color': const Color(0xFFDC2626),
     },
     {
-      "value": "custom",
-      "label": "Custom",
-      "desc": "Enter rate",
-      "color": Colors.grey,
+      'value': 'custom',
+      'label': 'Custom',
+      'desc': 'Enter rate',
+      'color': Colors.grey,
     },
   ];
 
@@ -88,15 +88,16 @@ class _InterestCalculatorState extends State<InterestCalculator> {
       _principalController.text.replaceAll(',', ''),
     );
     final rateValue =
-        _rate == "custom"
+        _rate == 'custom'
             ? double.tryParse(_customRateController.text)
             : double.tryParse(_rate);
 
     if (principal == null ||
         rateValue == null ||
         _fromDate == null ||
-        _toDate == null)
+        _toDate == null) {
       return;
+    }
 
     final days = _toDate!.difference(_fromDate!).inDays;
     if (days < 0) return;
@@ -104,7 +105,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
     final timeInYears = days / 365.25;
     double interest;
 
-    if (_interestType == "simple") {
+    if (_interestType == 'simple') {
       interest = (principal * rateValue * days) / 36500;
     } else {
       // Compound interest: P(1 + r)^t - P (dead code removed)
@@ -123,36 +124,36 @@ class _InterestCalculatorState extends State<InterestCalculator> {
     String phaseLabel;
     String text;
     switch (_phase) {
-      case "pendente_lite":
-        phaseLabel = "Pendente lite interest";
+      case 'pendente_lite':
+        phaseLabel = 'Pendente lite interest';
         text =
-            "$phaseLabel on $fmtP/- from $fmtFrom to $fmtTo ($days days) at $rateValue% p.a. (during pendency of the suit) amounts to $fmtI/-. Total: $fmtT/-.";
+            '$phaseLabel on $fmtP/- from $fmtFrom to $fmtTo ($days days) at $rateValue% p.a. (during pendency of the suit) amounts to $fmtI/-. Total: $fmtT/-.';
         break;
-      case "post_decree":
-        phaseLabel = "Post-decree interest";
+      case 'post_decree':
+        phaseLabel = 'Post-decree interest';
         text =
-            "$phaseLabel on $fmtP/- from $fmtFrom (date of decree) to $fmtTo ($days days) at $rateValue% p.a. under Section 34 CPC amounts to $fmtI/-. Total payable: $fmtT/-.";
+            '$phaseLabel on $fmtP/- from $fmtFrom (date of decree) to $fmtTo ($days days) at $rateValue% p.a. under Section 34 CPC amounts to $fmtI/-. Total payable: $fmtT/-.';
         break;
       default:
-        phaseLabel = "Pre-suit interest";
+        phaseLabel = 'Pre-suit interest';
         text =
-            "$phaseLabel on $fmtP/- from $fmtFrom (date of cause of action) to $fmtTo ($days days) at $rateValue% p.a. amounts to $fmtI/-. Total claim: $fmtT/-.";
+            '$phaseLabel on $fmtP/- from $fmtFrom (date of cause of action) to $fmtTo ($days days) at $rateValue% p.a. amounts to $fmtI/-. Total claim: $fmtT/-.';
     }
 
     setState(() {
       _result = {
-        "days": days,
-        "interest": interest,
-        "total": total,
-        "text": text,
-        "phaseLabel": phaseLabel,
+        'days': days,
+        'interest': interest,
+        'total': total,
+        'text': text,
+        'phaseLabel': phaseLabel,
       };
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -164,7 +165,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
             isDark,
             icon: Icons.percent_rounded,
             iconColor: Colors.purple,
-            title: "Interest Parameters",
+            title: 'Interest Parameters',
             children: [
               // Principal
               TextField(
@@ -175,8 +176,8 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                   fontWeight: FontWeight.w700,
                 ),
                 decoration: InputDecoration(
-                  labelText: "Principal Amount (₹)",
-                  prefixText: "₹ ",
+                  labelText: 'Principal Amount (₹)',
+                  prefixText: '₹ ',
                   prefixStyle: GoogleFonts.inter(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -189,7 +190,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
 
               // Rate Chips
               Text(
-                "INTEREST RATE (% P.A.)",
+                'INTEREST RATE (% P.A.)',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -268,13 +269,13 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                     }).toList(),
               ),
 
-              if (_rate == "custom") ...[
+              if (_rate == 'custom') ...[
                 const SizedBox(height: 12),
                 TextField(
                   controller: _customRateController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: "Custom Rate (%)",
+                    labelText: 'Custom Rate (%)',
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -284,7 +285,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
 
               // Interest Phase Toggle (NEW)
               Text(
-                "INTEREST PHASE",
+                'INTEREST PHASE',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -304,9 +305,9 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                 ),
                 child: Row(
                   children: [
-                    _buildPhaseTab("pre_suit", "Pre-Suit"),
-                    _buildPhaseTab("pendente_lite", "Pendente Lite"),
-                    _buildPhaseTab("post_decree", "Post-Decree"),
+                    _buildPhaseTab('pre_suit', 'Pre-Suit'),
+                    _buildPhaseTab('pendente_lite', 'Pendente Lite'),
+                    _buildPhaseTab('post_decree', 'Post-Decree'),
                   ],
                 ),
               ),
@@ -318,7 +319,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                 children: [
                   Expanded(
                     child: _buildDatePicker(
-                      "From Date",
+                      'From Date',
                       _fromDate,
                       isDark,
                       (d) => setState(() {
@@ -330,7 +331,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _buildDatePicker(
-                      "To Date",
+                      'To Date',
                       _toDate,
                       isDark,
                       (d) => setState(() {
@@ -356,8 +357,8 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                 ),
                 child: Row(
                   children: [
-                    _buildTypeTab("simple", "Simple Interest"),
-                    _buildTypeTab("compound", "Compound (Annual)"),
+                    _buildTypeTab('simple', 'Simple Interest'),
+                    _buildTypeTab('compound', 'Compound (Annual)'),
                   ],
                 ),
               ),
@@ -371,16 +372,16 @@ class _InterestCalculatorState extends State<InterestCalculator> {
               isDark,
               icon: Icons.pie_chart_rounded,
               iconColor: Colors.green,
-              title: "Calculation Result",
+              title: 'Calculation Result',
               trailing: TextButton.icon(
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: _result!['text']));
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Plaint text copied!")),
+                    const SnackBar(content: Text('Plaint text copied!')),
                   );
                 },
                 icon: const Icon(Icons.copy_rounded, size: 14),
-                label: const Text("Copy", style: TextStyle(fontSize: 12)),
+                label: const Text('Copy', style: TextStyle(fontSize: 12)),
               ),
               children: [
                 // Stats Row
@@ -402,19 +403,19 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _buildStatItem(
-                        "Days",
+                        'Days',
                         _result!['days'].toString(),
                         Colors.blue,
                       ),
                       Container(width: 1, height: 40, color: Colors.grey[300]),
                       _buildStatItem(
-                        "Interest",
+                        'Interest',
                         formatCurrency.format(_result!['interest']),
                         Colors.orange,
                       ),
                       Container(width: 1, height: 40, color: Colors.grey[300]),
                       _buildStatItem(
-                        "Total",
+                        'Total',
                         formatCurrency.format(_result!['total']),
                         Colors.green,
                       ),
@@ -434,7 +435,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                   child: Row(
                     children: [
                       const SizedBox(width: 8),
-                      Icon(
+                      const Icon(
                         Icons.label_important_rounded,
                         size: 14,
                         color: AppTheme.accent,
@@ -442,7 +443,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                       const SizedBox(width: 6),
                       Text(
                         _result!['phaseLabel'],
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: AppTheme.accent,
@@ -485,7 +486,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
   }
 
   Widget _buildPhaseTab(String value, String label) {
-    bool isActive = _phase == value;
+    final bool isActive = _phase == value;
     return Expanded(
       child: InkWell(
         onTap: () {
@@ -524,7 +525,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
   }
 
   Widget _buildTypeTab(String type, String label) {
-    bool isSelected = _interestType == type;
+    final bool isSelected = _interestType == type;
     return Expanded(
       child: InkWell(
         onTap: () {
@@ -602,7 +603,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.calendar_today_rounded,
                   size: 16,
                   color: AppTheme.accent,
@@ -610,7 +611,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                 const SizedBox(width: 8),
                 Text(
                   value == null
-                      ? "Select"
+                      ? 'Select'
                       : DateFormat('dd MMM yyyy').format(value),
                   style: TextStyle(
                     fontSize: 13,

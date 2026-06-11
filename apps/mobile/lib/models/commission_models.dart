@@ -337,8 +337,9 @@ class Commission {
   bool get isOverdue {
     if (deadlineDate == null) return false;
     if (status == CommissionStatus.submitted ||
-        status == CommissionStatus.closed)
+        status == CommissionStatus.closed) {
       return false;
+    }
     return DateTime.now().isAfter(deadlineDate!);
   }
 

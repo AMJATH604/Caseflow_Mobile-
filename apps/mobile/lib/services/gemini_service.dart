@@ -28,6 +28,30 @@ class ChatMessage {
   bool get hasImage => imagePath != null || imageBase64 != null;
 }
 
+/// Represents a chat session (conversation thread).
+class ChatSession {
+  final String id;
+  final String title;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  ChatSession({
+    required this.id,
+    required this.title,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory ChatSession.fromJson(Map<String, dynamic> json) {
+    return ChatSession(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
+    );
+  }
+}
+
 /// AI-powered legal assistant using Gemini via Edge Function proxy.
 ///
 /// **Security:** All requests are routed through `gemini-proxy` Edge Function.
@@ -37,6 +61,7 @@ class ChatMessage {
 ///
 /// **Multimodal:** Supports image analysis via Gemini Vision.
 /// **Persistence:** Chat history is saved to Supabase for cross-session continuity.
+/// **Sessions:** Supports multiple chat sessions (conversations) like ChatGPT.
 class GeminiService {
   static const String _advocateSystemPrompt =
       '''You are **CaseFlow AI** — an expert Indian legal assistant built into the CaseFlow legal practice management app.
@@ -110,6 +135,27 @@ Guidelines:
   /// Approximate max tokens for conversation context before truncation.
   static const int _maxContextTokens = 90000;
 
+  // ─── Session Management ─────────────────────────────────
+  String? _currentSessionId;
+  List<ChatSession> _sessions = [];
+  bool _sessionsLoaded = false;
+
+  String? get currentSessionId => _currentSessionId;
+  List<ChatSession> get sessions => List.unmodifiable(_sessions);
+  bool get sessionsLoaded => _sessionsLoaded;
+
+  /// Get the title of the current session (or null).
+  String? get currentSessionTitle {
+    if (_currentSessionId == null) return null;
+    try {
+      return _sessions
+          .firstWhere((s) => s.id == _currentSessionId)
+          .title;
+    } catch (_) {
+      return null;
+    }
+  }
+
   List<ChatMessage> get history => List.unmodifiable(_history);
   bool get historyLoaded => _historyLoaded;
 
@@ -122,7 +168,7 @@ Guidelines:
       return 'Please enter a message.';
     }
     if (message.length > _maxPromptLength) {
-      return 'Message is too long (max ${_maxPromptLength} characters). Please shorten your message.';
+      return 'Message is too long (max $_maxPromptLength characters). Please shorten your message.';
     }
     return null; // Valid
   }
@@ -144,13 +190,64 @@ Guidelines:
     return totalChars ~/ 4;
   }
 
-  // ─── PERSISTENCE: Load chat history from Supabase ──────
+  // ─── SESSION MANAGEMENT ─────────────────────────────────
 
-  /// Load previous chat messages from the database.
-  /// Called once when the AI chat screen initializes.
-  Future<void> loadHistory() async {
-    if (_historyLoaded) return;
+  /// Fetch all chat sessions for the current user.
+  Future<List<ChatSession>> fetchSessions() async {
     try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) return [];
+
+      final data = await Supabase.instance.client
+          .from('ai_chat_sessions')
+          .select()
+          .eq('user_id', userId)
+          .order('updated_at', ascending: false);
+
+      _sessions =
+          (data as List).map((json) => ChatSession.fromJson(json)).toList();
+      _sessionsLoaded = true;
+      return _sessions;
+    } catch (e) {
+      debugPrint('Failed to fetch chat sessions: $e');
+      return [];
+    }
+  }
+
+  /// Create a new chat session and switch to it.
+  Future<String?> createNewSession() async {
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) return null;
+
+      final response = await Supabase.instance.client
+          .from('ai_chat_sessions')
+          .insert({
+            'user_id': userId,
+            'title': 'New Chat',
+          })
+          .select()
+          .single();
+
+      final newSession = ChatSession.fromJson(response);
+      _sessions.insert(0, newSession);
+      _currentSessionId = newSession.id;
+      _history.clear();
+      _historyLoaded = true;
+
+      return newSession.id;
+    } catch (e) {
+      debugPrint('Failed to create new session: $e');
+      return null;
+    }
+  }
+
+  /// Load messages for a specific session.
+  Future<void> loadSession(String sessionId) async {
+    try {
+      _currentSessionId = sessionId;
+      _history.clear();
+
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) return;
 
@@ -158,10 +255,10 @@ Guidelines:
           .from('ai_chat_history')
           .select()
           .eq('user_id', userId)
+          .eq('session_id', sessionId)
           .order('created_at', ascending: true)
-          .limit(50); // Load last 50 messages
+          .limit(100);
 
-      _history.clear();
       for (final row in data) {
         _history.add(
           ChatMessage(
@@ -174,9 +271,102 @@ Guidelines:
       }
       _historyLoaded = true;
     } catch (e) {
+      debugPrint('Failed to load session $sessionId: $e');
+    }
+  }
+
+  /// Delete a session and all its messages.
+  Future<void> deleteSession(String sessionId) async {
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) return;
+
+      await Supabase.instance.client
+          .from('ai_chat_sessions')
+          .delete()
+          .eq('id', sessionId)
+          .eq('user_id', userId);
+
+      _sessions.removeWhere((s) => s.id == sessionId);
+
+      // If we deleted the current session, switch to the most recent one
+      if (_currentSessionId == sessionId) {
+        _history.clear();
+        _currentSessionId = null;
+        _historyLoaded = false;
+        if (_sessions.isNotEmpty) {
+          await loadSession(_sessions.first.id);
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to delete session $sessionId: $e');
+    }
+  }
+
+  /// Auto-generate a session title from the first user message.
+  Future<void> _autoGenerateTitle(String firstMessage) async {
+    if (_currentSessionId == null) return;
+    try {
+      // Truncate to 50 chars max, clean up
+      String title = firstMessage.trim();
+      if (title.length > 50) {
+        title = '${title.substring(0, 47)}...';
+      }
+      // Remove newlines
+      title = title.replaceAll(RegExp(r'\s+'), ' ');
+
+      await Supabase.instance.client
+          .from('ai_chat_sessions')
+          .update({'title': title})
+          .eq('id', _currentSessionId!);
+
+      // Update local cache
+      final idx = _sessions.indexWhere((s) => s.id == _currentSessionId);
+      if (idx >= 0) {
+        _sessions[idx] = ChatSession(
+          id: _sessions[idx].id,
+          title: title,
+          createdAt: _sessions[idx].createdAt,
+          updatedAt: DateTime.now(),
+        );
+      }
+    } catch (e) {
+      debugPrint('Failed to update session title: $e');
+    }
+  }
+
+  // ─── PERSISTENCE: Load chat history from Supabase ──────
+
+  /// Load previous chat messages from the database.
+  /// Called once when the AI chat screen initializes.
+  /// Loads the most recent session automatically.
+  Future<void> loadHistory() async {
+    if (_historyLoaded) return;
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) return;
+
+      // Load sessions first
+      await fetchSessions();
+
+      if (_sessions.isEmpty) {
+        _historyLoaded = true;
+        return;
+      }
+
+      // Load the most recent session
+      final latestSession = _sessions.first;
+      await loadSession(latestSession.id);
+    } catch (e) {
       debugPrint('Failed to load AI chat history: $e');
       // Non-fatal: chat works without history
     }
+  }
+
+  /// Ensure there's an active session. Creates one if needed.
+  Future<void> _ensureSession() async {
+    if (_currentSessionId != null) return;
+    await createNewSession();
   }
 
   /// Save a single message to the database (fire-and-forget).
@@ -195,6 +385,7 @@ Guidelines:
         'message': msg.text,
         'has_attachment': hasAttachment,
         'attachment_type': attachmentType,
+        'session_id': _currentSessionId,
       });
     } catch (e) {
       debugPrint('Failed to persist AI message: $e');
@@ -210,6 +401,12 @@ Guidelines:
     if (validationError != null) {
       return '⚠️ $validationError';
     }
+
+    // Ensure we have an active session
+    await _ensureSession();
+
+    // Check if this is the first message in the session (for auto-titling)
+    final isFirstMessage = _history.isEmpty;
 
     // Encode image to base64 if provided
     String? imageBase64;
@@ -241,6 +438,11 @@ Guidelines:
       hasAttachment: imageFile != null,
       attachmentType: attachmentType,
     );
+
+    // Auto-generate title from first message
+    if (isFirstMessage) {
+      _autoGenerateTitle(userMessage);
+    }
 
     // Add loading placeholder
     _history.add(ChatMessage(role: 'model', text: '', isLoading: true));
@@ -374,6 +576,12 @@ Guidelines:
 
     required void Function(String fullText) onChunk,
   }) async {
+    // Ensure we have an active session
+    await _ensureSession();
+
+    // Check if this is the first message in the session (for auto-titling)
+    final isFirstMessage = _history.isEmpty;
+
     // Encode image to base64 if provided
     String? imageBase64;
     String? imagePath;
@@ -402,6 +610,11 @@ Guidelines:
       hasAttachment: imageFile != null,
       attachmentType: attachmentType,
     );
+
+    // Auto-generate title from first message
+    if (isFirstMessage) {
+      _autoGenerateTitle(userMessage);
+    }
 
     // Add streaming placeholder
     _history.add(ChatMessage(role: 'model', text: '', isLoading: true));
@@ -463,7 +676,7 @@ Guidelines:
 
       // Direct HTTP call to edge function for streaming
       final session = Supabase.instance.client.auth.currentSession;
-      final url = '${AppConstants.supabaseUrl}/functions/v1/gemini-proxy';
+      const url = '${AppConstants.supabaseUrl}/functions/v1/gemini-proxy';
 
       final request = http.Request('POST', Uri.parse(url));
       request.headers.addAll({
@@ -570,21 +783,22 @@ Guidelines:
     }
   }
 
-  /// Clear chat history (both local and database)
+  /// Clear chat history for the current session only.
   Future<void> clearHistory() async {
     _history.clear();
-    _historyLoaded = false;
-    try {
-      final userId = Supabase.instance.client.auth.currentUser?.id;
-      if (userId != null) {
-        await Supabase.instance.client
-            .from('ai_chat_history')
-            .delete()
-            .eq('user_id', userId);
-      }
-    } catch (e) {
-      debugPrint('Failed to clear AI chat history from DB: $e');
+
+    if (_currentSessionId != null) {
+      await deleteSession(_currentSessionId!);
     }
+    _historyLoaded = false;
+  }
+
+  /// Start a fresh new chat (clears current view and creates new session).
+  Future<void> startNewChat() async {
+    _history.clear();
+    _currentSessionId = null;
+    _historyLoaded = true;
+    // Session will be auto-created on first message via _ensureSession()
   }
 
   /// Get suggested prompts for new users

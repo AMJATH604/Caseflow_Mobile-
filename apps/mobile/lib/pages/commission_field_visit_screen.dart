@@ -109,7 +109,7 @@ class _CommissionFieldVisitScreenState
 
       // Build activity feed from existing data
       _feed.clear();
-      if (v.checkinTime != null)
+      if (v.checkinTime != null) {
         _feed.add(
           _ActivityItem(
             time: v.checkinTime!.toLocal(),
@@ -118,6 +118,7 @@ class _CommissionFieldVisitScreenState
             color: AppTheme.success,
           ),
         );
+      }
       for (final obs in o) {
         _feed.add(
           _ActivityItem(
@@ -171,8 +172,9 @@ class _CommissionFieldVisitScreenState
   @override
   Widget build(BuildContext context) {
     final dk = Theme.of(context).brightness == Brightness.dark;
-    if (_loading)
+    if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
       body: CustomScrollView(
@@ -262,7 +264,7 @@ class _CommissionFieldVisitScreenState
                           ),
                           child: Column(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.timer,
                                 color: AppTheme.success,
                                 size: 20,
@@ -626,7 +628,7 @@ class _CommissionFieldVisitScreenState
     // Explicitly request GPS permissions BEFORE opening camera
     bool gpsAvailable = false;
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -684,7 +686,7 @@ class _CommissionFieldVisitScreenState
         ),
       );
       _load();
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -696,11 +698,13 @@ class _CommissionFieldVisitScreenState
             duration: const Duration(seconds: 1),
           ),
         );
+      }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
         );
+      }
     }
   }
 
@@ -916,7 +920,7 @@ class _CommissionFieldVisitScreenState
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.warning_amber, color: AppTheme.error),
+                      const Icon(Icons.warning_amber, color: AppTheme.error),
                       const SizedBox(width: 8),
                       Text(
                         'Report Obstruction',
@@ -964,13 +968,14 @@ class _CommissionFieldVisitScreenState
                             ),
                           ),
                         );
-                        if (mounted)
+                        if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text('⚠️ Obstruction reported'),
+                            const SnackBar(
+                              content: Text('⚠️ Obstruction reported'),
                               backgroundColor: AppTheme.error,
                             ),
                           );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.error,
@@ -1034,10 +1039,11 @@ class _CommissionFieldVisitScreenState
         Navigator.pop(context, true);
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
         );
+      }
     }
   }
 }

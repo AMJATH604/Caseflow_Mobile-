@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../components/epay_court_fee_sheet.dart';
 import 'tools/court_fee_calculator.dart';
@@ -30,105 +29,105 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
 
   final List<Map<String, dynamic>> _calculatorTools = [
     {
-      "id": "court-fee",
-      "title": "Court Fee",
-      "desc": "Calculate court fees",
-      "icon": Icons.calculate,
-      "color": Colors.orange,
+      'id': 'court-fee',
+      'title': 'Court Fee',
+      'desc': 'Calculate court fees',
+      'icon': Icons.calculate,
+      'color': Colors.orange,
     },
     {
-      "id": "epay_court_fee",
-      "title": "eCourts ePay",
-      "desc": "Pay court fees online",
-      "icon": Icons.account_balance_rounded,
-      "color": const Color(0xFF2563EB),
+      'id': 'epay_court_fee',
+      'title': 'eCourts ePay',
+      'desc': 'Pay court fees online',
+      'icon': Icons.account_balance_rounded,
+      'color': const Color(0xFF2563EB),
     },
     {
-      "id": "interest",
-      "title": "Interest",
-      "desc": "Calculate interest",
-      "icon": Icons.percent,
-      "color": Colors.purple,
+      'id': 'interest',
+      'title': 'Interest',
+      'desc': 'Calculate interest',
+      'icon': Icons.percent,
+      'color': Colors.purple,
     },
     {
-      "id": "delay",
-      "title": "Delay (Sec 5)",
-      "desc": "Calculate delay period",
-      "icon": Icons.schedule,
-      "color": Colors.red,
+      'id': 'delay',
+      'title': 'Delay (Sec 5)',
+      'desc': 'Calculate delay period',
+      'icon': Icons.schedule,
+      'color': Colors.red,
     },
     {
-      "id": "limitation",
-      "title": "Limitation",
-      "desc": "Track deadlines",
-      "icon": Icons.timer,
-      "color": Colors.teal,
+      'id': 'limitation',
+      'title': 'Limitation',
+      'desc': 'Track deadlines',
+      'icon': Icons.timer,
+      'color': Colors.teal,
     },
     {
-      "id": "partition_calculator",
-      "title": "Partition Share",
-      "desc": "Hindu & Muslim Law",
-      "icon": Icons.family_restroom,
-      "color": Colors.pink,
+      'id': 'partition_calculator',
+      'title': 'Partition Share',
+      'desc': 'Hindu & Muslim Law',
+      'icon': Icons.family_restroom,
+      'color': Colors.pink,
     },
     {
-      "id": "mact_calculator",
-      "title": "MACT Claims",
-      "desc": "Accident compensation",
-      "icon": Icons.directions_car,
-      "color": Colors.red,
+      'id': 'mact_calculator',
+      'title': 'MACT Claims',
+      'desc': 'Accident compensation',
+      'icon': Icons.directions_car,
+      'color': Colors.red,
     },
     {
-      "id": "maintenance_calculator",
-      "title": "Maintenance",
-      "desc": "Sec 144 BNSS / HAMA",
-      "icon": Icons.account_balance_wallet,
-      "color": Colors.deepPurple,
+      'id': 'maintenance_calculator',
+      'title': 'Maintenance',
+      'desc': 'Sec 144 BNSS / HAMA',
+      'icon': Icons.account_balance_wallet,
+      'color': Colors.deepPurple,
     },
     {
-      "id": "stamp_values",
-      "title": "Stamp Values",
-      "desc": "Petition stamp reference",
-      "icon": Icons.receipt_long_rounded,
-      "color": Colors.amber,
+      'id': 'stamp_values',
+      'title': 'Stamp Values',
+      'desc': 'Petition stamp reference',
+      'icon': Icons.receipt_long_rounded,
+      'color': Colors.amber,
     },
   ];
 
   final List<Map<String, dynamic>> _libraryTools = [
     {
-      "id": "bare_acts",
-      "title": "Bare Acts Library",
-      "desc": "BNS, BNSS, CPC & more",
-      "icon": Icons.library_books,
-      "color": Colors.brown,
+      'id': 'bare_acts',
+      'title': 'Bare Acts Library',
+      'desc': 'BNS, BNSS, CPC & more',
+      'icon': Icons.library_books,
+      'color': Colors.brown,
     },
     {
-      "id": "legal_dictionary",
-      "title": "Legal Dictionary",
-      "desc": "500+ Latin & Legal terms",
-      "icon": Icons.import_contacts_rounded,
-      "color": Colors.orange,
+      'id': 'legal_dictionary',
+      'title': 'Legal Dictionary',
+      'desc': '500+ Latin & Legal terms',
+      'icon': Icons.import_contacts_rounded,
+      'color': Colors.orange,
     },
     {
-      "id": "english_dictionary",
-      "title": "English Dictionary",
-      "desc": "Curated A-Z vocabulary",
-      "icon": Icons.spellcheck_rounded,
-      "color": Colors.teal,
+      'id': 'english_dictionary',
+      'title': 'English Dictionary',
+      'desc': 'Curated A-Z vocabulary',
+      'icon': Icons.spellcheck_rounded,
+      'color': Colors.teal,
     },
     {
-      "id": "legal_templates",
-      "title": "Legal Templates",
-      "desc": "PDF & Word drafts",
-      "icon": Icons.description_rounded,
-      "color": const Color(0xFFD4AF37),
+      'id': 'legal_templates',
+      'title': 'Legal Templates',
+      'desc': 'PDF & Word drafts',
+      'icon': Icons.description_rounded,
+      'color': const Color(0xFFD4AF37),
     },
     {
-      "id": "holiday_list",
-      "title": "Court Holidays",
-      "desc": "Court holidays 2026",
-      "icon": Icons.calendar_month_rounded,
-      "color": Colors.deepOrange,
+      'id': 'holiday_list',
+      'title': 'Court Holidays',
+      'desc': 'Court holidays 2026',
+      'icon': Icons.calendar_month_rounded,
+      'color': Colors.deepOrange,
     },
   ];
 
@@ -165,14 +164,14 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Legal Toolkit",
+                  'Legal Toolkit',
                   style: Theme.of(
                     context,
                   ).textTheme.displayLarge?.copyWith(fontSize: 28),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Essential legal tools for every Indian citizen",
+                  'Essential legal tools for every Indian citizen',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color:
                         Theme.of(context).brightness == Brightness.dark
@@ -184,9 +183,9 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
               ],
             ),
           ),
-          _buildToolSection("Calculators", _calculatorTools, isMobile),
+          _buildToolSection('Calculators', _calculatorTools, isMobile),
           const SizedBox(height: 20),
-          _buildToolSection("Legal Library", _libraryTools, isMobile),
+          _buildToolSection('Legal Library', _libraryTools, isMobile),
           const SizedBox(height: 100),
         ],
       ),
@@ -321,7 +320,7 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
       orElse: () => allTools.first,
     );
     Widget toolWidget;
-    String title = tool['title'];
+    final String title = tool['title'];
 
     switch (_activeToolId) {
       case 'court-fee':
@@ -364,7 +363,7 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
         toolWidget = const StampValueScreen();
         break;
       default:
-        toolWidget = Center(child: Text("Tool: $_activeToolId"));
+        toolWidget = Center(child: Text('Tool: $_activeToolId'));
     }
 
     final isMobile = MediaQuery.of(context).size.width < 768;

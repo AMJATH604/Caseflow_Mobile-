@@ -181,7 +181,7 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
                       final displayValue =
                           (_countAnimation.value * numValue).round();
                       return Text(
-                        "$displayValue",
+                        '$displayValue',
                         style: GoogleFonts.outfit(
                           fontSize: 30,
                           fontWeight: FontWeight.w700,
@@ -260,7 +260,7 @@ class StatChip extends StatelessWidget {
             Icon(icon, size: 16, color: color),
             const SizedBox(height: 6),
             Text(
-              "$value",
+              '$value',
               style: GoogleFonts.outfit(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,

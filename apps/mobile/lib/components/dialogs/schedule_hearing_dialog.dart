@@ -32,8 +32,9 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate() ||
         _selectedCaseId == null ||
-        _hearingDate == null)
+        _hearingDate == null) {
       return;
+    }
 
     setState(() => _isSaving = true);
     try {
@@ -47,10 +48,11 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
       ref.invalidate(hearingsProvider);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -62,7 +64,7 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
 
     return AlertDialog(
       title: const Text(
-        "Schedule New Hearing",
+        'Schedule New Hearing',
         style: TextStyle(
           fontFamily: 'Playfair Display',
           fontWeight: FontWeight.bold,
@@ -79,7 +81,7 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
                     (cases) => DropdownButtonFormField<String>(
                       initialValue: _selectedCaseId,
                       decoration: const InputDecoration(
-                        labelText: "Select Case",
+                        labelText: 'Select Case',
                       ),
                       items:
                           cases
@@ -88,17 +90,17 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
                                   value: c.id,
                                   child: Text(
                                     c.caseTitle.isEmpty
-                                        ? (c.caseNumber ?? "Unknown Case")
+                                        ? (c.caseNumber ?? 'Unknown Case')
                                         : c.caseTitle,
                                   ),
                                 ),
                               )
                               .toList(),
                       onChanged: (val) => setState(() => _selectedCaseId = val),
-                      validator: (v) => v == null ? "Required" : null,
+                      validator: (v) => v == null ? 'Required' : null,
                     ),
                 loading: () => const CircularProgressIndicator(),
-                error: (e, s) => Text("Error loading cases: $e"),
+                error: (e, s) => Text('Error loading cases: $e'),
               ),
               const SizedBox(height: 16),
               InkWell(
@@ -112,20 +114,20 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
                   if (picked != null) setState(() => _hearingDate = picked);
                 },
                 child: InputDecorator(
-                  decoration: const InputDecoration(labelText: "Hearing Date"),
+                  decoration: const InputDecoration(labelText: 'Hearing Date'),
                   child: Text(DateFormat('dd MMM yyyy').format(_hearingDate!)),
                 ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _purposeController,
-                decoration: const InputDecoration(labelText: "Purpose / Stage"),
-                validator: (v) => v!.isEmpty ? "Required" : null,
+                decoration: const InputDecoration(labelText: 'Purpose / Stage'),
+                validator: (v) => v!.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _notesController,
-                decoration: const InputDecoration(labelText: "Notes"),
+                decoration: const InputDecoration(labelText: 'Notes'),
                 maxLines: 2,
               ),
             ],
@@ -135,7 +137,7 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text("Cancel"),
+          child: const Text('Cancel'),
         ),
         ElevatedButton(
           onPressed: _isSaving ? null : _save,
@@ -153,7 +155,7 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
                       color: Colors.white,
                     ),
                   )
-                  : const Text("Schedule"),
+                  : const Text('Schedule'),
         ),
       ],
     );

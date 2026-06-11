@@ -79,7 +79,7 @@ class _OcrToolState extends State<OcrTool> {
       Clipboard.setData(ClipboardData(text: _extractedText!));
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("📋 Text copied to clipboard!"),
+          content: Text('📋 Text copied to clipboard!'),
           backgroundColor: Colors.green,
         ),
       );
@@ -120,7 +120,7 @@ class _OcrToolState extends State<OcrTool> {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  "OCR Document Scanner",
+                  'OCR Document Scanner',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -129,7 +129,7 @@ class _OcrToolState extends State<OcrTool> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  "Extract text from photos of court orders, judgments, and legal documents",
+                  'Extract text from photos of court orders, judgments, and legal documents',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white70, fontSize: 13),
                 ),
@@ -153,7 +153,7 @@ class _OcrToolState extends State<OcrTool> {
                       ),
                       SizedBox(width: 4),
                       Text(
-                        "Works Offline · Google ML Kit",
+                        'Works Offline · Google ML Kit',
                         style: TextStyle(
                           color: Color(0xFF1E293B),
                           fontSize: 11,
@@ -173,7 +173,7 @@ class _OcrToolState extends State<OcrTool> {
                               ? null
                               : () => _pickImage(ImageSource.camera),
                       icon: const Icon(Icons.camera_alt, size: 18),
-                      label: const Text("Camera"),
+                      label: const Text('Camera'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: const Color(0xFF11998e),
@@ -193,7 +193,7 @@ class _OcrToolState extends State<OcrTool> {
                               ? null
                               : () => _pickImage(ImageSource.gallery),
                       icon: const Icon(Icons.photo_library, size: 18),
-                      label: const Text("Gallery"),
+                      label: const Text('Gallery'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.white,
                         side: const BorderSide(color: Colors.white70),
@@ -218,7 +218,7 @@ class _OcrToolState extends State<OcrTool> {
             const CircularProgressIndicator(),
             const SizedBox(height: 16),
             const Text(
-              "Analyzing document with ML Kit...",
+              'Analyzing document with ML Kit...',
               style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
             ),
           ],
@@ -261,7 +261,7 @@ class _OcrToolState extends State<OcrTool> {
                 const SizedBox(width: 8),
                 const Expanded(
                   child: Text(
-                    "EXTRACTED TEXT",
+                    'EXTRACTED TEXT',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -273,7 +273,7 @@ class _OcrToolState extends State<OcrTool> {
                 TextButton.icon(
                   onPressed: _copyToClipboard,
                   icon: const Icon(Icons.copy, size: 16),
-                  label: const Text("Copy All", style: TextStyle(fontSize: 12)),
+                  label: const Text('Copy All', style: TextStyle(fontSize: 12)),
                 ),
               ],
             ),

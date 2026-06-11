@@ -26,7 +26,7 @@ class CaseHistorySection extends ConsumerStatefulWidget {
 class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
   void _showAddHearingDialog() {
     DateTime selectedDate = DateTime.now().add(const Duration(days: 7));
-    String purpose = "";
+    String purpose = '';
 
     showDialog(
       context: context,
@@ -37,14 +37,14 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                title: const Text("Schedule Hearing"),
+                title: const Text('Schedule Hearing'),
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text("Hearing Date"),
+                        title: const Text('Hearing Date'),
                         subtitle: Text(
                           DateFormat('dd MMM yyyy').format(selectedDate),
                         ),
@@ -61,14 +61,15 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                               const Duration(days: 365 * 5),
                             ),
                           );
-                          if (date != null)
+                          if (date != null) {
                             setDialogState(() => selectedDate = date);
+                          }
                         },
                       ),
                       const SizedBox(height: 8),
                       TextField(
                         decoration: const InputDecoration(
-                          labelText: "Purpose / Stage",
+                          labelText: 'Purpose / Stage',
                         ),
                         onChanged: (v) => purpose = v,
                       ),
@@ -78,7 +79,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text("Cancel"),
+                    child: const Text('Cancel'),
                   ),
                   ElevatedButton(
                     onPressed: () async {
@@ -93,13 +94,14 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                         ref.invalidate(caseHearingsProvider(widget.caseId));
                         ref.invalidate(hearingsProvider);
                       } catch (e) {
-                        if (mounted)
+                        if (mounted) {
                           ScaffoldMessenger.of(
                             context,
-                          ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                          ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                        }
                       }
                     },
-                    child: const Text("Schedule"),
+                    child: const Text('Schedule'),
                   ),
                 ],
               );
@@ -129,7 +131,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    "HEARING DATE",
+                    'HEARING DATE',
                     style: TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.w900,
@@ -141,7 +143,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                 Expanded(
                   flex: 3,
                   child: Text(
-                    "PURPOSE OF HEARING",
+                    'PURPOSE OF HEARING',
                     style: TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.w900,
@@ -153,7 +155,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    "STATUS",
+                    'STATUS',
                     style: TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.w900,
@@ -200,7 +202,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                 ),
                 decoration: BoxDecoration(
                   color: rowColor,
-                  border: Border(top: BorderSide(color: AppTheme.darkBorder)),
+                  border: const Border(top: BorderSide(color: AppTheme.darkBorder)),
                 ),
                 child: Row(
                   children: [
@@ -222,7 +224,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                           ),
                           if (isFuture)
                             const Text(
-                              "UPCOMING",
+                              'UPCOMING',
                               style: TextStyle(
                                 fontSize: 8,
                                 fontWeight: FontWeight.w900,
@@ -239,7 +241,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            h.purpose ?? h.stage ?? "Standard Hearing",
+                            h.purpose ?? h.stage ?? 'Standard Hearing',
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -283,16 +285,17 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
 
     return DossierSection(
       icon: Icons.history_rounded,
-      title: "Case History",
+      title: 'Case History',
       color: const Color(0xFF3B82F6),
       trailing: DossierHelper.addButton(() => _showAddHearingDialog()),
       children: [
         hearingsAsync.when(
           data: (hearings) {
-            if (hearings.isEmpty)
+            if (hearings.isEmpty) {
               return DossierHelper.emptyHint(
-                "No hearing records yet. Schedule your first hearing.",
+                'No hearing records yet. Schedule your first hearing.',
               );
+            }
             // Sort chronologically — oldest first
             final sorted = List<Hearing>.from(hearings)
               ..sort((a, b) => a.hearingDate.compareTo(b.hearingDate));
@@ -303,7 +306,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                 padding: EdgeInsets.all(16),
                 child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),
-          error: (e, _) => DossierHelper.emptyHint("Error loading history"),
+          error: (e, _) => DossierHelper.emptyHint('Error loading history'),
         ),
       ],
     );

@@ -95,7 +95,7 @@ class _CommissionSketchScreenState
 
   // Drawing state
   List<DrawingStroke> _strokes = [];
-  List<DrawingStroke> _redoStack = [];
+  final List<DrawingStroke> _redoStack = [];
   DrawingStroke? _currentStroke;
   List<TextAnnotation> _annotations = [];
 
@@ -761,18 +761,19 @@ class _CommissionSketchScreenState
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('✅ Sketch saved!'),
+          const SnackBar(
+            content: Text('✅ Sketch saved!'),
             backgroundColor: AppTheme.success,
           ),
         );
         Navigator.pop(context, true);
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
         );
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -903,10 +904,10 @@ class _SketchPainter extends CustomPainter {
     canvas.drawPath(southPath, southPaint);
 
     // N label
-    final textSpan = TextSpan(
+    const textSpan = TextSpan(
       text: 'N',
       style: TextStyle(
-        color: const Color(0xFFEF4444),
+        color: Color(0xFFEF4444),
         fontSize: 12,
         fontWeight: FontWeight.w900,
       ),

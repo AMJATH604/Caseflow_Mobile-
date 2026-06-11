@@ -145,7 +145,7 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Legal Pulse",
+                  'Legal Pulse',
                   style: GoogleFonts.outfit(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -154,7 +154,7 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
                   ),
                 ),
                 Text(
-                  "Live legal news from across India",
+                  'Live legal news from across India',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: Colors.white.withValues(alpha: 0.8),
@@ -303,7 +303,7 @@ class _NewsFeedTab extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            "No articles yet",
+            'No articles yet',
             style: GoogleFonts.outfit(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -312,7 +312,7 @@ class _NewsFeedTab extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            "Pull down to refresh and fetch latest news",
+            'Pull down to refresh and fetch latest news',
             style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[500]),
           ),
         ],
@@ -369,7 +369,7 @@ class _BookmarksTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  "No saved articles",
+                  'No saved articles',
                   style: GoogleFonts.outfit(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -378,7 +378,7 @@ class _BookmarksTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Tap the bookmark icon on any article to save it",
+                  'Tap the bookmark icon on any article to save it',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: Colors.grey[500],
@@ -616,7 +616,7 @@ class _NewsCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        "Read on LiveLaw",
+                        'Read on LiveLaw',
                         style: GoogleFonts.inter(
                           fontSize: 10,
                           color: Colors.grey[400],
@@ -721,7 +721,7 @@ class _ReadMoreButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            "Read Full Article",
+            'Read Full Article',
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w700,

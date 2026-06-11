@@ -161,7 +161,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             final capitalizedDbRole =
                 profile.userRole == 'advocate' ? 'an Advocate' : 'a Citizen';
             _showError(
-              "This account is registered as $capitalizedDbRole. Please go back and sign in through the correct portal.",
+              'This account is registered as $capitalizedDbRole. Please go back and sign in through the correct portal.',
             );
           }
           return;
@@ -188,13 +188,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         if (mounted) {
           String userMessage;
           if (isTimeout) {
-            userMessage = "Cannot connect to server. Check your internet.";
+            userMessage = 'Cannot connect to server. Check your internet.';
           } else if (errorStr.contains('invalid login')) {
-            userMessage = "Invalid email or password.";
+            userMessage = 'Invalid email or password.';
           } else if (errorStr.contains('email not confirmed')) {
-            userMessage = "Please verify your email first.";
+            userMessage = 'Please verify your email first.';
           } else {
-            userMessage = "Authentication failed. Please try again.";
+            userMessage = 'Authentication failed. Please try again.';
           }
           _showError(userMessage, isWarning: isTimeout);
         }
@@ -235,7 +235,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             .timeout(const Duration(seconds: 15));
 
         if (res.user != null && mounted) {
-          _showSuccess("Account created! Please verify your email to sign in.");
+          _showSuccess('Account created! Please verify your email to sign in.');
           setState(() {
             _authTab = 0;
             _signupStep = 0;
@@ -260,20 +260,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         if (mounted) {
           if (errorStr.contains('already registered')) {
             _showError(
-              "This email is already registered. Tap Sign In to login.",
+              'This email is already registered. Tap Sign In to login.',
             );
             // Auto-switch to sign-in tab for convenience
             Future.delayed(const Duration(seconds: 2), () {
-              if (mounted)
+              if (mounted) {
                 setState(() {
                   _authTab = 0;
                   _signupStep = 0;
                 });
+              }
             });
           } else if (isTimeout) {
-            _showError("Cannot connect. Check your internet.", isWarning: true);
+            _showError('Cannot connect. Check your internet.', isWarning: true);
           } else {
-            _showError("Registration failed. Please try again.");
+            _showError('Registration failed. Please try again.');
           }
         }
         break;
@@ -288,7 +289,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     if (email.isEmpty ||
         !RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$').hasMatch(email)) {
       _showError(
-        "Enter your email address above first, then tap Forgot Password.",
+        'Enter your email address above first, then tap Forgot Password.',
       );
       return;
     }
@@ -296,10 +297,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     try {
       await SupabaseService.client.auth.resetPasswordForEmail(email);
       if (mounted) {
-        _showSuccess("Password reset link sent to $email. Check your inbox.");
+        _showSuccess('Password reset link sent to $email. Check your inbox.');
       }
     } catch (e) {
-      if (mounted) _showError("Failed to send reset email. Try again.");
+      if (mounted) _showError('Failed to send reset email. Try again.');
     }
     if (mounted) setState(() => _isLoading = false);
   }
@@ -466,7 +467,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "CASEFLOW",
+                    'CASEFLOW',
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
@@ -475,7 +476,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     ),
                   ),
                   Text(
-                    "Your Practice, Perfected",
+                    'Your Practice, Perfected',
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       color: const Color(0xFFD4AF37).withValues(alpha: 0.8),
@@ -492,7 +493,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
           // Welcome text
           Text(
-            _authTab == 0 ? "Welcome\nBack" : "Join the\nProfession",
+            _authTab == 0 ? 'Welcome\nBack' : 'Join the\nProfession',
             style: GoogleFonts.playfairDisplay(
               fontSize: 36,
               fontWeight: FontWeight.w700,
@@ -533,8 +534,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
           Text(
             _authTab == 0
-                ? "Sign in to access your legal workspace"
-                : "Create your advocate account in 3 simple steps",
+                ? 'Sign in to access your legal workspace'
+                : 'Create your advocate account in 3 simple steps',
             style: GoogleFonts.inter(
               fontSize: 13,
               color: Colors.white.withValues(alpha: 0.5),
@@ -612,7 +613,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         color: const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(14),
       ),
-      child: Row(children: [_buildTab("Sign In", 0), _buildTab("Register", 1)]),
+      child: Row(children: [_buildTab('Sign In', 0), _buildTab('Register', 1)]),
     );
   }
 
@@ -670,26 +671,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         children: [
           _buildTextField(
             controller: _emailController,
-            label: "Email Address",
-            hint: "advocate@email.com",
+            label: 'Email Address',
+            hint: 'advocate@email.com',
             icon: Icons.mail_outline_rounded,
             keyboardType: TextInputType.emailAddress,
             validator: (v) {
-              if (v == null || v.isEmpty) return "Enter your email";
-              if (!RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$').hasMatch(v.trim()))
-                return "Enter a valid email";
+              if (v == null || v.isEmpty) return 'Enter your email';
+              if (!RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$').hasMatch(v.trim())) {
+                return 'Enter a valid email';
+              }
               return null;
             },
           ),
           const SizedBox(height: 16),
           _buildTextField(
             controller: _passwordController,
-            label: "Password",
-            hint: "••••••••",
+            label: 'Password',
+            hint: '••••••••',
             icon: Icons.lock_outline_rounded,
             isPassword: true,
             validator: (v) {
-              if (v == null || v.isEmpty) return "Enter your password";
+              if (v == null || v.isEmpty) return 'Enter your password';
               return null;
             },
           ),
@@ -700,7 +702,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             child: TextButton(
               onPressed: _handleForgotPassword,
               child: Text(
-                "Forgot Password?",
+                'Forgot Password?',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -712,7 +714,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
           const SizedBox(height: 8),
           _buildPrimaryButton(
-            label: "Sign In",
+            label: 'Sign In',
             icon: Icons.login_rounded,
             onPressed: _handleSignIn,
           ),
@@ -761,8 +763,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Widget _buildStepIndicator() {
     final steps =
         _userRole == 'citizen'
-            ? ["Account", "Location"]
-            : ["Account", "Professional", "Location"];
+            ? ['Account', 'Location']
+            : ['Account', 'Professional', 'Location'];
     return Row(
       children: List.generate(steps.length, (i) {
         final isActive = _signupStep == i;
@@ -804,7 +806,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             color: Colors.white,
                           )
                           : Text(
-                            "${i + 1}",
+                            '${i + 1}',
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
@@ -864,22 +866,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStepTitle(
-            "Create Your Account",
-            "Set up your login credentials",
+            'Create Your Account',
+            'Set up your login credentials',
           ),
           const SizedBox(height: 20),
           _buildTextField(
             controller: _emailController,
-            label: "Email Address",
-            hint: "advocate@email.com",
+            label: 'Email Address',
+            hint: 'advocate@email.com',
             icon: Icons.mail_outline_rounded,
             keyboardType: TextInputType.emailAddress,
             validator: (v) {
-              if (v == null || v.isEmpty) return "Enter your email";
+              if (v == null || v.isEmpty) return 'Enter your email';
               if (!RegExp(
                 r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$',
               ).hasMatch(v.trim())) {
-                return "Enter a valid email address";
+                return 'Enter a valid email address';
               }
               return null;
             },
@@ -887,18 +889,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           const SizedBox(height: 16),
           _buildTextField(
             controller: _passwordController,
-            label: "Password",
-            hint: "Min 8 chars, 1 uppercase, 1 digit",
+            label: 'Password',
+            hint: 'Min 8 chars, 1 uppercase, 1 digit',
             icon: Icons.lock_outline_rounded,
             isPassword: true,
             onChanged: _updatePasswordStrength,
             validator: (v) {
-              if (v == null || v.isEmpty) return "Enter a password";
-              if (v.length < 8) return "Minimum 8 characters required";
-              if (!v.contains(RegExp(r'[A-Z]')))
-                return "Must contain at least 1 uppercase letter";
-              if (!v.contains(RegExp(r'[0-9]')))
-                return "Must contain at least 1 digit";
+              if (v == null || v.isEmpty) return 'Enter a password';
+              if (v.length < 8) return 'Minimum 8 characters required';
+              if (!v.contains(RegExp(r'[A-Z]'))) {
+                return 'Must contain at least 1 uppercase letter';
+              }
+              if (!v.contains(RegExp(r'[0-9]'))) {
+                return 'Must contain at least 1 digit';
+              }
               return null;
             },
           ),
@@ -937,15 +941,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               runSpacing: 4,
               children: [
                 _buildRequirement(
-                  "8+ chars",
+                  '8+ chars',
                   _passwordController.text.length >= 8,
                 ),
                 _buildRequirement(
-                  "Uppercase",
+                  'Uppercase',
                   _passwordController.text.contains(RegExp(r'[A-Z]')),
                 ),
                 _buildRequirement(
-                  "Number",
+                  'Number',
                   _passwordController.text.contains(RegExp(r'[0-9]')),
                 ),
               ],
@@ -953,7 +957,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           ],
           const SizedBox(height: 24),
           _buildPrimaryButton(
-            label: "Continue",
+            label: 'Continue',
             icon: Icons.arrow_forward_rounded,
             onPressed: () {
               if (_step0FormKey.currentState!.validate()) {
@@ -975,38 +979,38 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStepTitle(
-            "Professional Details",
-            "Your Bar Council information",
+            'Professional Details',
+            'Your Bar Council information',
           ),
           const SizedBox(height: 20),
           _buildTextField(
             controller: _nameController,
-            label: "Full Name",
-            hint: "Adv. Full Name",
+            label: 'Full Name',
+            hint: 'Adv. Full Name',
             icon: Icons.person_outline_rounded,
             validator:
-                (v) => (v == null || v.isEmpty) ? "Enter your name" : null,
+                (v) => (v == null || v.isEmpty) ? 'Enter your name' : null,
           ),
           const SizedBox(height: 16),
           _buildTextField(
             controller: _mobileController,
-            label: "Mobile Number",
-            hint: "+91 98765 43210",
+            label: 'Mobile Number',
+            hint: '+91 98765 43210',
             icon: Icons.phone_outlined,
             keyboardType: TextInputType.phone,
             validator:
-                (v) => (v == null || v.isEmpty) ? "Enter mobile number" : null,
+                (v) => (v == null || v.isEmpty) ? 'Enter mobile number' : null,
           ),
           const SizedBox(height: 16),
           _buildTextField(
             controller: _regNoController,
-            label: "Bar Council Registration No.",
-            hint: "e.g. MS/1234/2020",
+            label: 'Bar Council Registration No.',
+            hint: 'e.g. MS/1234/2020',
             icon: Icons.badge_outlined,
             validator:
                 (v) =>
                     (v == null || v.isEmpty)
-                        ? "Enter registration number"
+                        ? 'Enter registration number'
                         : null,
           ),
           const SizedBox(height: 24),
@@ -1014,7 +1018,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             children: [
               Expanded(
                 child: _buildSecondaryButton(
-                  label: "Back",
+                  label: 'Back',
                   onPressed: () => setState(() => _signupStep = 0),
                 ),
               ),
@@ -1022,7 +1026,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               Expanded(
                 flex: 2,
                 child: _buildPrimaryButton(
-                  label: "Continue",
+                  label: 'Continue',
                   icon: Icons.arrow_forward_rounded,
                   onPressed: () {
                     if (_step1FormKey.currentState!.validate()) {
@@ -1046,29 +1050,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         key: const ValueKey('citizen_step1'),
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStepTitle("Your Details", "Tell us about yourself"),
+          _buildStepTitle('Your Details', 'Tell us about yourself'),
           const SizedBox(height: 20),
 
           _buildTextField(
             controller: _nameController,
-            label: "Full Name",
-            hint: "Enter your full name",
+            label: 'Full Name',
+            hint: 'Enter your full name',
             icon: Icons.person_outlined,
             validator:
                 (v) =>
-                    (v == null || v.trim().isEmpty) ? "Enter your name" : null,
+                    (v == null || v.trim().isEmpty) ? 'Enter your name' : null,
           ),
           const SizedBox(height: 16),
 
           _buildTextField(
             controller: _mobileController,
-            label: "Mobile Number",
-            hint: "10-digit mobile number",
+            label: 'Mobile Number',
+            hint: '10-digit mobile number',
             icon: Icons.phone_android_outlined,
             keyboardType: TextInputType.phone,
             validator: (v) {
-              if (v == null || v.trim().isEmpty) return "Enter mobile number";
-              if (v.trim().length != 10) return "Enter a valid 10-digit number";
+              if (v == null || v.trim().isEmpty) return 'Enter mobile number';
+              if (v.trim().length != 10) return 'Enter a valid 10-digit number';
               return null;
             },
           ),
@@ -1076,7 +1080,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
           // State dropdown
           _buildDropdown(
-            label: "State",
+            label: 'State',
             value: _selectedState,
             icon: Icons.location_on_outlined,
             items: stateDistricts.keys.toList(),
@@ -1091,7 +1095,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
           // District dropdown
           _buildDropdown(
-            label: "District",
+            label: 'District',
             value: _selectedDistrict,
             icon: Icons.my_location_outlined,
             items:
@@ -1106,7 +1110,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             children: [
               Expanded(
                 child: _buildSecondaryButton(
-                  label: "Back",
+                  label: 'Back',
                   onPressed: () => setState(() => _signupStep = 0),
                 ),
               ),
@@ -1114,7 +1118,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               Expanded(
                 flex: 2,
                 child: _buildPrimaryButton(
-                  label: "Create Account",
+                  label: 'Create Account',
                   icon: Icons.check_circle_outline_rounded,
                   onPressed: () {
                     if (_step2FormKey.currentState!.validate() &&
@@ -1123,7 +1127,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       _handleSignUp();
                     } else if (_selectedState == null ||
                         _selectedDistrict == null) {
-                      _showError("Please select your state and district.");
+                      _showError('Please select your state and district.');
                     }
                   },
                 ),
@@ -1143,12 +1147,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         key: const ValueKey('step2'),
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStepTitle("Practice Location", "Where you practice law"),
+          _buildStepTitle('Practice Location', 'Where you practice law'),
           const SizedBox(height: 20),
 
           // State dropdown
           _buildDropdown(
-            label: "Practice State",
+            label: 'Practice State',
             value: _selectedState,
             icon: Icons.location_on_outlined,
             items: stateDistricts.keys.toList(),
@@ -1163,7 +1167,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
           // District dropdown
           _buildDropdown(
-            label: "Practice District",
+            label: 'Practice District',
             value: _selectedDistrict,
             icon: Icons.my_location_outlined,
             items:
@@ -1176,12 +1180,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
           _buildTextField(
             controller: _addressController,
-            label: "Office Address",
-            hint: "Your chamber / office address",
+            label: 'Office Address',
+            hint: 'Your chamber / office address',
             icon: Icons.business_outlined,
             maxLines: 2,
             validator:
-                (v) => (v == null || v.isEmpty) ? "Enter office address" : null,
+                (v) => (v == null || v.isEmpty) ? 'Enter office address' : null,
           ),
 
           const SizedBox(height: 24),
@@ -1189,7 +1193,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             children: [
               Expanded(
                 child: _buildSecondaryButton(
-                  label: "Back",
+                  label: 'Back',
                   onPressed: () => setState(() => _signupStep = 1),
                 ),
               ),
@@ -1197,7 +1201,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               Expanded(
                 flex: 2,
                 child: _buildPrimaryButton(
-                  label: "Create Account",
+                  label: 'Create Account',
                   icon: Icons.check_circle_outline_rounded,
                   onPressed: () {
                     if (_step2FormKey.currentState!.validate() &&
@@ -1206,7 +1210,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       _handleSignUp();
                     } else if (_selectedState == null ||
                         _selectedDistrict == null) {
-                      _showError("Please select your state and district.");
+                      _showError('Please select your state and district.');
                     }
                   },
                 ),
@@ -1377,7 +1381,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: value,
+          initialValue: value,
           isExpanded: true,
           style: GoogleFonts.inter(
             fontSize: 15,
@@ -1386,7 +1390,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           ),
           decoration: InputDecoration(
             prefixIcon: Icon(icon, color: const Color(0xFF94A3B8), size: 20),
-            hintText: "Select...",
+            hintText: 'Select...',
             hintStyle: GoogleFonts.inter(
               fontSize: 14,
               color: const Color(0xFFCBD5E1),
@@ -1535,7 +1539,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     ),
                     child: Center(
                       child: Text(
-                        ["A", "S", "K"][i],
+                        ['A', 'S', 'K'][i],
                         style: GoogleFonts.inter(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -1553,7 +1557,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Trusted by advocates across India",
+                'Trusted by advocates across India',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -1573,7 +1577,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    "5.0 rating",
+                    '5.0 rating',
                     style: GoogleFonts.inter(
                       fontSize: 10,
                       color: const Color(0xFF94A3B8),

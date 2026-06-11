@@ -80,7 +80,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
     );
 
     if (url != null) {
-      final senderName = _profile?.fullName ?? "Team Member";
+      final senderName = _profile?.fullName ?? 'Team Member';
       await SupabaseService.postDiscussion({
         'firm_id': firmId,
         'message':
@@ -104,7 +104,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Failed to upload. Check your internet connection."),
+            content: Text('Failed to upload. Check your internet connection.'),
           ),
         );
       }
@@ -127,7 +127,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "Share",
+                    'Share',
                     style: GoogleFonts.outfit(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -139,7 +139,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                     children: [
                       _buildAttachOption(
                         Icons.camera_alt_rounded,
-                        "Camera",
+                        'Camera',
                         Colors.pink,
                         () {
                           Navigator.pop(ctx);
@@ -148,7 +148,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                       ),
                       _buildAttachOption(
                         Icons.photo_library_rounded,
-                        "Gallery",
+                        'Gallery',
                         Colors.purple,
                         () {
                           Navigator.pop(ctx);
@@ -157,7 +157,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                       ),
                       _buildAttachOption(
                         Icons.insert_drive_file_rounded,
-                        "Document",
+                        'Document',
                         Colors.blue,
                         () {
                           Navigator.pop(ctx);
@@ -209,14 +209,15 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
 
   @override
   Widget build(BuildContext context) {
-    if (_profile == null)
+    if (_profile == null) {
       return const Center(child: CircularProgressIndicator());
+    }
     return _buildNoticeBoard();
   }
 
   Widget _buildNoticeBoard() {
     final firmId = _profile?.firmId ?? _profile?.id;
-    if (firmId == null) return const Center(child: Text("No firm connection"));
+    if (firmId == null) return const Center(child: Text('No firm connection'));
     final noticesAsync = ref.watch(firmNoticesProvider(firmId));
 
     return Container(
@@ -259,7 +260,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                 if (allNotices.isEmpty) {
                   return const Center(
                     child: Text(
-                      "No broadcasts found.",
+                      'No broadcasts found.',
                       style: TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                   );
@@ -286,7 +287,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text("Connection error: $e")),
+              error: (e, _) => Center(child: Text('Connection error: $e')),
             ),
           ),
           _buildInputArea(firmId),
@@ -323,7 +324,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
             children: [
               if (!isMe)
                 Text(
-                  msg.senderName ?? "Team Member",
+                  msg.senderName ?? 'Team Member',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
@@ -459,14 +460,14 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text("Delete message?"),
+            title: const Text('Delete message?'),
             content: const Text(
-              "This message will be removed for everyone in the team.",
+              'This message will be removed for everyone in the team.',
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text("CANCEL"),
+                child: const Text('CANCEL'),
               ),
               TextButton(
                 onPressed: () async {
@@ -486,13 +487,13 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                     if (mounted) {
                       setState(() => _deletedIds.remove(msg.id));
                       messenger.showSnackBar(
-                        SnackBar(content: Text("Delete failed: $e")),
+                        SnackBar(content: Text('Delete failed: $e')),
                       );
                     }
                   }
                 },
                 child: const Text(
-                  "DELETE",
+                  'DELETE',
                   style: TextStyle(color: Colors.red),
                 ),
               ),
@@ -514,7 +515,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
       child: Row(
         children: [
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.add_circle_outline_rounded,
               size: 24,
               color: AppTheme.accent,
@@ -527,7 +528,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
               style: const TextStyle(fontSize: 14),
               decoration: InputDecoration(
                 hintText:
-                    _isUploading ? "Uploading..." : "Broadcast to firm...",
+                    _isUploading ? 'Uploading...' : 'Broadcast to firm...',
                 border: InputBorder.none,
                 filled: false,
               ),
@@ -551,7 +552,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                     : () async {
                       final text = _noticeController.text.trim();
                       if (text.isEmpty) return;
-                      final senderName = _profile?.fullName ?? "Team Member";
+                      final senderName = _profile?.fullName ?? 'Team Member';
 
                       final optimisticMsg = CaseComment(
                         id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
@@ -578,10 +579,11 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                             (m) => m.id == optimisticMsg.id,
                           ),
                         );
-                        if (mounted)
+                        if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Failed to send: $e")),
+                            SnackBar(content: Text('Failed to send: $e')),
                           );
+                        }
                       }
                     },
           ),

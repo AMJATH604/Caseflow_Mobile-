@@ -45,18 +45,18 @@ class _LegalDictionaryState extends State<LegalDictionary> {
   }
 
   void _applyFilters() {
-    String query = _searchCtrl.text.toLowerCase();
+    final String query = _searchCtrl.text.toLowerCase();
     setState(() {
       _expandedIndex = null;
       _filteredTerms =
           legalTermsData.where((t) {
-            bool matchesQuery =
+            final bool matchesQuery =
                 query.isEmpty ||
                 t.term.toLowerCase().contains(query) ||
                 t.meaning.toLowerCase().contains(query);
-            bool matchesCategory =
+            final bool matchesCategory =
                 _selectedCategory == 'All' || t.category == _selectedCategory;
-            bool matchesLetter =
+            final bool matchesLetter =
                 _selectedLetter.isEmpty ||
                 t.term.toUpperCase().startsWith(_selectedLetter);
             return matchesQuery && matchesCategory && matchesLetter;
@@ -82,7 +82,7 @@ class _LegalDictionaryState extends State<LegalDictionary> {
 
   @override
   Widget build(BuildContext context) {
-    bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       children: [
@@ -129,7 +129,7 @@ class _LegalDictionaryState extends State<LegalDictionary> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemCount: _categories.length,
               itemBuilder: (ctx, i) {
-                bool selected = _selectedCategory == _categories[i];
+                final bool selected = _selectedCategory == _categories[i];
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: ChoiceChip(
@@ -232,7 +232,7 @@ class _LegalDictionaryState extends State<LegalDictionary> {
   }
 
   Widget _letterChip(String letter, String label) {
-    bool selected = _selectedLetter == letter;
+    final bool selected = _selectedLetter == letter;
     return GestureDetector(
       onTap: () {
         setState(() => _selectedLetter = letter);
@@ -258,8 +258,8 @@ class _LegalDictionaryState extends State<LegalDictionary> {
   }
 
   Widget _buildTermCard(LegalTerm term, int index, bool isDark) {
-    bool expanded = _expandedIndex == index;
-    Color catColor = _getCategoryColor(term.category);
+    final bool expanded = _expandedIndex == index;
+    final Color catColor = _getCategoryColor(term.category);
 
     return GestureDetector(
       onTap: () => setState(() => _expandedIndex = expanded ? null : index),

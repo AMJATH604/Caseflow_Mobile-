@@ -39,8 +39,8 @@ enum CaseStage {
   dismissed;
 
   String get label {
-    if (this == disposed) return "Case Disposed";
-    if (this == dismissed) return "Case Dismissed";
+    if (this == disposed) return 'Case Disposed';
+    if (this == dismissed) return 'Case Dismissed';
     return name[0].toUpperCase() + name.substring(1);
   }
 
@@ -63,15 +63,15 @@ enum DocType {
   String get label {
     switch (this) {
       case DocType.plaint:
-        return "Plaint";
+        return 'Plaint';
       case DocType.affidavit:
-        return "Affidavit";
+        return 'Affidavit';
       case DocType.vakalat:
-        return "Vakalat";
+        return 'Vakalat';
       case DocType.order:
-        return "Order";
+        return 'Order';
       case DocType.judgment:
-        return "Judgment";
+        return 'Judgment';
     }
   }
 
@@ -95,7 +95,7 @@ enum FilingStatus {
   String get label {
     switch (this) {
       case FilingStatus.signaturePending:
-        return "Signature Pending";
+        return 'Signature Pending';
       default:
         return name[0].toUpperCase() + name.substring(1);
     }
@@ -120,7 +120,7 @@ enum PaymentMode {
   String get label {
     switch (this) {
       case PaymentMode.bankTransfer:
-        return "Bank Transfer";
+        return 'Bank Transfer';
       default:
         return name.toUpperCase();
     }
@@ -141,7 +141,7 @@ enum CourtType {
   trial,
   higher;
 
-  String get label => this == trial ? "Trial Court" : "High / Supreme Court";
+  String get label => this == trial ? 'Trial Court' : 'High / Supreme Court';
 
   static CourtType fromString(String value) {
     return CourtType.values.firstWhere(
@@ -157,9 +157,9 @@ enum RepresentationType {
 
   String getLabel(CourtType courtType) {
     if (courtType == CourtType.trial) {
-      return this == petitioner ? "Plaintiff" : "Defendant";
+      return this == petitioner ? 'Plaintiff' : 'Defendant';
     } else {
-      return this == petitioner ? "Petitioner" : "Respondent";
+      return this == petitioner ? 'Petitioner' : 'Respondent';
     }
   }
 

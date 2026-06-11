@@ -142,13 +142,13 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.error_outline,
                             color: AppTheme.error,
                             size: 48,
                           ),
                           const SizedBox(height: 12),
-                          Text('Error loading commissions'),
+                          const Text('Error loading commissions'),
                           TextButton(
                             onPressed:
                                 () => ref.invalidate(commissionsProvider),
@@ -827,23 +827,25 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                                 });
                                 ref.invalidate(commissionsProvider);
                                 if (ctx.mounted) Navigator.pop(ctx);
-                                if (mounted)
+                                if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: const Text(
+                                    const SnackBar(
+                                      content: Text(
                                         'Commission created!',
                                       ),
                                       backgroundColor: AppTheme.success,
                                     ),
                                   );
+                                }
                               } catch (e) {
-                                if (ctx.mounted)
+                                if (ctx.mounted) {
                                   ScaffoldMessenger.of(ctx).showSnackBar(
                                     SnackBar(
                                       content: Text('Error: $e'),
                                       backgroundColor: AppTheme.error,
                                     ),
                                   );
+                                }
                               }
                             },
                             style: ElevatedButton.styleFrom(

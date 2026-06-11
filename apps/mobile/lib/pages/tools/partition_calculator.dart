@@ -34,8 +34,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
   bool _motherAlive = false;
 
   // Output
-  List<Map<String, dynamic>> _results = [];
-  List<String> _calculationSteps = [];
+  final List<Map<String, dynamic>> _results = [];
+  final List<String> _calculationSteps = [];
   bool _showResults = false;
 
   @override
@@ -47,10 +47,10 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
 
   void _calculate() {
     // Validate inputs
-    double estate =
+    final double estate =
         double.tryParse(_estateCtrl.text.replaceAll(',', '')) ?? 0.0;
-    double debts = double.tryParse(_debtsCtrl.text.replaceAll(',', '')) ?? 0.0;
-    double netEstate = estate - debts;
+    final double debts = double.tryParse(_debtsCtrl.text.replaceAll(',', '')) ?? 0.0;
+    final double netEstate = estate - debts;
 
     if (estate <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -68,7 +68,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
     if (netEstate <= 0) {
       setState(() {
         _calculationSteps.add(
-          "Net estate is zero or negative after deducting debts. No distribution possible.",
+          'Net estate is zero or negative after deducting debts. No distribution possible.',
         );
         _showResults = true;
       });
@@ -76,7 +76,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
     }
 
     // Check at least one heir is selected
-    bool hasHeirs =
+    final bool hasHeirs =
         _wifeCount > 0 ||
         _husbandCount > 0 ||
         _sonCount > 0 ||
@@ -94,9 +94,9 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
     }
 
     _calculationSteps.add(
-      "Net Estate = ${formatCurrency.format(estate)} − ${formatCurrency.format(debts)} = ${formatCurrency.format(netEstate)}",
+      'Net Estate = ${formatCurrency.format(estate)} − ${formatCurrency.format(debts)} = ${formatCurrency.format(netEstate)}',
     );
-    _calculationSteps.add("");
+    _calculationSteps.add('');
 
     if (_selectedLaw == 'Muslim (Hanafi)') {
       _calculateMuslimHanafi(netEstate);
@@ -109,62 +109,63 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
 
   // ─── HINDU SUCCESSION ACT ────────────────────────────
   void _calculateHinduSuccession(double netEstate) {
-    _calculationSteps.add("📜 Hindu Succession Act, 1956");
-    _calculationSteps.add("");
+    _calculationSteps.add('📜 Hindu Succession Act, 1956');
+    _calculationSteps.add('');
 
     int totalShares = 0;
 
     if (_deceasedGender == 'Male') {
       _calculationSteps.add(
-        "Rule: Under Section 8, Class I heirs of a Hindu male take the property simultaneously and in equal shares per capita.",
+        'Rule: Under Section 8, Class I heirs of a Hindu male take the property simultaneously and in equal shares per capita.',
       );
-      _calculationSteps.add("");
+      _calculationSteps.add('');
 
       // Under Hindu Succession Act, all widows COLLECTIVELY share ONE unit
       // (not one share each). They split one share equally among themselves.
-      int widowUnit = _wifeCount > 0 ? 1 : 0;
-      int mother = _motherAlive ? 1 : 0;
+      final int widowUnit = _wifeCount > 0 ? 1 : 0;
+      final int mother = _motherAlive ? 1 : 0;
 
       totalShares = widowUnit + mother + _sonCount + _daughterCount;
 
       if (totalShares == 0) {
         _calculationSteps.add(
-          "⚠️ No Class I heirs selected. Please add heirs or refer to Class II schedule.",
+          '⚠️ No Class I heirs selected. Please add heirs or refer to Class II schedule.',
         );
         return;
       }
 
-      double valuePerShare = netEstate / totalShares;
-      _calculationSteps.add("Step 1: Count Class I heirs (per capita):");
+      final double valuePerShare = netEstate / totalShares;
+      _calculationSteps.add('Step 1: Count Class I heirs (per capita):');
       if (widowUnit > 0) {
         _calculationSteps.add(
           "  Widow(s): $_wifeCount widow${_wifeCount > 1 ? 's' : ''} share 1 unit collectively",
         );
         if (_wifeCount > 1) {
           _calculationSteps.add(
-            "  (Multiple widows under §8 take ONE share together, then split equally)",
+            '  (Multiple widows under §8 take ONE share together, then split equally)',
           );
         }
       }
-      if (mother > 0) _calculationSteps.add("  Mother: 1");
-      if (_sonCount > 0) _calculationSteps.add("  Son(s): $_sonCount");
-      if (_daughterCount > 0)
-        _calculationSteps.add("  Daughter(s): $_daughterCount");
-      _calculationSteps.add("  Total units = $totalShares");
-      _calculationSteps.add("");
-      _calculationSteps.add("Step 2: Each unit gets an equal share:");
+      if (mother > 0) _calculationSteps.add('  Mother: 1');
+      if (_sonCount > 0) _calculationSteps.add('  Son(s): $_sonCount');
+      if (_daughterCount > 0) {
+        _calculationSteps.add('  Daughter(s): $_daughterCount');
+      }
+      _calculationSteps.add('  Total units = $totalShares');
+      _calculationSteps.add('');
+      _calculationSteps.add('Step 2: Each unit gets an equal share:');
       _calculationSteps.add(
-        "  ${formatCurrency.format(netEstate)} ÷ $totalShares = ${formatCurrency.format(valuePerShare)} per unit",
+        '  ${formatCurrency.format(netEstate)} ÷ $totalShares = ${formatCurrency.format(valuePerShare)} per unit',
       );
 
       if (widowUnit > 0) {
-        double widowTotal = valuePerShare;
-        double perWidow = widowTotal / _wifeCount;
+        final double widowTotal = valuePerShare;
+        final double perWidow = widowTotal / _wifeCount;
         if (_wifeCount > 1) {
-          _calculationSteps.add("");
-          _calculationSteps.add("Step 3: Widow share subdivision:");
+          _calculationSteps.add('');
+          _calculationSteps.add('Step 3: Widow share subdivision:');
           _calculationSteps.add(
-            "  ${formatCurrency.format(widowTotal)} ÷ $_wifeCount widows = ${formatCurrency.format(perWidow)} each",
+            '  ${formatCurrency.format(widowTotal)} ÷ $_wifeCount widows = ${formatCurrency.format(perWidow)} each',
           );
         }
         for (int i = 1; i <= _wifeCount; i++) {
@@ -202,31 +203,32 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
     } else {
       // Female deceased (Section 15)
       _calculationSteps.add(
-        "Rule: Under Section 15(1)(a), property of a Hindu female devolves upon sons, daughters, and husband in equal shares.",
+        'Rule: Under Section 15(1)(a), property of a Hindu female devolves upon sons, daughters, and husband in equal shares.',
       );
-      _calculationSteps.add("");
+      _calculationSteps.add('');
 
-      int husband = _husbandCount > 0 ? 1 : 0;
+      final int husband = _husbandCount > 0 ? 1 : 0;
       totalShares = husband + _sonCount + _daughterCount;
 
       if (totalShares == 0) {
         _calculationSteps.add(
-          "⚠️ No Section 15(1)(a) heirs selected. Property may devolve to heirs of the husband or father.",
+          '⚠️ No Section 15(1)(a) heirs selected. Property may devolve to heirs of the husband or father.',
         );
         return;
       }
 
-      double valuePerShare = netEstate / totalShares;
-      _calculationSteps.add("Step 1: Count heirs:");
-      if (husband > 0) _calculationSteps.add("  Husband: 1");
-      if (_sonCount > 0) _calculationSteps.add("  Son(s): $_sonCount");
-      if (_daughterCount > 0)
-        _calculationSteps.add("  Daughter(s): $_daughterCount");
-      _calculationSteps.add("  Total heirs = $totalShares");
-      _calculationSteps.add("");
-      _calculationSteps.add("Step 2: Each heir gets an equal share:");
+      final double valuePerShare = netEstate / totalShares;
+      _calculationSteps.add('Step 1: Count heirs:');
+      if (husband > 0) _calculationSteps.add('  Husband: 1');
+      if (_sonCount > 0) _calculationSteps.add('  Son(s): $_sonCount');
+      if (_daughterCount > 0) {
+        _calculationSteps.add('  Daughter(s): $_daughterCount');
+      }
+      _calculationSteps.add('  Total heirs = $totalShares');
+      _calculationSteps.add('');
+      _calculationSteps.add('Step 2: Each heir gets an equal share:');
       _calculationSteps.add(
-        "  ${formatCurrency.format(netEstate)} ÷ $totalShares = ${formatCurrency.format(valuePerShare)} per heir",
+        '  ${formatCurrency.format(netEstate)} ÷ $totalShares = ${formatCurrency.format(valuePerShare)} per heir',
       );
 
       if (husband > 0) {
@@ -255,13 +257,13 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
 
   // ─── MUSLIM LAW (HANAFI) ─────────────────────────────
   void _calculateMuslimHanafi(double netEstate) {
-    _calculationSteps.add("☪ Muslim Personal Law (Hanafi School)");
-    _calculationSteps.add("");
+    _calculationSteps.add('☪ Muslim Personal Law (Hanafi School)');
+    _calculationSteps.add('');
     _calculationSteps.add(
       "Step 1: Determine Fixed Quranic Shares (Dhawu'l-Furud)",
     );
-    _calculationSteps.add("");
-    bool hasChildren = _sonCount > 0 || _daughterCount > 0;
+    _calculationSteps.add('');
+    final bool hasChildren = _sonCount > 0 || _daughterCount > 0;
 
     double totalFixedFractions = 0.0;
     double remainingFraction = 1.0;
@@ -291,11 +293,11 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
         fatherFraction = 1 / 6;
         totalFixedFractions += fatherFraction;
         _calculationSteps.add(
-          "  Father → 1/6 fixed (children exist) = ${formatCurrency.format(netEstate * fatherFraction)}",
+          '  Father → 1/6 fixed (children exist) = ${formatCurrency.format(netEstate * fatherFraction)}',
         );
       } else {
         _calculationSteps.add(
-          "  Father → No fixed share; will take as residuary (Asaba)",
+          '  Father → No fixed share; will take as residuary (Asaba)',
         );
       }
     }
@@ -307,19 +309,20 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
       } else {
         // Umariyyatain rule: when spouse exists + no children,
         // mother gets 1/3 of RESIDUE (not 1/3 of estate)
-        bool hasSpouse =
+        final bool hasSpouse =
             (_deceasedGender == 'Male' && _wifeCount > 0) ||
             (_deceasedGender == 'Female' && _husbandCount > 0);
         if (hasSpouse && _fatherAlive) {
           // Mother gets 1/3 of residue after spouse's share
           double spouseFrac = 0;
           if (_deceasedGender == 'Male' && _wifeCount > 0) spouseFrac = 1 / 4;
-          if (_deceasedGender == 'Female' && _husbandCount > 0)
+          if (_deceasedGender == 'Female' && _husbandCount > 0) {
             spouseFrac = 1 / 2;
-          double residue = 1.0 - spouseFrac;
+          }
+          final double residue = 1.0 - spouseFrac;
           motherFraction = residue / 3;
           _calculationSteps.add(
-            "  Mother → Umariyyatain rule: 1/3 of residue after spouse = ${(motherFraction * 100).toStringAsFixed(2)}% = ${formatCurrency.format(netEstate * motherFraction)}",
+            '  Mother → Umariyyatain rule: 1/3 of residue after spouse = ${(motherFraction * 100).toStringAsFixed(2)}% = ${formatCurrency.format(netEstate * motherFraction)}',
           );
         } else {
           motherFraction = 1 / 3;
@@ -338,19 +341,19 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
 
     // Check for Aul (Oversubscription)
     if (totalFixedFractions > 1.0) {
-      _calculationSteps.add("");
+      _calculationSteps.add('');
       _calculationSteps.add(
-        "⚠️ Aul condition: Fixed shares exceed the estate.",
+        '⚠️ Aul condition: Fixed shares exceed the estate.',
       );
-      _calculationSteps.add("Shares will be proportionally reduced.");
+      _calculationSteps.add('Shares will be proportionally reduced.');
       // Proportional reduction
-      double scale = 1.0 / totalFixedFractions;
+      final double scale = 1.0 / totalFixedFractions;
       if (wifeFraction > 0) {
-        double amount = netEstate * wifeFraction * scale;
+        final double amount = netEstate * wifeFraction * scale;
         _results.add({'heir': 'Wife', 'fraction': 'Reduced', 'amount': amount});
       }
       if (husbandFraction > 0) {
-        double amount = netEstate * husbandFraction * scale;
+        final double amount = netEstate * husbandFraction * scale;
         _results.add({
           'heir': 'Husband',
           'fraction': 'Reduced',
@@ -358,7 +361,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
         });
       }
       if (fatherFraction > 0) {
-        double amount = netEstate * fatherFraction * scale;
+        final double amount = netEstate * fatherFraction * scale;
         _results.add({
           'heir': 'Father',
           'fraction': 'Reduced',
@@ -366,7 +369,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
         });
       }
       if (motherFraction > 0) {
-        double amount = netEstate * motherFraction * scale;
+        final double amount = netEstate * motherFraction * scale;
         _results.add({
           'heir': 'Mother',
           'fraction': 'Reduced',
@@ -378,7 +381,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
 
     // Record Fixed Amounts
     if (wifeFraction > 0) {
-      double amount = netEstate * wifeFraction;
+      final double amount = netEstate * wifeFraction;
       _results.add({
         'heir': _wifeCount > 1 ? 'Wives (×$_wifeCount, split)' : 'Wife',
         'fraction': hasChildren ? '1/8' : '1/4',
@@ -386,7 +389,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
       });
     }
     if (husbandFraction > 0) {
-      double amount = netEstate * husbandFraction;
+      final double amount = netEstate * husbandFraction;
       _results.add({
         'heir': 'Husband',
         'fraction': hasChildren ? '1/4' : '1/2',
@@ -394,11 +397,11 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
       });
     }
     if (fatherFraction > 0) {
-      double amount = netEstate * fatherFraction;
+      final double amount = netEstate * fatherFraction;
       _results.add({'heir': 'Father', 'fraction': '1/6', 'amount': amount});
     }
     if (motherFraction > 0) {
-      double amount = netEstate * motherFraction;
+      final double amount = netEstate * motherFraction;
       _results.add({
         'heir': 'Mother',
         'fraction': hasChildren ? '1/6' : '1/3',
@@ -408,33 +411,33 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
 
     // ── Residuary Calculation ──
     remainingFraction = 1.0 - totalFixedFractions;
-    _calculationSteps.add("");
-    _calculationSteps.add("Step 2: Residuary Distribution (Asaba)");
+    _calculationSteps.add('');
+    _calculationSteps.add('Step 2: Residuary Distribution (Asaba)');
 
     if (remainingFraction > 0.001) {
       double remainingAmount = netEstate * remainingFraction;
       _calculationSteps.add(
-        "  Remaining after fixed shares = ${formatCurrency.format(remainingAmount)}",
+        '  Remaining after fixed shares = ${formatCurrency.format(remainingAmount)}',
       );
-      _calculationSteps.add("");
+      _calculationSteps.add('');
 
       if (_sonCount > 0) {
-        int totalParts = (_sonCount * 2) + _daughterCount;
+        final int totalParts = (_sonCount * 2) + _daughterCount;
         _calculationSteps.add(
-          "  Rule: Son gets 2 parts, Daughter gets 1 part.",
+          '  Rule: Son gets 2 parts, Daughter gets 1 part.',
         );
         _calculationSteps.add(
-          "  Parts = (${_sonCount} sons × 2) + (${_daughterCount} daughters × 1) = $totalParts parts",
+          '  Parts = ($_sonCount sons × 2) + ($_daughterCount daughters × 1) = $totalParts parts',
         );
 
-        double valuePerPart = remainingAmount / totalParts;
+        final double valuePerPart = remainingAmount / totalParts;
         _calculationSteps.add(
-          "  Each part = ${formatCurrency.format(remainingAmount)} ÷ $totalParts = ${formatCurrency.format(valuePerPart)}",
+          '  Each part = ${formatCurrency.format(remainingAmount)} ÷ $totalParts = ${formatCurrency.format(valuePerPart)}',
         );
-        _calculationSteps.add("");
+        _calculationSteps.add('');
 
         for (int i = 1; i <= _sonCount; i++) {
-          double amt = valuePerPart * 2;
+          final double amt = valuePerPart * 2;
           _calculationSteps.add(
             "  ${_sonCount == 1 ? 'Son' : 'Son $i'} = 2 × ${formatCurrency.format(valuePerPart)} = ${formatCurrency.format(amt)}",
           );
@@ -455,14 +458,14 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
           });
         }
       } else if (_daughterCount > 0) {
-        double daughtersFixedFraction = _daughterCount == 1 ? 0.5 : (2 / 3);
-        String fracLabel = _daughterCount == 1 ? '1/2' : '2/3';
+        final double daughtersFixedFraction = _daughterCount == 1 ? 0.5 : (2 / 3);
+        final String fracLabel = _daughterCount == 1 ? '1/2' : '2/3';
 
         if (remainingFraction >= daughtersFixedFraction) {
-          double totalDaughtersAmount = netEstate * daughtersFixedFraction;
-          double perDaughter = totalDaughtersAmount / _daughterCount;
+          final double totalDaughtersAmount = netEstate * daughtersFixedFraction;
+          final double perDaughter = totalDaughtersAmount / _daughterCount;
           _calculationSteps.add(
-            "  Daughters (no sons): Fixed share = $fracLabel = ${formatCurrency.format(totalDaughtersAmount)}",
+            '  Daughters (no sons): Fixed share = $fracLabel = ${formatCurrency.format(totalDaughtersAmount)}',
           );
           for (int i = 1; i <= _daughterCount; i++) {
             _results.add({
@@ -477,9 +480,9 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
 
         if (_fatherAlive && remainingFraction > 0.001) {
           _calculationSteps.add(
-            "  Father takes remaining as residuary = ${formatCurrency.format(remainingAmount)}",
+            '  Father takes remaining as residuary = ${formatCurrency.format(remainingAmount)}',
           );
-          var fatherRecord =
+          final fatherRecord =
               _results.where((e) => e['heir'] == 'Father').firstOrNull;
           if (fatherRecord != null) {
             fatherRecord['amount'] =
@@ -495,9 +498,9 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
         }
       } else if (_fatherAlive) {
         _calculationSteps.add(
-          "  Father takes all residuary = ${formatCurrency.format(remainingAmount)}",
+          '  Father takes all residuary = ${formatCurrency.format(remainingAmount)}',
         );
-        var fatherRecord =
+        final fatherRecord =
             _results.where((e) => e['heir'] == 'Father').firstOrNull;
         if (fatherRecord != null) {
           fatherRecord['amount'] =
@@ -512,11 +515,11 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
         }
       } else {
         _calculationSteps.add(
-          "  ⚠️ No residuary heirs. Remainder (${formatCurrency.format(remainingAmount)}) may revert via Radd.",
+          '  ⚠️ No residuary heirs. Remainder (${formatCurrency.format(remainingAmount)}) may revert via Radd.',
         );
       }
     } else {
-      _calculationSteps.add("  Fixed heirs fully exhaust the estate.");
+      _calculationSteps.add('  Fixed heirs fully exhaust the estate.');
     }
   }
 
@@ -524,22 +527,23 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
   void _copyToClipboard() {
     if (_results.isEmpty) return;
 
-    double estate =
+    final double estate =
         double.tryParse(_estateCtrl.text.replaceAll(',', '')) ?? 0.0;
-    double debts = double.tryParse(_debtsCtrl.text.replaceAll(',', '')) ?? 0.0;
+    final double debts = double.tryParse(_debtsCtrl.text.replaceAll(',', '')) ?? 0.0;
 
-    StringBuffer sb = StringBuffer();
-    sb.writeln("═══════════════════════════════════════════");
-    sb.writeln("   PARTITION SHARE CALCULATION MEMO");
-    sb.writeln("   Law: $_selectedLaw");
-    sb.writeln("═══════════════════════════════════════════");
-    sb.writeln("Deceased Gender : $_deceasedGender");
-    sb.writeln("Total Estate    : ${formatCurrency.format(estate)}");
-    if (debts > 0)
-      sb.writeln("Less Debts      : ${formatCurrency.format(debts)}");
-    sb.writeln("Net Estate      : ${formatCurrency.format(estate - debts)}");
-    sb.writeln("───────────────────────────────────────────\n");
-    sb.writeln("SCHEDULE OF SHARES:\n");
+    final StringBuffer sb = StringBuffer();
+    sb.writeln('═══════════════════════════════════════════');
+    sb.writeln('   PARTITION SHARE CALCULATION MEMO');
+    sb.writeln('   Law: $_selectedLaw');
+    sb.writeln('═══════════════════════════════════════════');
+    sb.writeln('Deceased Gender : $_deceasedGender');
+    sb.writeln('Total Estate    : ${formatCurrency.format(estate)}');
+    if (debts > 0) {
+      sb.writeln('Less Debts      : ${formatCurrency.format(debts)}');
+    }
+    sb.writeln('Net Estate      : ${formatCurrency.format(estate - debts)}');
+    sb.writeln('───────────────────────────────────────────\n');
+    sb.writeln('SCHEDULE OF SHARES:\n');
 
     int sno = 1;
     for (var res in _results) {
@@ -549,13 +553,13 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
       sno++;
     }
 
-    sb.writeln("\n───────────────────────────────────────────");
-    sb.writeln("\nSTEPS OF COMPUTATION:\n");
+    sb.writeln('\n───────────────────────────────────────────');
+    sb.writeln('\nSTEPS OF COMPUTATION:\n');
     for (var step in _calculationSteps) {
-      if (step.isNotEmpty) sb.writeln("  $step");
+      if (step.isNotEmpty) sb.writeln('  $step');
     }
 
-    sb.writeln("\n═══════════════════════════════════════════");
+    sb.writeln('\n═══════════════════════════════════════════');
     sb.writeln(
       "Generated by CaseFlow on ${DateFormat('dd.MM.yyyy').format(DateTime.now())}",
     );
@@ -583,8 +587,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
 
   @override
   Widget build(BuildContext context) {
-    bool isDark = Theme.of(context).brightness == Brightness.dark;
-    bool isMobile = MediaQuery.of(context).size.width < 600;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -596,11 +600,11 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
             isDark,
             icon: Icons.gavel,
             iconColor: AppTheme.accent,
-            title: "Case Parameters",
+            title: 'Case Parameters',
             children: [
               if (isMobile) ...[
                 _buildDropdown(
-                  "Applicable Personal Law",
+                  'Applicable Personal Law',
                   _selectedLaw,
                   [
                     const DropdownMenuItem(
@@ -625,7 +629,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                 ),
                 const SizedBox(height: 12),
                 _buildDropdown(
-                  "Gender of Deceased",
+                  'Gender of Deceased',
                   _deceasedGender,
                   [
                     const DropdownMenuItem(value: 'Male', child: Text('Male')),
@@ -653,7 +657,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                   children: [
                     Expanded(
                       child: _buildDropdown(
-                        "Applicable Personal Law",
+                        'Applicable Personal Law',
                         _selectedLaw,
                         [
                           const DropdownMenuItem(
@@ -680,7 +684,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _buildDropdown(
-                        "Gender of Deceased",
+                        'Gender of Deceased',
                         _deceasedGender,
                         [
                           const DropdownMenuItem(
@@ -770,19 +774,19 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
             isDark,
             icon: Icons.family_restroom,
             iconColor: Colors.orange,
-            title: "Surviving Legal Heirs",
+            title: 'Surviving Legal Heirs',
             children: [
               Text(
                 _selectedLaw == 'Muslim (Hanafi)'
-                    ? "Select primary heirs under Hanafi Mohammedan Law"
-                    : "Select Class I heirs under Hindu Succession Act, 1956",
+                    ? 'Select primary heirs under Hanafi Mohammedan Law'
+                    : 'Select Class I heirs under Hindu Succession Act, 1956',
                 style: TextStyle(fontSize: 12, color: Colors.grey[500]),
               ),
               const Divider(height: 20),
 
               if (_deceasedGender == 'Male')
                 _buildCounterRow(
-                  "Wife / Widow(s)",
+                  'Wife / Widow(s)',
                   _wifeCount,
                   (v) => setState(() {
                     _wifeCount = v;
@@ -792,7 +796,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
 
               if (_deceasedGender == 'Female')
                 _buildCounterRow(
-                  "Husband",
+                  'Husband',
                   _husbandCount,
                   (v) => setState(() {
                     _husbandCount = v > 1 ? 1 : v;
@@ -801,7 +805,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                 ),
 
               _buildCounterRow(
-                "Sons",
+                'Sons',
                 _sonCount,
                 (v) => setState(() {
                   _sonCount = v;
@@ -809,7 +813,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                 }),
               ),
               _buildCounterRow(
-                "Daughters",
+                'Daughters',
                 _daughterCount,
                 (v) => setState(() {
                   _daughterCount = v;
@@ -820,13 +824,13 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
               const SizedBox(height: 4),
               SwitchListTile(
                 title: const Text(
-                  "Father Alive",
+                  'Father Alive',
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
                 subtitle: Text(
                   _selectedLaw == 'Muslim (Hanafi)'
-                      ? "Gets 1/6 fixed + residuary"
-                      : "Not a Class I heir for male deceased",
+                      ? 'Gets 1/6 fixed + residuary'
+                      : 'Not a Class I heir for male deceased',
                   style: const TextStyle(fontSize: 11),
                 ),
                 value: _fatherAlive,
@@ -835,18 +839,18 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                       _fatherAlive = v;
                       _showResults = false;
                     }),
-                activeColor: AppTheme.primary,
+                activeThumbColor: AppTheme.primary,
                 contentPadding: EdgeInsets.zero,
               ),
               SwitchListTile(
                 title: const Text(
-                  "Mother Alive",
+                  'Mother Alive',
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
                 subtitle: Text(
                   _selectedLaw == 'Muslim (Hanafi)'
-                      ? "Gets 1/6 or 1/3 fixed share"
-                      : "Class I heir for male deceased",
+                      ? 'Gets 1/6 or 1/3 fixed share'
+                      : 'Class I heir for male deceased',
                   style: const TextStyle(fontSize: 11),
                 ),
                 value: _motherAlive,
@@ -855,7 +859,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                       _motherAlive = v;
                       _showResults = false;
                     }),
-                activeColor: AppTheme.primary,
+                activeThumbColor: AppTheme.primary,
                 contentPadding: EdgeInsets.zero,
               ),
 
@@ -867,7 +871,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                   onPressed: _calculate,
                   icon: const Icon(Icons.calculate_rounded, size: 20),
                   label: const Text(
-                    "COMPUTE PARTITION SHARES",
+                    'COMPUTE PARTITION SHARES',
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
                       letterSpacing: 1,
@@ -895,12 +899,12 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                 isDark,
                 icon: Icons.pie_chart_rounded,
                 iconColor: Colors.green,
-                title: "Partition Result",
+                title: 'Partition Result',
                 trailing: TextButton.icon(
                   onPressed: _copyToClipboard,
                   icon: const Icon(Icons.copy_rounded, size: 14),
                   label: const Text(
-                    "Copy Memo",
+                    'Copy Memo',
                     style: TextStyle(fontSize: 12),
                   ),
                 ),
@@ -925,7 +929,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          "Net Distributable Estate",
+                          'Net Distributable Estate',
                           style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                         Text(
@@ -939,7 +943,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                                     ) ??
                                     0),
                           ),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.w900,
                             fontSize: 18,
                             color: AppTheme.primary,
@@ -1005,7 +1009,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                           ),
                           Text(
                             formatCurrency.format(row['amount']),
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.w900,
                               fontSize: 16,
                               color: AppTheme.primary,
@@ -1025,10 +1029,10 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                 isDark,
                 icon: Icons.school_rounded,
                 iconColor: Colors.deepPurple,
-                title: "How It Was Calculated",
+                title: 'How It Was Calculated',
                 children: [
                   Text(
-                    "Step-by-step legal reasoning used to arrive at the above figures:",
+                    'Step-by-step legal reasoning used to arrive at the above figures:',
                     style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                   ),
                   const SizedBox(height: 12),
@@ -1051,17 +1055,17 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                       children:
                           _calculationSteps.map((step) {
                             if (step.isEmpty) return const SizedBox(height: 8);
-                            bool isHeader =
-                                step.startsWith("Step") ||
-                                step.startsWith("📜") ||
-                                step.startsWith("☪") ||
-                                step.startsWith("Rule:");
+                            final bool isHeader =
+                                step.startsWith('Step') ||
+                                step.startsWith('📜') ||
+                                step.startsWith('☪') ||
+                                step.startsWith('Rule:');
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 4),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (!isHeader && !step.startsWith("⚠"))
+                                  if (!isHeader && !step.startsWith('⚠'))
                                     Padding(
                                       padding: const EdgeInsets.only(
                                         top: 3,
@@ -1085,7 +1089,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                                         color: AppTheme.accent,
                                       ),
                                     ),
-                                  if (step.startsWith("⚠"))
+                                  if (step.startsWith('⚠'))
                                     const Padding(
                                       padding: EdgeInsets.only(
                                         top: 3,
@@ -1187,7 +1191,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
     void Function(String?) onChanged,
   ) {
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),

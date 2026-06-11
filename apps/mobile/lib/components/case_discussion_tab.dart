@@ -58,7 +58,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
     setState(() => _isSending = true);
     try {
       final profile = await SupabaseService.fetchProfile();
-      final senderName = profile.fullName ?? "Advocate";
+      final senderName = profile.fullName ?? 'Advocate';
 
       await SupabaseService.postDiscussion({
         'case_id': widget.caseId,
@@ -96,7 +96,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSending = false);
@@ -169,7 +169,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
                 () => const Center(
                   child: CircularProgressIndicator(color: AppTheme.accent),
                 ),
-            error: (e, s) => Center(child: Text("Error: $e")),
+            error: (e, s) => Center(child: Text('Error: $e')),
           ),
         ),
         _buildInputBar(),
@@ -185,9 +185,9 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
     final now = DateTime.now();
     String label;
     if (_isSameDay(date, now)) {
-      label = "Today";
+      label = 'Today';
     } else if (_isSameDay(date, now.subtract(const Duration(days: 1)))) {
-      label = "Yesterday";
+      label = 'Yesterday';
     } else {
       label = DateFormat('dd MMM yyyy').format(date);
     }
@@ -265,7 +265,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
                     Padding(
                       padding: const EdgeInsets.only(left: 4, bottom: 3),
                       child: Text(
-                        msg.senderName?.toUpperCase() ?? "ADVOCATE",
+                        msg.senderName?.toUpperCase() ?? 'ADVOCATE',
                         style: TextStyle(
                           fontSize: 9,
                           color: avatarColors[0],
@@ -391,7 +391,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
           ),
           const SizedBox(height: 20),
           const Text(
-            "Start a Discussion",
+            'Start a Discussion',
             style: TextStyle(
               fontWeight: FontWeight.w800,
               fontSize: 17,
@@ -402,7 +402,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 48),
             child: Text(
-              "Coordinate with your team members\nabout case strategy and updates",
+              'Coordinate with your team members\nabout case strategy and updates',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Color(0xFF64748B),
@@ -448,7 +448,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
                 maxLines: null,
                 style: const TextStyle(color: Color(0xFF1E293B), fontSize: 14),
                 decoration: const InputDecoration(
-                  hintText: "Type a message...",
+                  hintText: 'Type a message...',
                   hintStyle: TextStyle(
                     fontSize: 14,
                     color: Color(0xFF94A3B8),

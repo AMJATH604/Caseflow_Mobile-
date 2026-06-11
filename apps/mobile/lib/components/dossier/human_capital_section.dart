@@ -25,21 +25,21 @@ class HumanCapitalSection extends ConsumerStatefulWidget {
 
 class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
   void _showShareDialog() {
-    String email = "";
+    String email = '';
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text("Share with Colleague"),
+            title: const Text('Share with Colleague'),
             content: TextField(
-              decoration: const InputDecoration(labelText: "Colleague Email"),
+              decoration: const InputDecoration(labelText: 'Colleague Email'),
               keyboardType: TextInputType.emailAddress,
               onChanged: (v) => email = v,
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text("Cancel"),
+                child: const Text('Cancel'),
               ),
               ElevatedButton(
                 onPressed: () async {
@@ -52,18 +52,18 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                     );
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Invitation sent!")),
+                        const SnackBar(content: Text('Invitation sent!')),
                       );
                     }
                   } catch (e) {
                     if (mounted) {
                       ScaffoldMessenger.of(
                         context,
-                      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                      ).showSnackBar(SnackBar(content: Text('Error: $e')));
                     }
                   }
                 },
-                child: const Text("Send Invite"),
+                child: const Text('Send Invite'),
               ),
             ],
           ),
@@ -75,16 +75,18 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text("Transfer Ownership"),
+            title: const Text('Transfer Ownership'),
             content: SizedBox(
               width: double.maxFinite,
               child: FutureBuilder<List<FirmMember>>(
                 future: FirmService.fetchFirmMembers(),
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting)
+                  if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
-                  if (!snapshot.hasData || snapshot.data!.isEmpty)
-                    return const Text("No firm members found to transfer to.");
+                  }
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Text('No firm members found to transfer to.');
+                  }
 
                   return ListView.builder(
                     shrinkWrap: true,
@@ -104,14 +106,14 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text("Case reassigned!"),
+                                  content: Text('Case reassigned!'),
                                 ),
                               );
                             }
                           } catch (e) {
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Error: $e")),
+                                SnackBar(content: Text('Error: $e')),
                               );
                             }
                           }
@@ -130,8 +132,9 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: CollaboratorService.fetchCaseCollaborators(widget.caseId),
       builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data!.isEmpty)
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const SizedBox();
+        }
         final profile = ref.watch(userProfileProvider).value;
         final isOwner =
             profile != null && (profile.id == widget.caseData.createdBy);
@@ -140,7 +143,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "COLLABORATORS",
+              'COLLABORATORS',
               style: TextStyle(
                 fontSize: 9,
                 fontWeight: FontWeight.w900,
@@ -242,20 +245,20 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                             context: context,
                             builder:
                                 (ctx) => AlertDialog(
-                                  title: const Text("Revoke Access?"),
+                                  title: const Text('Revoke Access?'),
                                   content: Text(
-                                    "Remove $collaboratorName from this case?",
+                                    'Remove $collaboratorName from this case?',
                                   ),
                                   actions: [
                                     TextButton(
                                       onPressed:
                                           () => Navigator.pop(ctx, false),
-                                      child: const Text("Cancel"),
+                                      child: const Text('Cancel'),
                                     ),
                                     TextButton(
                                       onPressed: () => Navigator.pop(ctx, true),
                                       child: const Text(
-                                        "Revoke",
+                                        'Revoke',
                                         style: TextStyle(color: Colors.red),
                                       ),
                                     ),
@@ -269,7 +272,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                             if (mounted) {
                               setState(() {}); // Rebuild to refresh list
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Access revoked")),
+                                const SnackBar(content: Text('Access revoked')),
                               );
                             }
                           }
@@ -302,18 +305,18 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
 
     return DossierSection(
       icon: Icons.hub_rounded,
-      title: "Human Capital Assignment",
+      title: 'Human Capital Assignment',
       color: const Color(0xFF64748B),
       children: [
         DossierHelper.dossierRow(
-          "SUPERVISING LAWYER",
+          'SUPERVISING LAWYER',
           caseData.createdBy == caseData.firmId
-              ? "SENIOR PARTNER"
-              : "FIRM ARCHITECT",
+              ? 'SENIOR PARTNER'
+              : 'FIRM ARCHITECT',
         ),
         DossierHelper.dossierRow(
-          "ACTIVE ADVOCATE",
-          caseData.assignedTo == null ? "CASE OWNER (YOU)" : "FIRM ASSOCIATE",
+          'ACTIVE ADVOCATE',
+          caseData.assignedTo == null ? 'CASE OWNER (YOU)' : 'FIRM ASSOCIATE',
         ),
         if ((profile?.isFirmOwner ?? false) &&
             (profile?.id == caseData.firmId ||
@@ -325,7 +328,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
               onPressed: () => _showReassignDialog(caseData),
               icon: const Icon(Icons.sync_alt_rounded, size: 16),
               label: const Text(
-                "TRANSFER OWNERSHIP",
+                'TRANSFER OWNERSHIP',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w900,
@@ -346,7 +349,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
               onPressed: () => _showShareDialog(),
               icon: const Icon(Icons.share_rounded, size: 16),
               label: const Text(
-                "SHARE WITH COLLEAGUE",
+                'SHARE WITH COLLEAGUE',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w900,

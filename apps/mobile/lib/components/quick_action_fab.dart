@@ -53,7 +53,7 @@ class _QuickActionFABState extends ConsumerState<QuickActionFAB>
       children: [
         if (_isExpanded) ...[
           _buildActionItem(
-            label: "New Case",
+            label: 'New Case',
             icon: Icons.work,
             color: Colors.blue,
             onPressed: () {
@@ -66,7 +66,7 @@ class _QuickActionFABState extends ConsumerState<QuickActionFAB>
           ),
           const SizedBox(height: 16),
           _buildActionItem(
-            label: "New Client",
+            label: 'New Client',
             icon: Icons.person_add,
             color: Colors.green,
             onPressed: () {
@@ -79,7 +79,7 @@ class _QuickActionFABState extends ConsumerState<QuickActionFAB>
           ),
           const SizedBox(height: 16),
           _buildActionItem(
-            label: "New Hearing",
+            label: 'New Hearing',
             icon: Icons.calendar_today,
             color: Colors.amber,
             onPressed: () {
@@ -92,7 +92,7 @@ class _QuickActionFABState extends ConsumerState<QuickActionFAB>
           ),
           const SizedBox(height: 16),
           _buildActionItem(
-            label: "Log C.A",
+            label: 'Log C.A',
             icon: Icons.note_add,
             color: Colors.deepOrange,
             onPressed: () {

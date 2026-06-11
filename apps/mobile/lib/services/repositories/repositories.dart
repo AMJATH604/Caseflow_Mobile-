@@ -4,6 +4,7 @@
 /// ```dart
 /// import 'package:caseflow/services/repositories/repositories.dart';
 /// ```
+library;
 
 export 'base_repository.dart';
 export 'case_repository.dart';

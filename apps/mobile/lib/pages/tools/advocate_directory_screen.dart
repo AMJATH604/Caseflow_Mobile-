@@ -47,7 +47,7 @@ final advocateSearchProvider = FutureProvider.family<
 
     return List<Map<String, dynamic>>.from(response);
   } catch (e) {
-    debugPrint("Advocate Search Error: $e");
+    debugPrint('Advocate Search Error: $e');
     rethrow;
   }
 });
@@ -83,7 +83,7 @@ class _AdvocateDirectoryScreenState
               table: 'profiles',
               callback: (payload) {
                 final filterKey =
-                    "$_selectedState|$_selectedDistrict|$_searchQuery";
+                    '$_selectedState|$_selectedDistrict|$_searchQuery';
                 ref.invalidate(advocateSearchProvider(filterKey));
               },
             )
@@ -100,7 +100,7 @@ class _AdvocateDirectoryScreenState
 
   @override
   Widget build(BuildContext context) {
-    final filterKey = "$_selectedState|$_selectedDistrict|$_searchQuery";
+    final filterKey = '$_selectedState|$_selectedDistrict|$_searchQuery';
     final advocatesAsync = ref.watch(advocateSearchProvider(filterKey));
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -115,7 +115,7 @@ class _AdvocateDirectoryScreenState
                 color: AppTheme.accent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.contact_page_rounded,
                 color: AppTheme.accent,
                 size: 20,
@@ -126,14 +126,14 @@ class _AdvocateDirectoryScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Advocate Directory",
+                  'Advocate Directory',
                   style: GoogleFonts.outfit(
                     fontWeight: FontWeight.w700,
                     fontSize: 18,
                   ),
                 ),
                 Text(
-                  "Find peers across India",
+                  'Find peers across India',
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: Colors.grey[500],
@@ -181,7 +181,7 @@ class _AdvocateDirectoryScreenState
                                 ),
                                 child: Text(
                                   "${advocates.length} Advocate${advocates.length == 1 ? '' : 's'}",
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: AppTheme.accent,
@@ -202,10 +202,10 @@ class _AdvocateDirectoryScreenState
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        CircularProgressIndicator(color: AppTheme.accent),
+                        const CircularProgressIndicator(color: AppTheme.accent),
                         const SizedBox(height: 16),
                         Text(
-                          "Loading directory...",
+                          'Loading directory...',
                           style: TextStyle(
                             color: Colors.grey[500],
                             fontSize: 13,
@@ -264,9 +264,9 @@ class _AdvocateDirectoryScreenState
             ),
             child: TextField(
               decoration: InputDecoration(
-                hintText: "Search by Advocate Name...",
+                hintText: 'Search by Advocate Name...',
                 hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-                prefixIcon: Icon(
+                prefixIcon: const Icon(
                   Icons.search_rounded,
                   color: AppTheme.accent,
                   size: 20,
@@ -288,7 +288,7 @@ class _AdvocateDirectoryScreenState
             children: [
               Expanded(
                 child: _buildFilterDropdown(
-                  label: "State",
+                  label: 'State',
                   value: _selectedState,
                   items: ['All', ...stateDistricts.keys],
                   isDark: isDark,
@@ -303,7 +303,7 @@ class _AdvocateDirectoryScreenState
               const SizedBox(width: 10),
               Expanded(
                 child: _buildFilterDropdown(
-                  label: "District",
+                  label: 'District',
                   value: _selectedDistrict,
                   items: [
                     'All',
@@ -506,7 +506,7 @@ class _AdvocateDirectoryScreenState
               ),
               child: Row(
                 children: [
-                  Icon(Icons.phone_rounded, size: 16, color: AppTheme.accent),
+                  const Icon(Icons.phone_rounded, size: 16, color: AppTheme.accent),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -520,11 +520,11 @@ class _AdvocateDirectoryScreenState
                     ),
                   ),
                   if (email != null && email.toString().isNotEmpty)
-                    _buildActionButton(Icons.mail_outline_rounded, "Email", () {
+                    _buildActionButton(Icons.mail_outline_rounded, 'Email', () {
                       launchUrl(Uri.parse('mailto:$email'));
                     }),
                   const SizedBox(width: 8),
-                  _buildActionButton(Icons.call_rounded, "Call", () {
+                  _buildActionButton(Icons.call_rounded, 'Call', () {
                     launchUrl(Uri.parse('tel:$mobile'));
                   }, isPrimary: true),
                 ],
@@ -584,7 +584,7 @@ class _AdvocateDirectoryScreenState
               const SizedBox(width: 4),
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: AppTheme.accent,
@@ -616,7 +616,7 @@ class _AdvocateDirectoryScreenState
           ),
           const SizedBox(height: 20),
           Text(
-            "No Advocates Found",
+            'No Advocates Found',
             style: GoogleFonts.outfit(
               fontSize: 20,
               fontWeight: FontWeight.w700,
@@ -627,7 +627,7 @@ class _AdvocateDirectoryScreenState
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Text(
-              "Try adjusting your search or filters to find advocates in your area.",
+              'Try adjusting your search or filters to find advocates in your area.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[500], height: 1.5),
             ),
@@ -658,7 +658,7 @@ class _AdvocateDirectoryScreenState
             ),
             const SizedBox(height: 20),
             Text(
-              "Connection Error",
+              'Connection Error',
               style: GoogleFonts.outfit(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -675,7 +675,7 @@ class _AdvocateDirectoryScreenState
               onPressed:
                   () => ref.invalidate(advocateSearchProvider(filterKey)),
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text("Retry"),
+              label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.accent,
                 foregroundColor: Colors.white,

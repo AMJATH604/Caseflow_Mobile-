@@ -21,9 +21,9 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
   int _selectedTab = 0;
   final stt.SpeechToText _speech = stt.SpeechToText();
   bool _isListening = false;
-  String _currentVoiceNote = "";
+  String _currentVoiceNote = '';
 
-  static const _tabLabels = ["Checklist", "Witness Lab", "Photo Vault"];
+  static const _tabLabels = ['Checklist', 'Witness Lab', 'Photo Vault'];
   static const _tabIcons = [
     Icons.fact_check_rounded,
     Icons.record_voice_over_rounded,
@@ -180,7 +180,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                                 ),
                               ),
                               Text(
-                                "${total > 0 ? ((completed / total) * 100).round() : 0}%",
+                                '${total > 0 ? ((completed / total) * 100).round() : 0}%',
                                 style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w900,
@@ -196,7 +196,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
-                                "Preparation Progress",
+                                'Preparation Progress',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w800,
                                   fontSize: 14,
@@ -205,7 +205,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                "$completed of $total items completed",
+                                '$completed of $total items completed',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: Color(0xFF64748B),
@@ -225,8 +225,8 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
 
                 if (items.isEmpty)
                   _buildInlineEmptyState(
-                    "No checklist items yet",
-                    "Add documents, exhibits, and witness prep items",
+                    'No checklist items yet',
+                    'Add documents, exhibits, and witness prep items',
                     Icons.fact_check_rounded,
                     const Color(0xFF2563EB),
                   ),
@@ -237,7 +237,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
               bottom: 24,
               right: 20,
               child: _buildActionFab(
-                "Add Item",
+                'Add Item',
                 Icons.add_task_rounded,
                 const Color(0xFF2563EB),
                 _showAddItemDialog,
@@ -250,7 +250,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
           () => const Center(
             child: CircularProgressIndicator(color: AppTheme.accent),
           ),
-      error: (e, _) => Center(child: Text("Error: $e")),
+      error: (e, _) => Center(child: Text('Error: $e')),
     );
   }
 
@@ -389,8 +389,8 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
   }
 
   void _showAddItemDialog() {
-    String name = "";
-    String type = "document";
+    String name = '';
+    String type = 'document';
 
     showModalBottomSheet(
       context: context,
@@ -446,7 +446,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Add Prep Item",
+                              'Add Prep Item',
                               style: TextStyle(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 18,
@@ -454,7 +454,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                               ),
                             ),
                             Text(
-                              "Track evidence preparation",
+                              'Track evidence preparation',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Color(0xFF64748B),
@@ -467,7 +467,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                     const SizedBox(height: 24),
                     TextField(
                       decoration: InputDecoration(
-                        labelText: "Description",
+                        labelText: 'Description',
                         prefixIcon: const Icon(Icons.edit_rounded, size: 20),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -480,7 +480,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      "Type",
+                      'Type',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
@@ -492,7 +492,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                       spacing: 8,
                       runSpacing: 8,
                       children:
-                          ["document", "witness", "exhibit", "pending"].map((
+                          ['document', 'witness', 'exhibit', 'pending'].map((
                             t,
                           ) {
                             final sel = type == t;
@@ -527,7 +527,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
-                                      _typeIcons[t]!,
+                                      _typeIcons[t],
                                       size: 16,
                                       color:
                                           sel
@@ -579,7 +579,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                           elevation: 0,
                         ),
                         child: const Text(
-                          "Add Item",
+                          'Add Item',
                           style: TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: 15,
@@ -607,13 +607,14 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
         Expanded(
           child: notesAsync.when(
             data: (notes) {
-              if (notes.isEmpty)
+              if (notes.isEmpty) {
                 return _buildInlineEmptyState(
-                  "No voice notes yet",
-                  "Record examination notes using the microphone",
+                  'No voice notes yet',
+                  'Record examination notes using the microphone',
                   Icons.record_voice_over_rounded,
                   const Color(0xFF8B5CF6),
                 );
+              }
               return ListView.builder(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
                 itemCount: notes.length,
@@ -624,7 +625,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                 () => const Center(
                   child: CircularProgressIndicator(color: AppTheme.accent),
                 ),
-            error: (e, _) => Center(child: Text("Error: $e")),
+            error: (e, _) => Center(child: Text('Error: $e')),
           ),
         ),
       ],
@@ -675,7 +676,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  _isListening ? "Listening..." : "Voice Examination Lab",
+                  _isListening ? 'Listening...' : 'Voice Examination Lab',
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 14,
@@ -710,7 +711,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
-                    _isListening ? "Stop" : "Record",
+                    _isListening ? 'Stop' : 'Record',
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
@@ -745,9 +746,9 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () => setState(() => _currentVoiceNote = ""),
+                  onPressed: () => setState(() => _currentVoiceNote = ''),
                   child: const Text(
-                    "Clear",
+                    'Clear',
                     style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
@@ -763,7 +764,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                     elevation: 0,
                   ),
                   child: const Text(
-                    "Save Note",
+                    'Save Note',
                     style: TextStyle(fontWeight: FontWeight.w800),
                   ),
                 ),
@@ -877,7 +878,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
 
   void _toggleListening() async {
     if (!_isListening) {
-      bool available = await _speech.initialize();
+      final bool available = await _speech.initialize();
       if (available) {
         setState(() => _isListening = true);
         _speech.listen(
@@ -893,8 +894,8 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
   }
 
   void _saveVoiceNote() {
-    String tag = "PW1";
-    String name = "";
+    String tag = 'PW1';
+    String name = '';
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -927,7 +928,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  "Save Voice Note",
+                  'Save Voice Note',
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 18,
@@ -937,7 +938,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                 const SizedBox(height: 20),
                 TextField(
                   decoration: InputDecoration(
-                    labelText: "Witness Name",
+                    labelText: 'Witness Name',
                     prefixIcon: const Icon(Icons.person_rounded, size: 20),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -951,7 +952,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                 const SizedBox(height: 12),
                 TextField(
                   decoration: InputDecoration(
-                    labelText: "Tag (e.g., PW1, DW1)",
+                    labelText: 'Tag (e.g., PW1, DW1)',
                     prefixIcon: const Icon(Icons.tag_rounded, size: 20),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -976,7 +977,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                           'notes': _currentVoiceNote,
                         });
                         ref.invalidate(witnessNotesProvider(widget.caseId));
-                        setState(() => _currentVoiceNote = "");
+                        setState(() => _currentVoiceNote = '');
                         if (ctx.mounted) Navigator.pop(ctx);
                       }
                     },
@@ -989,7 +990,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                       elevation: 0,
                     ),
                     child: const Text(
-                      "Save",
+                      'Save',
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
                         fontSize: 15,
@@ -1013,13 +1014,14 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
       children: [
         photosAsync.when(
           data: (photos) {
-            if (photos.isEmpty)
+            if (photos.isEmpty) {
               return _buildInlineEmptyState(
-                "No evidence photos",
-                "Capture or upload visual evidence",
+                'No evidence photos',
+                'Capture or upload visual evidence',
                 Icons.photo_library_rounded,
                 const Color(0xFFF59E0B),
               );
+            }
             return GridView.builder(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -1036,14 +1038,14 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
               () => const Center(
                 child: CircularProgressIndicator(color: AppTheme.accent),
               ),
-          error: (e, _) => Center(child: Text("Error: $e")),
+          error: (e, _) => Center(child: Text('Error: $e')),
         ),
         // Capture FAB
         Positioned(
           bottom: 24,
           right: 20,
           child: _buildActionFab(
-            "Capture",
+            'Capture',
             Icons.camera_alt_rounded,
             const Color(0xFFF59E0B),
             _capturePhoto,
@@ -1104,7 +1106,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        photo.description ?? "Evidence",
+                        photo.description ?? 'Evidence',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
@@ -1173,7 +1175,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
       await SupabaseService.createEvidencePhoto({
         'case_id': widget.caseId,
         'photo_url':
-            "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=300",
+            'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=300',
         'description':
             "Evidence captured on ${DateFormat('dd MMM yyyy').format(DateTime.now())}",
       });

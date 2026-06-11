@@ -1,5 +1,6 @@
 /// Models for eCourt-style Case Dossier sections:
 /// Acts & Sections, Interlocutory Applications, Interim Orders
+library;
 
 class CaseAct {
   final String id;

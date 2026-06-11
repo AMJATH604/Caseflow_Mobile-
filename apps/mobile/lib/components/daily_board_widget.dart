@@ -65,7 +65,7 @@ class DailyBoardWidget extends ConsumerWidget {
                       ),
                       const Spacer(),
                       Text(
-                        "${todayHearings.length} HEARINGS",
+                        '${todayHearings.length} HEARINGS',
                         style: GoogleFonts.inter(
                           color: AppTheme.accent,
                           fontSize: 10,
@@ -123,7 +123,7 @@ class DailyBoardWidget extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              h.caseTitle ?? "Unknown Case",
+                              h.caseTitle ?? 'Unknown Case',
                               style: GoogleFonts.inter(
                                 color: const Color(0xFF1E293B),
                                 fontWeight: FontWeight.w600,
@@ -134,7 +134,7 @@ class DailyBoardWidget extends ConsumerWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              (h.purpose ?? h.stage ?? "Hearing").toUpperCase(),
+                              (h.purpose ?? h.stage ?? 'Hearing').toUpperCase(),
                               style: GoogleFonts.inter(
                                 color: const Color(0xFF6B7280),
                                 fontSize: 9,
@@ -177,7 +177,7 @@ class DailyBoardWidget extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            "NO HEARINGS TODAY",
+            'NO HEARINGS TODAY',
             style: GoogleFonts.inter(
               color: const Color(0xFF6B7280),
               fontWeight: FontWeight.w700,

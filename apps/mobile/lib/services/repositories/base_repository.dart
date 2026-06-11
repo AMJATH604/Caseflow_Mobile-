@@ -44,7 +44,7 @@ class BaseRepository {
   /// Full profile fetch with firm membership verification.
   static Future<UserProfile> _fetchAndVerifyProfile() async {
     final user = client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     final response =
         await client.from('profiles').select().eq('id', user.id).maybeSingle();
@@ -93,7 +93,7 @@ class BaseRepository {
   /// Returns the current authenticated user or throws.
   static User requireAuth() {
     final user = client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
     return user;
   }
 

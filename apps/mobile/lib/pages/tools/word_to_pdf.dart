@@ -70,7 +70,7 @@ class _WordToPdfState extends State<WordToPdf> {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  "Word to PDF Converter",
+                  'Word to PDF Converter',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -79,7 +79,7 @@ class _WordToPdfState extends State<WordToPdf> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  "Convert your .docx legal drafts to PDF instantly",
+                  'Convert your .docx legal drafts to PDF instantly',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white70),
                 ),
@@ -98,7 +98,7 @@ class _WordToPdfState extends State<WordToPdf> {
                     ),
                   ),
                   child: Text(
-                    _isProcessing ? "Converting..." : "Select Word File",
+                    _isProcessing ? 'Converting...' : 'Select Word File',
                   ),
                 ),
               ],
@@ -109,7 +109,7 @@ class _WordToPdfState extends State<WordToPdf> {
             const LinearProgressIndicator(minHeight: 8),
             const SizedBox(height: 16),
             const Text(
-              "Optimizing document structure...",
+              'Optimizing document structure...',
               style: TextStyle(color: Colors.grey),
             ),
           ],
@@ -137,13 +137,13 @@ class _WordToPdfState extends State<WordToPdf> {
                       OutlinedButton.icon(
                         onPressed: () {},
                         icon: const Icon(Icons.download),
-                        label: const Text("Download PDF"),
+                        label: const Text('Download PDF'),
                       ),
                       const SizedBox(width: 16),
                       OutlinedButton.icon(
                         onPressed: () {},
                         icon: const Icon(Icons.share),
-                        label: const Text("Share"),
+                        label: const Text('Share'),
                       ),
                     ],
                   ),

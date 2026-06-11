@@ -79,7 +79,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
           });
         }
       } catch (e) {
-        debugPrint("Error loading firm members: $e");
+        debugPrint('Error loading firm members: $e');
       }
     }
   }
@@ -181,7 +181,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -201,14 +201,14 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
           () => const AlertDialog(
             content: Center(child: CircularProgressIndicator()),
           ),
-      error: (e, s) => AlertDialog(content: Text("Error loading profile: $e")),
+      error: (e, s) => AlertDialog(content: Text('Error loading profile: $e')),
     );
   }
 
   Widget _buildForm(BuildContext context) {
     return AlertDialog(
       title: const Text(
-        "Create New Case",
+        'Create New Case',
         style: TextStyle(
           fontFamily: 'Playfair Display',
           fontWeight: FontWeight.bold,
@@ -222,7 +222,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ─── CASE CATEGORY ───
-              _sectionLabel("Case Category"),
+              _sectionLabel('Case Category'),
               const SizedBox(height: 8),
               SegmentedButton<String>(
                 segments: const [
@@ -242,7 +242,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               const SizedBox(height: 16),
 
               // ─── COURT TYPE ───
-              _sectionLabel("Court Type"),
+              _sectionLabel('Court Type'),
               const SizedBox(height: 8),
               SegmentedButton<CourtType>(
                 segments:
@@ -297,9 +297,9 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               TextFormField(
                 controller: _cnrController,
                 decoration: InputDecoration(
-                  labelText: "CNR Number",
+                  labelText: 'CNR Number',
                   prefixIcon: const Icon(Icons.qr_code_rounded),
-                  hintText: "E.g. PBJL010012342024",
+                  hintText: 'E.g. PBJL010012342024',
                   suffixIcon:
                       _cnrController.text.isNotEmpty
                           ? IconButton(
@@ -317,7 +317,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
                   padding: const EdgeInsets.only(top: 12),
                   child: SwitchListTile(
                     title: const Text(
-                      "Enable Background Tracking",
+                      'Enable Background Tracking',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -330,7 +330,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
                     value: _isAutoTrackingEnabled,
                     onChanged:
                         (v) => setState(() => _isAutoTrackingEnabled = v),
-                    activeColor: AppTheme.accent,
+                    activeThumbColor: AppTheme.accent,
                     contentPadding: EdgeInsets.zero,
                   ),
                 ),
@@ -355,13 +355,13 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
                   hintText: 'Enter full name',
                 ),
                 validator:
-                    (v) => (v == null || v.trim().isEmpty) ? "Required" : null,
+                    (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _plaintiffPhoneController,
                 decoration: const InputDecoration(
-                  labelText: "Phone (optional)",
+                  labelText: 'Phone (optional)',
                   prefixIcon: Icon(Icons.phone_outlined),
                 ),
                 keyboardType: TextInputType.phone,
@@ -370,7 +370,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               TextFormField(
                 controller: _plaintiffEmailController,
                 decoration: const InputDecoration(
-                  labelText: "Email (optional)",
+                  labelText: 'Email (optional)',
                   prefixIcon: Icon(Icons.email_outlined),
                 ),
                 keyboardType: TextInputType.emailAddress,
@@ -416,14 +416,14 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
                     (v) =>
                         (_representing == RepresentationType.respondent &&
                                 (v == null || v.trim().isEmpty))
-                            ? "Required"
+                            ? 'Required'
                             : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _defendantPhoneController,
                 decoration: const InputDecoration(
-                  labelText: "Phone (optional)",
+                  labelText: 'Phone (optional)',
                   prefixIcon: Icon(Icons.phone_outlined),
                 ),
                 keyboardType: TextInputType.phone,
@@ -432,7 +432,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               TextFormField(
                 controller: _defendantEmailController,
                 decoration: const InputDecoration(
-                  labelText: "Email (optional)",
+                  labelText: 'Email (optional)',
                   prefixIcon: Icon(Icons.email_outlined),
                 ),
                 keyboardType: TextInputType.emailAddress,
@@ -441,7 +441,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               TextFormField(
                 controller: _defendantAdvocateController,
                 decoration: const InputDecoration(
-                  labelText: "Advocate Name",
+                  labelText: 'Advocate Name',
                   prefixIcon: Icon(Icons.gavel_outlined),
                 ),
               ),
@@ -449,7 +449,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               TextFormField(
                 controller: _defendantAdvocatePhoneController,
                 decoration: const InputDecoration(
-                  labelText: "Advocate Phone",
+                  labelText: 'Advocate Phone',
                   prefixIcon: Icon(Icons.phone_outlined),
                 ),
                 keyboardType: TextInputType.phone,
@@ -467,7 +467,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(
-                  labelText: "Case Title (auto-generated if empty)",
+                  labelText: 'Case Title (auto-generated if empty)',
                   prefixIcon: Icon(Icons.title_rounded),
                 ),
               ),
@@ -475,7 +475,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               TextFormField(
                 controller: _numberController,
                 decoration: const InputDecoration(
-                  labelText: "Case Number (optional)",
+                  labelText: 'Case Number (optional)',
                   prefixIcon: Icon(Icons.tag_rounded),
                 ),
               ),
@@ -483,7 +483,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               TextFormField(
                 controller: _courtController,
                 decoration: const InputDecoration(
-                  labelText: "Court Name",
+                  labelText: 'Court Name',
                   prefixIcon: Icon(Icons.account_balance_outlined),
                 ),
               ),
@@ -500,7 +500,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
                 },
                 child: InputDecorator(
                   decoration: const InputDecoration(
-                    labelText: "Filing Date",
+                    labelText: 'Filing Date',
                     prefixIcon: Icon(Icons.calendar_today_rounded),
                   ),
                   child: Text(DateFormat('dd MMM yyyy').format(_filingDate!)),
@@ -509,7 +509,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               const SizedBox(height: 12),
               DropdownButtonFormField<CaseStatus>(
                 initialValue: _status,
-                decoration: const InputDecoration(labelText: "Initial Status"),
+                decoration: const InputDecoration(labelText: 'Initial Status'),
                 items:
                     CaseStatus.values
                         .map(
@@ -522,7 +522,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               const SizedBox(height: 12),
               DropdownButtonFormField<CaseStage>(
                 initialValue: _stage,
-                decoration: const InputDecoration(labelText: "Initial Stage"),
+                decoration: const InputDecoration(labelText: 'Initial Stage'),
                 items:
                     CaseStage.values
                         .map(
@@ -537,12 +537,12 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
                 DropdownButtonFormField<String>(
                   initialValue: _assignedTo,
                   decoration: const InputDecoration(
-                    labelText: "Assign to Advocate",
+                    labelText: 'Assign to Advocate',
                   ),
                   items: [
                     const DropdownMenuItem(
                       value: null,
-                      child: Text("Me (Senior)"),
+                      child: Text('Me (Senior)'),
                     ),
                     ..._firmMembers.map(
                       (m) => DropdownMenuItem(
@@ -561,7 +561,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text("Cancel"),
+          child: const Text('Cancel'),
         ),
         ElevatedButton(
           onPressed: _isSaving ? null : _save,
@@ -579,7 +579,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
                       color: Colors.white,
                     ),
                   )
-                  : const Text("Create Case"),
+                  : const Text('Create Case'),
         ),
       ],
     );

@@ -9,69 +9,69 @@ class CourtHolidayList extends StatelessWidget {
     // Static data for 2026 major court holidays (General Indian/TN pattern)
     final List<Map<String, dynamic>> holidays = [
       {
-        "month": "January",
-        "days": [
-          {"name": "New Year's Day", "date": "Jan 1"},
-          {"name": "Pongal / Sankranti", "date": "Jan 14-16"},
-          {"name": "Republic Day", "date": "Jan 26"},
+        'month': 'January',
+        'days': [
+          {'name': "New Year's Day", 'date': 'Jan 1'},
+          {'name': 'Pongal / Sankranti', 'date': 'Jan 14-16'},
+          {'name': 'Republic Day', 'date': 'Jan 26'},
         ],
       },
       {
-        "month": "February",
-        "days": [
-          {"name": "Maha Shivaratri", "date": "Feb 15"},
+        'month': 'February',
+        'days': [
+          {'name': 'Maha Shivaratri', 'date': 'Feb 15'},
         ],
       },
       {
-        "month": "March",
-        "days": [
-          {"name": "Holi", "date": "Mar 4"},
-          {"name": "Eid-ul-Fitr (Approx)", "date": "Mar 31"},
+        'month': 'March',
+        'days': [
+          {'name': 'Holi', 'date': 'Mar 4'},
+          {'name': 'Eid-ul-Fitr (Approx)', 'date': 'Mar 31'},
         ],
       },
       {
-        "month": "April",
-        "days": [
-          {"name": "Good Friday", "date": "Apr 3"},
-          {"name": "Tamil New Year / Vishu", "date": "Apr 14"},
+        'month': 'April',
+        'days': [
+          {'name': 'Good Friday', 'date': 'Apr 3'},
+          {'name': 'Tamil New Year / Vishu', 'date': 'Apr 14'},
         ],
       },
       {
-        "month": "May",
-        "days": [
+        'month': 'May',
+        'days': [
           {
-            "name": "Summer Vacation",
-            "date": "May 1 - May 31",
-            "type": "vacation",
+            'name': 'Summer Vacation',
+            'date': 'May 1 - May 31',
+            'type': 'vacation',
           },
         ],
       },
       {
-        "month": "August",
-        "days": [
-          {"name": "Independence Day", "date": "Aug 15"},
+        'month': 'August',
+        'days': [
+          {'name': 'Independence Day', 'date': 'Aug 15'},
         ],
       },
       {
-        "month": "October",
-        "days": [
-          {"name": "Gandhi Jayanti", "date": "Oct 2"},
-          {"name": "Vijayadashami / Dussehra", "date": "Oct 21"},
+        'month': 'October',
+        'days': [
+          {'name': 'Gandhi Jayanti', 'date': 'Oct 2'},
+          {'name': 'Vijayadashami / Dussehra', 'date': 'Oct 21'},
         ],
       },
       {
-        "month": "November",
-        "days": [
-          {"name": "Diwali / Deepavali", "date": "Nov 8"},
+        'month': 'November',
+        'days': [
+          {'name': 'Diwali / Deepavali', 'date': 'Nov 8'},
         ],
       },
       {
-        "month": "December",
-        "days": [
+        'month': 'December',
+        'days': [
           {
-            "name": "Winter Vacation",
-            "date": "Dec 24 - Dec 31",
-            "type": "vacation",
+            'name': 'Winter Vacation',
+            'date': 'Dec 24 - Dec 31',
+            'type': 'vacation',
           },
         ],
       },
@@ -158,7 +158,7 @@ class CourtHolidayList extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  isVacation ? "Court Vacation" : "Public Holiday",
+                  isVacation ? 'Court Vacation' : 'Public Holiday',
                   style: TextStyle(color: Colors.grey[600], fontSize: 11),
                 ),
               ],

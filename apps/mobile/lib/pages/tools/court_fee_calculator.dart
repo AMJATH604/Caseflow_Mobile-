@@ -19,61 +19,61 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
   );
   final TextEditingController _amountController = TextEditingController();
 
-  String _category = "money_suit";
-  String _courtType = "sub_court";
-  String _partitionType = "joint_possession"; // NEW: joint vs excluded
-  String _appealType = "decree"; // NEW: from decree vs from order
+  String _category = 'money_suit';
+  String _courtType = 'sub_court';
+  String _partitionType = 'joint_possession'; // NEW: joint vs excluded
+  String _appealType = 'decree'; // NEW: from decree vs from order
 
   int? _fee2017;
   int? _fee1955;
-  String _legalBasis = "";
+  String _legalBasis = '';
   List<String> _notes = [];
 
   // ─── Categories (expanded per 2017 Amendment Act) ──────
   final List<Map<String, dynamic>> _categories = [
     {
-      "id": "money_suit",
-      "label": "Money Suit (Recovery)",
-      "icon": Icons.account_balance_wallet_outlined,
+      'id': 'money_suit',
+      'label': 'Money Suit (Recovery)',
+      'icon': Icons.account_balance_wallet_outlined,
     },
     {
-      "id": "immovable_property",
-      "label": "Immovable Property",
-      "icon": Icons.home_outlined,
+      'id': 'immovable_property',
+      'label': 'Immovable Property',
+      'icon': Icons.home_outlined,
     },
     {
-      "id": "partition",
-      "label": "Partition Suit",
-      "icon": Icons.vertical_split_outlined,
+      'id': 'partition',
+      'label': 'Partition Suit',
+      'icon': Icons.vertical_split_outlined,
     },
     {
-      "id": "probate",
-      "label": "Probate / Letters of Admin",
-      "icon": Icons.description_outlined,
+      'id': 'probate',
+      'label': 'Probate / Letters of Admin',
+      'icon': Icons.description_outlined,
     },
-    {"id": "appeal", "label": "Appeal", "icon": Icons.gavel_outlined},
+    {'id': 'appeal', 'label': 'Appeal', 'icon': Icons.gavel_outlined},
     {
-      "id": "writ",
-      "label": "Writ Petition (Art. 226)",
-      "icon": Icons.article_outlined,
-    },
-    {
-      "id": "application",
-      "label": "Interim Application / IA",
-      "icon": Icons.assignment_outlined,
+      'id': 'writ',
+      'label': 'Writ Petition (Art. 226)',
+      'icon': Icons.article_outlined,
     },
     {
-      "id": "ni_act",
-      "label": "NI Act §138 Petition",
-      "icon": Icons.credit_card_outlined,
+      'id': 'application',
+      'label': 'Interim Application / IA',
+      'icon': Icons.assignment_outlined,
     },
     {
-      "id": "revision",
-      "label": "Revision Petition",
-      "icon": Icons.replay_outlined,
+      'id': 'ni_act',
+      'label': 'NI Act §138 Petition',
+      'icon': Icons.credit_card_outlined,
     },
-    {"id": "caveat", "label": "Caveat", "icon": Icons.warning_amber_rounded},
-    {"id": "vakalat", "label": "Vakalat Filing", "icon": Icons.badge_outlined},
+    {
+      'id': 'revision',
+      'label': 'Revision Petition',
+      'icon': Icons.replay_outlined,
+    },
+    {'id': 'caveat', 'label': 'Caveat', 'icon': Icons.warning_amber_rounded},
+    {'id': 'vakalat', 'label': 'Vakalat Filing', 'icon': Icons.badge_outlined},
   ];
 
   @override
@@ -94,32 +94,32 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
         double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0;
     double fee2017 = 0;
     double fee1955 = 0;
-    String basis = "";
-    List<String> notes = [];
+    String basis = '';
+    final List<String> notes = [];
 
     switch (_category) {
-      case "money_suit":
-      case "immovable_property":
+      case 'money_suit':
+      case 'immovable_property':
         // Schedule I, Article 1 — "Three per cent of the amount or value"
         fee2017 = amount * 0.03;
         fee1955 = amount * 0.01;
-        basis = "Schedule I, Art. 1 — 3% of subject matter value";
+        basis = 'Schedule I, Art. 1 — 3% of subject matter value';
         if (amount > 0 && fee2017 < 200) {
           fee2017 = 200;
-          notes.add("Minimum court fee of ₹200 applied.");
+          notes.add('Minimum court fee of ₹200 applied.');
         }
         break;
 
-      case "partition":
-        if (_partitionType == "joint_possession") {
+      case 'partition':
+        if (_partitionType == 'joint_possession') {
           // Section 37(2) — plaintiff in joint possession
-          fee2017 = _courtType == "high_court" ? 10000 : 5000;
-          fee1955 = _courtType == "high_court" ? 1000 : 750;
-          basis = "§37(2) — Plaintiff in joint possession (flat fee)";
+          fee2017 = _courtType == 'high_court' ? 10000 : 5000;
+          fee1955 = _courtType == 'high_court' ? 1000 : 750;
+          basis = '§37(2) — Plaintiff in joint possession (flat fee)';
           notes.add(
-            _courtType == "high_court"
-                ? "High Court Original Side: ₹10,000"
-                : "District/Sub Court: ₹5,000",
+            _courtType == 'high_court'
+                ? 'High Court Original Side: ₹10,000'
+                : 'District/Sub Court: ₹5,000',
           );
         } else {
           // Section 37(1) — plaintiff excluded from possession
@@ -130,75 +130,75 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
           notes.add("Enter the market value of the plaintiff's share claimed.");
           if (amount > 0 && fee2017 < 200) {
             fee2017 = 200;
-            notes.add("Minimum court fee of ₹200 applied.");
+            notes.add('Minimum court fee of ₹200 applied.');
           }
         }
         break;
 
-      case "probate":
+      case 'probate':
         fee2017 = (amount * 0.03).clamp(0, 25000);
         fee1955 = amount * 0.03;
-        basis = "Schedule I — 3% of estate value, max ₹25,000";
+        basis = 'Schedule I — 3% of estate value, max ₹25,000';
         break;
 
-      case "appeal":
-        if (_appealType == "decree") {
+      case 'appeal':
+        if (_appealType == 'decree') {
           // Schedule I Art. 1 includes memoranda of appeal
           fee2017 = amount * 0.03;
           fee1955 = amount * 0.01;
           basis =
-              "Schedule I, Art. 1 — Appeal from decree: 3% of subject matter";
+              'Schedule I, Art. 1 — Appeal from decree: 3% of subject matter';
         } else {
           // Schedule II Art. 3 — appeal from order
-          fee2017 = _courtType == "high_court" ? 2000 : 100;
-          fee1955 = _courtType == "high_court" ? 200 : 15;
-          basis = "Schedule II, Art. 3 — Appeal from order";
+          fee2017 = _courtType == 'high_court' ? 2000 : 100;
+          fee1955 = _courtType == 'high_court' ? 200 : 15;
+          basis = 'Schedule II, Art. 3 — Appeal from order';
           notes.add(
-            _courtType == "high_court"
-                ? "To High Court: ₹2,000"
-                : "To courts other than HC: ₹100",
+            _courtType == 'high_court'
+                ? 'To High Court: ₹2,000'
+                : 'To courts other than HC: ₹100',
           );
         }
         break;
 
-      case "writ":
+      case 'writ':
         fee2017 = 1000;
         fee1955 = 200;
-        basis = "Schedule II — Writ Petition under Art. 226: ₹1,000";
+        basis = 'Schedule II — Writ Petition under Art. 226: ₹1,000';
         break;
 
-      case "application":
+      case 'application':
         fee2017 = 20;
         fee1955 = 2;
         basis =
-            "Schedule II, Art. 11(h) — Application for temporary injunction: ₹20";
+            'Schedule II, Art. 11(h) — Application for temporary injunction: ₹20';
         notes.add(
-          "Note: This is the statutory prescribed fee per the 2017 Amendment Act.",
+          'Note: This is the statutory prescribed fee per the 2017 Amendment Act.',
         );
         break;
 
-      case "ni_act":
+      case 'ni_act':
         fee2017 = (amount * 0.03).clamp(0, 100000);
         fee1955 = amount * 0.01;
-        basis = "NI Act §138 complaint — 3% of cheque amount, max ₹1,00,000";
+        basis = 'NI Act §138 complaint — 3% of cheque amount, max ₹1,00,000';
         break;
 
-      case "revision":
+      case 'revision':
         fee2017 = 200;
         fee1955 = 15;
-        basis = "Revision Petition to District Court: ₹200";
+        basis = 'Revision Petition to District Court: ₹200';
         break;
 
-      case "caveat":
+      case 'caveat':
         fee2017 = 20;
         fee1955 = 5;
-        basis = "Caveat filing: ₹20";
+        basis = 'Caveat filing: ₹20';
         break;
 
-      case "vakalat":
+      case 'vakalat':
         fee2017 = 10;
         fee1955 = 2;
-        basis = "Vakalat / Memo of Appearance: ₹10";
+        basis = 'Vakalat / Memo of Appearance: ₹10';
         break;
     }
 
@@ -212,41 +212,41 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
 
   bool get _needsAmountInput =>
       [
-        "money_suit",
-        "immovable_property",
-        "probate",
-        "ni_act",
+        'money_suit',
+        'immovable_property',
+        'probate',
+        'ni_act',
       ].contains(_category) ||
-      (_category == "partition" && _partitionType == "excluded") ||
-      (_category == "appeal" && _appealType == "decree");
+      (_category == 'partition' && _partitionType == 'excluded') ||
+      (_category == 'appeal' && _appealType == 'decree');
 
   // ─── COPY TO CLIPBOARD ──────────────────────────────
   void _copyMemo() {
     final catLabel =
         _categories.firstWhere((c) => c['id'] == _category)['label'];
     final sb = StringBuffer();
-    sb.writeln("══════════════════════════════════════");
-    sb.writeln("  COURT FEE CALCULATION MEMO");
-    sb.writeln("══════════════════════════════════════");
-    sb.writeln("Case Type     : $catLabel");
+    sb.writeln('══════════════════════════════════════');
+    sb.writeln('  COURT FEE CALCULATION MEMO');
+    sb.writeln('══════════════════════════════════════');
+    sb.writeln('Case Type     : $catLabel');
     if (_needsAmountInput) {
       sb.writeln(
         "Subject Value : ${formatCurrency.format(double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0)}",
       );
     }
-    sb.writeln("──────────────────────────────────────");
+    sb.writeln('──────────────────────────────────────');
     sb.writeln(
-      "Court Fee (2017 Act) : ${formatCurrency.format(_fee2017 ?? 0)}",
+      'Court Fee (2017 Act) : ${formatCurrency.format(_fee2017 ?? 0)}',
     );
     sb.writeln(
-      "Court Fee (1955 Act) : ${formatCurrency.format(_fee1955 ?? 0)}",
+      'Court Fee (1955 Act) : ${formatCurrency.format(_fee1955 ?? 0)}',
     );
-    sb.writeln("──────────────────────────────────────");
-    sb.writeln("Legal Basis: $_legalBasis");
+    sb.writeln('──────────────────────────────────────');
+    sb.writeln('Legal Basis: $_legalBasis');
     for (var n in _notes) {
-      sb.writeln("Note: $n");
+      sb.writeln('Note: $n');
     }
-    sb.writeln("──────────────────────────────────────");
+    sb.writeln('──────────────────────────────────────');
     sb.writeln(
       "Generated by CaseFlow on ${DateFormat('dd.MM.yyyy').format(DateTime.now())}",
     );
@@ -274,7 +274,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
 
   @override
   Widget build(BuildContext context) {
-    bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -286,10 +286,10 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
             isDark,
             icon: Icons.gavel,
             iconColor: AppTheme.accent,
-            title: "Case Parameters",
+            title: 'Case Parameters',
             children: [
               Text(
-                "Select the type of case to calculate court fee as per TN Court Fees & Suits Valuation Act",
+                'Select the type of case to calculate court fee as per TN Court Fees & Suits Valuation Act',
                 style: TextStyle(fontSize: 12, color: Colors.grey[500]),
               ),
               const Divider(height: 20),
@@ -361,7 +361,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                               ),
                               if (isSelected) ...[
                                 const SizedBox(width: 4),
-                                Icon(
+                                const Icon(
                                   Icons.check_circle_rounded,
                                   size: 14,
                                   color: AppTheme.accent,
@@ -375,13 +375,13 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
               ),
 
               // ─── Sub-options ──
-              if (_category == "partition") ...[
+              if (_category == 'partition') ...[
                 const SizedBox(height: 16),
                 _buildSegmentedToggle(
-                  label: "Possession Status (§37)",
+                  label: 'Possession Status (§37)',
                   options: {
-                    "joint_possession": "Joint Possession",
-                    "excluded": "Excluded from Possession",
+                    'joint_possession': 'Joint Possession',
+                    'excluded': 'Excluded from Possession',
                   },
                   selected: _partitionType,
                   onChanged: (v) {
@@ -389,13 +389,13 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                     _calculateFee();
                   },
                 ),
-                if (_partitionType == "joint_possession") ...[
+                if (_partitionType == 'joint_possession') ...[
                   const SizedBox(height: 12),
                   _buildSegmentedToggle(
-                    label: "Court Type",
+                    label: 'Court Type',
                     options: {
-                      "sub_court": "District / Sub Court",
-                      "high_court": "High Court (OS)",
+                      'sub_court': 'District / Sub Court',
+                      'high_court': 'High Court (OS)',
                     },
                     selected: _courtType,
                     onChanged: (v) {
@@ -406,13 +406,13 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                 ],
               ],
 
-              if (_category == "appeal") ...[
+              if (_category == 'appeal') ...[
                 const SizedBox(height: 16),
                 _buildSegmentedToggle(
-                  label: "Appeal Type",
+                  label: 'Appeal Type',
                   options: {
-                    "decree": "Appeal from Decree",
-                    "order": "Appeal from Order",
+                    'decree': 'Appeal from Decree',
+                    'order': 'Appeal from Order',
                   },
                   selected: _appealType,
                   onChanged: (v) {
@@ -420,13 +420,13 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                     _calculateFee();
                   },
                 ),
-                if (_appealType == "order") ...[
+                if (_appealType == 'order') ...[
                   const SizedBox(height: 12),
                   _buildSegmentedToggle(
-                    label: "Court",
+                    label: 'Court',
                     options: {
-                      "sub_court": "Courts other than HC",
-                      "high_court": "High Court",
+                      'sub_court': 'Courts other than HC',
+                      'high_court': 'High Court',
                     },
                     selected: _courtType,
                     onChanged: (v) {
@@ -449,10 +449,10 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                   ),
                   decoration: InputDecoration(
                     labelText:
-                        _category == "partition"
+                        _category == 'partition'
                             ? "Plaintiff's Share Value (₹)"
-                            : "Subject Matter Value / Claim Amount (₹)",
-                    prefixText: "₹ ",
+                            : 'Subject Matter Value / Claim Amount (₹)',
+                    prefixText: '₹ ',
                     prefixStyle: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -473,11 +473,11 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
               isDark,
               icon: Icons.receipt_long_rounded,
               iconColor: Colors.green,
-              title: "Court Fee Result",
+              title: 'Court Fee Result',
               trailing: TextButton.icon(
                 onPressed: _copyMemo,
                 icon: const Icon(Icons.copy_rounded, size: 14),
-                label: const Text("Copy Memo", style: TextStyle(fontSize: 12)),
+                label: const Text('Copy Memo', style: TextStyle(fontSize: 12)),
               ),
               children: [
                 // Fee comparison
@@ -485,7 +485,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                   children: [
                     Expanded(
                       child: _buildFeeCard(
-                        "2017 Amendment",
+                        '2017 Amendment',
                         formatCurrency.format(_fee2017 ?? 0),
                         true,
                         isDark,
@@ -494,7 +494,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _buildFeeCard(
-                        "1955 Act (Old)",
+                        '1955 Act (Old)',
                         formatCurrency.format(_fee1955 ?? 0),
                         false,
                         isDark,
@@ -523,16 +523,16 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
+                        const Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.bookmark,
                               size: 14,
                               color: AppTheme.accent,
                             ),
-                            const SizedBox(width: 6),
+                            SizedBox(width: 6),
                             Text(
-                              "Legal Basis",
+                              'Legal Basis',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w800,

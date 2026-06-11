@@ -29,7 +29,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: AppTheme.border),
+        side: const BorderSide(color: AppTheme.border),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -38,7 +38,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              "Court Diary",
+              'Court Diary',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -80,7 +80,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                       child: CircularProgressIndicator(),
                     ),
                   ),
-              error: (err, stack) => Center(child: Text("Error: $err")),
+              error: (err, stack) => Center(child: Text('Error: $err')),
             ),
           ],
         ),
@@ -109,7 +109,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
           color: AppTheme.accent.withValues(alpha: 0.3),
           shape: BoxShape.circle,
         ),
-        selectedDecoration: BoxDecoration(
+        selectedDecoration: const BoxDecoration(
           color: AppTheme.accent,
           shape: BoxShape.circle,
         ),
@@ -225,7 +225,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                           children: [
                             Expanded(
                               child: Text(
-                                h.caseTitle ?? "Unknown Case",
+                                h.caseTitle ?? 'Unknown Case',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w800,
                                   fontSize: 14,
@@ -375,7 +375,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                   ),
                                 ),
                                 child: const Text(
-                                  "TEAM",
+                                  'TEAM',
                                   style: TextStyle(
                                     color: Colors.indigo,
                                     fontSize: 8,
@@ -415,7 +415,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                       ),
                                       SizedBox(width: 4),
                                       Text(
-                                        "ADJOURN",
+                                        'ADJOURN',
                                         style: TextStyle(
                                           fontSize: 9,
                                           fontWeight: FontWeight.w900,
@@ -458,15 +458,15 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
   void _showAdjournDialog(BuildContext context, Hearing hearing) {
     DateTime selectedDate = DateTime.now().add(const Duration(days: 14));
     final List<String> purposes = [
-      "Next Hearing",
-      "Evidence",
-      "Arguments",
-      "Orders",
-      "Case Disposed",
-      "Case Dismissed",
+      'Next Hearing',
+      'Evidence',
+      'Arguments',
+      'Orders',
+      'Case Disposed',
+      'Case Dismissed',
     ];
-    String stage = "Next Hearing";
-    String notes = "";
+    String stage = 'Next Hearing';
+    String notes = '';
 
     showDialog(
       context: context,
@@ -477,14 +477,14 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                   stage == 'Case Disposed' || stage == 'Case Dismissed';
 
               return AlertDialog(
-                title: const Text("Adjourn Hearing"),
+                title: const Text('Adjourn Hearing'),
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (!isFinal)
                         ListTile(
-                          title: const Text("Next Date"),
+                          title: const Text('Next Date'),
                           subtitle: Text(
                             DateFormat('MMM dd, yyyy').format(selectedDate),
                           ),
@@ -506,7 +506,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                       DropdownButtonFormField<String>(
                         initialValue: stage,
                         decoration: const InputDecoration(
-                          labelText: "Stage / Purpose",
+                          labelText: 'Stage / Purpose',
                         ),
                         items:
                             purposes
@@ -525,7 +525,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                       ),
                       TextField(
                         decoration: const InputDecoration(
-                          labelText: "Notes (Optional)",
+                          labelText: 'Notes (Optional)',
                         ),
                         onChanged: (val) => notes = val,
                       ),
@@ -535,7 +535,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text("Cancel"),
+                    child: const Text('Cancel'),
                   ),
                   ElevatedButton(
                     onPressed: () async {
@@ -567,8 +567,8 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                             SnackBar(
                               content: Text(
                                 isFinal
-                                    ? "Case $stage Successfully"
-                                    : "Hearing adjourned",
+                                    ? 'Case $stage Successfully'
+                                    : 'Hearing adjourned',
                               ),
                             ),
                           );
@@ -577,11 +577,11 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                         if (context.mounted) {
                           ScaffoldMessenger.of(
                             context,
-                          ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                          ).showSnackBar(SnackBar(content: Text('Error: $e')));
                         }
                       }
                     },
-                    child: Text(isFinal ? "Update Status" : "Adjourn"),
+                    child: Text(isFinal ? 'Update Status' : 'Adjourn'),
                   ),
                 ],
               );

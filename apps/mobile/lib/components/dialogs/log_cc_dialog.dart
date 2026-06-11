@@ -18,7 +18,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
   String? _selectedCaseId;
   final _caNumberController = TextEditingController();
   DateTime _boxDropDate = DateTime.now();
-  String _status = "box_drop";
+  String _status = 'box_drop';
   bool _isSaving = false;
 
   @override
@@ -44,7 +44,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error: $e"),
+            content: Text('Error: $e'),
             backgroundColor: AppTheme.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -107,7 +107,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "New CC Application",
+                          'New CC Application',
                           style: GoogleFonts.outfit(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -116,7 +116,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          "Log a certified copy tracking entry",
+                          'Log a certified copy tracking entry',
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             color: Colors.grey[500],
@@ -140,7 +140,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                     children: [
                       // Case Selector
                       Text(
-                        "SELECT CASE",
+                        'SELECT CASE',
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -152,13 +152,13 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                       casesAsync.when(
                         data:
                             (cases) => DropdownButtonFormField<String>(
-                              value: _selectedCaseId,
+                              initialValue: _selectedCaseId,
                               style: GoogleFonts.inter(
                                 color: AppTheme.primary,
                                 fontSize: 15,
                               ),
                               decoration: InputDecoration(
-                                hintText: "Choose a case...",
+                                hintText: 'Choose a case...',
                                 prefixIcon: const Icon(
                                   Icons.folder_shared_outlined,
                                   color: AppTheme.accent,
@@ -169,13 +169,13 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(
+                                  borderSide: const BorderSide(
                                     color: AppTheme.border,
                                   ),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(
+                                  borderSide: const BorderSide(
                                     color: AppTheme.border,
                                   ),
                                 ),
@@ -195,7 +195,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                                           child: Text(
                                             c.caseTitle.isEmpty
                                                 ? (c.caseNumber ??
-                                                    "Case #${c.id.substring(0, 4)}")
+                                                    'Case #${c.id.substring(0, 4)}')
                                                 : c.caseTitle,
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -207,12 +207,12 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                                       setState(() => _selectedCaseId = val),
                               validator:
                                   (v) =>
-                                      v == null ? "Please select a case" : null,
+                                      v == null ? 'Please select a case' : null,
                             ),
                         loading: () => const LinearProgressIndicator(),
                         error:
                             (e, s) => Text(
-                              "Error loading cases: $e",
+                              'Error loading cases: $e',
                               style: const TextStyle(color: AppTheme.error),
                             ),
                       ),
@@ -220,7 +220,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
 
                       // CA Number
                       Text(
-                        "CA NUMBER",
+                        'CA NUMBER',
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -233,7 +233,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                         controller: _caNumberController,
                         style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                         decoration: InputDecoration(
-                          hintText: "e.g. CA/123/2026 (Optional)",
+                          hintText: 'e.g. CA/123/2026 (Optional)',
                           prefixIcon: const Icon(
                             Icons.numbers_rounded,
                             color: AppTheme.accent,
@@ -242,11 +242,11 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                           fillColor: AppTheme.background.withValues(alpha: 0.5),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: AppTheme.border),
+                            borderSide: const BorderSide(color: AppTheme.border),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: AppTheme.border),
+                            borderSide: const BorderSide(color: AppTheme.border),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -261,7 +261,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
 
                       // Box Drop Date
                       Text(
-                        "APPLICATION DATE",
+                        'APPLICATION DATE',
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -278,8 +278,9 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                             firstDate: DateTime(1900),
                             lastDate: DateTime.now(),
                           );
-                          if (picked != null)
+                          if (picked != null) {
                             setState(() => _boxDropDate = picked);
+                          }
                         },
                         borderRadius: BorderRadius.circular(14),
                         child: Container(
@@ -319,7 +320,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
 
                       // Initial Status
                       Text(
-                        "INITIAL STATUS",
+                        'INITIAL STATUS',
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -329,7 +330,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                       ),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
-                        value: _status,
+                        initialValue: _status,
                         style: GoogleFonts.inter(
                           color: AppTheme.primary,
                           fontSize: 15,
@@ -343,11 +344,11 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                           fillColor: AppTheme.background.withValues(alpha: 0.5),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: AppTheme.border),
+                            borderSide: const BorderSide(color: AppTheme.border),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide(color: AppTheme.border),
+                            borderSide: const BorderSide(color: AppTheme.border),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -359,20 +360,20 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                         ),
                         items: const [
                           DropdownMenuItem(
-                            value: "box_drop",
-                            child: Text("📦  Box Dropped"),
+                            value: 'box_drop',
+                            child: Text('📦  Box Dropped'),
                           ),
                           DropdownMenuItem(
-                            value: "memo_filed",
-                            child: Text("📋  Memo Filed"),
+                            value: 'memo_filed',
+                            child: Text('📋  Memo Filed'),
                           ),
                           DropdownMenuItem(
-                            value: "ready",
-                            child: Text("✅  Ready for Collection"),
+                            value: 'ready',
+                            child: Text('✅  Ready for Collection'),
                           ),
                           DropdownMenuItem(
-                            value: "collected",
-                            child: Text("🤝  Collected"),
+                            value: 'collected',
+                            child: Text('🤝  Collected'),
                           ),
                         ],
                         onChanged: (val) => setState(() => _status = val!),
@@ -396,10 +397,10 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        side: BorderSide(color: AppTheme.border),
+                        side: const BorderSide(color: AppTheme.border),
                       ),
                       child: Text(
-                        "Cancel",
+                        'Cancel',
                         style: GoogleFonts.inter(
                           fontWeight: FontWeight.w600,
                           color: Colors.grey[600],
@@ -431,7 +432,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                                 ),
                               )
                               : Text(
-                                "Log Application",
+                                'Log Application',
                                 style: GoogleFonts.inter(
                                   fontWeight: FontWeight.bold,
                                 ),

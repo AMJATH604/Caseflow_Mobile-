@@ -47,34 +47,35 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
 
   @override
   Widget build(BuildContext context) {
-    if (_profile == null && _isLoading)
+    if (_profile == null && _isLoading) {
       return const Center(child: CircularProgressIndicator());
-    if (_profile == null) return const Center(child: Text("Profile error"));
+    }
+    if (_profile == null) return const Center(child: Text('Profile error'));
 
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (_invitations.isNotEmpty) ...[
-            _buildSectionHeader("FIRM INVITATIONS"),
+            _buildSectionHeader('FIRM INVITATIONS'),
             const SizedBox(height: 12),
             ..._invitations.map((inv) => _buildInvitationCard(inv)),
             const SizedBox(height: 24),
           ],
 
           if (_profile!.isFirmOwner) ...[
-            _buildSectionHeader("RECRUIT NEW ASSOCIATE"),
+            _buildSectionHeader('RECRUIT NEW ASSOCIATE'),
             const SizedBox(height: 12),
             _buildInviteForm(),
             const SizedBox(height: 24),
-            _buildSectionHeader("THE PROFESSIONAL TEAM"),
+            _buildSectionHeader('THE PROFESSIONAL TEAM'),
             const SizedBox(height: 12),
             if (_members.isEmpty)
               _buildEmptyTeamState()
             else
               ..._members.map((m) => _buildMemberCard(m)),
           ] else if (_profile!.isFirmMember) ...[
-            _buildSectionHeader("TEAM DIRECTORY"),
+            _buildSectionHeader('TEAM DIRECTORY'),
             const SizedBox(height: 12),
             ..._members.map((m) => _buildMemberCard(m)),
           ] else ...[
@@ -123,7 +124,7 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _isLoading ? null : _inviteMember,
-              child: const Text("SEND RECRUITMENT INVITE"),
+              child: const Text('SEND RECRUITMENT INVITE'),
             ),
           ),
         ],
@@ -139,15 +140,17 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
       await FirmService.inviteMember(email);
       _emailController.clear();
       await _loadData();
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Member invited successfully!")),
+          const SnackBar(content: Text('Member invited successfully!')),
         );
+      }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -220,7 +223,7 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
           TextButton(
             onPressed: () => _acceptInv(invitation.id),
             child: const Text(
-              "ACCEPT",
+              'ACCEPT',
               style: TextStyle(
                 fontWeight: FontWeight.w900,
                 color: AppTheme.accent,
@@ -246,15 +249,17 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
       ref.invalidate(hearingsProvider);
 
       await _loadData();
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Joined firm successfully!")),
+          const SnackBar(content: Text('Joined firm successfully!')),
         );
+      }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -273,12 +278,12 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
             ),
             const SizedBox(height: 16),
             const Text(
-              "Firm Hub Inactive",
+              'Firm Hub Inactive',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 4),
             Text(
-              "Create or join a legal firm to manage associates.",
+              'Create or join a legal firm to manage associates.',
               style: TextStyle(color: Colors.grey[600], fontSize: 12),
             ),
           ],
@@ -290,7 +295,7 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
   Widget _buildEmptyTeamState() => const Center(
     child: Padding(
       padding: EdgeInsets.all(32),
-      child: Text("No members yet.", style: TextStyle(color: Colors.grey)),
+      child: Text('No members yet.', style: TextStyle(color: Colors.grey)),
     ),
   );
 }

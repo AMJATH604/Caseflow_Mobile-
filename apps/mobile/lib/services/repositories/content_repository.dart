@@ -61,7 +61,7 @@ class ContentRepository {
         .from('bare_act_sections')
         .select('*, bare_acts(id, title, short_title)');
 
-    bool isNumeric = RegExp(r'^\d*[a-zA-Z]?$').hasMatch(cleanQuery);
+    final bool isNumeric = RegExp(r'^\d*[a-zA-Z]?$').hasMatch(cleanQuery);
 
     String orFilter;
     if (isNumeric && cleanQuery.isNotEmpty) {
@@ -228,7 +228,7 @@ class ContentRepository {
       }
 
       // Smart Fallback for Tamil Nadu
-      if (state == "Tamil Nadu") {
+      if (state == 'Tamil Nadu') {
         final cleanDistrict = district.toLowerCase().replaceAll(
           RegExp(r'\s+'),
           '',

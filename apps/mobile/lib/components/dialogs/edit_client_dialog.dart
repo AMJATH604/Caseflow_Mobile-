@@ -97,7 +97,7 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                   size: 18,
                 ),
                 const SizedBox(width: 10),
-                Text("${_nameController.text.trim()} updated successfully"),
+                Text('${_nameController.text.trim()} updated successfully'),
               ],
             ),
             backgroundColor: const Color(0xFF10B981),
@@ -112,7 +112,7 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error: $e"),
+            content: Text('Error: $e'),
             backgroundColor: const Color(0xFFEF4444),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -165,7 +165,7 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Edit Client",
+                            'Edit Client',
                             style: GoogleFonts.outfit(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
@@ -206,40 +206,40 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                 // Form Fields
                 _buildField(
                   controller: _nameController,
-                  label: "Full Name",
+                  label: 'Full Name',
                   icon: Icons.person_rounded,
                   validator:
                       (v) =>
                           v == null || v.trim().isEmpty
-                              ? "Name is required"
+                              ? 'Name is required'
                               : null,
                 ),
                 _buildField(
                   controller: _phoneController,
-                  label: "Phone Number",
+                  label: 'Phone Number',
                   icon: Icons.phone_rounded,
                   keyboardType: TextInputType.phone,
                 ),
                 _buildField(
                   controller: _emailController,
-                  label: "Email Address",
+                  label: 'Email Address',
                   icon: Icons.email_rounded,
                   keyboardType: TextInputType.emailAddress,
                 ),
                 _buildField(
                   controller: _addressController,
-                  label: "Address",
+                  label: 'Address',
                   icon: Icons.location_on_rounded,
                   maxLines: 2,
                 ),
                 _buildField(
                   controller: _stateController,
-                  label: "State",
+                  label: 'State',
                   icon: Icons.map_rounded,
                 ),
                 _buildField(
                   controller: _districtController,
-                  label: "District",
+                  label: 'District',
                   icon: Icons.domain_rounded,
                 ),
 
@@ -275,7 +275,7 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                                 const Icon(Icons.save_rounded, size: 18),
                                 const SizedBox(width: 8),
                                 Text(
-                                  "Save Changes",
+                                  'Save Changes',
                                   style: GoogleFonts.inter(
                                     fontWeight: FontWeight.w700,
                                     fontSize: 14,

@@ -41,7 +41,7 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
 
     if (!isFinal && _selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select a next hearing date.")),
+        const SnackBar(content: Text('Please select a next hearing date.')),
       );
       return;
     }
@@ -66,8 +66,8 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
           SnackBar(
             content: Text(
               isFinal
-                  ? "Case ${_selectedStage.label} Successfully"
-                  : "Case Adjourned and Diary Updated",
+                  ? 'Case ${_selectedStage.label} Successfully'
+                  : 'Case Adjourned and Diary Updated',
             ),
           ),
         );
@@ -77,7 +77,7 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -102,7 +102,7 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
               const Icon(Icons.forward, color: AppTheme.accent),
               const SizedBox(width: 12),
               Text(
-                "Quick Adjourn",
+                'Quick Adjourn',
                 style: AppTheme.lightTheme.textTheme.displaySmall,
               ),
               const Spacer(),
@@ -114,7 +114,7 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
           ),
           const SizedBox(height: 8),
           const Text(
-            "Record what happened today and set the next date.",
+            'Record what happened today and set the next date.',
             style: TextStyle(color: Colors.grey),
           ),
           const SizedBox(height: 24),
@@ -122,8 +122,8 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
             controller: _notesController,
             maxLines: 3,
             decoration: const InputDecoration(
-              labelText: "Notes for Today (Optional)",
-              hintText: "e.g., Petitioner absent, cost ₹500 imposed...",
+              labelText: 'Notes for Today (Optional)',
+              hintText: 'e.g., Petitioner absent, cost ₹500 imposed...',
             ),
           ),
           const SizedBox(height: 20),
@@ -133,7 +133,7 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
               Expanded(
                 child: DropdownButtonFormField<CaseStage>(
                   initialValue: _selectedStage,
-                  decoration: const InputDecoration(labelText: "Next Stage"),
+                  decoration: const InputDecoration(labelText: 'Next Stage'),
                   items:
                       CaseStage.values
                           .map(
@@ -177,13 +177,13 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
                     },
                     child: InputDecorator(
                       decoration: const InputDecoration(
-                        labelText: "Next Hearing Date",
+                        labelText: 'Next Hearing Date',
                         prefixIcon: Icon(Icons.calendar_month, size: 20),
                       ),
                       child: Text(
                         _selectedDate == null
-                            ? "Select Date"
-                            : "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}",
+                            ? 'Select Date'
+                            : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
                       ),
                     ),
                   ),
@@ -212,7 +212,7 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
                         valueColor: AlwaysStoppedAnimation(Colors.white),
                       ),
                     )
-                    : const Text("Update Diary"),
+                    : const Text('Update Diary'),
           ),
           const SizedBox(height: 32),
         ],

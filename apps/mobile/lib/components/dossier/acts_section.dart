@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../models/case_dossier_models.dart';
 import '../../services/providers.dart';
 import '../../services/supabase_service.dart';
 import '../../theme/app_theme.dart';
@@ -16,21 +15,21 @@ class ActsSection extends ConsumerWidget {
       context: context,
       builder:
           (ctx) => AlertDialog(
-            title: const Text("Delete act?"),
+            title: const Text('Delete act?'),
             content: const Text(
-              "Are you sure you want to remove this act entry?",
+              'Are you sure you want to remove this act entry?',
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: const Text("Cancel"),
+                child: const Text('Cancel'),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.error,
                 ),
                 onPressed: () => Navigator.pop(ctx, true),
-                child: const Text("Delete"),
+                child: const Text('Delete'),
               ),
             ],
           ),
@@ -40,10 +39,11 @@ class ActsSection extends ConsumerWidget {
       await SupabaseService.deleteCaseAct(id);
       ref.invalidate(caseActsProvider(caseId));
     } catch (e) {
-      if (context.mounted)
+      if (context.mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     }
   }
 
@@ -83,7 +83,7 @@ class ActsSection extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  "Add Applicable Act",
+                  'Add Applicable Act',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -92,7 +92,7 @@ class ActsSection extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "e.g., Code of Civil Procedure — Or.7.R.1",
+                  'e.g., Code of Civil Procedure — Or.7.R.1',
                   style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                 ),
                 const SizedBox(height: 20),
@@ -100,8 +100,8 @@ class ActsSection extends ConsumerWidget {
                   controller: actCtrl,
                   autofocus: true,
                   decoration: InputDecoration(
-                    labelText: "Act Name",
-                    hintText: "Code of Civil Procedure",
+                    labelText: 'Act Name',
+                    hintText: 'Code of Civil Procedure',
                     prefixIcon: const Icon(Icons.menu_book_outlined),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -112,8 +112,8 @@ class ActsSection extends ConsumerWidget {
                 TextField(
                   controller: sectionCtrl,
                   decoration: InputDecoration(
-                    labelText: "Section / Order / Rule",
-                    hintText: "Or.7.R.1",
+                    labelText: 'Section / Order / Rule',
+                    hintText: 'Or.7.R.1',
                     prefixIcon: const Icon(Icons.tag_rounded),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -139,15 +139,16 @@ class ActsSection extends ConsumerWidget {
                         });
                         ref.invalidate(caseActsProvider(caseId));
                       } catch (e) {
-                        if (context.mounted)
+                        if (context.mounted) {
                           ScaffoldMessenger.of(
                             context,
-                          ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                          ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                        }
                       }
                     },
                     icon: const Icon(Icons.check, size: 18),
                     label: const Text(
-                      "Add Act",
+                      'Add Act',
                       style: TextStyle(fontWeight: FontWeight.w900),
                     ),
                     style: ElevatedButton.styleFrom(
@@ -171,7 +172,7 @@ class ActsSection extends ConsumerWidget {
 
     return DossierSection(
       icon: Icons.gavel_rounded,
-      title: "Statutory Acts",
+      title: 'Statutory Acts',
       color: const Color(0xFF6366F1),
       initiallyExpanded: actsAsync.value?.isNotEmpty == true,
       trailing: DossierHelper.addButton(() => _showAddActDialog(context, ref)),
@@ -181,7 +182,7 @@ class ActsSection extends ConsumerWidget {
               (acts) =>
                   acts.isEmpty
                       ? DossierHelper.emptyHint(
-                        "No acts added yet. Tap + to add applicable acts.",
+                        'No acts added yet. Tap + to add applicable acts.',
                       )
                       : Column(
                         children:
@@ -226,7 +227,7 @@ class ActsSection extends ConsumerWidget {
                                                         top: 2,
                                                       ),
                                                   child: Text(
-                                                    "SECTION ${act.sectionNumber}",
+                                                    'SECTION ${act.sectionNumber}',
                                                     style: const TextStyle(
                                                       fontSize: 10,
                                                       fontWeight:
@@ -273,7 +274,7 @@ class ActsSection extends ConsumerWidget {
                 padding: EdgeInsets.all(16),
                 child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),
-          error: (e, _) => DossierHelper.emptyHint("Error loading acts"),
+          error: (e, _) => DossierHelper.emptyHint('Error loading acts'),
         ),
       ],
     );

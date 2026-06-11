@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../models/models.dart';
-import '../../models/case_dossier_models.dart';
 import 'dossier_shared.dart';
 
 class PartyIntelligenceSection extends StatelessWidget {
@@ -20,7 +19,7 @@ class PartyIntelligenceSection extends StatelessWidget {
 
     return DossierSection(
       icon: Icons.architecture_rounded,
-      title: "Party Intelligence",
+      title: 'Party Intelligence',
       color: const Color(0xFF2563EB),
       initiallyExpanded: true,
       children: [
@@ -75,7 +74,7 @@ class PartyIntelligenceSection extends StatelessWidget {
                     ),
                     if (caseData.petitionerAdvocate?.isNotEmpty == true)
                       Text(
-                        "Adv. ${caseData.petitionerAdvocate}",
+                        'Adv. ${caseData.petitionerAdvocate}',
                         style: const TextStyle(
                           fontSize: 11,
                           color: Color(0xFF64748B),
@@ -91,7 +90,7 @@ class PartyIntelligenceSection extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  isRepPet ? "YOUR CLIENT" : "OPPOSING",
+                  isRepPet ? 'YOUR CLIENT' : 'OPPOSING',
                   style: const TextStyle(
                     fontSize: 8,
                     fontWeight: FontWeight.w900,
@@ -155,7 +154,7 @@ class PartyIntelligenceSection extends StatelessWidget {
                     ),
                     if (caseData.opposingAdvocate?.isNotEmpty == true)
                       Text(
-                        "Adv. ${caseData.opposingAdvocate}",
+                        'Adv. ${caseData.opposingAdvocate}',
                         style: const TextStyle(
                           fontSize: 11,
                           color: Color(0xFF64748B),
@@ -171,7 +170,7 @@ class PartyIntelligenceSection extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  !isRepPet ? "YOUR CLIENT" : "OPPOSING",
+                  !isRepPet ? 'YOUR CLIENT' : 'OPPOSING',
                   style: const TextStyle(
                     fontSize: 8,
                     fontWeight: FontWeight.w900,

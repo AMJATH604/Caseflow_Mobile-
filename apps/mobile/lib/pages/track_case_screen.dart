@@ -45,7 +45,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
       setState(
         () =>
             _error =
-                "Please paste your eCourts case details or enter a CNR number.",
+                'Please paste your eCourts case details or enter a CNR number.',
       );
       return;
     }
@@ -64,14 +64,14 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
         setState(
           () =>
               _error =
-                  "Could not parse case details. Please paste the full case status page from eCourts.",
+                  'Could not parse case details. Please paste the full case status page from eCourts.',
         );
       }
     } catch (e) {
       setState(
         () =>
             _error =
-                "Failed to parse case data. Please check your internet connection and try again.",
+                'Failed to parse case data. Please check your internet connection and try again.',
       );
     } finally {
       setState(() => _isLoading = false);
@@ -92,7 +92,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
             children: [
               // Header
               Text(
-                "Track My Case",
+                'Track My Case',
                 style: GoogleFonts.playfairDisplay(
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
@@ -101,7 +101,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                "Paste your eCourts case details to see status, hearing history, and more.",
+                'Paste your eCourts case details to see status, hearing history, and more.',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   color:
@@ -221,7 +221,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               ),
               const SizedBox(width: 12),
               Text(
-                "Case Details",
+                'Case Details',
                 style: GoogleFonts.inter(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -232,7 +232,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
           ),
           const SizedBox(height: 14),
           Text(
-            "Paste the full case status page content from the eCourts website or app:",
+            'Paste the full case status page content from the eCourts website or app:',
             style: GoogleFonts.inter(
               fontSize: 12,
               color: const Color(0xFF94A3B8),
@@ -252,7 +252,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
             ),
             decoration: InputDecoration(
               hintText:
-                  "Paste eCourts case status text here...\n\nExample: Copy everything from the eCourts case status page including case number, parties, hearing details.",
+                  'Paste eCourts case status text here...\n\nExample: Copy everything from the eCourts case status page including case number, parties, hearing details.',
               hintStyle: GoogleFonts.inter(
                 fontSize: 12,
                 color: const Color(0xFF64748B),
@@ -318,7 +318,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                           const Icon(Icons.search_rounded, size: 18),
                           const SizedBox(width: 8),
                           Text(
-                            "Track Case",
+                            'Track Case',
                             style: GoogleFonts.inter(
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
@@ -407,7 +407,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
           if (nextDate != null) ...[
             const SizedBox(height: 14),
             Text(
-              "Next Hearing",
+              'Next Hearing',
               style: GoogleFonts.inter(
                 fontSize: 11,
                 color: Colors.white70,
@@ -439,25 +439,25 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
   Widget _buildCaseDetailsCard(bool isDark) {
     return _buildInfoCard(
       isDark,
-      "Case Details",
+      'Case Details',
       Icons.description_rounded,
       const Color(0xFF6366F1),
       [
         if (_result!['case_type'] != null)
-          _infoRow("Case Type", _result!['case_type']),
+          _infoRow('Case Type', _result!['case_type']),
         if (_result!['case_number'] != null)
-          _infoRow("Case Number", _result!['case_number']),
+          _infoRow('Case Number', _result!['case_number']),
         if (_result!['filing_number'] != null)
-          _infoRow("Filing Number", _result!['filing_number']),
+          _infoRow('Filing Number', _result!['filing_number']),
         if (_result!['filing_date'] != null)
-          _infoRow("Filing Date", _formatDate(_result!['filing_date'])),
+          _infoRow('Filing Date', _formatDate(_result!['filing_date'])),
         if (_result!['court_name'] != null)
-          _infoRow("Court", _result!['court_name']),
+          _infoRow('Court', _result!['court_name']),
         if (_result!['judge_name'] != null)
-          _infoRow("Judge", _result!['judge_name']),
+          _infoRow('Judge', _result!['judge_name']),
         if (_result!['state'] != null || _result!['district'] != null)
           _infoRow(
-            "Location",
+            'Location',
             "${_result!['state'] ?? ''} / ${_result!['district'] ?? ''}",
           ),
       ],
@@ -467,14 +467,14 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
   Widget _buildPartyDetailsCard(bool isDark) {
     return _buildInfoCard(
       isDark,
-      "Parties",
+      'Parties',
       Icons.people_rounded,
       const Color(0xFF3B82F6),
       [
         if (_result!['petitioner_name'] != null)
-          _infoRow("Petitioner", _result!['petitioner_name']),
+          _infoRow('Petitioner', _result!['petitioner_name']),
         if (_result!['respondent_name'] != null)
-          _infoRow("Respondent", _result!['respondent_name']),
+          _infoRow('Respondent', _result!['respondent_name']),
         if (_result!['petitioner_advocate'] != null)
           _infoRow("Petitioner's Advocate", _result!['petitioner_advocate']),
         if (_result!['respondent_advocate'] != null)
@@ -581,7 +581,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                "Hearing History",
+                'Hearing History',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -590,7 +590,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               ),
               const Spacer(),
               Text(
-                "${hearings.length} hearings",
+                '${hearings.length} hearings',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: const Color(0xFF94A3B8),
@@ -722,7 +722,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                "Acts & Sections",
+                'Acts & Sections',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -788,7 +788,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Need legal advice on your case?",
+                  'Need legal advice on your case?',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -797,7 +797,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "This is general information only. Please consult a qualified advocate for legal advice.",
+                  'This is general information only. Please consult a qualified advocate for legal advice.',
                   style: GoogleFonts.inter(fontSize: 11, color: Colors.white70),
                 ),
               ],
@@ -816,7 +816,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               elevation: 0,
             ),
             child: Text(
-              "Find Advocate",
+              'Find Advocate',
               style: GoogleFonts.inter(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
@@ -839,7 +839,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            "Paste your eCourts case details above\nto see case status and hearing history",
+            'Paste your eCourts case details above\nto see case status and hearing history',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 14,
@@ -862,7 +862,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "How to use:",
+                  'How to use:',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -870,13 +870,13 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                _stepItem("1", "Visit ecourts.gov.in or eCourts app"),
+                _stepItem('1', 'Visit ecourts.gov.in or eCourts app'),
                 _stepItem(
-                  "2",
-                  "Search your case by CNR, case number, or party name",
+                  '2',
+                  'Search your case by CNR, case number, or party name',
                 ),
-                _stepItem("3", "Copy the entire case status page content"),
-                _stepItem("4", "Paste it above and tap Track Case"),
+                _stepItem('3', 'Copy the entire case status page content'),
+                _stepItem('4', 'Paste it above and tap Track Case'),
               ],
             ),
           ),

@@ -64,7 +64,7 @@ class EFilingScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "E-Filing",
+              'E-Filing',
               style: TextStyle(
                 fontSize: isMobile ? 24 : 28,
                 fontWeight: FontWeight.bold,
@@ -72,7 +72,7 @@ class EFilingScreen extends ConsumerWidget {
               ),
             ),
             const Text(
-              "Track filing progress",
+              'Track filing progress',
               style: TextStyle(color: Colors.grey, fontSize: 14),
             ),
           ],
@@ -86,7 +86,7 @@ class EFilingScreen extends ConsumerWidget {
               );
             },
             icon: const Icon(Icons.plus_one),
-            label: const Text("New Filing"),
+            label: const Text('New Filing'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primary,
               foregroundColor: Colors.white,
@@ -104,10 +104,10 @@ class EFilingScreen extends ConsumerWidget {
     if (records.isEmpty) {
       return EmptyStateWidget(
         icon: Icons.cloud_upload_outlined,
-        title: "No E-Filings Yet",
+        title: 'No E-Filings Yet',
         message:
             "You haven't initiated any electronic filings. When you e-file a case, its tracking status will appear here.",
-        buttonText: "New E-Filing",
+        buttonText: 'New E-Filing',
         onButtonTap: () {
           showDialog(
             context: context,
@@ -138,7 +138,7 @@ class EFilingScreen extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          r.caseTitle ?? "Unknown Case",
+                          r.caseTitle ?? 'Unknown Case',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -159,7 +159,7 @@ class EFilingScreen extends ConsumerWidget {
                     value: progress,
                     backgroundColor: Colors.grey[200],
                     color:
-                        r.status.name == "defect"
+                        r.status.name == 'defect'
                             ? Colors.red
                             : AppTheme.primary,
                     minHeight: 6,
@@ -169,7 +169,7 @@ class EFilingScreen extends ConsumerWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(
-                        "DEFECT: ${r.defectNotes}",
+                        'DEFECT: ${r.defectNotes}',
                         style: const TextStyle(
                           fontSize: 11,
                           color: Colors.red,
@@ -187,21 +187,21 @@ class EFilingScreen extends ConsumerWidget {
 
     return DataTable(
       columns: const [
-        DataColumn(label: Text("Case")),
-        DataColumn(label: Text("Document")),
-        DataColumn(label: Text("Status")),
-        DataColumn(label: Text("Defect Notes")),
+        DataColumn(label: Text('Case')),
+        DataColumn(label: Text('Document')),
+        DataColumn(label: Text('Status')),
+        DataColumn(label: Text('Defect Notes')),
       ],
       rows:
           records.map((r) {
             return DataRow(
               cells: [
-                DataCell(Text(r.caseTitle ?? "—")),
+                DataCell(Text(r.caseTitle ?? '—')),
                 DataCell(Text(r.documentType)),
                 DataCell(StatusBadge(status: r.status.name)),
                 DataCell(
                   Text(
-                    r.defectNotes ?? "—",
+                    r.defectNotes ?? '—',
                     style: const TextStyle(color: Colors.red),
                   ),
                 ),
@@ -213,14 +213,14 @@ class EFilingScreen extends ConsumerWidget {
 
   double _getProgress(String status) {
     const steps = [
-      "drafting",
-      "review",
-      "signature_pending",
-      "filed",
-      "accepted",
+      'drafting',
+      'review',
+      'signature_pending',
+      'filed',
+      'accepted',
     ];
-    if (status == "defect") return 0.0;
-    int index = steps.indexOf(status);
+    if (status == 'defect') return 0.0;
+    final int index = steps.indexOf(status);
     if (index == -1) return 0.0;
     return (index + 1) / steps.length;
   }

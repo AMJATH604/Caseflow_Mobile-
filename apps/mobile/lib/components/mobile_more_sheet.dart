@@ -37,7 +37,7 @@ class MobileMoreSheet extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "More Hub",
+                  'More Hub',
                   style: Theme.of(
                     context,
                   ).textTheme.displayLarge?.copyWith(fontSize: 22),
@@ -60,72 +60,72 @@ class MobileMoreSheet extends ConsumerWidget {
               _buildMenuItem(
                 context,
                 Icons.people,
-                "Clients",
+                'Clients',
                 Colors.blue,
-                "/clients",
+                '/clients',
               ),
               _buildMenuItem(
                 context,
                 Icons.description,
-                "E-Filing",
+                'E-Filing',
                 Colors.green,
-                "/efiling",
+                '/efiling',
               ),
               _buildMenuItem(
                 context,
                 Icons.copy,
-                "CC Copies",
+                'CC Copies',
                 Colors.amber,
-                "/certified-copies",
+                '/certified-copies',
               ),
               _buildMenuItem(
                 context,
                 Icons.account_balance,
-                "Portals",
+                'Portals',
                 Colors.indigo,
-                "/portals",
+                '/portals',
               ),
               _buildMenuItem(
                 context,
                 Icons.credit_card,
-                "Payments",
+                'Payments',
                 Colors.purple,
-                "/payments",
+                '/payments',
               ),
               _buildMenuItem(
                 context,
                 Icons.handyman_rounded,
-                "Tools",
+                'Tools',
                 Colors.teal,
-                "/tools",
+                '/tools',
               ),
               _buildMenuItem(
                 context,
                 Icons.assignment_ind_rounded,
-                "Commissioner",
+                'Commissioner',
                 const Color(0xFF7C3AED),
-                "/commissions",
+                '/commissions',
               ),
               _buildMenuItem(
                 context,
                 Icons.gavel_rounded,
-                "Caveats",
+                'Caveats',
                 const Color(0xFFEA580C),
-                "/caveats",
+                '/caveats',
               ),
               _buildMenuItem(
                 context,
                 Icons.newspaper_rounded,
-                "Legal Pulse",
+                'Legal Pulse',
                 const Color(0xFFDC2626),
-                "/legal-pulse",
+                '/legal-pulse',
               ),
               _buildMenuItem(
                 context,
                 Icons.notifications,
-                "Updates",
+                'Updates',
                 Colors.pink,
-                "/notifications",
+                '/notifications',
               ),
             ],
           ),
@@ -135,7 +135,7 @@ class MobileMoreSheet extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.logout, color: AppTheme.error),
             title: const Text(
-              "Sign Out",
+              'Sign Out',
               style: TextStyle(
                 color: AppTheme.error,
                 fontWeight: FontWeight.bold,
@@ -150,14 +150,14 @@ class MobileMoreSheet extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.refresh_rounded, color: AppTheme.error),
             title: const Text(
-              "Reset Workspace",
+              'Reset Workspace',
               style: TextStyle(
                 color: AppTheme.error,
                 fontWeight: FontWeight.bold,
               ),
             ),
             subtitle: const Text(
-              "Delete all cases and data",
+              'Delete all cases and data',
               style: TextStyle(fontSize: 10),
             ),
             onTap: () {
@@ -209,10 +209,10 @@ class MobileMoreSheet extends ConsumerWidget {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF1E293B),
+              color: Color(0xFF1E293B),
             ),
           ),
         ],

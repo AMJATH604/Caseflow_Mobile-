@@ -26,7 +26,7 @@ class GlobalSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     if (query.length < 3) {
-      return const Center(child: Text("Start typing to search..."));
+      return const Center(child: Text('Start typing to search...'));
     }
     return _buildSearchResults();
   }
@@ -40,7 +40,7 @@ class GlobalSearchDelegate extends SearchDelegate {
         }
         if (!snapshot.hasData ||
             snapshot.data!.values.every((v) => v.isEmpty)) {
-          return const Center(child: Text("No results found."));
+          return const Center(child: Text('No results found.'));
         }
 
         final cases = snapshot.data!['cases']!;
@@ -52,7 +52,7 @@ class GlobalSearchDelegate extends SearchDelegate {
               const Padding(
                 padding: EdgeInsets.all(16),
                 child: Text(
-                  "CASES",
+                  'CASES',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.grey,
@@ -75,7 +75,7 @@ class GlobalSearchDelegate extends SearchDelegate {
               const Padding(
                 padding: EdgeInsets.all(16),
                 child: Text(
-                  "CLIENTS",
+                  'CLIENTS',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.grey,

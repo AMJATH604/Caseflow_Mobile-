@@ -25,22 +25,22 @@ class PaymentService {
     required String userEmail,
     required String userContact,
   }) {
-    debugPrint("Bypassing Razorpay checkout: App is in Free-for-All mode.");
+    debugPrint('Bypassing Razorpay checkout: App is in Free-for-All mode.');
     // In a real "test" bypass, we could trigger onSuccess here if needed.
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    debugPrint("Payment Successful: ${response.paymentId}");
+    debugPrint('Payment Successful: ${response.paymentId}');
     onSuccess?.call(response);
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    debugPrint("Payment Error: ${response.code} - ${response.message}");
+    debugPrint('Payment Error: ${response.code} - ${response.message}');
     onFailure?.call(response);
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    debugPrint("External Wallet selected: ${response.walletName}");
+    debugPrint('External Wallet selected: ${response.walletName}');
     onExternalWallet?.call(response);
   }
 }

@@ -74,7 +74,7 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                   size: 18,
                 ),
                 const SizedBox(width: 10),
-                Text("${_nameController.text.trim()} added successfully"),
+                Text('${_nameController.text.trim()} added successfully'),
               ],
             ),
             backgroundColor: const Color(0xFF10B981),
@@ -86,10 +86,11 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
         );
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -136,7 +137,7 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Add New Client",
+                            'Add New Client',
                             style: GoogleFonts.outfit(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
@@ -148,7 +149,7 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            "Enter client details below",
+                            'Enter client details below',
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: const Color(0xFF94A3B8),
@@ -176,26 +177,26 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
 
                 _buildField(
                   controller: _nameController,
-                  label: "Full Name *",
+                  label: 'Full Name *',
                   icon: Icons.person_rounded,
                   validator:
-                      (v) => v == null || v.trim().isEmpty ? "Required" : null,
+                      (v) => v == null || v.trim().isEmpty ? 'Required' : null,
                 ),
                 _buildField(
                   controller: _phoneController,
-                  label: "Phone Number",
+                  label: 'Phone Number',
                   icon: Icons.phone_rounded,
                   keyboardType: TextInputType.phone,
                 ),
                 _buildField(
                   controller: _emailController,
-                  label: "Email Address",
+                  label: 'Email Address',
                   icon: Icons.email_rounded,
                   keyboardType: TextInputType.emailAddress,
                 ),
                 _buildField(
                   controller: _addressController,
-                  label: "Address",
+                  label: 'Address',
                   icon: Icons.location_on_rounded,
                   maxLines: 2,
                 ),
@@ -204,7 +205,7 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                     Expanded(
                       child: _buildField(
                         controller: _stateController,
-                        label: "State",
+                        label: 'State',
                         icon: Icons.map_rounded,
                       ),
                     ),
@@ -212,7 +213,7 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                     Expanded(
                       child: _buildField(
                         controller: _districtController,
-                        label: "District",
+                        label: 'District',
                         icon: Icons.domain_rounded,
                       ),
                     ),
@@ -251,7 +252,7 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                                 const Icon(Icons.add_rounded, size: 18),
                                 const SizedBox(width: 8),
                                 Text(
-                                  "Add Client",
+                                  'Add Client',
                                   style: GoogleFonts.inter(
                                     fontWeight: FontWeight.w700,
                                     fontSize: 14,

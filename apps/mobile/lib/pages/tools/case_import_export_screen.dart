@@ -68,7 +68,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                     Icon(Icons.upload_rounded, size: 18),
                     SizedBox(width: 6),
                     Text(
-                      "Export",
+                      'Export',
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -81,7 +81,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                     Icon(Icons.download_rounded, size: 18),
                     SizedBox(width: 6),
                     Text(
-                      "Import",
+                      'Import',
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -139,7 +139,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                     ),
                     const SizedBox(width: 12),
                     const Text(
-                      "Export Case",
+                      'Export Case',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -149,7 +149,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  "Select a case to export its complete data.",
+                  'Select a case to export its complete data.',
                   style: TextStyle(color: Colors.grey, fontSize: 13),
                 ),
                 const SizedBox(height: 16),
@@ -158,7 +158,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                       (cases) => DropdownButtonFormField<String>(
                         initialValue: _selectedCaseId,
                         decoration: InputDecoration(
-                          labelText: "Select Case",
+                          labelText: 'Select Case',
                           prefixIcon: const Icon(Icons.work_outlined, size: 20),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -184,7 +184,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                       ),
                   loading:
                       () => const Center(child: CircularProgressIndicator()),
-                  error: (e, _) => Text("Error: $e"),
+                  error: (e, _) => Text('Error: $e'),
                 ),
               ],
             ),
@@ -195,18 +195,18 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
           if (_selectedCaseId != null) ...[
             _buildExportCard(
               icon: Icons.picture_as_pdf_rounded,
-              title: "Export as PDF",
+              title: 'Export as PDF',
               subtitle:
-                  "Professional report with all case details, hearings, payments & documents",
+                  'Professional report with all case details, hearings, payments & documents',
               gradient: const [Color(0xFFe74c3c), Color(0xFFc0392b)],
               onTap: _isProcessing ? null : () => _exportAsPdf(),
             ),
             const SizedBox(height: 12),
             _buildExportCard(
               icon: Icons.data_object_rounded,
-              title: "Export as JSON",
+              title: 'Export as JSON',
               subtitle:
-                  "Full data backup — can be re-imported into CaseFlow later",
+                  'Full data backup — can be re-imported into CaseFlow later',
               gradient: const [Color(0xFF27ae60), Color(0xFF2ecc71)],
               onTap: _isProcessing ? null : () => _exportAsJson(),
             ),
@@ -303,19 +303,19 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
         children: [
           _buildImportCard(
             icon: Icons.account_balance_rounded,
-            title: "Import from eCourts",
-            subtitle: "Import case data from eCourts mycases.txt export file",
+            title: 'Import from eCourts',
+            subtitle: 'Import case data from eCourts mycases.txt export file',
             gradient: const [Color(0xFF2980b9), Color(0xFF3498db)],
-            filetype: "txt",
+            filetype: 'txt',
             onTap: _isProcessing ? null : () => _importFromECourts(),
           ),
           const SizedBox(height: 16),
           _buildImportCard(
             icon: Icons.restore_rounded,
-            title: "Restore from CaseFlow Backup",
-            subtitle: "Import a previously exported .caseflow.json backup file",
+            title: 'Restore from CaseFlow Backup',
+            subtitle: 'Import a previously exported .caseflow.json backup file',
             gradient: const [Color(0xFF8e44ad), Color(0xFF9b59b6)],
-            filetype: "json",
+            filetype: 'json',
             onTap: _isProcessing ? null : () => _importFromCaseFlow(),
           ),
           const SizedBox(height: 24),
@@ -344,7 +344,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "How to export from eCourts?",
+                        'How to export from eCourts?',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
@@ -352,11 +352,11 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "1. Open eCourts Services app\n"
-                        "2. Go to My Cases → Saved Cases\n"
-                        "3. Tap the Export button\n"
-                        "4. Save the mycases.txt file\n"
-                        "5. Use it here to import",
+                        '1. Open eCourts Services app\n'
+                        '2. Go to My Cases → Saved Cases\n'
+                        '3. Tap the Export button\n'
+                        '4. Save the mycases.txt file\n'
+                        '5. Use it here to import',
                         style: TextStyle(
                           fontSize: 11,
                           color: Colors.grey[700],
@@ -430,7 +430,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      ".$filetype",
+                      '.$filetype',
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
@@ -478,7 +478,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Export failed: $e")));
+        ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
       }
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -512,13 +512,13 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text("JSON backup exported!")));
+        ).showSnackBar(const SnackBar(content: Text('JSON backup exported!')));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Export failed: $e")));
+        ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
       }
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -532,8 +532,9 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
     );
     if (result == null ||
         result.files.isEmpty ||
-        result.files.first.path == null)
+        result.files.first.path == null) {
       return;
+    }
 
     setState(() => _isProcessing = true);
 
@@ -545,7 +546,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("No cases found in the file. Check the format."),
+              content: Text('No cases found in the file. Check the format.'),
             ),
           );
         }
@@ -576,7 +577,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  "${importedIds.length} case(s) imported/synced! Redirecting to Dashboard...",
+                  '${importedIds.length} case(s) imported/synced! Redirecting to Dashboard...',
                 ),
                 backgroundColor: Colors.green,
                 duration: const Duration(seconds: 2),
@@ -593,7 +594,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Import failed: $e")));
+        ).showSnackBar(SnackBar(content: Text('Import failed: $e')));
       }
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -607,8 +608,9 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
     );
     if (result == null ||
         result.files.isEmpty ||
-        result.files.first.path == null)
+        result.files.first.path == null) {
       return;
+    }
 
     setState(() => _isProcessing = true);
 
@@ -619,7 +621,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
       if (data == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Invalid CaseFlow backup file.")),
+            const SnackBar(content: Text('Invalid CaseFlow backup file.')),
           );
         }
         return;
@@ -635,7 +637,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text("Case restored successfully! Redirecting..."),
+                content: Text('Case restored successfully! Redirecting...'),
                 backgroundColor: Colors.green,
               ),
             );
@@ -648,7 +650,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Import failed: $e")));
+        ).showSnackBar(SnackBar(content: Text('Import failed: $e')));
       }
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -686,11 +688,11 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                title: Row(
+                title: const Row(
                   children: [
-                    const Icon(Icons.account_balance, color: Color(0xFF2980b9)),
-                    const SizedBox(width: 8),
-                    const Text("eCourts Import Preview"),
+                    Icon(Icons.account_balance, color: Color(0xFF2980b9)),
+                    SizedBox(width: 8),
+                    Text('eCourts Import Preview'),
                   ],
                 ),
                 content: SizedBox(
@@ -704,7 +706,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "$selectedCount of ${cases.length} selected",
+                            '$selectedCount of ${cases.length} selected',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
@@ -725,7 +727,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                               size: 16,
                             ),
                             label: Text(
-                              allSelected ? "Deselect All" : "Select All",
+                              allSelected ? 'Deselect All' : 'Select All',
                               style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
@@ -832,7 +834,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                                           ),
                                         ),
                                         child: Text(
-                                          isSync ? "SYNC" : "NEW",
+                                          isSync ? 'SYNC' : 'NEW',
                                           style: TextStyle(
                                             fontSize: 9,
                                             fontWeight: FontWeight.bold,
@@ -851,7 +853,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                                     Row(
                                       children: [
                                         const Text(
-                                          "Representing:",
+                                          'Representing:',
                                           style: TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.w500,
@@ -864,7 +866,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                                               ButtonSegment(
                                                 value: 'petitioner',
                                                 label: Text(
-                                                  "Petitioner",
+                                                  'Petitioner',
                                                   style: TextStyle(
                                                     fontSize: 10,
                                                   ),
@@ -873,7 +875,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                                               ButtonSegment(
                                                 value: 'respondent',
                                                 label: Text(
-                                                  "Respondent",
+                                                  'Respondent',
                                                   style: TextStyle(
                                                     fontSize: 10,
                                                   ),
@@ -928,7 +930,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx),
-                    child: const Text("Cancel"),
+                    child: const Text('Cancel'),
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -951,7 +953,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                               Navigator.pop(ctx, filteredRoles);
                             }
                             : null,
-                    child: Text("Import $selectedCount Case(s)"),
+                    child: Text('Import $selectedCount Case(s)'),
                   ),
                 ],
               );
@@ -971,11 +973,11 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
-            title: Row(
+            title: const Row(
               children: [
-                const Icon(Icons.restore, color: Color(0xFF8e44ad)),
-                const SizedBox(width: 8),
-                const Text("Restore Preview"),
+                Icon(Icons.restore, color: Color(0xFF8e44ad)),
+                SizedBox(width: 8),
+                Text('Restore Preview'),
               ],
             ),
             content: Column(
@@ -1020,15 +1022,15 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  "Will import:",
+                  'Will import:',
                   style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                 ),
                 const SizedBox(height: 8),
-                _importStatRow(Icons.gavel, "Hearings", summary['hearings']!),
-                _importStatRow(Icons.payment, "Payments", summary['payments']!),
+                _importStatRow(Icons.gavel, 'Hearings', summary['hearings']!),
+                _importStatRow(Icons.payment, 'Payments', summary['payments']!),
                 _importStatRow(
                   Icons.description,
-                  "E-Filing Records",
+                  'E-Filing Records',
                   summary['efiling_records']!,
                 ),
               ],
@@ -1036,7 +1038,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: const Text("Cancel"),
+                child: const Text('Cancel'),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -1044,7 +1046,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                   foregroundColor: Colors.white,
                 ),
                 onPressed: () => Navigator.pop(ctx, true),
-                child: const Text("Restore Case"),
+                child: const Text('Restore Case'),
               ),
             ],
           ),
@@ -1068,7 +1070,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              "$count",
+              '$count',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 12,

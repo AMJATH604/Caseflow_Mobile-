@@ -66,13 +66,15 @@ class _CommissionReportScreenState
   @override
   Widget build(BuildContext context) {
     final dk = Theme.of(context).brightness == Brightness.dark;
-    if (_loading)
+    if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    if (_commission == null)
+    }
+    if (_commission == null) {
       return Scaffold(
         appBar: AppBar(),
         body: const Center(child: Text('Commission not found')),
       );
+    }
     final c = _commission!;
 
     return Scaffold(
@@ -298,14 +300,12 @@ class _CommissionReportScreenState
       final sketchData = <String, Uint8List>{};
 
       for (final e in _evidence) {
-        if (e.fileUrl != null) {
-          final bytes = await CommissionService.downloadFile(
-            'commission-evidence',
-            e.fileUrl!,
-          );
-          if (bytes != null) photoData[e.id] = bytes;
-        }
-      }
+        final bytes = await CommissionService.downloadFile(
+          'commission-evidence',
+          e.fileUrl,
+        );
+        if (bytes != null) photoData[e.id] = bytes;
+            }
       for (final w in _witnesses) {
         if (w.signatureUrl != null) {
           final bytes = await CommissionService.downloadFile(
@@ -354,7 +354,7 @@ class _CommissionReportScreenState
       const smallStyle = pw.TextStyle(fontSize: 9);
 
       // ── Track section numbering ──
-      int sectionNum = 0;
+      const int sectionNum = 0;
 
       // ── Build the document ──
 
@@ -675,7 +675,7 @@ class _CommissionReportScreenState
                           ),
                           pw.Text(
                             v.obstructionDetails!,
-                            style: pw.TextStyle(
+                            style: const pw.TextStyle(
                               fontSize: 9,
                               color: PdfColors.red,
                             ),
@@ -847,7 +847,7 @@ class _CommissionReportScreenState
                           pw.Divider(thickness: 0.5),
                           pw.SizedBox(height: 8),
                           pw.Text(
-                            w.statementText ?? "No statement recorded",
+                            w.statementText ?? 'No statement recorded',
                             style: bodyStyle,
                             textAlign: pw.TextAlign.justify,
                           ),
@@ -988,17 +988,18 @@ class _CommissionReportScreenState
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('✅ Report generated successfully'),
+          const SnackBar(
+            content: Text('✅ Report generated successfully'),
             backgroundColor: AppTheme.success,
           ),
         );
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
         );
+      }
     } finally {
       if (mounted) setState(() => _generating = false);
     }

@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../models/models.dart';
 import '../../services/providers.dart';
-import '../../services/supabase_service.dart';
 import '../../theme/app_theme.dart';
 import 'edit_client_dialog.dart';
 
@@ -145,8 +144,8 @@ class ClientDetailSheet extends ConsumerWidget {
                             const SizedBox(width: 6),
                             Text(
                               client.hasActiveCases
-                                  ? "Active Client"
-                                  : "No Active Cases",
+                                  ? 'Active Client'
+                                  : 'No Active Cases',
                               style: GoogleFonts.inter(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
@@ -170,7 +169,7 @@ class ClientDetailSheet extends ConsumerWidget {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  "${client.caseCount} Cases",
+                                  '${client.caseCount} Cases',
                                   style: GoogleFonts.inter(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,
@@ -195,7 +194,7 @@ class ClientDetailSheet extends ConsumerWidget {
                     child: _buildAction(
                       context,
                       icon: Icons.edit_rounded,
-                      label: "Edit",
+                      label: 'Edit',
                       color: const Color(0xFF3B82F6),
                       onTap: () {
                         Navigator.pop(context);
@@ -212,7 +211,7 @@ class ClientDetailSheet extends ConsumerWidget {
                       child: _buildAction(
                         context,
                         icon: Icons.phone_rounded,
-                        label: "Call",
+                        label: 'Call',
                         color: const Color(0xFF10B981),
                         onTap: () => _launchPhone(client.phone!),
                       ),
@@ -224,7 +223,7 @@ class ClientDetailSheet extends ConsumerWidget {
                       child: _buildAction(
                         context,
                         icon: Icons.email_rounded,
-                        label: "Email",
+                        label: 'Email',
                         color: const Color(0xFF8B5CF6),
                         onTap: () => _launchEmail(client.email!),
                       ),
@@ -235,11 +234,11 @@ class ClientDetailSheet extends ConsumerWidget {
               const SizedBox(height: 24),
 
               // ─── Contact Information ─────────────────
-              _buildSection("CONTACT INFORMATION", [
+              _buildSection('CONTACT INFORMATION', [
                 if (client.phone != null && client.phone!.isNotEmpty)
                   _buildInfoRow(
                     Icons.phone_rounded,
-                    "Phone",
+                    'Phone',
                     client.phone!,
                     const Color(0xFF10B981),
                     context,
@@ -247,7 +246,7 @@ class ClientDetailSheet extends ConsumerWidget {
                 if (client.email != null && client.email!.isNotEmpty)
                   _buildInfoRow(
                     Icons.email_rounded,
-                    "Email",
+                    'Email',
                     client.email!,
                     const Color(0xFF3B82F6),
                     context,
@@ -255,7 +254,7 @@ class ClientDetailSheet extends ConsumerWidget {
                 if (client.address != null && client.address!.isNotEmpty)
                   _buildInfoRow(
                     Icons.location_on_rounded,
-                    "Address",
+                    'Address',
                     client.address!,
                     const Color(0xFFF59E0B),
                     context,
@@ -263,7 +262,7 @@ class ClientDetailSheet extends ConsumerWidget {
                 if (client.state != null && client.state!.isNotEmpty)
                   _buildInfoRow(
                     Icons.map_rounded,
-                    "State",
+                    'State',
                     client.state!,
                     const Color(0xFF6366F1),
                     context,
@@ -271,7 +270,7 @@ class ClientDetailSheet extends ConsumerWidget {
                 if (client.district != null && client.district!.isNotEmpty)
                   _buildInfoRow(
                     Icons.domain_rounded,
-                    "District",
+                    'District',
                     client.district!,
                     const Color(0xFF0EA5E9),
                     context,
@@ -281,7 +280,7 @@ class ClientDetailSheet extends ConsumerWidget {
               const SizedBox(height: 20),
 
               // ─── Linked Cases ────────────────────────
-              _buildSectionHeader("LINKED CASES"),
+              _buildSectionHeader('LINKED CASES'),
               const SizedBox(height: 12),
               casesAsync.when(
                 data: (cases) {
@@ -305,7 +304,7 @@ class ClientDetailSheet extends ConsumerWidget {
                       ),
                       child: Center(
                         child: Text(
-                          "No cases linked to this client",
+                          'No cases linked to this client',
                           style: GoogleFonts.inter(
                             fontSize: 13,
                             color: const Color(0xFF94A3B8),
@@ -348,10 +347,10 @@ class ClientDetailSheet extends ConsumerWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.access_time_rounded,
                       size: 14,
-                      color: const Color(0xFF94A3B8),
+                      color: Color(0xFF94A3B8),
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -461,7 +460,7 @@ class ClientDetailSheet extends ConsumerWidget {
           HapticFeedback.lightImpact();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Copied: $value"),
+              content: Text('Copied: $value'),
               duration: const Duration(seconds: 1),
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -517,10 +516,10 @@ class ClientDetailSheet extends ConsumerWidget {
                   ],
                 ),
               ),
-              Icon(
+              const Icon(
                 Icons.copy_rounded,
                 size: 14,
-                color: const Color(0xFFCBD5E1),
+                color: Color(0xFFCBD5E1),
               ),
             ],
           ),
@@ -586,10 +585,10 @@ class ClientDetailSheet extends ConsumerWidget {
               ],
             ),
           ),
-          Icon(
+          const Icon(
             Icons.arrow_forward_ios_rounded,
             size: 12,
-            color: const Color(0xFFCBD5E1),
+            color: Color(0xFFCBD5E1),
           ),
         ],
       ),
@@ -597,12 +596,12 @@ class ClientDetailSheet extends ConsumerWidget {
   }
 
   void _launchPhone(String phone) async {
-    final uri = Uri.parse("tel:$phone");
+    final uri = Uri.parse('tel:$phone');
     if (await canLaunchUrl(uri)) await launchUrl(uri);
   }
 
   void _launchEmail(String email) async {
-    final uri = Uri.parse("mailto:$email");
+    final uri = Uri.parse('mailto:$email');
     if (await canLaunchUrl(uri)) await launchUrl(uri);
   }
 }

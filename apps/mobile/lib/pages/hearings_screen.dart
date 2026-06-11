@@ -18,7 +18,7 @@ class HearingsScreen extends ConsumerStatefulWidget {
 class _HearingsScreenState extends ConsumerState<HearingsScreen> {
   DateTime _focusedMonth = DateTime(DateTime.now().year, DateTime.now().month);
   DateTime _selectedDate = DateTime.now();
-  String _view = "calendar"; // calendar, list
+  String _view = 'calendar'; // calendar, list
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                 child: hearingsAsync.when(
                   data:
                       (hearings) =>
-                          _view == "calendar"
+                          _view == 'calendar'
                               ? _buildCalendarView(isMobile, isDark, hearings)
                               : _buildListView(isMobile, isDark, hearings),
                   loading:
@@ -72,7 +72,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Court Schedule",
+              'Court Schedule',
               style: Theme.of(context).textTheme.displayMedium?.copyWith(
                 fontSize: 32,
                 fontWeight: FontWeight.w700,
@@ -80,7 +80,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              "TEMPORAL CASE MANAGEMENT",
+              'TEMPORAL CASE MANAGEMENT',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: isDark ? const Color(0xFFCBD5E1) : Colors.black38,
                 fontSize: 10,
@@ -96,9 +96,9 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _viewToggleBtn("calendar", Icons.calendar_today_rounded, isDark),
+              _viewToggleBtn('calendar', Icons.calendar_today_rounded, isDark),
               _viewToggleBtn(
-                "list",
+                'list',
                 Icons.format_list_bulleted_rounded,
                 isDark,
               ),
@@ -252,7 +252,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
           const SizedBox(height: 12),
           Row(
             children:
-                ["S", "M", "T", "W", "T", "F", "S"]
+                ['S', 'M', 'T', 'W', 'T', 'F', 'S']
                     .map(
                       (d) => Expanded(
                         child: Center(
@@ -406,7 +406,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              "NO SCHEDULED HEARINGS",
+              'NO SCHEDULED HEARINGS',
               style: GoogleFonts.inter(
                 color: const Color(0xFF4B5563),
                 fontWeight: FontWeight.w700,
@@ -499,7 +499,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    h.caseTitle ?? "Unknown Case",
+                                    h.caseTitle ?? 'Unknown Case',
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleSmall?.copyWith(
@@ -625,14 +625,14 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                           runSpacing: 4,
                           children: [
                             _chipWidget(
-                              (h.purpose ?? h.stage ?? "Hearing").toUpperCase(),
+                              (h.purpose ?? h.stage ?? 'Hearing').toUpperCase(),
                               AppTheme.accent,
                               isDark,
                             ),
                             if (h.stage != null && h.purpose != null)
                               _chipWidget(h.stage!, Colors.grey, isDark),
                             if (h.isTeamCase(ref.read(userProvider)?.id ?? ''))
-                              _chipWidget("TEAM", Colors.indigo, isDark),
+                              _chipWidget('TEAM', Colors.indigo, isDark),
                           ],
                         ),
                       ],
@@ -714,7 +714,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              "NO HEARING RECORDS",
+              'NO HEARING RECORDS',
               style: GoogleFonts.inter(
                 color: const Color(0xFF4B5563),
                 fontWeight: FontWeight.w700,
@@ -724,7 +724,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
             ),
             const SizedBox(height: 4),
             const Text(
-              "Your court schedule is empty",
+              'Your court schedule is empty',
               style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
             ),
           ],
@@ -773,7 +773,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                     ),
                     child: Text(
                       isToday
-                          ? "TODAY"
+                          ? 'TODAY'
                           : DateFormat(
                             'dd MMM yyyy, EEEE',
                           ).format(date).toUpperCase(),
@@ -803,7 +803,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      "${dayHearings.length}",
+                      '${dayHearings.length}',
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
@@ -862,7 +862,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
-                      h.caseTitle ?? "Hearing",
+                      h.caseTitle ?? 'Hearing',
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.w800,
                         fontSize: 16,
@@ -878,7 +878,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                       color: AppTheme.accent,
                     ),
                     title: const Text(
-                      "Open Case",
+                      'Open Case',
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                     onTap: () {
@@ -893,14 +893,14 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                       color: AppTheme.error,
                     ),
                     title: const Text(
-                      "Delete Hearing",
+                      'Delete Hearing',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         color: AppTheme.error,
                       ),
                     ),
                     subtitle: const Text(
-                      "Remove from court schedule",
+                      'Remove from court schedule',
                       style: TextStyle(fontSize: 11),
                     ),
                     onTap: () async {
@@ -914,19 +914,19 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                                           Brightness.dark
                                       ? AppTheme.secondary
                                       : Colors.white,
-                              title: const Text("Delete Hearing?"),
+                              title: const Text('Delete Hearing?'),
                               content: const Text(
-                                "This entry will be removed from your court schedule.",
+                                'This entry will be removed from your court schedule.',
                               ),
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(c, false),
-                                  child: const Text("Cancel"),
+                                  child: const Text('Cancel'),
                                 ),
                                 TextButton(
                                   onPressed: () => Navigator.pop(c, true),
                                   child: const Text(
-                                    "Remove",
+                                    'Remove',
                                     style: TextStyle(color: AppTheme.error),
                                   ),
                                 ),

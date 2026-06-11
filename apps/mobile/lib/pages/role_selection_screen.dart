@@ -263,7 +263,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                 child: Column(
                                   children: [
                                     Text(
-                                      "Welcome to CaseFlow",
+                                      'Welcome to CaseFlow',
                                       textAlign: TextAlign.center,
                                       style: GoogleFonts.playfairDisplay(
                                         fontSize: 30 * scaleFactor,
@@ -290,7 +290,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                     ),
                                     SizedBox(height: 12 * scaleFactor),
                                     Text(
-                                      "How would you like to use CaseFlow?",
+                                      'How would you like to use CaseFlow?',
                                       textAlign: TextAlign.center,
                                       style: GoogleFonts.inter(
                                         fontSize: 14 * scaleFactor,
@@ -314,7 +314,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                   role: 'advocate',
                                   icon: Icons.gavel_rounded,
                                   title: "I'm an Advocate",
-                                  subtitle: "Full-power legal practice suite",
+                                  subtitle: 'Full-power legal practice suite',
                                   gradient: const [
                                     Color(0xFF1E3A6F),
                                     Color(0xFF2563EB),
@@ -322,10 +322,10 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                   ],
                                   accentColor: const Color(0xFF60A5FA),
                                   features: const [
-                                    "Case & hearing management",
-                                    "Client database & payments",
-                                    "AI legal assistant",
-                                    "E-Filing & court tools",
+                                    'Case & hearing management',
+                                    'Client database & payments',
+                                    'AI legal assistant',
+                                    'E-Filing & court tools',
                                   ],
                                   featureIcon: Icons.check_circle_rounded,
                                   onTap: () => _selectRole('advocate'),
@@ -344,7 +344,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                   icon: Icons.shield_rounded,
                                   title: "I'm a Citizen",
                                   subtitle:
-                                      "Know your rights, protect your future",
+                                      'Know your rights, protect your future',
                                   gradient: const [
                                     Color(0xFF064E3B),
                                     Color(0xFF059669),
@@ -352,10 +352,10 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                   ],
                                   accentColor: const Color(0xFF6EE7B7),
                                   features: const [
-                                    "Know your legal rights",
-                                    "Track your court cases",
-                                    "Legal calculators & tools",
-                                    "AI-powered legal help",
+                                    'Know your legal rights',
+                                    'Track your court cases',
+                                    'Legal calculators & tools',
+                                    'AI-powered legal help',
                                   ],
                                   featureIcon: Icons.star_rounded,
                                   onTap: () => _selectRole('citizen'),
@@ -403,7 +403,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                             ),
                                             const SizedBox(width: 10),
                                             Text(
-                                              "Just Explore (Guest Mode)",
+                                              'Just Explore (Guest Mode)',
                                               style: GoogleFonts.inter(
                                                 fontSize: 13 * scaleFactor,
                                                 color: Colors.white.withValues(
@@ -454,7 +454,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
 
                                     // Bottom tagline
                                     Text(
-                                      "Every Indian has the right to know the law",
+                                      'Every Indian has the right to know the law',
                                       textAlign: TextAlign.center,
                                       style: GoogleFonts.inter(
                                         fontSize: 11 * scaleFactor,

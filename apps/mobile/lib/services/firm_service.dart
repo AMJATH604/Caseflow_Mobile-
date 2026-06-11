@@ -11,7 +11,7 @@ class FirmService {
     String? explicitOwnerId,
   }) async {
     final user = client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     final String targetId = explicitOwnerId ?? user.id;
 
@@ -26,7 +26,7 @@ class FirmService {
   /// Invites a member to the firm by email. No member limit.
   static Future<void> inviteMember(String email) async {
     final user = client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     // Check if they are already in the firm (or pending)
     final existing =
@@ -40,7 +40,7 @@ class FirmService {
     if (existing != null) {
       if (existing['status'] == 'accepted') {
         throw Exception(
-          "An advocate with this email is already a member of your team.",
+          'An advocate with this email is already a member of your team.',
         );
       } else {
         // Refresh the pending invitation
@@ -115,7 +115,7 @@ class FirmService {
   /// For Members: Accept a firm invitation.
   static Future<void> acceptInvitation(String invitationId) async {
     final user = client.auth.currentUser;
-    if (user == null) throw Exception("Not authenticated");
+    if (user == null) throw Exception('Not authenticated');
 
     // 1. Update invitation status
     await client

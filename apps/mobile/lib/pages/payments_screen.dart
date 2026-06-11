@@ -40,7 +40,7 @@ class PaymentsScreen extends ConsumerWidget {
         elevation: 4,
         icon: const Icon(Icons.add_rounded),
         label: Text(
-          "Log Entry",
+          'Log Entry',
           style: GoogleFonts.inter(
             fontWeight: FontWeight.bold,
             letterSpacing: 0.3,
@@ -123,7 +123,7 @@ class PaymentsScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Financial Ledger",
+                  'Financial Ledger',
                   style: GoogleFonts.outfit(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
@@ -132,7 +132,7 @@ class PaymentsScreen extends ConsumerWidget {
                   ),
                 ),
                 Text(
-                  "Per-client fee tracking & receivables",
+                  'Per-client fee tracking & receivables',
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: Colors.white.withValues(alpha: 0.75),
@@ -188,7 +188,7 @@ class PaymentsScreen extends ConsumerWidget {
         ),
       );
 
-      final caseTitle = casePayments.first.caseTitle ?? "Unknown Case";
+      final caseTitle = casePayments.first.caseTitle ?? 'Unknown Case';
       final agreedFee = casePayments.first.totalFee;
 
       // Calculate per-client stats
@@ -259,7 +259,7 @@ class PaymentsScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          "Agreed Fee: ₹${fmt.format(agreedFee)}",
+                          'Agreed Fee: ₹${fmt.format(agreedFee)}',
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             color: Colors.grey[500],
@@ -288,8 +288,8 @@ class PaymentsScreen extends ConsumerWidget {
                   Row(
                     children: [
                       _buildMiniStat(
-                        "💰 Received",
-                        "₹${fmt.format(totalReceived)}",
+                        '💰 Received',
+                        '₹${fmt.format(totalReceived)}',
                         AppTheme.success,
                       ),
                       Container(
@@ -298,8 +298,8 @@ class PaymentsScreen extends ConsumerWidget {
                         color: AppTheme.border.withValues(alpha: 0.5),
                       ),
                       _buildMiniStat(
-                        "📤 Expenses",
-                        "₹${fmt.format(totalExpenses)}",
+                        '📤 Expenses',
+                        '₹${fmt.format(totalExpenses)}',
                         AppTheme.error,
                       ),
                     ],
@@ -329,7 +329,7 @@ class PaymentsScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          isSettled ? "🎉 Fully Settled" : "⏳ Yet to Receive",
+                          isSettled ? '🎉 Fully Settled' : '⏳ Yet to Receive',
                           style: GoogleFonts.inter(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -338,7 +338,7 @@ class PaymentsScreen extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          isSettled ? "₹0" : "₹${fmt.format(yetToReceive)}",
+                          isSettled ? '₹0' : '₹${fmt.format(yetToReceive)}',
                           style: GoogleFonts.outfit(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -359,7 +359,7 @@ class PaymentsScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
-                "PAYMENT TIMELINE",
+                'PAYMENT TIMELINE',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
@@ -545,8 +545,8 @@ class PaymentsScreen extends ConsumerWidget {
                                 p.notes?.isNotEmpty == true
                                     ? p.notes!
                                     : (isRevenue
-                                        ? "Payment Received"
-                                        : "Office Expense"),
+                                        ? 'Payment Received'
+                                        : 'Office Expense'),
                                 style: GoogleFonts.inter(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -556,7 +556,7 @@ class PaymentsScreen extends ConsumerWidget {
                               ),
                               if (isRevenue)
                                 Text(
-                                  "Balance after: ₹${fmt.format(runningBalance > 0 ? runningBalance : 0)}",
+                                  'Balance after: ₹${fmt.format(runningBalance > 0 ? runningBalance : 0)}',
                                   style: GoogleFonts.inter(
                                     fontSize: 11,
                                     color: Colors.grey[400],
@@ -596,7 +596,7 @@ class PaymentsScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(24),
             ),
             title: Text(
-              "Delete Entry?",
+              'Delete Entry?',
               style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
             ),
             content: Column(
@@ -604,7 +604,7 @@ class PaymentsScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Are you sure you want to delete this entry?",
+                  'Are you sure you want to delete this entry?',
                   style: GoogleFonts.inter(
                     color: Colors.grey[600],
                     height: 1.5,
@@ -638,8 +638,8 @@ class PaymentsScreen extends ConsumerWidget {
                               p.notes?.isNotEmpty == true
                                   ? p.notes!
                                   : (p.transactionType == 'revenue'
-                                      ? "Payment"
-                                      : "Expense"),
+                                      ? 'Payment'
+                                      : 'Expense'),
                               style: GoogleFonts.inter(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
@@ -658,7 +658,7 @@ class PaymentsScreen extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        "₹${fmt.format(p.paidAmount)}",
+                        '₹${fmt.format(p.paidAmount)}',
                         style: GoogleFonts.outfit(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -686,7 +686,7 @@ class PaymentsScreen extends ConsumerWidget {
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
                 child: Text(
-                  "Cancel",
+                  'Cancel',
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
                     color: Colors.grey,
@@ -708,7 +708,7 @@ class PaymentsScreen extends ConsumerWidget {
                   elevation: 0,
                 ),
                 child: Text(
-                  "Delete",
+                  'Delete',
                   style: GoogleFonts.inter(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -731,7 +731,7 @@ class PaymentsScreen extends ConsumerWidget {
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
-        isSettled ? "✓ SETTLED" : "₹${fmt.format(yetToReceive)} DUE",
+        isSettled ? '✓ SETTLED' : '₹${fmt.format(yetToReceive)} DUE',
         style: GoogleFonts.inter(
           fontSize: 10,
           fontWeight: FontWeight.w800,
@@ -802,7 +802,7 @@ class PaymentsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            "No Transactions Yet",
+            'No Transactions Yet',
             style: GoogleFonts.outfit(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -821,29 +821,29 @@ class PaymentsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 32),
           _buildGuideStep(
-            "1",
-            "Set Agreed Fee",
+            '1',
+            'Set Agreed Fee',
             "When logging the first record for a client's case, set the total agreed fee (e.g., ₹50,000).",
             Icons.handshake_rounded,
             const Color(0xFF3B82F6),
           ),
           _buildGuideStep(
-            "2",
-            "Log Initial Payment",
+            '2',
+            'Log Initial Payment',
             "Client pays ₹15,000 initially → System shows 'Yet to Receive': ₹35,000 for this client.",
             Icons.south_west_rounded,
             AppTheme.success,
           ),
           _buildGuideStep(
-            "3",
-            "Track Subsequent Payments",
-            "Each time the client pays, log it. Balance auto-decreases per client (e.g., ₹35,000 → ₹20,000 → ₹0).",
+            '3',
+            'Track Subsequent Payments',
+            'Each time the client pays, log it. Balance auto-decreases per client (e.g., ₹35,000 → ₹20,000 → ₹0).',
             Icons.timeline_rounded,
             AppTheme.warning,
           ),
           _buildGuideStep(
-            "4",
-            "Track Client Expenses",
+            '4',
+            'Track Client Expenses',
             "Court fees, xerox, travel — log as 'Expense'. Tracked separately under each client's card.",
             Icons.north_east_rounded,
             AppTheme.error,
@@ -985,7 +985,7 @@ class PaymentsScreen extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "How the Ledger Works",
+                                  'How the Ledger Works',
                                   style: GoogleFonts.outfit(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
@@ -993,7 +993,7 @@ class PaymentsScreen extends ConsumerWidget {
                                   ),
                                 ),
                                 Text(
-                                  "Per-client financial tracking",
+                                  'Per-client financial tracking',
                                   style: GoogleFonts.inter(
                                     fontSize: 12,
                                     color: Colors.grey[500],
@@ -1026,7 +1026,7 @@ class PaymentsScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "📋 Example: Client X",
+                              '📋 Example: Client X',
                               style: GoogleFonts.outfit(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -1035,38 +1035,38 @@ class PaymentsScreen extends ConsumerWidget {
                             ),
                             const SizedBox(height: 16),
                             _buildExampleRow(
-                              "01 Jan",
-                              "Agreed Fee set",
-                              "₹50,000",
+                              '01 Jan',
+                              'Agreed Fee set',
+                              '₹50,000',
                               Colors.grey[600]!,
                             ),
                             _buildExampleRow(
-                              "01 Jan",
-                              "Initial Payment",
-                              "+ ₹15,000",
+                              '01 Jan',
+                              'Initial Payment',
+                              '+ ₹15,000',
                               AppTheme.success,
                             ),
-                            _buildExampleDivider("Yet to Receive: ₹35,000"),
+                            _buildExampleDivider('Yet to Receive: ₹35,000'),
                             _buildExampleRow(
-                              "15 Jan",
-                              "Court Fee (Expense)",
-                              "- ₹500",
+                              '15 Jan',
+                              'Court Fee (Expense)',
+                              '- ₹500',
                               AppTheme.error,
                             ),
                             _buildExampleRow(
-                              "01 Feb",
-                              "2nd Payment",
-                              "+ ₹10,000",
+                              '01 Feb',
+                              '2nd Payment',
+                              '+ ₹10,000',
                               AppTheme.success,
                             ),
-                            _buildExampleDivider("Yet to Receive: ₹25,000"),
+                            _buildExampleDivider('Yet to Receive: ₹25,000'),
                             _buildExampleRow(
-                              "15 Mar",
-                              "3rd Payment",
-                              "+ ₹25,000",
+                              '15 Mar',
+                              '3rd Payment',
+                              '+ ₹25,000',
                               AppTheme.success,
                             ),
-                            _buildExampleDivider("✓ SETTLED — Balance: ₹0"),
+                            _buildExampleDivider('✓ SETTLED — Balance: ₹0'),
                           ],
                         ),
                       ),
@@ -1085,7 +1085,7 @@ class PaymentsScreen extends ConsumerWidget {
                         child: Column(
                           children: [
                             Text(
-                              "💡 Formula",
+                              '💡 Formula',
                               style: GoogleFonts.outfit(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -1117,29 +1117,29 @@ class PaymentsScreen extends ConsumerWidget {
 
                       // Key points
                       _buildGuideStep(
-                        "1",
-                        "Each Client Has Own Card",
-                        "Revenue, expenses, and balance are tracked independently per case/client. No global mixing.",
+                        '1',
+                        'Each Client Has Own Card',
+                        'Revenue, expenses, and balance are tracked independently per case/client. No global mixing.',
                         Icons.person_rounded,
                         const Color(0xFF3B82F6),
                       ),
                       _buildGuideStep(
-                        "2",
-                        "Timeline with Dates",
-                        "Every payment or expense is logged with exact date and shows in chronological order.",
+                        '2',
+                        'Timeline with Dates',
+                        'Every payment or expense is logged with exact date and shows in chronological order.',
                         Icons.timeline_rounded,
                         AppTheme.success,
                       ),
                       _buildGuideStep(
-                        "3",
-                        "Running Balance",
+                        '3',
+                        'Running Balance',
                         "After each payment, you can see the remaining 'Yet to Receive' amount at that point in time.",
                         Icons.analytics_rounded,
                         AppTheme.warning,
                       ),
                       _buildGuideStep(
-                        "4",
-                        "Auto SETTLED Badge",
+                        '4',
+                        'Auto SETTLED Badge',
                         "When all fees are collected (balance = ₹0), the client card automatically shows 'SETTLED'.",
                         Icons.verified_rounded,
                         const Color(0xFF6366F1),

@@ -110,13 +110,15 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   @override
   Widget build(BuildContext context) {
     final dk = Theme.of(context).brightness == Brightness.dark;
-    if (_loading)
+    if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    if (_commission == null)
+    }
+    if (_commission == null) {
       return Scaffold(
         appBar: AppBar(),
         body: const Center(child: Text('Commission not found')),
       );
+    }
     final c = _commission!;
 
     return Scaffold(
@@ -386,7 +388,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   // ─── TIMELINE (Phase 2) ─────────────────────────────────
   Widget _buildTimeline(bool dk, Commission c) {
     final events = <_TimelineEvent>[];
-    if (c.warrantDate != null)
+    if (c.warrantDate != null) {
       events.add(
         _TimelineEvent(
           date: c.warrantDate!,
@@ -396,6 +398,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           done: true,
         ),
       );
+    }
     for (int i = 0; i < _visits.length; i++) {
       final v = _visits[_visits.length - 1 - i]; // reverse to chronological
       events.add(
@@ -410,7 +413,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
         ),
       );
     }
-    if (_witnesses.isNotEmpty)
+    if (_witnesses.isNotEmpty) {
       events.add(
         _TimelineEvent(
           date: _witnesses.first.createdAt,
@@ -420,7 +423,8 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           done: true,
         ),
       );
-    if (_sketches.isNotEmpty)
+    }
+    if (_sketches.isNotEmpty) {
       events.add(
         _TimelineEvent(
           date: _sketches.first.createdAt,
@@ -430,6 +434,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           done: true,
         ),
       );
+    }
     if (c.status == CommissionStatus.reportDrafting ||
         c.status == CommissionStatus.submitted) {
       events.add(
@@ -442,7 +447,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
         ),
       );
     }
-    if (c.deadlineDate != null)
+    if (c.deadlineDate != null) {
       events.add(
         _TimelineEvent(
           date: c.deadlineDate!,
@@ -454,6 +459,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               c.status == CommissionStatus.closed,
         ),
       );
+    }
 
     if (events.isEmpty) return const SizedBox.shrink();
 
@@ -662,7 +668,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
 
   // ─── VISITS TAB ──────────────────────────────────────────
   Widget _visitsTab(bool dk) {
-    if (_visits.isEmpty)
+    if (_visits.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -688,6 +694,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           ],
         ),
       );
+    }
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: _visits.length,
@@ -832,7 +839,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
 
   // ─── EVIDENCE TAB ────────────────────────────────────────
   Widget _evidenceTab(bool dk) {
-    if (_evidence.isEmpty)
+    if (_evidence.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -858,6 +865,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           ],
         ),
       );
+    }
     return Column(
       children: [
         if (_evidence.isNotEmpty)
@@ -897,7 +905,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
             ),
             itemCount: _evidence.length + 1,
             itemBuilder: (_, i) {
-              if (i == 0)
+              if (i == 0) {
                 return Material(
                   color:
                       dk
@@ -910,7 +918,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.add_a_photo,
                           size: 32,
                           color: AppTheme.accent,
@@ -928,6 +936,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                     ),
                   ),
                 );
+              }
               final ev = _evidence[i - 1];
               return Container(
                 decoration: BoxDecoration(
@@ -1030,7 +1039,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
 
   // ─── NOTES TAB ───────────────────────────────────────────
   Widget _notesTab(bool dk) {
-    if (_observations.isEmpty)
+    if (_observations.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1056,6 +1065,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           ],
         ),
       );
+    }
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -1104,7 +1114,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                       ),
                     ),
                     IconButton(
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.delete_outline,
                         size: 16,
                         color: AppTheme.error,
@@ -1156,7 +1166,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
 
   // ─── WITNESSES TAB (Phase 2) ─────────────────────────────
   Widget _witnessesTab(bool dk) {
-    if (_witnesses.isEmpty)
+    if (_witnesses.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1182,11 +1192,12 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           ],
         ),
       );
+    }
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: _witnesses.length + 1,
       itemBuilder: (_, i) {
-        if (i == 0)
+        if (i == 0) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: Material(
@@ -1199,7 +1210,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      Icon(Icons.person_add, color: AppTheme.warning),
+                      const Icon(Icons.person_add, color: AppTheme.warning),
                       const SizedBox(width: 12),
                       Text(
                         'Record New Witness',
@@ -1214,6 +1225,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               ),
             ),
           );
+        }
         final w = _witnesses[i - 1];
         return Container(
           margin: const EdgeInsets.only(bottom: 10),
@@ -1373,7 +1385,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
 
   // ─── SKETCHES TAB (Phase 2) ──────────────────────────────
   Widget _sketchesTab(bool dk) {
-    if (_sketches.isEmpty)
+    if (_sketches.isEmpty) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1399,6 +1411,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           ],
         ),
       );
+    }
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -1409,7 +1422,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
       ),
       itemCount: _sketches.length + 1,
       itemBuilder: (_, i) {
-        if (i == 0)
+        if (i == 0) {
           return Material(
             color:
                 dk
@@ -1422,7 +1435,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.add, size: 32, color: const Color(0xFF8B5CF6)),
+                  const Icon(Icons.add, size: 32, color: Color(0xFF8B5CF6)),
                   const SizedBox(height: 8),
                   Text(
                     'New Sketch',
@@ -1436,6 +1449,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               ),
             ),
           );
+        }
         final sk = _sketches[i - 1];
         return GestureDetector(
           onTap: () => _editSketch(sk),
@@ -1674,7 +1688,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                       ),
                     ),
                     IconButton(
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.download_rounded,
                         color: AppTheme.info,
                         size: 22,
@@ -1755,22 +1769,24 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
         fileName: file.name,
       );
       _load();
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('✅ "${file.name}" uploaded to vault'),
             backgroundColor: AppTheme.success,
           ),
         );
+      }
     } catch (e) {
       setState(() => _loading = false);
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Upload failed: $e'),
             backgroundColor: AppTheme.error,
           ),
         );
+      }
     }
   }
 
@@ -1806,27 +1822,29 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
         fileName,
       );
       _load();
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('"$fileName" deleted'),
             backgroundColor: AppTheme.success,
           ),
         );
+      }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Delete failed: $e'),
             backgroundColor: AppTheme.error,
           ),
         );
+      }
     }
   }
 
   // ─── EXPENSES TAB ────────────────────────────────────────
   Widget _expensesTab(bool dk) {
-    double total = _expenses.fold(0, (sum, e) => sum + e.amount);
+    final double total = _expenses.fold(0, (sum, e) => sum + e.amount);
     return Column(
       children: [
         Container(
@@ -1913,7 +1931,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                                 color: AppTheme.warning.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.receipt,
                                 color: AppTheme.warning,
                                 size: 20,
@@ -2011,13 +2029,14 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
       });
     } catch (e) {
       setState(() => _currentlyPlayingId = null);
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Playback error: $e'),
             backgroundColor: AppTheme.error,
           ),
         );
+      }
     }
   }
 
@@ -2041,10 +2060,11 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
         _goFieldVisit(visit.id);
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
         );
+      }
     }
   }
 
@@ -2059,18 +2079,20 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
       await CommissionService.checkOut(_activeVisitId!);
       setState(() => _activeVisitId = null);
       _load();
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('✅ Checked out — GPS recorded'),
+          const SnackBar(
+            content: Text('✅ Checked out — GPS recorded'),
             backgroundColor: AppTheme.success,
           ),
         );
+      }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
         );
+      }
     }
   }
 
@@ -2089,9 +2111,9 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
     // Explicitly request GPS permissions and position BEFORE opening camera
     bool gpsAvailable = false;
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        if (mounted)
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
@@ -2100,6 +2122,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               backgroundColor: Colors.orange,
             ),
           );
+        }
       }
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
@@ -2139,7 +2162,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
         caption: 'Photo #${_evidence.length + 1}',
       );
       _load();
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -2150,14 +2173,16 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
             backgroundColor: AppTheme.success,
           ),
         );
+      }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Upload error: $e'),
             backgroundColor: AppTheme.error,
           ),
         );
+      }
     }
   }
 
@@ -2232,18 +2257,20 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                     files.add(XFile(file.path));
                   }
                 }
-                if (files.isNotEmpty)
+                if (files.isNotEmpty) {
                   Share.shareXFiles(files, text: 'Commission Evidence Photos');
+                }
               },
             ),
           ),
         );
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
         );
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -2269,27 +2296,30 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           name:
               'CaseFlow_Evidence_${ev.sequenceNumber}_${DateTime.now().millisecondsSinceEpoch}',
         );
-        if (mounted)
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('✅ Photo #${ev.sequenceNumber} saved to gallery'),
               backgroundColor: AppTheme.success,
             ),
           );
+        }
       } else {
-        if (mounted)
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Failed to download photo'),
               backgroundColor: AppTheme.error,
             ),
           );
+        }
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
         );
+      }
     }
   }
 
@@ -2314,27 +2344,30 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           name:
               'CaseFlow_Sketch_${sk.title.replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}',
         );
-        if (mounted)
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('✅ "${sk.title}" saved to gallery'),
               backgroundColor: AppTheme.success,
             ),
           );
+        }
       } else {
-        if (mounted)
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Failed to download sketch'),
               backgroundColor: AppTheme.error,
             ),
           );
+        }
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
         );
+      }
     }
   }
 
@@ -2760,13 +2793,14 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                   Navigator.pop(ctx);
                   await CommissionService.deleteSketch(sketch.id);
                   _load();
-                  if (mounted)
+                  if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Sketch deleted'),
+                      const SnackBar(
+                        content: Text('Sketch deleted'),
                         backgroundColor: AppTheme.success,
                       ),
                     );
+                  }
                 },
                 child: const Text(
                   'Delete',

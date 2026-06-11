@@ -143,27 +143,30 @@ BEGIN
   END IF;
 END $$;
 
--- Check and unschedule if already exists to avoid errors on reapplying
--- Note: cron schema may have permissions issues if run directly, let's wrap it or check.
--- We can unschedule using pg_cron helper if we are postgres superuser or if it's permitted.
+-- Schedule daily cron job to regenerate carousel slides at 4:00 AM IST (22:30 UTC)
+-- The edge function has verify_jwt disabled since it's only called by this internal cron.
+-- Timeout is set to 60 seconds to allow for Gemini API response time.
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
-    PERFORM cron.unschedule('generate-carousel-daily') FROM cron.job WHERE jobname = 'generate-carousel-daily';
-    
+    -- Unschedule if already exists to avoid duplicates
+    BEGIN
+      PERFORM cron.unschedule('generate-carousel-daily');
+    EXCEPTION WHEN OTHERS THEN
+      -- Job may not exist yet, ignore
+    END;
+
     PERFORM cron.schedule(
       'generate-carousel-daily',
       '30 22 * * *',
-      $$
+      $cron$
       SELECT net.http_post(
         url := 'https://asrjqsnyezvcakvkokcl.supabase.co/functions/v1/generate-carousel',
-        headers := jsonb_build_object(
-          'Content-Type', 'application/json',
-          'Authorization', 'Bearer ' || current_setting('app.settings.service_role_key')
-        ),
-        body := '{}'::jsonb
+        headers := '{"Content-Type": "application/json"}'::jsonb,
+        body := '{}'::jsonb,
+        timeout_milliseconds := 60000
       );
-      $$
+      $cron$
     );
   END IF;
 END $$;

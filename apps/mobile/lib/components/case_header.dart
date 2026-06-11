@@ -15,7 +15,7 @@ class CaseHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppTheme.darkCard,
         border: Border(bottom: BorderSide(color: AppTheme.darkBorder)),
       ),
@@ -48,7 +48,7 @@ class CaseHeader extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "CASE FILE DOSSIER",
+                        'CASE FILE DOSSIER',
                         style: TextStyle(
                           color: AppTheme.accent.withValues(alpha: 0.7),
                           fontSize: 9,
@@ -134,7 +134,7 @@ class CaseHeader extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               const Text(
-                "PAY COURT FEE",
+                'PAY COURT FEE',
                 style: TextStyle(
                   color: Color(0xFF2563EB),
                   fontSize: 10,

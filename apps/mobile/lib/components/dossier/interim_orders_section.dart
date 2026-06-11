@@ -24,21 +24,21 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
       context: context,
       builder:
           (ctx) => AlertDialog(
-            title: const Text("Delete order?"),
+            title: const Text('Delete order?'),
             content: const Text(
-              "Are you sure you want to remove this order entry?",
+              'Are you sure you want to remove this order entry?',
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: const Text("Cancel"),
+                child: const Text('Cancel'),
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.error,
                 ),
                 onPressed: () => Navigator.pop(ctx, true),
-                child: const Text("Delete"),
+                child: const Text('Delete'),
               ),
             ],
           ),
@@ -48,10 +48,11 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
       await SupabaseService.deleteInterimOrder(id);
       ref.invalidate(caseInterimOrdersProvider(widget.caseId));
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     }
   }
 
@@ -97,7 +98,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                         ),
                         const SizedBox(height: 20),
                         const Text(
-                          "Add Interim Order",
+                          'Add Interim Order',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w900,
@@ -107,7 +108,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                         const SizedBox(height: 20),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: const Text("Order Date"),
+                          title: const Text('Order Date'),
                           subtitle: Text(
                             DateFormat('dd MMM yyyy').format(orderDate),
                           ),
@@ -129,9 +130,9 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                         ),
                         const SizedBox(height: 12),
                         DropdownButtonFormField<String>(
-                          value: orderType,
+                          initialValue: orderType,
                           decoration: InputDecoration(
-                            labelText: "Order Type",
+                            labelText: 'Order Type',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -157,7 +158,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                           controller: summaryCtrl,
                           maxLines: 3,
                           decoration: InputDecoration(
-                            labelText: "Order Summary / Notes",
+                            labelText: 'Order Summary / Notes',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -195,15 +196,16 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                                   caseInterimOrdersProvider(widget.caseId),
                                 );
                               } catch (e) {
-                                if (mounted)
+                                if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text("Error: $e")),
+                                    SnackBar(content: Text('Error: $e')),
                                   );
+                                }
                               }
                             },
                             icon: const Icon(Icons.check, size: 18),
                             label: const Text(
-                              "Add Order",
+                              'Add Order',
                               style: TextStyle(fontWeight: FontWeight.w900),
                             ),
                             style: ElevatedButton.styleFrom(
@@ -243,7 +245,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                 Expanded(
                   flex: 1,
                   child: Text(
-                    "ORDER #",
+                    'ORDER #',
                     style: TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.w900,
@@ -255,7 +257,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    "ORDER DATE",
+                    'ORDER DATE',
                     style: TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.w900,
@@ -267,7 +269,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                 Expanded(
                   flex: 3,
                   child: Text(
-                    "DETAILS",
+                    'DETAILS',
                     style: TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.w900,
@@ -285,7 +287,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
             final order = entry.value;
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 border: Border(top: BorderSide(color: AppTheme.darkBorder)),
               ),
               child: Row(
@@ -293,7 +295,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                   Expanded(
                     flex: 1,
                     child: Text(
-                      "${order.orderNumber ?? idx + 1}",
+                      '${order.orderNumber ?? idx + 1}',
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
@@ -319,11 +321,12 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                             ? GestureDetector(
                               onTap: () async {
                                 final uri = Uri.parse(order.documentUrl!);
-                                if (await canLaunchUrl(uri))
+                                if (await canLaunchUrl(uri)) {
                                   await launchUrl(
                                     uri,
                                     mode: LaunchMode.externalApplication,
                                   );
+                                }
                               },
                               child: Text(
                                 order.orderSummary ??
@@ -369,7 +372,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
 
     return DossierSection(
       icon: Icons.receipt_long_rounded,
-      title: "Interim Orders",
+      title: 'Interim Orders',
       color: const Color(0xFFDC2626),
       trailing: DossierHelper.addButton(() => _showAddInterimOrderDialog()),
       children: [
@@ -378,7 +381,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
               (orders) =>
                   orders.isEmpty
                       ? DossierHelper.emptyHint(
-                        "No interim orders recorded. Tap + to add depositions.",
+                        'No interim orders recorded. Tap + to add depositions.',
                       )
                       : _buildInterimOrdersTable(orders),
           loading:
@@ -386,7 +389,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                 padding: EdgeInsets.all(16),
                 child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),
-          error: (e, _) => DossierHelper.emptyHint("Error loading orders"),
+          error: (e, _) => DossierHelper.emptyHint('Error loading orders'),
         ),
       ],
     );

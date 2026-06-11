@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class CaveatFormSheet extends ConsumerStatefulWidget {
   final Caveat? caveat;
 
-  const CaveatFormSheet({Key? key, this.caveat}) : super(key: key);
+  const CaveatFormSheet({super.key, this.caveat});
 
   @override
   ConsumerState<CaveatFormSheet> createState() => _CaveatFormSheetState();
