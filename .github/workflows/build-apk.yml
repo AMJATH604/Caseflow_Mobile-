@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
 
     steps:
       - name: Checkout code
@@ -81,7 +83,7 @@ jobs:
           generate_release_notes: true
 
       - name: Upload to Firebase App Distribution
-        if: ${{ secrets.FIREBASE_APP_ID != '' }}
+        if: env.FIREBASE_APP_ID != ''
         uses: wzieba/Firebase-App-Distribution@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
