@@ -79,3 +79,12 @@ jobs:
         with:
           files: CaseFlow-Release.apk
           generate_release_notes: true
+
+      - name: Upload to Firebase App Distribution
+        if: ${{ secrets.FIREBASE_APP_ID != '' }}
+        uses: wzieba/Firebase-App-Distribution@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_CREDENTIALS }}
+          groups: testers
+          file: CaseFlow-Release.apk
