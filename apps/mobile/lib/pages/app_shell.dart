@@ -8,6 +8,7 @@ import '../components/mobile_bottom_nav.dart';
 import '../components/citizen_bottom_nav.dart';
 import '../components/app_sidebar.dart';
 import '../components/global_search_delegate.dart';
+import '../components/profile_avatar.dart';
 import '../services/providers.dart';
 import '../services/supabase_service.dart';
 
@@ -125,7 +126,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                             await SupabaseService.signOut();
                           },
                         )
-                      else
+                      else ...[
                         IconButton(
                           icon: const Icon(
                             Icons.search_rounded,
@@ -138,6 +139,23 @@ class _AppShellState extends ConsumerState<AppShell> {
                             );
                           },
                         ),
+                        // Profile avatar in AppBar
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Builder(
+                            builder: (context) {
+                              final profileAsync = ref.watch(userProfileProvider);
+                              final profile = profileAsync.valueOrNull;
+                              return ProfileAvatar(
+                                avatarUrl: profile?.avatarUrl,
+                                name: profile?.fullName,
+                                radius: 14,
+                                borderWidth: 1.5,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                       const SizedBox(width: 4),
                     ] else ...[
                       TextButton.icon(

@@ -10,6 +10,7 @@ import '../services/supabase_service.dart';
 import '../services/repositories/discussion_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
+import '../components/profile_avatar.dart';
 
 class FirmManagementScreen extends ConsumerStatefulWidget {
   const FirmManagementScreen({super.key});
@@ -589,18 +590,10 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: const Color(0xFFE2E8F0),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Icon(
-            Icons.person_pin_rounded,
-            color: Color(0xFF64748B),
-            size: 20,
-          ),
+        leading: ProfileAvatar(
+          name: member.memberName ?? member.memberEmail,
+          radius: 20,
+          showBorder: false,
         ),
         title: Text(
           isMe

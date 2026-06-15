@@ -5,6 +5,7 @@ import '../services/providers.dart';
 import '../services/supabase_service.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
+import 'profile_avatar.dart';
 
 /// Premium Discussion Tab — WhatsApp-grade chat with avatar circles,
 /// date separator pills, rounded bubbles, and glassmorphic input bar.
@@ -231,27 +232,12 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
           children: [
             // Avatar (left side for others)
             if (!isMe) ...[
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: avatarColors,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Center(
-                  child: Text(
-                    initial,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
+              ProfileAvatar(
+                name: msg.senderName,
+                radius: 16,
+                borderWidth: 0,
+                showBorder: false,
+                gradientColors: avatarColors,
               ),
               const SizedBox(width: 8),
             ],

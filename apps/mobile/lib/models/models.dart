@@ -547,6 +547,7 @@ class UserProfile {
   final DateTime? currentPeriodEnd;
   final String? firmId;
   final String? email;
+  final String? avatarUrl;
 
   // New Professional Fields for Directory
   final String? mobileNumber;
@@ -565,6 +566,7 @@ class UserProfile {
     this.currentPeriodEnd,
     this.firmId,
     this.email,
+    this.avatarUrl,
     this.mobileNumber,
     this.registrationNumber,
     this.practiceState,
@@ -588,6 +590,7 @@ class UserProfile {
             : null,
     firmId: json['firm_id'],
     email: json['email'],
+    avatarUrl: json['avatar_url'],
     mobileNumber: json['mobile_number'],
     registrationNumber: json['registration_number'],
     practiceState: json['practice_state'],
@@ -657,6 +660,7 @@ class UserProfile {
     'current_period_end': currentPeriodEnd?.toIso8601String(),
     'firm_id': firmId,
     'email': email,
+    'avatar_url': avatarUrl,
     'mobile_number': mobileNumber,
     'registration_number': registrationNumber,
     'practice_state': practiceState,

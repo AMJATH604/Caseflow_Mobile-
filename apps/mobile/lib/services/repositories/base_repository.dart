@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/models.dart';
 
@@ -222,5 +223,60 @@ class BaseRepository {
       );
     }
     return trimmed;
+  }
+
+  // ─── Profile Photo ────────────────────────────────────
+
+  /// Uploads a profile photo to Supabase Storage and updates the profile.
+  /// Overwrites any existing photo. Invalidates the profile cache.
+  static Future<String> updateProfilePhoto(
+    String userId,
+    Uint8List imageBytes,
+  ) async {
+    requireAuth();
+    final storagePath = '$userId/avatar.jpg';
+
+    await client.storage.from('profile-photos').uploadBinary(
+      storagePath,
+      imageBytes,
+      fileOptions: const FileOptions(
+        contentType: 'image/jpeg',
+        upsert: true,
+      ),
+    );
+
+    final publicUrl = client.storage
+        .from('profile-photos')
+        .getPublicUrl(storagePath);
+
+    // Append cache-buster to force reload in Image widgets
+    final urlWithBuster = '$publicUrl?v=${DateTime.now().millisecondsSinceEpoch}';
+
+    await client
+        .from('profiles')
+        .update({'avatar_url': urlWithBuster})
+        .eq('id', userId);
+
+    invalidateProfileCache();
+    return urlWithBuster;
+  }
+
+  /// Removes the profile photo from storage and clears the URL in the profile.
+  static Future<void> removeProfilePhoto(String userId) async {
+    requireAuth();
+    final storagePath = '$userId/avatar.jpg';
+
+    try {
+      await client.storage.from('profile-photos').remove([storagePath]);
+    } catch (_) {
+      // Ignore storage removal errors (file may not exist)
+    }
+
+    await client
+        .from('profiles')
+        .update({'avatar_url': null})
+        .eq('id', userId);
+
+    invalidateProfileCache();
   }
 }

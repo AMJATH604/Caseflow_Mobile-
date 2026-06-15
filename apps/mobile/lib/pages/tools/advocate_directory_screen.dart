@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_theme.dart';
 import '../../models/geo_data.dart';
+import '../../components/profile_avatar.dart';
 
 // Provides the list of advocates based on current filters
 final advocateSearchProvider = FutureProvider.family<
@@ -20,7 +21,7 @@ final advocateSearchProvider = FutureProvider.family<
     var query = Supabase.instance.client
         .from('profiles')
         .select(
-          'id, full_name, email, mobile_number, practice_state, practice_district, office_address, registration_number',
+          'id, full_name, email, mobile_number, practice_state, practice_district, office_address, registration_number, avatar_url',
         )
         .eq('is_public_directory_enabled', true);
 
@@ -420,30 +421,12 @@ class _AdvocateDirectoryScreenState
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Premium Avatar with gradient ring
-                Container(
-                  padding: const EdgeInsets.all(2.5),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: gradientPair,
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: CircleAvatar(
-                    radius: 24,
-                    backgroundColor:
-                        isDark ? const Color(0xFF1E293B) : Colors.white,
-                    child: Text(
-                      name.substring(0, 1).toUpperCase(),
-                      style: TextStyle(
-                        color: gradientPair[0],
-                        fontWeight: FontWeight.w800,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
+                // Premium Avatar with gradient ring (photo or initials)
+                ProfileAvatar(
+                  avatarUrl: advocate['avatar_url'],
+                  name: name,
+                  radius: 24,
+                  gradientColors: gradientPair,
                 ),
                 const SizedBox(width: 14),
                 Expanded(

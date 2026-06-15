@@ -1,7 +1,9 @@
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import '../services/supabase_service.dart';
 import '../services/providers.dart';
 import '../services/fcm_service.dart';
@@ -33,6 +35,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   String? _selectedState;
   String? _selectedDistrict;
   late String _userRole; // 'advocate' or 'citizen'
+  Uint8List? _selectedPhoto; // Optional profile photo for signup
 
   // Animations
   late AnimationController _bgController;
@@ -235,10 +238,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             .timeout(const Duration(seconds: 15));
 
         if (res.user != null && mounted) {
+          // Best-effort photo upload — don't block signup on failure
+          if (_selectedPhoto != null) {
+            try {
+              await SupabaseService.updateProfilePhoto(
+                res.user!.id,
+                _selectedPhoto!,
+              );
+            } catch (_) {
+              // Photo upload failed — user can add it later from dashboard
+            }
+          }
+
           _showSuccess('Account created! Please verify your email to sign in.');
           setState(() {
             _authTab = 0;
             _signupStep = 0;
+            _selectedPhoto = null;
           });
         }
         if (mounted) setState(() => _isLoading = false);
@@ -282,6 +298,235 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     }
 
     if (mounted) setState(() => _isLoading = false);
+  }
+
+  // ─── Photo Picker ─────────────────────────────────────
+
+  Future<void> _pickPhoto() async {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Add Profile Photo',
+              style: GoogleFonts.outfit(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF0F172A),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'This is optional — you can always add it later',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: const Color(0xFF94A3B8),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildPhotoOption(
+                    icon: Icons.camera_alt_rounded,
+                    label: 'Camera',
+                    color: const Color(0xFF2563EB),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      _capturePhoto(ImageSource.camera);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildPhotoOption(
+                    icon: Icons.photo_library_rounded,
+                    label: 'Gallery',
+                    color: const Color(0xFF059669),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      _capturePhoto(ImageSource.gallery);
+                    },
+                  ),
+                ),
+                if (_selectedPhoto != null) ...[
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildPhotoOption(
+                      icon: Icons.delete_outline_rounded,
+                      label: 'Remove',
+                      color: const Color(0xFFEF4444),
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        setState(() => _selectedPhoto = null);
+                      },
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPhotoOption({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: color.withValues(alpha: 0.15)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _capturePhoto(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: source,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 75,
+      );
+      if (picked != null) {
+        final bytes = await picked.readAsBytes();
+        setState(() => _selectedPhoto = bytes);
+      }
+    } catch (e) {
+      if (mounted) _showError('Could not access ${source == ImageSource.camera ? 'camera' : 'gallery'}.');
+    }
+  }
+
+  Widget _buildPhotoPicker() {
+    return Center(
+      child: GestureDetector(
+        onTap: _pickPhoto,
+        child: Column(
+          children: [
+            Stack(
+              children: [
+                Container(
+                  width: 88,
+                  height: 88,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: _selectedPhoto != null
+                        ? const LinearGradient(
+                            colors: [Color(0xFF2563EB), Color(0xFF7C3AED)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
+                    border: _selectedPhoto == null
+                        ? Border.all(
+                            color: const Color(0xFFCBD5E1),
+                            width: 2,
+                            strokeAlign: BorderSide.strokeAlignOutside,
+                          )
+                        : null,
+                  ),
+                  padding: const EdgeInsets.all(3),
+                  child: CircleAvatar(
+                    radius: 41,
+                    backgroundColor: const Color(0xFFF8FAFC),
+                    backgroundImage: _selectedPhoto != null
+                        ? MemoryImage(_selectedPhoto!)
+                        : null,
+                    child: _selectedPhoto == null
+                        ? const Icon(
+                            Icons.person_rounded,
+                            size: 36,
+                            color: Color(0xFFCBD5E1),
+                          )
+                        : null,
+                  ),
+                ),
+                // Camera badge
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2563EB),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF2563EB).withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt_rounded,
+                      size: 14,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _selectedPhoto != null ? 'Change Photo' : 'Add Photo (Optional)',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: _selectedPhoto != null
+                    ? const Color(0xFF2563EB)
+                    : const Color(0xFF94A3B8),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _handleForgotPassword() async {
@@ -982,6 +1227,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             'Professional Details',
             'Your Bar Council information',
           ),
+          const SizedBox(height: 16),
+          _buildPhotoPicker(),
           const SizedBox(height: 20),
           _buildTextField(
             controller: _nameController,
@@ -1051,6 +1298,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStepTitle('Your Details', 'Tell us about yourself'),
+          const SizedBox(height: 16),
+          _buildPhotoPicker(),
           const SizedBox(height: 20),
 
           _buildTextField(

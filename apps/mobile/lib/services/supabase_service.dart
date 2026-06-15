@@ -437,4 +437,14 @@ class SupabaseService {
 
   static Future<List<Map<String, dynamic>>> fetchCarouselSlides() =>
       ContentRepository.fetchCarouselSlides();
+
+  // ─── Profile Photo ──────────────────────────────────
+
+  static Future<String> updateProfilePhoto(
+    String userId,
+    Uint8List imageBytes,
+  ) => BaseRepository.updateProfilePhoto(userId, imageBytes);
+
+  static Future<void> removeProfilePhoto(String userId) =>
+      BaseRepository.removeProfilePhoto(userId);
 }
