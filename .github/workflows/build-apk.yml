@@ -84,7 +84,7 @@ jobs:
 
       - name: Upload to Firebase App Distribution
         if: env.FIREBASE_APP_ID != ''
-        uses: wzieba/Firebase-App-Distribution@v1
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_CREDENTIALS }}
