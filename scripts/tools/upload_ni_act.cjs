@@ -2,8 +2,8 @@ const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 require('dotenv').config(); // Load variables if .env exists
 
-const SUPABASE_URL = 'https://asrjqsnyezvcakvkokcl.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzcmpxc255ZXp2Y2Frdmtva2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NTQ1MjYsImV4cCI6MjA4NzUzMDUyNn0._W7YwzwxA2m83VxITvQMDVUSbTlnJi1Ij389Sxp-Mls';
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
 const TARGET_ACT_ID = '04ac82bd-f734-4fa8-9dbd-d697cfbfcadb'; // Negotiable Instruments Act UUID
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);

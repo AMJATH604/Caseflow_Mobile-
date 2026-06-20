@@ -10,6 +10,7 @@
     "upload-constitution": "node scripts/tools/upload_constitution.js",
     "verify-import": "node scripts/tools/verify_import.cjs",
     "verify-permissions": "node scripts/tools/verify_permissions.js",
+    "import-act": "node scripts/tools/import_bare_act.cjs",
     "find-user": "node scripts/tools/find_amjath.js",
     "sync-monitor": "supabase functions serve sync-case-monitor",
     "dashboard:dev": "npm --prefix apps/dashboard run dev",

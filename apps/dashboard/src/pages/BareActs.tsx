@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
-import { Book, Plus, Upload, Trash2, Edit, ChevronRight, Search, File } from "lucide-react";
+import { Book, Plus, Upload, Trash2, Edit, ChevronRight, Search, File, FileJson, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -18,6 +18,9 @@ export default function BareActs() {
     const [bulkJson, setBulkJson] = useState("");
     const [pdfFile, setPdfFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number; inserted: number; failed: number } | null>(null);
+    const [purgeBeforeImport, setPurgeBeforeImport] = useState(true);
+    const [jsonFile, setJsonFile] = useState<File | null>(null);
 
     useEffect(() => {
         fetchActs();
@@ -103,30 +106,144 @@ export default function BareActs() {
         }
     };
 
+    /**
+     * Transform a single JSON entry (object or array format) into a bare_act_sections record.
+     */
+    const transformSection = (item: any, index: number, actId: string) => {
+        if (Array.isArray(item)) {
+            // Array format: ["act_name", "chapter_num", "chapter_title", "section_num", "section_title", "section_text"]
+            if (item.length >= 6) {
+                return {
+                    act_id: actId,
+                    chapter_number: item[1] || "",
+                    chapter_title: item[2] || "",
+                    section_number: item[3] || "",
+                    section_title: item[4] || "",
+                    section_text: item[5] || "",
+                    title: item[4] || "",
+                    content: item[5] || "",
+                    sequence_order: index + 1,
+                };
+            } else if (item.length >= 5) {
+                return {
+                    act_id: actId,
+                    chapter_number: item[0] || "",
+                    chapter_title: item[1] || "",
+                    section_number: item[2] || "",
+                    section_title: item[3] || "",
+                    section_text: item[4] || "",
+                    title: item[3] || "",
+                    content: item[4] || "",
+                    sequence_order: index + 1,
+                };
+            }
+            return null;
+        } else {
+            // Object format: {chapter_number, chapter_title, section_number, section_title, section_text}
+            return {
+                act_id: actId,
+                chapter_number: item.chapter_number || item.chapter || "",
+                chapter_title: item.chapter_title || item.chapter_name || "",
+                section_number: item.section_number || item.number || item.article_number || "",
+                section_title: item.section_title || item.title || item.heading || "",
+                section_text: item.section_text || item.text || item.content || item.body || "",
+                title: item.section_title || item.title || item.heading || "",
+                content: item.section_text || item.text || item.content || item.body || "",
+                sequence_order: index + 1,
+            };
+        }
+    };
+
     const handleBulkUpload = async () => {
-        if (!selectedAct || !bulkJson) return;
+        if (!selectedAct) return;
+
+        let jsonText = bulkJson;
+
+        // If a JSON file was selected, read it
+        if (jsonFile) {
+            try {
+                jsonText = await jsonFile.text();
+            } catch (err: any) {
+                toast.error("Failed to read JSON file: " + err.message);
+                return;
+            }
+        }
+
+        if (!jsonText.trim()) {
+            toast.error("Please select a JSON file or paste JSON data");
+            return;
+        }
+
+        setUploading(true);
+        setUploadProgress(null);
 
         try {
-            const sections = JSON.parse(bulkJson);
+            const sections = JSON.parse(jsonText);
             if (!Array.isArray(sections)) throw new Error("JSON must be an array of sections");
 
-            const formattedSections = sections.map((s, index) => ({
-                act_id: selectedAct.id,
-                chapter_number: s.chapter_number || "",
-                chapter_title: s.chapter_title || "",
-                section_number: s.section_number || "",
-                section_title: s.section_title || "",
-                section_text: s.section_text || "",
-                sequence_order: index,
-            }));
+            // Transform all sections (auto-detects format)
+            const formattedSections = sections
+                .map((s, index) => transformSection(s, index, selectedAct.id))
+                .filter(Boolean);
 
-            const { error } = await supabase.from("bare_act_sections").insert(formattedSections);
-            if (error) throw error;
+            if (formattedSections.length === 0) {
+                toast.error("No valid sections found in JSON");
+                setUploading(false);
+                return;
+            }
 
-            toast.success(`Successfully uploaded ${sections.length} sections`);
+            // Purge existing sections if option is enabled
+            if (purgeBeforeImport) {
+                const { error: purgeError } = await supabase
+                    .from("bare_act_sections")
+                    .delete()
+                    .eq("act_id", selectedAct.id);
+                if (purgeError) {
+                    toast.error("Failed to clear existing sections: " + purgeError.message);
+                    setUploading(false);
+                    return;
+                }
+            }
+
+            // Upload in batches of 50
+            const BATCH_SIZE = 50;
+            const totalBatches = Math.ceil(formattedSections.length / BATCH_SIZE);
+            let inserted = 0;
+            let failed = 0;
+
+            for (let i = 0; i < formattedSections.length; i += BATCH_SIZE) {
+                const batch = formattedSections.slice(i, i + BATCH_SIZE);
+                const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+
+                setUploadProgress({ current: batchNum, total: totalBatches, inserted, failed });
+
+                const { error } = await supabase.from("bare_act_sections").insert(batch);
+
+                if (error) {
+                    console.error(`Batch ${batchNum} failed:`, error.message);
+                    failed += batch.length;
+                } else {
+                    inserted += batch.length;
+                }
+            }
+
+            setUploadProgress({ current: totalBatches, total: totalBatches, inserted, failed });
+
+            if (failed > 0) {
+                toast.warning(`Uploaded ${inserted} sections, but ${failed} failed`);
+            } else {
+                toast.success(`Successfully uploaded all ${inserted} sections!`);
+            }
+
             setBulkJson("");
+            setJsonFile(null);
+
+            // Clear progress after a short delay
+            setTimeout(() => setUploadProgress(null), 3000);
         } catch (err: any) {
-            toast.error("Invalid JSON format: " + err.message);
+            toast.error("Invalid JSON: " + err.message);
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -288,28 +405,136 @@ export default function BareActs() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <CardTitle className="text-emerald-800">Bulk Upload: {selectedAct.title}</CardTitle>
-                                    <CardDescription className="text-emerald-600/80">Paste a JSON array of sections to populate the statute.</CardDescription>
+                                    <CardDescription className="text-emerald-600/80">
+                                        Upload a JSON file or paste JSON data. Supports both object and array formats. Uploads in batches — no size limit!
+                                    </CardDescription>
                                 </div>
-                                <Button variant="ghost" size="sm" onClick={() => setSelectedAct(null)}>Close</Button>
+                                <Button variant="ghost" size="sm" onClick={() => { setSelectedAct(null); setUploadProgress(null); setJsonFile(null); setBulkJson(""); }}>Close</Button>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4 pt-6">
+                            {/* JSON File Picker */}
                             <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">JSON Input</label>
-                                <Textarea
-                                    className="font-mono text-xs min-h-[300px]"
-                                    placeholder='[{"section_number": "1", "section_title": "...", "section_text": "..."}]'
-                                    value={bulkJson}
-                                    onChange={(e) => setBulkJson(e.target.value)}
-                                />
+                                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Option 1: Pick JSON File (Recommended)</label>
+                                <div className="flex items-center gap-3">
+                                    <label className="flex-1 cursor-pointer">
+                                        <input
+                                            type="file"
+                                            accept=".json"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0] || null;
+                                                setJsonFile(file);
+                                                if (file) setBulkJson("");
+                                            }}
+                                        />
+                                        <div className={`flex items-center gap-3 p-4 border-2 border-dashed rounded-xl transition-colors ${
+                                            jsonFile ? 'border-emerald-400 bg-emerald-50' : 'border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/30'
+                                        }`}>
+                                            <FileJson className={`h-8 w-8 ${jsonFile ? 'text-emerald-600' : 'text-gray-400'}`} />
+                                            <div>
+                                                {jsonFile ? (
+                                                    <>
+                                                        <p className="text-sm font-semibold text-emerald-700">{jsonFile.name}</p>
+                                                        <p className="text-xs text-emerald-600">{(jsonFile.size / 1024).toFixed(1)} KB</p>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <p className="text-sm font-medium text-gray-600">Click to select a JSON file</p>
+                                                        <p className="text-xs text-gray-400">Supports any size — uploaded in batches of 50</p>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </label>
+                                    {jsonFile && (
+                                        <Button variant="ghost" size="sm" onClick={() => setJsonFile(null)} className="text-gray-400 hover:text-red-500">
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
+
+                            {/* Divider */}
+                            {!jsonFile && (
+                                <>
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex-1 h-px bg-gray-200" />
+                                        <span className="text-xs text-gray-400 font-medium">OR</span>
+                                        <div className="flex-1 h-px bg-gray-200" />
+                                    </div>
+
+                                    {/* Textarea Fallback */}
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Option 2: Paste JSON</label>
+                                        <Textarea
+                                            className="font-mono text-xs min-h-[200px]"
+                                            placeholder='[{"section_number": "1", "section_title": "...", "section_text": "..."}]'
+                                            value={bulkJson}
+                                            onChange={(e) => setBulkJson(e.target.value)}
+                                        />
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Upload Progress */}
+                            {uploadProgress && (
+                                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            {uploading ? (
+                                                <Loader2 className="h-4 w-4 text-emerald-600 animate-spin" />
+                                            ) : uploadProgress.failed > 0 ? (
+                                                <AlertCircle className="h-4 w-4 text-amber-500" />
+                                            ) : (
+                                                <CheckCircle className="h-4 w-4 text-emerald-600" />
+                                            )}
+                                            <span className="text-sm font-semibold text-emerald-800">
+                                                {uploading
+                                                    ? `Uploading batch ${uploadProgress.current} of ${uploadProgress.total}...`
+                                                    : uploadProgress.failed > 0
+                                                        ? `Done — ${uploadProgress.inserted} inserted, ${uploadProgress.failed} failed`
+                                                        : `Done — All ${uploadProgress.inserted} sections uploaded!`
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {/* Progress bar */}
+                                    <div className="w-full bg-emerald-100 rounded-full h-2">
+                                        <div
+                                            className="bg-emerald-500 h-2 rounded-full transition-all duration-300"
+                                            style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Actions Row */}
                             <div className="flex justify-between items-center bg-muted/50 p-4 rounded-lg">
-                                <p className="text-xs text-muted-foreground max-w-md">
-                                    Note: This will append new sections to the existing act. Ensure your JSON matches the format: [chapter_number, chapter_title, section_number, section_title, section_text]
-                                </p>
-                                <Button onClick={handleBulkUpload} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg">
-                                    <Upload className="h-4 w-4 mr-2" />
-                                    Process & Sync to App
+                                <div className="space-y-2">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={purgeBeforeImport}
+                                            onChange={(e) => setPurgeBeforeImport(e.target.checked)}
+                                            className="rounded border-gray-300"
+                                        />
+                                        <span className="text-xs font-medium text-muted-foreground">Replace existing sections (recommended)</span>
+                                    </label>
+                                    <p className="text-xs text-muted-foreground max-w-md">
+                                        Supports both formats: objects <code className="bg-gray-100 px-1 rounded">{'{...}'}</code> and arrays <code className="bg-gray-100 px-1 rounded">{'[...]'}</code>
+                                    </p>
+                                </div>
+                                <Button
+                                    onClick={handleBulkUpload}
+                                    disabled={uploading || (!jsonFile && !bulkJson.trim())}
+                                    className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg disabled:opacity-50"
+                                >
+                                    {uploading ? (
+                                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Uploading...</>
+                                    ) : (
+                                        <><Upload className="h-4 w-4 mr-2" /> Process & Sync to App</>
+                                    )}
                                 </Button>
                             </div>
                         </CardContent>

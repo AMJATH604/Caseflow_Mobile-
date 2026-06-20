@@ -13,6 +13,8 @@ import 'repositories/evidence_repository.dart';
 import 'repositories/filing_repository.dart';
 import 'repositories/content_repository.dart';
 import 'repositories/discussion_repository.dart';
+import 'repositories/direct_message_repository.dart';
+
 
 /// Backward-compatible facade that delegates to domain repositories.
 ///
@@ -360,6 +362,38 @@ class SupabaseService {
 
   static Future<void> deleteDiscussion(String id) =>
       DiscussionRepository.deleteDiscussion(id);
+
+  // ─── Direct Messages ────────────────────────────────
+
+  static Future<List<DirectConversation>> fetchDirectConversations() =>
+      DirectMessageRepository.fetchConversations();
+
+  static Future<List<DirectMessage>> fetchDirectMessages(
+    String conversationId,
+  ) => DirectMessageRepository.fetchDirectMessages(conversationId);
+
+  static Stream<List<DirectMessage>> directMessagesStream(
+    String conversationId,
+  ) => DirectMessageRepository.directMessagesStream(conversationId);
+
+  static Future<void> sendDirectMessage(
+    String conversationId,
+    String message, {
+    String? attachmentUrl,
+    String? attachmentType,
+  }) => DirectMessageRepository.sendDirectMessage(
+    conversationId,
+    message,
+    attachmentUrl: attachmentUrl,
+    attachmentType: attachmentType,
+  );
+
+  static Future<void> markDirectMessagesRead(String conversationId) =>
+      DirectMessageRepository.markMessagesRead(conversationId);
+
+  static Future<String> createOrGetDirectConversation(String partnerId) =>
+      DirectMessageRepository.createOrGetConversation(partnerId);
+
 
   // ─── District Portals ──────────────────────────────────
 

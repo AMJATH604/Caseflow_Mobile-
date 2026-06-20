@@ -32,6 +32,9 @@ import '../pages/ai_chat_screen.dart';
 import '../pages/caveats_screen.dart';
 import '../pages/legal_pulse_screen.dart';
 import '../pages/chambers_chat_screen.dart';
+import '../pages/chat_hub_screen.dart';
+import '../pages/dm_chat_screen.dart';
+
 import '../pages/tools/know_your_rights_screen.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -225,6 +228,18 @@ final appRouter = GoRouter(
           path: '/chambers-chat',
           builder: (context, state) => const ChambersChatScreen(),
         ),
+        GoRoute(
+          path: '/chat-hub',
+          builder: (context, state) => const ChatHubScreen(),
+        ),
+        GoRoute(
+          path: '/dm/:conversationId',
+          builder: (context, state) {
+            final conversationId = state.pathParameters['conversationId']!;
+            return DmChatScreen(conversationId: conversationId);
+          },
+        ),
+
         // ─── Citizen-specific authenticated routes ─────────
         GoRoute(
           path: '/citizen-home',

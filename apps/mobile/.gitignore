@@ -57,3 +57,8 @@ lib/utils/secrets.dart
 *.cert
 *.key
 key.properties
+
+# Local Logs and temporary files
+logs/
+*.log
+*log.txt

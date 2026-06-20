@@ -16,3 +16,5 @@ export 'filing_repository.dart';
 export 'content_repository.dart';
 export 'discussion_repository.dart';
 export 'profile_repository.dart';
+export 'direct_message_repository.dart';
+

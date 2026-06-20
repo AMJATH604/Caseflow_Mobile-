@@ -1,5 +1,7 @@
 import 'enums.dart';
 export 'enums.dart';
+export 'direct_message_models.dart';
+
 
 class CaseModel {
   final String id;

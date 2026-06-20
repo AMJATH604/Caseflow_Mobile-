@@ -54,6 +54,9 @@ class DashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      floatingActionButton: isMobile
+          ? _buildChatFab(context)
+          : null,
       body: RefreshIndicator(
         onRefresh: () async {
           // Increment global refresh trigger — this causes ALL providers to re-compute
@@ -793,6 +796,40 @@ class DashboardScreen extends ConsumerWidget {
         );
       }
     }
+  }
+  // ─── CHAT FAB ─────────────────────────────────────────
+
+  Widget _buildChatFab(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: const LinearGradient(
+          colors: [Color(0xFF2563EB), Color(0xFF6366F1)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF2563EB).withValues(alpha: 0.4),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: FloatingActionButton(
+        onPressed: () => context.push('/chat-hub'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        highlightElevation: 0,
+        heroTag: 'chat_fab',
+        child: const Icon(
+          Icons.chat_bubble_rounded,
+          color: Colors.white,
+          size: 24,
+        ),
+      ),
+    );
   }
 
   // ─── DESKTOP DASHBOARD ───────────────────────────────

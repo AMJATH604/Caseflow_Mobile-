@@ -12,6 +12,7 @@ class ProfileAvatar extends StatelessWidget {
   final List<Color>? gradientColors;
   final bool showBorder;
   final double borderWidth;
+  final VoidCallback? onTap;
 
   const ProfileAvatar({
     super.key,
@@ -21,6 +22,7 @@ class ProfileAvatar extends StatelessWidget {
     this.gradientColors,
     this.showBorder = true,
     this.borderWidth = 2.5,
+    this.onTap,
   });
 
   /// Default gradient palette — consistent across the app
@@ -54,7 +56,7 @@ class ProfileAvatar extends StatelessWidget {
 
     final effectiveBorder = showBorder ? borderWidth : 0.0;
 
-    return Container(
+    final avatar = Container(
       width: (radius + effectiveBorder) * 2,
       height: (radius + effectiveBorder) * 2,
       decoration: showBorder
@@ -72,6 +74,15 @@ class ProfileAvatar extends StatelessWidget {
           ? _buildPhotoAvatar(isDark, colors)
           : _buildInitialAvatar(isDark, colors),
     );
+
+    if (onTap != null) {
+      return GestureDetector(
+        onTap: onTap,
+        child: avatar,
+      );
+    }
+
+    return avatar;
   }
 
   Widget _buildPhotoAvatar(bool isDark, List<Color> colors) {

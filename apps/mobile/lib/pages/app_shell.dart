@@ -9,6 +9,7 @@ import '../components/citizen_bottom_nav.dart';
 import '../components/app_sidebar.dart';
 import '../components/global_search_delegate.dart';
 import '../components/profile_avatar.dart';
+import '../components/profile_detail_sheet.dart';
 import '../services/providers.dart';
 import '../services/supabase_service.dart';
 
@@ -151,6 +152,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                                 name: profile?.fullName,
                                 radius: 14,
                                 borderWidth: 1.5,
+                                onTap: () => ProfileDetailSheet.show(context),
                               );
                             },
                           ),
