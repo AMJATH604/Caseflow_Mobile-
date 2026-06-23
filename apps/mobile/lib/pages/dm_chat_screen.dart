@@ -16,6 +16,7 @@ import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/supabase_service.dart';
+import '../services/repositories/direct_message_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../components/profile_avatar.dart';
@@ -2002,6 +2003,226 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildInputBar(bool isDark) {
+    final showMic = _msgController.text.trim().isEmpty;
+
+    if (_isRecording) {
+      return Container(
+        padding: EdgeInsets.only(
+          left: 6,
+          right: 6,
+          top: 6,
+          bottom:
+              MediaQuery.of(context).viewInsets.bottom > 0
+                  ? 6
+                  : MediaQuery.of(context).padding.bottom + 6,
+        ),
+        color: isDark ? const Color(0xFF1F2C34) : const Color(0xFFF0F2F5),
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF2A3942) : Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.fiber_manual_record,
+                      color: Colors.redAccent,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      _formatDuration(_recordDuration),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : const Color(0xFF111B21),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Recording voice...',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark ? Colors.white60 : Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+            IconButton(
+              icon: const Icon(
+                Icons.delete_outline_rounded,
+                color: Colors.redAccent,
+                size: 26,
+              ),
+              onPressed: _cancelRecording,
+            ),
+            const SizedBox(width: 6),
+            Container(
+              width: 48,
+              height: 48,
+              decoration: const BoxDecoration(
+                color: Color(0xFF00A884),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.send_rounded,
+                  size: 22,
+                  color: Colors.white,
+                ),
+                onPressed: _stopAndSendRecording,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: EdgeInsets.only(
+        left: 6,
+        right: 6,
+        top: 6,
+        bottom:
+            MediaQuery.of(context).viewInsets.bottom > 0
+                ? 6
+                : MediaQuery.of(context).padding.bottom + 6,
+      ),
+      color: isDark ? const Color(0xFF1F2C34) : const Color(0xFFF0F2F5),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF2A3942) : Colors.white,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.attach_file_rounded,
+                      size: 22,
+                      color: isDark ? Colors.white54 : Colors.grey[600],
+                    ),
+                    onPressed: _isUploading ? null : _showAttachmentSheet,
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: _msgController,
+                      maxLines: 4,
+                      minLines: 1,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: isDark ? Colors.white : const Color(0xFF111B21),
+                      ),
+                      textInputAction: TextInputAction.newline,
+                      onChanged: (val) {
+                        _onTextChanged(val);
+                        setState(() {});
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Type a message',
+                        hintStyle: TextStyle(
+                          color: isDark ? Colors.white38 : Colors.grey[500],
+                          fontSize: 15,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                        ),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.camera_alt_rounded,
+                      size: 22,
+                      color: isDark ? Colors.white54 : Colors.grey[600],
+                    ),
+                    onPressed:
+                        _isUploading
+                            ? null
+                            : () => _sendAttachment(type: 'camera'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Container(
+            width: 48,
+            height: 48,
+            decoration: const BoxDecoration(
+              color: Color(0xFF00A884),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: Icon(
+                showMic ? Icons.mic_rounded : Icons.send_rounded,
+                size: 22,
+                color: Colors.white,
+              ),
+              onPressed: showMic ? _startRecording : _sendMessage,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateSeparator(DateTime date, bool isDark) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        color:
+            isDark
+                ? const Color(0xFF1F2C34)
+                : Colors.white.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 3),
+        ],
+      ),
+      child: Text(
+        _formatDateLabel(date),
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: isDark ? Colors.white60 : Colors.black45,
+        ),
+      ),
+    );
+  }
+
+  String _formatDateLabel(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final msgDay = DateTime(date.year, date.month, date.day);
+    final diff = today.difference(msgDay).inDays;
+
+    if (diff == 0) return 'TODAY';
+    if (diff == 1) return 'YESTERDAY';
+    if (diff < 7) return DateFormat('EEEE').format(date).toUpperCase();
+    return DateFormat('dd MMM yyyy').format(date).toUpperCase();
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
   Widget _buildEmptyState(String name, bool isDark) {

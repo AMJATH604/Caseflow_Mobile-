@@ -5,9 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
-import '../services/providers.dart';
 import '../components/profile_avatar.dart';
-import 'chambers_chat_screen.dart';
 
 /// Unified Chat Hub containing Chambers Group and DM conversations
 class ChatHubScreen extends ConsumerStatefulWidget {
@@ -51,7 +49,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
             .select('message, created_at, sender_name')
             .isFilter('case_id', null)
             .eq('firm_id', _myFirmId!)
-            .order('created_at', descending: true)
+            .order('created_at', ascending: false)
             .limit(1);
 
         _chambersInfo = {
