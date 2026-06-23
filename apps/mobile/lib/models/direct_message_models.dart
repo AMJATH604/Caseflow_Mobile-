@@ -48,6 +48,9 @@ class DirectMessage {
   final String? attachmentType;
   final bool isRead;
   final DateTime createdAt;
+  final String? replyToId;
+  final String? replyToMessage;
+  final String? replyToSender;
 
   DirectMessage({
     required this.id,
@@ -58,7 +61,15 @@ class DirectMessage {
     this.attachmentType,
     this.isRead = false,
     required this.createdAt,
+    this.replyToId,
+    this.replyToMessage,
+    this.replyToSender,
   });
+
+  bool get hasAttachment => attachmentUrl != null && attachmentUrl!.isNotEmpty;
+  bool get isImage => attachmentType == 'image';
+  bool get isVideo => attachmentType == 'video';
+  bool get hasReply => replyToId != null && replyToId!.isNotEmpty;
 
   factory DirectMessage.fromJson(Map<String, dynamic> json) => DirectMessage(
         id: json['id'] ?? '',
@@ -71,6 +82,9 @@ class DirectMessage {
         createdAt: DateTime.parse(
           json['created_at'] ?? DateTime.now().toIso8601String(),
         ),
+        replyToId: json['reply_to_id'],
+        replyToMessage: json['reply_to_message'],
+        replyToSender: json['reply_to_sender'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -82,5 +96,9 @@ class DirectMessage {
         'attachment_type': attachmentType,
         'is_read': isRead,
         'created_at': createdAt.toIso8601String(),
+        'reply_to_id': replyToId,
+        'reply_to_message': replyToMessage,
+        'reply_to_sender': replyToSender,
       };
 }
+

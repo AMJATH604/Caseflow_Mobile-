@@ -381,11 +381,17 @@ class SupabaseService {
     String message, {
     String? attachmentUrl,
     String? attachmentType,
+    String? replyToId,
+    String? replyToMessage,
+    String? replyToSender,
   }) => DirectMessageRepository.sendDirectMessage(
     conversationId,
     message,
     attachmentUrl: attachmentUrl,
     attachmentType: attachmentType,
+    replyToId: replyToId,
+    replyToMessage: replyToMessage,
+    replyToSender: replyToSender,
   );
 
   static Future<void> markDirectMessagesRead(String conversationId) =>
@@ -393,6 +399,18 @@ class SupabaseService {
 
   static Future<String> createOrGetDirectConversation(String partnerId) =>
       DirectMessageRepository.createOrGetConversation(partnerId);
+
+  static Future<void> deleteDirectMessage(String id) =>
+      DirectMessageRepository.deleteDirectMessage(id);
+
+  static Future<String?> uploadDirectMessageAttachment({
+    required File file,
+    required String conversationId,
+  }) => DirectMessageRepository.uploadAttachment(
+    file: file,
+    conversationId: conversationId,
+  );
+
 
 
   // ─── District Portals ──────────────────────────────────

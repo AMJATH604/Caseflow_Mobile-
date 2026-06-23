@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/models.dart';
 import 'base_repository.dart';
@@ -120,6 +122,9 @@ class DirectMessageRepository {
     String message, {
     String? attachmentUrl,
     String? attachmentType,
+    String? replyToId,
+    String? replyToMessage,
+    String? replyToSender,
   }) async {
     final user = BaseRepository.requireAuth();
 
@@ -131,6 +136,9 @@ class DirectMessageRepository {
       'attachment_url': attachmentUrl,
       'attachment_type': attachmentType,
       'is_read': false,
+      'reply_to_id': replyToId,
+      'reply_to_message': replyToMessage,
+      'reply_to_sender': replyToSender,
     });
 
     // Update last_message_at in conversation
@@ -180,5 +188,49 @@ class DirectMessageRepository {
         .single();
 
     return newConv['id'] as String;
+  }
+
+  /// Delete a direct message.
+  static Future<void> deleteDirectMessage(String id) async {
+    await _client.from('direct_messages').delete().eq('id', id);
+  }
+
+  /// Upload an attachment for DMs to the chat-attachments bucket.
+  static Future<String?> uploadAttachment({
+    required File file,
+    required String conversationId,
+  }) async {
+    try {
+      final ext = file.path.split('.').last.toLowerCase();
+      final fileName =
+          '${conversationId}_${DateTime.now().millisecondsSinceEpoch}.$ext';
+      final storagePath = 'dms/$conversationId/$fileName';
+
+      await _client.storage.from('chat-attachments').upload(storagePath, file);
+
+      final publicUrl = _client.storage
+          .from('chat-attachments')
+          .getPublicUrl(storagePath);
+
+      return publicUrl;
+    } catch (e) {
+      debugPrint('Upload DM attachment error: $e');
+      return null;
+    }
+  }
+
+  /// Helper to determine the attachment type based on extension.
+  static String getAttachmentType(String filePath) {
+    final ext = filePath.split('.').last.toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic'].contains(ext)) {
+      return 'image';
+    } else if (['mp4', 'mov', 'avi', 'mkv', '3gp'].contains(ext)) {
+      return 'video';
+    } else if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'ppt', 'pptx'].contains(ext)) {
+      return 'document';
+    } else if (['m4a', 'mp3', 'wav', 'aac', 'ogg'].contains(ext)) {
+      return 'audio';
+    }
+    return 'file';
   }
 }

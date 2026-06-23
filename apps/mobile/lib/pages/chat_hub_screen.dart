@@ -9,9 +9,7 @@ import '../services/providers.dart';
 import '../components/profile_avatar.dart';
 import 'chambers_chat_screen.dart';
 
-/// Unified Chat Hub with two tabs:
-/// 1. Chambers — Group chat for firm (existing Digital Chambers)
-/// 2. Messages — 1-on-1 DMs between advocates
+/// Unified Chat Hub containing Chambers Group and DM conversations
 class ChatHubScreen extends ConsumerStatefulWidget {
   const ChatHubScreen({super.key});
 
@@ -19,20 +17,126 @@ class ChatHubScreen extends ConsumerStatefulWidget {
   ConsumerState<ChatHubScreen> createState() => _ChatHubScreenState();
 }
 
-class _ChatHubScreenState extends ConsumerState<ChatHubScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
+  List<Map<String, dynamic>> _conversations = [];
+  Map<String, dynamic>? _chambersInfo;
+  bool _loading = true;
+  String? _myUserId;
+  String? _myFirmId;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _loadAllChats();
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
+  Future<void> _loadAllChats() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+    _myUserId = user.id;
+
+    try {
+      // 1. Fetch user profile to get firm ID
+      final profile = await Supabase.instance.client
+          .from('profiles')
+          .select('firm_id, id')
+          .eq('id', user.id)
+          .single();
+      _myFirmId = profile['firm_id'] ?? profile['id'];
+
+      // 2. Fetch Chambers Last Message
+      if (_myFirmId != null) {
+        final chambersLast = await Supabase.instance.client
+            .from('case_discussions')
+            .select('message, created_at, sender_name')
+            .isFilter('case_id', null)
+            .eq('firm_id', _myFirmId!)
+            .order('created_at', descending: true)
+            .limit(1);
+
+        _chambersInfo = {
+          'name': 'Digital Chambers',
+          'last_message': chambersLast.isNotEmpty ? chambersLast[0] : null,
+        };
+      }
+
+      // 3. Fetch DM conversations where user is participant
+      final res = await Supabase.instance.client
+          .from('direct_conversations')
+          .select()
+          .or('participant_1.eq.${user.id},participant_2.eq.${user.id}')
+          .order('last_message_at', ascending: false);
+
+      final conversations = List<Map<String, dynamic>>.from(res);
+
+      // Fetch partner profiles for each conversation
+      final partnerIds = conversations.map((c) {
+        return c['participant_1'] == user.id
+            ? c['participant_2'] as String
+            : c['participant_1'] as String;
+      }).toSet();
+
+      Map<String, Map<String, dynamic>> profileMap = {};
+      if (partnerIds.isNotEmpty) {
+        final profiles = await Supabase.instance.client
+            .from('profiles')
+            .select('id, full_name, avatar_url, practice_state, practice_district')
+            .inFilter('id', partnerIds.toList());
+
+        for (final p in profiles) {
+          profileMap[p['id']] = p;
+        }
+      }
+
+      // Fetch last message & unread count for each conversation
+      for (final conv in conversations) {
+        final partnerId = conv['participant_1'] == user.id
+            ? conv['participant_2']
+            : conv['participant_1'];
+        conv['partner'] = profileMap[partnerId] ?? {'full_name': 'Unknown Advocate'};
+
+        // Fetch last message
+        final lastMsgRes = await Supabase.instance.client
+            .from('direct_messages')
+            .select('message, created_at, sender_id')
+            .eq('conversation_id', conv['id'])
+            .order('created_at', ascending: false)
+            .limit(1);
+
+        if (lastMsgRes.isNotEmpty) {
+          conv['last_message'] = lastMsgRes[0];
+        }
+
+        // Fetch unread count
+        final unreadRes = await Supabase.instance.client
+            .from('direct_messages')
+            .select('id')
+            .eq('conversation_id', conv['id'])
+            .neq('sender_id', user.id)
+            .eq('is_read', false);
+
+        conv['unread_count'] = unreadRes.length;
+      }
+
+      if (mounted) {
+        setState(() {
+          _conversations = conversations;
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading chat list: $e');
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  void _showAdvocatePicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => const _AdvocatePickerSheet(),
+    );
   }
 
   @override
@@ -71,7 +175,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen>
             ),
             const SizedBox(width: 12),
             Text(
-              'Chat Hub',
+              'Chats',
               style: GoogleFonts.outfit(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
@@ -80,248 +184,194 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen>
             ),
           ],
         ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(52),
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.06)
-                  : const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: TabBar(
-              controller: _tabController,
-              indicator: BoxDecoration(
-                color: isDark ? const Color(0xFF1E293B) : Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
+      ),
+      body: _loading
+          ? const Center(
+              child: CircularProgressIndicator(color: AppTheme.accent),
+            )
+          : RefreshIndicator(
+              onRefresh: _loadAllChats,
+              color: AppTheme.accent,
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+                children: [
+                  // 1. Digital Chambers Pinned Group Chat
+                  if (_chambersInfo != null) ...[
+                    _buildChambersTile(isDark),
+                    const SizedBox(height: 8),
+                    // Divider
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Row(
+                        children: [
+                          Text(
+                            'DIRECT MESSAGES',
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8),
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Divider(
+                              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                              thickness: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+
+                  // 2. DM Conversations
+                  if (_conversations.isEmpty)
+                    _buildEmptyDmsState(isDark)
+                  else
+                    ..._conversations.map(
+                      (conv) => _buildConversationTile(conv, isDark),
+                    ),
                 ],
               ),
-              indicatorSize: TabBarIndicatorSize.tab,
-              dividerColor: Colors.transparent,
-              labelColor: isDark ? Colors.white : const Color(0xFF0F172A),
-              unselectedLabelColor: isDark
-                  ? const Color(0xFF64748B)
-                  : const Color(0xFF94A3B8),
-              labelStyle: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-              unselectedLabelStyle: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
-              tabs: const [
-                Tab(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.hub_rounded, size: 16),
-                      SizedBox(width: 8),
-                      Text('Chambers'),
-                    ],
-                  ),
-                ),
-                Tab(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.message_rounded, size: 16),
-                      SizedBox(width: 8),
-                      Text('Messages'),
-                    ],
-                  ),
-                ),
-              ],
             ),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: const LinearGradient(
+            colors: [Color(0xFF2563EB), Color(0xFF6366F1)],
           ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF2563EB).withValues(alpha: 0.4),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          // Tab 1: Chambers (existing group chat)
-          const ChambersChatScreen(),
-          // Tab 2: Direct Messages
-          _DirectMessagesTab(
-            onNewMessage: () => _showAdvocatePicker(context),
-          ),
-        ],
+        child: FloatingActionButton(
+          onPressed: () => _showAdvocatePicker(context),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          heroTag: 'new_dm_fab',
+          child: const Icon(Icons.chat_bubble_outline_rounded, color: Colors.white, size: 22),
+        ),
       ),
     );
   }
 
-  // ─── Advocate Picker for New DM ─────────────────────
+  Widget _buildChambersTile(bool isDark) {
+    final lastMsg = _chambersInfo!['last_message'] as Map<String, dynamic>?;
+    String preview = 'No messages yet';
+    String time = '';
 
-  void _showAdvocatePicker(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => const _AdvocatePickerSheet(),
-    );
-  }
-}
+    if (lastMsg != null) {
+      preview = lastMsg['message'] ?? '';
+      final senderName = lastMsg['sender_name'] ?? 'Member';
+      preview = '$senderName: $preview';
 
-// ═══════════════════════════════════════════════════════
-// DIRECT MESSAGES TAB
-// ═══════════════════════════════════════════════════════
-
-class _DirectMessagesTab extends ConsumerStatefulWidget {
-  final VoidCallback onNewMessage;
-  const _DirectMessagesTab({required this.onNewMessage});
-
-  @override
-  ConsumerState<_DirectMessagesTab> createState() => _DirectMessagesTabState();
-}
-
-class _DirectMessagesTabState extends ConsumerState<_DirectMessagesTab> {
-  List<Map<String, dynamic>> _conversations = [];
-  bool _loading = true;
-  String? _myUserId;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadConversations();
-  }
-
-  Future<void> _loadConversations() async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) return;
-    _myUserId = user.id;
-
-    try {
-      // Fetch conversations where user is participant
-      final res = await Supabase.instance.client
-          .from('direct_conversations')
-          .select()
-          .or('participant_1.eq.${user.id},participant_2.eq.${user.id}')
-          .order('last_message_at', ascending: false);
-
-      final conversations = List<Map<String, dynamic>>.from(res);
-
-      // Fetch partner profiles for each conversation
-      final partnerIds = conversations.map((c) {
-        return c['participant_1'] == user.id
-            ? c['participant_2'] as String
-            : c['participant_1'] as String;
-      }).toSet();
-
-      Map<String, Map<String, dynamic>> profileMap = {};
-      if (partnerIds.isNotEmpty) {
-        final profiles = await Supabase.instance.client
-            .from('profiles')
-            .select('id, full_name, avatar_url, practice_state, practice_district')
-            .inFilter('id', partnerIds.toList());
-
-        for (final p in profiles) {
-          profileMap[p['id']] = p;
-        }
+      final dt = DateTime.parse(lastMsg['created_at']);
+      final now = DateTime.now();
+      if (dt.day == now.day && dt.month == now.month && dt.year == now.year) {
+        time = DateFormat('h:mm a').format(dt.toLocal());
+      } else {
+        time = DateFormat('MMM d').format(dt.toLocal());
       }
-
-      // Fetch last message for each conversation
-      for (final conv in conversations) {
-        final partnerId = conv['participant_1'] == user.id
-            ? conv['participant_2']
-            : conv['participant_1'];
-        conv['partner'] = profileMap[partnerId] ?? {'full_name': 'Unknown'};
-
-        // Fetch last message
-        final lastMsgRes = await Supabase.instance.client
-            .from('direct_messages')
-            .select('message, created_at, sender_id')
-            .eq('conversation_id', conv['id'])
-            .order('created_at', ascending: false)
-            .limit(1);
-
-        if (lastMsgRes.isNotEmpty) {
-          conv['last_message'] = lastMsgRes[0];
-        }
-
-        // Fetch unread count
-        final unreadRes = await Supabase.instance.client
-            .from('direct_messages')
-            .select('id')
-            .eq('conversation_id', conv['id'])
-            .neq('sender_id', user.id)
-            .eq('is_read', false);
-
-        conv['unread_count'] = unreadRes.length;
-      }
-
-      if (mounted) {
-        setState(() {
-          _conversations = conversations;
-          _loading = false;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error loading conversations: $e');
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    if (_loading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppTheme.accent),
-      );
     }
 
-    return Stack(
-      children: [
-        if (_conversations.isEmpty)
-          _buildEmptyState(isDark)
-        else
-          RefreshIndicator(
-            onRefresh: _loadConversations,
-            color: AppTheme.accent,
-            child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-              itemCount: _conversations.length,
-              itemBuilder: (context, index) =>
-                  _buildConversationTile(_conversations[index], isDark),
+    return Material(
+      color: isDark ? const Color(0xFF1E1E2F) : Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      elevation: 2,
+      shadowColor: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+      child: InkWell(
+        onTap: () {
+          context.push('/chambers-chat');
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark
+                  ? const Color(0xFF2D2D3F)
+                  : const Color(0xFFE2E8F0),
+              width: 1.5,
             ),
           ),
-        // New message FAB
-        Positioned(
-          bottom: 20,
-          right: 20,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                colors: [Color(0xFF2563EB), Color(0xFF6366F1)],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF2563EB).withValues(alpha: 0.4),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-              ],
-            ),
-            child: FloatingActionButton(
-              onPressed: widget.onNewMessage,
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              heroTag: 'new_dm_fab',
-              child: const Icon(Icons.edit_rounded, color: Colors.white, size: 22),
-            ),
+                child: const Icon(
+                  Icons.groups_rounded,
+                  color: Colors.white,
+                  size: 26,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Digital Chambers',
+                            style: GoogleFonts.outfit(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            ),
+                          ),
+                        ),
+                        if (time.isNotEmpty)
+                          Text(
+                            time,
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      preview,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: Color(0xFF6366F1),
+                size: 20,
+              ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 
@@ -390,12 +440,8 @@ class _DirectMessagesTabState extends ConsumerState<_DirectMessagesTab> {
                               name,
                               style: GoogleFonts.outfit(
                                 fontSize: 15,
-                                fontWeight: unread > 0
-                                    ? FontWeight.w800
-                                    : FontWeight.w600,
-                                color: isDark
-                                    ? Colors.white
-                                    : const Color(0xFF0F172A),
+                                fontWeight: unread > 0 ? FontWeight.w800 : FontWeight.w600,
+                                color: isDark ? Colors.white : const Color(0xFF0F172A),
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -405,14 +451,10 @@ class _DirectMessagesTabState extends ConsumerState<_DirectMessagesTab> {
                               time,
                               style: GoogleFonts.inter(
                                 fontSize: 11,
-                                fontWeight: unread > 0
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
+                                fontWeight: unread > 0 ? FontWeight.w700 : FontWeight.w500,
                                 color: unread > 0
                                     ? AppTheme.accent
-                                    : (isDark
-                                        ? const Color(0xFF64748B)
-                                        : const Color(0xFF94A3B8)),
+                                    : (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
                               ),
                             ),
                         ],
@@ -425,16 +467,10 @@ class _DirectMessagesTabState extends ConsumerState<_DirectMessagesTab> {
                               preview,
                               style: GoogleFonts.inter(
                                 fontSize: 13,
-                                fontWeight: unread > 0
-                                    ? FontWeight.w600
-                                    : FontWeight.w400,
+                                fontWeight: unread > 0 ? FontWeight.w600 : FontWeight.w400,
                                 color: unread > 0
-                                    ? (isDark
-                                        ? Colors.white70
-                                        : const Color(0xFF334155))
-                                    : (isDark
-                                        ? const Color(0xFF64748B)
-                                        : const Color(0xFF94A3B8)),
+                                    ? (isDark ? Colors.white70 : const Color(0xFF334155))
+                                    : (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -469,9 +505,7 @@ class _DirectMessagesTabState extends ConsumerState<_DirectMessagesTab> {
                           location,
                           style: GoogleFonts.inter(
                             fontSize: 10,
-                            color: isDark
-                                ? const Color(0xFF475569)
-                                : const Color(0xFFCBD5E1),
+                            color: isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -488,66 +522,35 @@ class _DirectMessagesTabState extends ConsumerState<_DirectMessagesTab> {
     );
   }
 
-  Widget _buildEmptyState(bool isDark) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: const Color(0xFF2563EB).withValues(alpha: 0.08),
+  Widget _buildEmptyDmsState(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      child: Center(
+        child: Column(
+          children: [
+            Text(
+              'No Direct Messages Yet',
+              style: GoogleFonts.outfit(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white70 : const Color(0xFF475569),
+              ),
             ),
-            child: Icon(
-              Icons.forum_rounded,
-              size: 48,
-              color: AppTheme.accent.withValues(alpha: 0.5),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'No Messages Yet',
-            style: GoogleFonts.outfit(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : const Color(0xFF0F172A),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 48),
-            child: Text(
-              'Start a conversation with any advocate from the directory',
-              textAlign: TextAlign.center,
+            const SizedBox(height: 6),
+            Text(
+              'Tap the chat icon to message advocates.',
               style: GoogleFonts.inter(
-                fontSize: 13,
-                color: isDark
-                    ? const Color(0xFF64748B)
-                    : const Color(0xFF94A3B8),
-                height: 1.5,
+                fontSize: 12,
+                color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: widget.onNewMessage,
-            icon: const Icon(Icons.edit_rounded, size: 18),
-            label: const Text('New Message'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.accent,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
+
 
 // ═══════════════════════════════════════════════════════
 // ADVOCATE PICKER BOTTOM SHEET
