@@ -70,6 +70,7 @@ jobs:
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: CaseFlow-Release-APK
           path: CaseFlow-Release.apk
