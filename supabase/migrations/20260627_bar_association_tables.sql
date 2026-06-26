@@ -222,8 +222,39 @@ ALTER TABLE public.bar_events ENABLE ROW LEVEL SECURITY;
 
 
 -- ═══════════════════════════════════════════════════════════════
--- 4. RLS Policies
+-- 4. RLS Policies & Helper Functions
 -- ═══════════════════════════════════════════════════════════════
+
+-- 4.0 Helper Functions for RLS (bypasses RLS using SECURITY DEFINER to prevent recursion)
+CREATE OR REPLACE FUNCTION public.is_association_member(
+  p_association_id UUID,
+  p_user_id UUID
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.bar_members
+    WHERE user_id = p_user_id AND association_id = p_association_id
+  );
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_association_admin(
+  p_association_id UUID,
+  p_user_id UUID
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.bar_admins
+    WHERE user_id = p_user_id AND association_id = p_association_id
+  );
+END;
+$$;
 
 -- 4.1 Bar Associations
 DROP POLICY IF EXISTS "Authenticated users can read associations" ON public.bar_associations;
@@ -238,10 +269,7 @@ CREATE POLICY "Service role manages associations" ON public.bar_associations
 DROP POLICY IF EXISTS "Members read own association" ON public.bar_members;
 CREATE POLICY "Members read own association" ON public.bar_members
   FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.bar_members bm
-      WHERE bm.user_id = auth.uid() AND bm.association_id = bar_members.association_id
-    )
+    public.is_association_member(association_id, auth.uid())
   );
 
 DROP POLICY IF EXISTS "Users read own member record" ON public.bar_members;
@@ -251,10 +279,7 @@ CREATE POLICY "Users read own member record" ON public.bar_members
 DROP POLICY IF EXISTS "Admins manage members" ON public.bar_members;
 CREATE POLICY "Admins manage members" ON public.bar_members
   FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM public.bar_admins ba
-      WHERE ba.user_id = auth.uid() AND ba.association_id = bar_members.association_id
-    )
+    public.is_association_admin(association_id, auth.uid())
   );
 
 DROP POLICY IF EXISTS "Users update own member" ON public.bar_members;
@@ -269,10 +294,7 @@ CREATE POLICY "Admins read own records" ON public.bar_admins
 DROP POLICY IF EXISTS "Members see admins" ON public.bar_admins;
 CREATE POLICY "Members see admins" ON public.bar_admins
   FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.bar_members bm
-      WHERE bm.user_id = auth.uid() AND bm.association_id = bar_admins.association_id
-    )
+    public.is_association_member(association_id, auth.uid())
   );
 
 DROP POLICY IF EXISTS "Service role manages admins" ON public.bar_admins;
@@ -283,19 +305,13 @@ CREATE POLICY "Service role manages admins" ON public.bar_admins
 DROP POLICY IF EXISTS "Members read notices" ON public.bar_notices;
 CREATE POLICY "Members read notices" ON public.bar_notices
   FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.bar_members bm
-      WHERE bm.user_id = auth.uid() AND bm.association_id = bar_notices.association_id
-    )
+    public.is_association_member(association_id, auth.uid())
   );
 
 DROP POLICY IF EXISTS "Admins manage notices" ON public.bar_notices;
 CREATE POLICY "Admins manage notices" ON public.bar_notices
   FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM public.bar_admins ba
-      WHERE ba.user_id = auth.uid() AND ba.association_id = bar_notices.association_id
-    )
+    public.is_association_admin(association_id, auth.uid())
   );
 
 -- 4.5 Notice Reads
@@ -322,8 +338,8 @@ CREATE POLICY "Admins read notice stats" ON public.bar_notice_reads
   FOR SELECT USING (
     EXISTS (
       SELECT 1 FROM public.bar_notices bn
-      JOIN public.bar_admins ba ON ba.association_id = bn.association_id
-      WHERE bn.id = bar_notice_reads.notice_id AND ba.user_id = auth.uid()
+      WHERE bn.id = bar_notice_reads.notice_id 
+        AND public.is_association_admin(bn.association_id, auth.uid())
     )
   );
 
@@ -358,38 +374,26 @@ CREATE POLICY "Members update own payments" ON public.bar_fee_payments
 DROP POLICY IF EXISTS "Admins read all payments" ON public.bar_fee_payments;
 CREATE POLICY "Admins read all payments" ON public.bar_fee_payments
   FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.bar_admins ba
-      WHERE ba.user_id = auth.uid() AND ba.association_id = bar_fee_payments.association_id
-    )
+    public.is_association_admin(association_id, auth.uid())
   );
 
 DROP POLICY IF EXISTS "Admins manage payments" ON public.bar_fee_payments;
 CREATE POLICY "Admins manage payments" ON public.bar_fee_payments
   FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM public.bar_admins ba
-      WHERE ba.user_id = auth.uid() AND ba.association_id = bar_fee_payments.association_id
-    )
+    public.is_association_admin(association_id, auth.uid())
   );
 
 -- 4.7 Elections
 DROP POLICY IF EXISTS "Members read elections" ON public.bar_elections;
 CREATE POLICY "Members read elections" ON public.bar_elections
   FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.bar_members bm
-      WHERE bm.user_id = auth.uid() AND bm.association_id = bar_elections.association_id
-    )
+    public.is_association_member(association_id, auth.uid())
   );
 
 DROP POLICY IF EXISTS "Admins manage elections" ON public.bar_elections;
 CREATE POLICY "Admins manage elections" ON public.bar_elections
   FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM public.bar_admins ba
-      WHERE ba.user_id = auth.uid() AND ba.association_id = bar_elections.association_id
-    )
+    public.is_association_admin(association_id, auth.uid())
   );
 
 -- 4.8 Election Posts
@@ -398,8 +402,8 @@ CREATE POLICY "Members read election posts" ON public.bar_election_posts
   FOR SELECT USING (
     EXISTS (
       SELECT 1 FROM public.bar_elections be
-      JOIN public.bar_members bm ON bm.association_id = be.association_id
-      WHERE be.id = bar_election_posts.election_id AND bm.user_id = auth.uid()
+      WHERE be.id = bar_election_posts.election_id 
+        AND public.is_association_member(be.association_id, auth.uid())
     )
   );
 
@@ -408,8 +412,8 @@ CREATE POLICY "Admins manage election posts" ON public.bar_election_posts
   FOR ALL USING (
     EXISTS (
       SELECT 1 FROM public.bar_elections be
-      JOIN public.bar_admins ba ON ba.association_id = be.association_id
-      WHERE be.id = bar_election_posts.election_id AND ba.user_id = auth.uid()
+      WHERE be.id = bar_election_posts.election_id 
+        AND public.is_association_admin(be.association_id, auth.uid())
     )
   );
 
@@ -420,8 +424,8 @@ CREATE POLICY "Members read nominations" ON public.bar_nominations
     EXISTS (
       SELECT 1 FROM public.bar_election_posts bp
       JOIN public.bar_elections be ON be.id = bp.election_id
-      JOIN public.bar_members bm ON bm.association_id = be.association_id
-      WHERE bp.id = bar_nominations.post_id AND bm.user_id = auth.uid()
+      WHERE bp.id = bar_nominations.post_id 
+        AND public.is_association_member(be.association_id, auth.uid())
     )
   );
 
@@ -431,8 +435,8 @@ CREATE POLICY "Admins manage nominations" ON public.bar_nominations
     EXISTS (
       SELECT 1 FROM public.bar_election_posts bp
       JOIN public.bar_elections be ON be.id = bp.election_id
-      JOIN public.bar_admins ba ON ba.association_id = be.association_id
-      WHERE bp.id = bar_nominations.post_id AND ba.user_id = auth.uid()
+      WHERE bp.id = bar_nominations.post_id 
+        AND public.is_association_admin(be.association_id, auth.uid())
     )
   );
 
@@ -447,8 +451,8 @@ CREATE POLICY "Members read vote counts" ON public.bar_votes
     EXISTS (
       SELECT 1 FROM public.bar_election_posts bp
       JOIN public.bar_elections be ON be.id = bp.election_id
-      JOIN public.bar_members bm ON bm.association_id = be.association_id
-      WHERE bp.id = bar_votes.post_id AND bm.user_id = auth.uid()
+      WHERE bp.id = bar_votes.post_id 
+        AND public.is_association_member(be.association_id, auth.uid())
     )
   );
 
@@ -476,8 +480,8 @@ CREATE POLICY "Admins read participation" ON public.bar_voter_participation
   FOR SELECT USING (
     EXISTS (
       SELECT 1 FROM public.bar_elections be
-      JOIN public.bar_admins ba ON ba.association_id = be.association_id
-      WHERE be.id = bar_voter_participation.election_id AND ba.user_id = auth.uid()
+      WHERE be.id = bar_voter_participation.election_id 
+        AND public.is_association_admin(be.association_id, auth.uid())
     )
   );
 
@@ -485,19 +489,13 @@ CREATE POLICY "Admins read participation" ON public.bar_voter_participation
 DROP POLICY IF EXISTS "Members read events" ON public.bar_events;
 CREATE POLICY "Members read events" ON public.bar_events
   FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.bar_members bm
-      WHERE bm.user_id = auth.uid() AND bm.association_id = bar_events.association_id
-    )
+    public.is_association_member(association_id, auth.uid())
   );
 
 DROP POLICY IF EXISTS "Admins manage events" ON public.bar_events;
 CREATE POLICY "Admins manage events" ON public.bar_events
   FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM public.bar_admins ba
-      WHERE ba.user_id = auth.uid() AND ba.association_id = bar_events.association_id
-    )
+    public.is_association_admin(association_id, auth.uid())
   );
 
 
