@@ -10,7 +10,7 @@ async function setupBarAdmin() {
     console.log('--- STARTING BAR ASSOCIATION SETUP ---');
 
     // 1. Create or get Bar Association
-    const inviteCode = 'SCBA2026';
+    const inviteCode = 'SCBA26';
     let associationId;
     
     const { data: existingAssoc, error: assocGetErr } = await supabase
