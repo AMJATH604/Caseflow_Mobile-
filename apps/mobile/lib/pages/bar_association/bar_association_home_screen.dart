@@ -19,7 +19,6 @@ class BarAssociationHomeScreen extends ConsumerStatefulWidget {
 
 class _BarAssociationHomeScreenState
     extends ConsumerState<BarAssociationHomeScreen> {
-  bool _showJoinDialog = false;
   final _inviteCodeController = TextEditingController();
   bool _joining = false;
 
@@ -1031,22 +1030,20 @@ class _BarAssociationHomeScreenState
                             ref.invalidate(barAssociationsProvider);
                             ref.invalidate(userProfileProvider);
                             if (ctx.mounted) Navigator.pop(ctx);
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    '✅ Successfully joined the Bar Association!',
-                                  ),
-                                  backgroundColor: Color(0xFF10B981),
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  '✅ Successfully joined the Bar Association!',
                                 ),
-                              );
-                            }
+                                backgroundColor: Color(0xFF10B981),
+                              ),
+                            );
                           } catch (e) {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('❌ $e')),
-                              );
-                            }
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('❌ $e')),
+                            );
                           } finally {
                             if (mounted) {
                               setSheetState(() => _joining = false);

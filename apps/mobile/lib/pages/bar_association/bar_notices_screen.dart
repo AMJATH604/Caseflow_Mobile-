@@ -271,10 +271,10 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.access_time_rounded,
                     size: 14,
-                    color: const Color(0xFF94A3B8),
+                    color: Color(0xFF94A3B8),
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -285,10 +285,10 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
                     ),
                   ),
                   const Spacer(),
-                  Icon(
+                  const Icon(
                     Icons.visibility_rounded,
                     size: 14,
-                    color: const Color(0xFF94A3B8),
+                    color: Color(0xFF94A3B8),
                   ),
                   const SizedBox(width: 4),
                   Text(

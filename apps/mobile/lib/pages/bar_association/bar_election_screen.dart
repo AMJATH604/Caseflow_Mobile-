@@ -451,9 +451,9 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen> {
                       color: isSelected
                           ? const Color(0xFF7C3AED).withValues(alpha: 0.05)
                           : null,
-                      border: Border(
+                      border: const Border(
                         bottom: BorderSide(
-                          color: const Color(0xFFF1F5F9),
+                          color: Color(0xFFF1F5F9),
                           width: 1,
                         ),
                       ),

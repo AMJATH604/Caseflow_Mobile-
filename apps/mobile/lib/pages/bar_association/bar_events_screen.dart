@@ -200,11 +200,11 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             children: [
               _buildCategoryChip('all', 'All', null),
-              _buildCategoryChip('meeting', '📋 Meeting', _categoryColors['meeting']!),
-              _buildCategoryChip('holiday', '🏖️ Holiday', _categoryColors['holiday']!),
-              _buildCategoryChip('lecture', '🎓 Lecture', _categoryColors['lecture']!),
-              _buildCategoryChip('sports', '🏏 Sports', _categoryColors['sports']!),
-              _buildCategoryChip('annual', '🎉 Annual', _categoryColors['annual']!),
+              _buildCategoryChip('meeting', '📋 Meeting', _categoryColors['meeting']),
+              _buildCategoryChip('holiday', '🏖️ Holiday', _categoryColors['holiday']),
+              _buildCategoryChip('lecture', '🎓 Lecture', _categoryColors['lecture']),
+              _buildCategoryChip('sports', '🏏 Sports', _categoryColors['sports']),
+              _buildCategoryChip('annual', '🎉 Annual', _categoryColors['annual']),
             ],
           ),
         ),
@@ -447,10 +447,10 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
                       Row(
                         children: [
                           if (event.startTime != null) ...[
-                            Icon(
+                            const Icon(
                               Icons.schedule_rounded,
                               size: 13,
-                              color: const Color(0xFF94A3B8),
+                              color: Color(0xFF94A3B8),
                             ),
                             const SizedBox(width: 4),
                             Text(
@@ -463,10 +463,10 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
                             const SizedBox(width: 12),
                           ],
                           if (event.location != null) ...[
-                            Icon(
+                            const Icon(
                               Icons.location_on_rounded,
                               size: 13,
-                              color: const Color(0xFF94A3B8),
+                              color: Color(0xFF94A3B8),
                             ),
                             const SizedBox(width: 4),
                             Flexible(

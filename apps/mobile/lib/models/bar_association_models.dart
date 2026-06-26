@@ -4,6 +4,7 @@
 /// - `fromJson` factory constructor for Supabase deserialization
 /// - `toJson` method for Supabase serialization
 /// - Immutable fields with named constructor parameters
+library;
 
 class BarAssociation {
   final String id;

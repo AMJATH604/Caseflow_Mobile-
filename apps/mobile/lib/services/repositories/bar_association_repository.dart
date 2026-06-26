@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:flutter/foundation.dart';
 import 'base_repository.dart';
 import '../../models/bar_association_models.dart';
 
@@ -18,10 +17,10 @@ class BarAssociationRepository extends BaseRepository {
 
   /// Fetches all associations the current user is a member of.
   static Future<List<BarAssociation>> getMyAssociations() async {
-    final user = requireAuth();
+    final user = BaseRepository.requireAuth();
 
     // Get all association IDs where user is a member
-    final memberRows = await client
+    final memberRows = await BaseRepository.client
         .from('bar_members')
         .select('association_id')
         .eq('user_id', user.id);
@@ -31,7 +30,7 @@ class BarAssociationRepository extends BaseRepository {
     final assocIds =
         memberRows.map((r) => r['association_id'] as String).toList();
 
-    final rows = await client
+    final rows = await BaseRepository.client
         .from('bar_associations')
         .select()
         .inFilter('id', assocIds);
@@ -39,7 +38,7 @@ class BarAssociationRepository extends BaseRepository {
     // Get member counts for each association
     final List<BarAssociation> associations = [];
     for (final row in (rows as List)) {
-      final countRes = await client
+      final countRes = await BaseRepository.client
           .from('bar_members')
           .select()
           .eq('association_id', row['id'])
@@ -53,7 +52,7 @@ class BarAssociationRepository extends BaseRepository {
 
   /// Fetches a single association by ID.
   static Future<BarAssociation?> getAssociation(String associationId) async {
-    final row = await client
+    final row = await BaseRepository.client
         .from('bar_associations')
         .select()
         .eq('id', associationId)
@@ -61,7 +60,7 @@ class BarAssociationRepository extends BaseRepository {
 
     if (row == null) return null;
 
-    final countRes = await client
+    final countRes = await BaseRepository.client
         .from('bar_members')
         .select()
         .eq('association_id', associationId)
@@ -75,11 +74,11 @@ class BarAssociationRepository extends BaseRepository {
   /// Joins an association using a 6-character invite code.
   /// Creates a bar_member record linking the user.
   static Future<BarAssociation> joinAssociation(String inviteCode) async {
-    final user = requireAuth();
-    final profile = await getCachedProfile();
+    final user = BaseRepository.requireAuth();
+    final profile = await BaseRepository.getCachedProfile();
 
     // 1. Look up the association by invite code
-    final assocRow = await client
+    final assocRow = await BaseRepository.client
         .from('bar_associations')
         .select()
         .eq('invite_code', inviteCode.toUpperCase().trim())
@@ -92,7 +91,7 @@ class BarAssociationRepository extends BaseRepository {
     final associationId = assocRow['id'] as String;
 
     // 2. Check if already a member
-    final existing = await client
+    final existing = await BaseRepository.client
         .from('bar_members')
         .select()
         .eq('association_id', associationId)
@@ -104,7 +103,7 @@ class BarAssociationRepository extends BaseRepository {
     }
 
     // 3. Create the member record
-    await client.from('bar_members').insert({
+    await BaseRepository.client.from('bar_members').insert({
       'association_id': associationId,
       'user_id': user.id,
       'name': profile.fullName,
@@ -117,12 +116,12 @@ class BarAssociationRepository extends BaseRepository {
     });
 
     // 4. Update profile with primary bar_association_id
-    await client
+    await BaseRepository.client
         .from('profiles')
         .update({'bar_association_id': associationId})
         .eq('id', user.id);
 
-    invalidateProfileCache();
+    BaseRepository.invalidateProfileCache();
 
     return BarAssociation.fromJson(assocRow);
   }
@@ -133,9 +132,9 @@ class BarAssociationRepository extends BaseRepository {
 
   /// Gets the current user's member record for a given association.
   static Future<BarMember?> getMyMembership(String associationId) async {
-    final user = requireAuth();
+    final user = BaseRepository.requireAuth();
 
-    final row = await client
+    final row = await BaseRepository.client
         .from('bar_members')
         .select()
         .eq('association_id', associationId)
@@ -148,7 +147,7 @@ class BarAssociationRepository extends BaseRepository {
 
   /// Gets all members of an association (for admins).
   static Future<List<BarMember>> getMembers(String associationId) async {
-    final rows = await client
+    final rows = await BaseRepository.client
         .from('bar_members')
         .select()
         .eq('association_id', associationId)
@@ -163,10 +162,10 @@ class BarAssociationRepository extends BaseRepository {
 
   /// Fetches all notices for an association with read status for current user.
   static Future<List<BarNotice>> getNotices(String associationId) async {
-    final user = requireAuth();
+    final user = BaseRepository.requireAuth();
 
     // Get member ID for read tracking
-    final memberRow = await client
+    final memberRow = await BaseRepository.client
         .from('bar_members')
         .select('id')
         .eq('association_id', associationId)
@@ -176,7 +175,7 @@ class BarAssociationRepository extends BaseRepository {
     final memberId = memberRow?['id'] as String?;
 
     // Get all notices
-    final rows = await client
+    final rows = await BaseRepository.client
         .from('bar_notices')
         .select()
         .eq('association_id', associationId)
@@ -186,7 +185,7 @@ class BarAssociationRepository extends BaseRepository {
     // Get read notice IDs for current member
     Set<String> readNoticeIds = {};
     if (memberId != null) {
-      final readRows = await client
+      final readRows = await BaseRepository.client
           .from('bar_notice_reads')
           .select('notice_id')
           .eq('member_id', memberId);
@@ -205,9 +204,9 @@ class BarAssociationRepository extends BaseRepository {
     String noticeId,
     String associationId,
   ) async {
-    final user = requireAuth();
+    final user = BaseRepository.requireAuth();
 
-    final memberRow = await client
+    final memberRow = await BaseRepository.client
         .from('bar_members')
         .select('id')
         .eq('association_id', associationId)
@@ -218,19 +217,17 @@ class BarAssociationRepository extends BaseRepository {
     final memberId = memberRow['id'] as String;
 
     // Upsert to avoid duplicate errors
-    await client.from('bar_notice_reads').upsert({
+    await BaseRepository.client.from('bar_notice_reads').upsert({
       'notice_id': noticeId,
       'member_id': memberId,
     }, onConflict: 'notice_id,member_id');
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // Fee Payments
-  // ═══════════════════════════════════════════════════════════
+  // ─── Fee Payments ──────────────────────────────────────────
 
   /// Gets fee payment history for the current member.
   static Future<List<BarFeePayment>> getFeeHistory(String memberId) async {
-    final rows = await client
+    final rows = await BaseRepository.client
         .from('bar_fee_payments')
         .select()
         .eq('member_id', memberId)
@@ -247,14 +244,14 @@ class BarAssociationRepository extends BaseRepository {
     required int feeYear,
   }) async {
     // Generate receipt number via DB function
-    final receiptRes = await client.rpc(
+    final receiptRes = await BaseRepository.client.rpc(
       'generate_bar_receipt_number',
       params: {'p_association_id': associationId},
     );
 
     final receiptNumber = receiptRes as String;
 
-    final row = await client
+    final row = await BaseRepository.client
         .from('bar_fee_payments')
         .insert({
           'association_id': associationId,
@@ -278,7 +275,7 @@ class BarAssociationRepository extends BaseRepository {
     required String razorpayOrderId,
     required String status,
   }) async {
-    await client.from('bar_fee_payments').update({
+    await BaseRepository.client.from('bar_fee_payments').update({
       'razorpay_payment_id': razorpayPaymentId,
       'razorpay_order_id': razorpayOrderId,
       'status': status,
@@ -286,13 +283,11 @@ class BarAssociationRepository extends BaseRepository {
     }).eq('id', paymentId);
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // Elections
-  // ═══════════════════════════════════════════════════════════
+  // ─── Elections ─────────────────────────────────────────────
 
   /// Gets the active (non-completed, non-cancelled) election for an association.
   static Future<BarElection?> getActiveElection(String associationId) async {
-    final row = await client
+    final row = await BaseRepository.client
         .from('bar_elections')
         .select()
         .eq('association_id', associationId)
@@ -309,7 +304,7 @@ class BarAssociationRepository extends BaseRepository {
   static Future<List<BarElectionPost>> getElectionPosts(
     String electionId,
   ) async {
-    final rows = await client
+    final rows = await BaseRepository.client
         .from('bar_election_posts')
         .select()
         .eq('election_id', electionId)
@@ -320,7 +315,7 @@ class BarAssociationRepository extends BaseRepository {
 
   /// Gets approved nominations for a post with nominee details.
   static Future<List<BarNomination>> getNominations(String postId) async {
-    final rows = await client
+    final rows = await BaseRepository.client
         .from('bar_nominations')
         .select('''
           *,
@@ -337,7 +332,7 @@ class BarAssociationRepository extends BaseRepository {
 
   /// Checks if the current user has already voted in this election.
   static Future<bool> hasVoted(String electionId, String memberId) async {
-    final row = await client
+    final row = await BaseRepository.client
         .from('bar_voter_participation')
         .select('id')
         .eq('election_id', electionId)
@@ -364,10 +359,10 @@ class BarAssociationRepository extends BaseRepository {
       'voter_hash': voterHash,
     }).toList();
 
-    await client.from('bar_votes').insert(voteRecords);
+    await BaseRepository.client.from('bar_votes').insert(voteRecords);
 
     // 3. Record participation (non-anonymous)
-    await client.from('bar_voter_participation').insert({
+    await BaseRepository.client.from('bar_voter_participation').insert({
       'election_id': electionId,
       'member_id': memberId,
       'otp_verified': true,
@@ -376,7 +371,7 @@ class BarAssociationRepository extends BaseRepository {
 
   /// Gets vote counts per nomination for a post (for results).
   static Future<Map<String, int>> getVoteCounts(String postId) async {
-    final rows = await client.rpc(
+    final rows = await BaseRepository.client.rpc(
       'get_vote_counts',
       params: {'p_post_id': postId},
     );
@@ -396,13 +391,11 @@ class BarAssociationRepository extends BaseRepository {
     return hash.toString();
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // Events
-  // ═══════════════════════════════════════════════════════════
+  // ─── Events ────────────────────────────────────────────────
 
   /// Gets all events for an association.
   static Future<List<BarEvent>> getEvents(String associationId) async {
-    final rows = await client
+    final rows = await BaseRepository.client
         .from('bar_events')
         .select()
         .eq('association_id', associationId)
@@ -420,7 +413,7 @@ class BarAssociationRepository extends BaseRepository {
     final startDate = DateTime(year, month, 1);
     final endDate = DateTime(year, month + 1, 0);
 
-    final rows = await client
+    final rows = await BaseRepository.client
         .from('bar_events')
         .select()
         .eq('association_id', associationId)
@@ -431,14 +424,12 @@ class BarAssociationRepository extends BaseRepository {
     return (rows as List).map((r) => BarEvent.fromJson(r)).toList();
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // Admin Check
-  // ═══════════════════════════════════════════════════════════
+  // ─── Admin Check ───────────────────────────────────────────
 
   /// Checks if the current user is an admin of the given association.
   static Future<bool> isAdmin(String associationId) async {
-    final user = requireAuth();
-    final row = await client
+    final user = BaseRepository.requireAuth();
+    final row = await BaseRepository.client
         .from('bar_admins')
         .select('id')
         .eq('association_id', associationId)

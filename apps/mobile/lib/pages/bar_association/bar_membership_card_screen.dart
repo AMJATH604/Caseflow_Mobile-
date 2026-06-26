@@ -9,7 +9,6 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import '../../models/bar_association_models.dart';
 import '../../services/providers.dart';
-import '../../theme/app_theme.dart';
 
 class BarMembershipCardScreen extends ConsumerStatefulWidget {
   final String associationId;
