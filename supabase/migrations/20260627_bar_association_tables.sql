@@ -282,6 +282,10 @@ CREATE POLICY "Admins manage members" ON public.bar_members
     public.is_association_admin(association_id, auth.uid())
   );
 
+DROP POLICY IF EXISTS "Users can insert their own member record" ON public.bar_members;
+CREATE POLICY "Users can insert their own member record" ON public.bar_members
+  FOR INSERT WITH CHECK (user_id = auth.uid());
+
 DROP POLICY IF EXISTS "Users update own member" ON public.bar_members;
 CREATE POLICY "Users update own member" ON public.bar_members
   FOR UPDATE USING (user_id = auth.uid());
