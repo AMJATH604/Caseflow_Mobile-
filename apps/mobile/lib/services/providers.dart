@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models/bar_association_models.dart';
+import 'repositories/bar_association_repository.dart';
 import 'supabase_service.dart';
 import 'retry_helper.dart';
 import 'offline_cache_service.dart';
@@ -288,3 +290,76 @@ final carouselSlidesProvider = FutureProvider<List<Map<String, dynamic>>>((
   ref.watch(dataRefreshProvider);
   return RetryHelper.retry(() => SupabaseService.fetchCarouselSlides());
 });
+
+// ─── Bar Association ──────────────────────────────
+
+/// All bar associations the current user is a member of.
+final barAssociationsProvider = FutureProvider<List<BarAssociation>>((ref) async {
+  ref.watch(authStateProvider);
+  ref.watch(dataRefreshProvider);
+  return RetryHelper.retry(() => BarAssociationRepository.getMyAssociations());
+});
+
+/// Currently selected association ID (for multi-association switcher).
+final selectedBarAssociationIdProvider = StateProvider<String?>((ref) => null);
+
+/// Single association details.
+final barAssociationDetailProvider =
+    FutureProvider.family<BarAssociation?, String>((ref, assocId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(
+        () => BarAssociationRepository.getAssociation(assocId),
+      );
+    });
+
+/// Notices for an association (with read status).
+final barNoticesProvider =
+    FutureProvider.family<List<BarNotice>, String>((ref, assocId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(
+        () => BarAssociationRepository.getNotices(assocId),
+      );
+    });
+
+/// Events for an association.
+final barEventsProvider =
+    FutureProvider.family<List<BarEvent>, String>((ref, assocId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(
+        () => BarAssociationRepository.getEvents(assocId),
+      );
+    });
+
+/// Active election for an association.
+final barElectionProvider =
+    FutureProvider.family<BarElection?, String>((ref, assocId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(
+        () => BarAssociationRepository.getActiveElection(assocId),
+      );
+    });
+
+/// Current user's membership in an association.
+final barMembershipProvider =
+    FutureProvider.family<BarMember?, String>((ref, assocId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(
+        () => BarAssociationRepository.getMyMembership(assocId),
+      );
+    });
+
+/// Fee payment history for a member.
+final barFeeHistoryProvider =
+    FutureProvider.family<List<BarFeePayment>, String>((ref, memberId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(
+        () => BarAssociationRepository.getFeeHistory(memberId),
+      );
+    });
+

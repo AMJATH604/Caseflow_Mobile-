@@ -122,6 +122,13 @@ class MobileMoreSheet extends ConsumerWidget {
               ),
               _buildMenuItem(
                 context,
+                Icons.account_balance_rounded,
+                'My Bar',
+                const Color(0xFF0891B2),
+                '/bar-association',
+              ),
+              _buildMenuItem(
+                context,
                 Icons.notifications,
                 'Updates',
                 Colors.pink,

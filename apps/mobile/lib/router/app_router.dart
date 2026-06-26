@@ -35,6 +35,13 @@ import '../pages/chambers_chat_screen.dart';
 import '../pages/chat_hub_screen.dart';
 import '../pages/dm_chat_screen.dart';
 
+import '../pages/bar_association/bar_association_home_screen.dart';
+import '../pages/bar_association/bar_notices_screen.dart';
+import '../pages/bar_association/bar_fee_payment_screen.dart';
+import '../pages/bar_association/bar_election_screen.dart';
+import '../pages/bar_association/bar_membership_card_screen.dart';
+import '../pages/bar_association/bar_events_screen.dart';
+
 import '../pages/tools/know_your_rights_screen.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -237,6 +244,47 @@ final appRouter = GoRouter(
           builder: (context, state) {
             final conversationId = state.pathParameters['conversationId']!;
             return DmChatScreen(conversationId: conversationId);
+          },
+        ),
+
+        // ─── Bar Association Routes ──────────────────────
+        GoRoute(
+          path: '/bar-association',
+          builder: (context, state) => const BarAssociationHomeScreen(),
+        ),
+        GoRoute(
+          path: '/bar-notices',
+          builder: (context, state) {
+            final assocId = state.uri.queryParameters['assocId'] ?? '';
+            return BarNoticesScreen(associationId: assocId);
+          },
+        ),
+        GoRoute(
+          path: '/bar-fees',
+          builder: (context, state) {
+            final assocId = state.uri.queryParameters['assocId'] ?? '';
+            return BarFeePaymentScreen(associationId: assocId);
+          },
+        ),
+        GoRoute(
+          path: '/bar-elections',
+          builder: (context, state) {
+            final assocId = state.uri.queryParameters['assocId'] ?? '';
+            return BarElectionScreen(associationId: assocId);
+          },
+        ),
+        GoRoute(
+          path: '/bar-membership',
+          builder: (context, state) {
+            final assocId = state.uri.queryParameters['assocId'] ?? '';
+            return BarMembershipCardScreen(associationId: assocId);
+          },
+        ),
+        GoRoute(
+          path: '/bar-events',
+          builder: (context, state) {
+            final assocId = state.uri.queryParameters['assocId'] ?? '';
+            return BarEventsScreen(associationId: assocId);
           },
         ),
 
