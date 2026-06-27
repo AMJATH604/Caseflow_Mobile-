@@ -21,6 +21,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
   bool _loading = true;
   String? _myUserId;
   String? _myFirmId;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -137,81 +138,126 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
     );
   }
 
+  List<Map<String, dynamic>> get _filteredConversations {
+    if (_searchQuery.isEmpty) return _conversations;
+    final q = _searchQuery.toLowerCase();
+    return _conversations.where((conv) {
+      final partner = conv['partner'] as Map<String, dynamic>;
+      final name = (partner['full_name'] ?? '').toString().toLowerCase();
+      return name.contains(q);
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF5F7FA),
-      appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF0A0A0F) : Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
-            size: 20,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF2563EB), Color(0xFF6366F1)],
+      backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          SliverAppBar(
+            expandedHeight: 180,
+            floating: false,
+            pinned: true,
+            backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            iconTheme: IconThemeData(color: isDark ? Colors.white : const Color(0xFF0F172A)),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isDark
+                        ? [const Color(0xFF1E1B4B), const Color(0xFF0F172A)]
+                        : [const Color(0xFFEEF2FF), Colors.white],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(
-                Icons.chat_bubble_rounded,
-                color: Colors.white,
-                size: 16,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 90, 20, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        'CaseFlow Messenger',
+                        style: GoogleFonts.outfit(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.06)
+                              : const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.08)
+                                : const Color(0xFFE2E8F0),
+                          ),
+                        ),
+                        child: TextField(
+                          onChanged: (val) => setState(() => _searchQuery = val),
+                          decoration: InputDecoration(
+                            hintText: 'Search chats...',
+                            hintStyle: GoogleFonts.inter(
+                              color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                              fontSize: 14,
+                            ),
+                            prefixIcon: const Icon(
+                              Icons.search_rounded,
+                              color: Color(0xFF4F46E5),
+                              size: 20,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-            const SizedBox(width: 12),
-            Text(
-              'Chats',
-              style: GoogleFonts.outfit(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : const Color(0xFF0F172A),
-              ),
-            ),
-          ],
-        ),
-      ),
-      body: _loading
-          ? const Center(
-              child: CircularProgressIndicator(color: AppTheme.accent),
-            )
-          : RefreshIndicator(
-              onRefresh: _loadAllChats,
-              color: AppTheme.accent,
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
-                children: [
-                  // 1. Digital Chambers Pinned Group Chat
-                  if (_chambersInfo != null) ...[
-                    _buildChambersTile(isDark),
-                    const SizedBox(height: 8),
-                    // Divider
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      child: Row(
+          ),
+        ],
+        body: _loading
+            ? const Center(
+                child: CircularProgressIndicator(color: Color(0xFF4F46E5)),
+              )
+            : RefreshIndicator(
+                onRefresh: _loadAllChats,
+                color: const Color(0xFF4F46E5),
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                  children: [
+                    // 1. Digital Chambers Pinned Group Chat
+                    if (_chambersInfo != null && _searchQuery.isEmpty) ...[
+                      _buildChambersTile(isDark),
+                      const SizedBox(height: 24),
+                      Row(
                         children: [
                           Text(
                             'DIRECT MESSAGES',
                             style: GoogleFonts.inter(
-                              fontSize: 10,
+                              fontSize: 11,
                               fontWeight: FontWeight.w800,
                               color: isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8),
-                              letterSpacing: 1.0,
+                              letterSpacing: 1.2,
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: Divider(
                               color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
@@ -220,29 +266,29 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                  ],
+                      const SizedBox(height: 12),
+                    ],
 
-                  // 2. DM Conversations
-                  if (_conversations.isEmpty)
-                    _buildEmptyDmsState(isDark)
-                  else
-                    ..._conversations.map(
-                      (conv) => _buildConversationTile(conv, isDark),
-                    ),
-                ],
+                    // 2. DM Conversations
+                    if (_filteredConversations.isEmpty)
+                      _buildEmptyDmsState(isDark)
+                    else
+                      ..._filteredConversations.map(
+                        (conv) => _buildConversationTile(conv, isDark),
+                      ),
+                  ],
+                ),
               ),
-            ),
+      ),
       floatingActionButton: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: const LinearGradient(
-            colors: [Color(0xFF2563EB), Color(0xFF6366F1)],
+            colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF2563EB).withValues(alpha: 0.4),
+              color: const Color(0xFF4F46E5).withValues(alpha: 0.3),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -253,7 +299,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           heroTag: 'new_dm_fab',
-          child: const Icon(Icons.chat_bubble_outline_rounded, color: Colors.white, size: 22),
+          child: const Icon(Icons.message_rounded, color: Colors.white, size: 22),
         ),
       ),
     );
@@ -278,95 +324,97 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
       }
     }
 
-    return Material(
-      color: isDark ? const Color(0xFF1E1E2F) : Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      elevation: 2,
-      shadowColor: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
-      child: InkWell(
-        onTap: () {
-          context.push('/chambers-chat');
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isDark
-                  ? const Color(0xFF2D2D3F)
-                  : const Color(0xFFE2E8F0),
-              width: 1.5,
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF4F46E5).withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+        ],
+        border: Border.all(
+          color: isDark ? const Color(0xFF2D3748) : const Color(0xFFEEF2FF),
+          width: 1.5,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => context.push('/chambers-chat'),
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Row(
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.groups_rounded,
+                    color: Colors.white,
+                    size: 26,
                   ),
                 ),
-                child: const Icon(
-                  Icons.groups_rounded,
-                  color: Colors.white,
-                  size: 26,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
                             'Digital Chambers',
                             style: GoogleFonts.outfit(
                               fontSize: 16,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w800,
                               color: isDark ? Colors.white : const Color(0xFF0F172A),
                             ),
                           ),
-                        ),
-                        if (time.isNotEmpty)
-                          Text(
-                            time,
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                          if (time.isNotEmpty)
+                            Text(
+                              time,
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                              ),
                             ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      preview,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ],
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                      const SizedBox(height: 6),
+                      Text(
+                        preview,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: Color(0xFF6366F1),
-                size: 20,
-              ),
-            ],
+                const SizedBox(width: 12),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: Color(0xFF4F46E5),
+                  size: 20,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -399,26 +447,24 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
       }
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.white,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.04)
+              : const Color(0xFFE2E8F0),
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
         child: InkWell(
-          onTap: () {
-            context.push('/dm/${conv['id']}');
-          },
+          onTap: () => context.push('/dm/${conv['id']}'),
           borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.06)
-                    : const Color(0xFFE2E8F0),
-              ),
-            ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               children: [
                 ProfileAvatar(
@@ -451,7 +497,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                                 fontSize: 11,
                                 fontWeight: unread > 0 ? FontWeight.w700 : FontWeight.w500,
                                 color: unread > 0
-                                    ? AppTheme.accent
+                                    ? const Color(0xFF4F46E5)
                                     : (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
                               ),
                             ),
@@ -467,7 +513,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                                 fontSize: 13,
                                 fontWeight: unread > 0 ? FontWeight.w600 : FontWeight.w400,
                                 color: unread > 0
-                                    ? (isDark ? Colors.white70 : const Color(0xFF334155))
+                                    ? (isDark ? Colors.white70 : const Color(0xFF1E293B))
                                     : (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
                               ),
                               maxLines: 1,
@@ -482,7 +528,9 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                                 vertical: 3,
                               ),
                               decoration: BoxDecoration(
-                                color: AppTheme.accent,
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
@@ -497,18 +545,6 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                           ],
                         ],
                       ),
-                      if (location.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          location,
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            color: isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
                     ],
                   ),
                 ),
@@ -522,15 +558,28 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
 
   Widget _buildEmptyDmsState(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 40),
+      padding: const EdgeInsets.symmetric(vertical: 60),
       child: Center(
         child: Column(
           children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF4F46E5).withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.chat_bubble_outline_rounded,
+                size: 32,
+                color: Color(0xFF4F46E5),
+              ),
+            ),
+            const SizedBox(height: 16),
             Text(
               'No Direct Messages Yet',
               style: GoogleFonts.outfit(
                 fontSize: 16,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 color: isDark ? Colors.white70 : const Color(0xFF475569),
               ),
             ),
@@ -548,7 +597,6 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
     );
   }
 }
-
 
 // ═══════════════════════════════════════════════════════
 // ADVOCATE PICKER BOTTOM SHEET
@@ -652,7 +700,7 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to start conversation: $e'),
-            backgroundColor: AppTheme.error,
+            backgroundColor: const Color(0xFFEF4444),
           ),
         );
       }
@@ -691,12 +739,12 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppTheme.accent.withValues(alpha: 0.1),
+                      color: const Color(0xFF4F46E5).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
                       Icons.person_add_rounded,
-                      color: AppTheme.accent,
+                      color: Color(0xFF4F46E5),
                       size: 18,
                     ),
                   ),
@@ -732,14 +780,12 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
                   decoration: InputDecoration(
                     hintText: 'Search advocate by name...',
                     hintStyle: GoogleFonts.inter(
-                      color: isDark
-                          ? const Color(0xFF64748B)
-                          : const Color(0xFF94A3B8),
+                      color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
                       fontSize: 14,
                     ),
                     prefixIcon: const Icon(
                       Icons.search_rounded,
-                      color: AppTheme.accent,
+                      color: Color(0xFF4F46E5),
                       size: 20,
                     ),
                     border: InputBorder.none,
@@ -761,17 +807,14 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
             Expanded(
               child: _loading
                   ? const Center(
-                      child:
-                          CircularProgressIndicator(color: AppTheme.accent),
+                      child: CircularProgressIndicator(color: Color(0xFF4F46E5)),
                     )
                   : _filtered.isEmpty
                       ? Center(
                           child: Text(
                             'No advocates found',
                             style: GoogleFonts.inter(
-                              color: isDark
-                                  ? const Color(0xFF64748B)
-                                  : const Color(0xFF94A3B8),
+                              color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
                             ),
                           ),
                         )
@@ -824,9 +867,7 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
                         style: GoogleFonts.outfit(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? Colors.white
-                              : const Color(0xFF0F172A),
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                       ),
                       if (location.isNotEmpty) ...[
@@ -835,9 +876,7 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
                           location,
                           style: GoogleFonts.inter(
                             fontSize: 12,
-                            color: isDark
-                                ? const Color(0xFF64748B)
-                                : const Color(0xFF94A3B8),
+                            color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
                           ),
                         ),
                       ],
@@ -847,12 +886,12 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppTheme.accent.withValues(alpha: 0.1),
+                    color: const Color(0xFF4F46E5).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
                     Icons.chat_bubble_outline_rounded,
-                    color: AppTheme.accent,
+                    color: Color(0xFF4F46E5),
                     size: 16,
                   ),
                 ),

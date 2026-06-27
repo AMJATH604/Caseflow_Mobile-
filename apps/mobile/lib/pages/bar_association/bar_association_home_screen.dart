@@ -9,6 +9,26 @@ import '../../services/providers.dart';
 import '../../services/repositories/bar_association_repository.dart';
 import '../../theme/app_theme.dart';
 
+// ── Premium Color Palette ────────────────────────────────
+class _BarColors {
+  static const primary = Color(0xFF4F46E5);       // Indigo-600
+  static const primaryLight = Color(0xFF818CF8);   // Indigo-400
+  static const primaryDark = Color(0xFF3730A3);    // Indigo-800
+  static const accent = Color(0xFFF59E0B);         // Amber-500
+  static const success = Color(0xFF10B981);        // Emerald-500
+  static const warning = Color(0xFFF97316);        // Orange-500
+  static const danger = Color(0xFFEF4444);         // Red-500
+  static const surface = Color(0xFFF8FAFC);        // Slate-50
+  static const card = Colors.white;
+  static const textPrimary = Color(0xFF0F172A);    // Slate-900
+  static const textSecondary = Color(0xFF64748B);  // Slate-500
+  static const textMuted = Color(0xFF94A3B8);      // Slate-400
+  static const border = Color(0xFFE2E8F0);         // Slate-200
+  static const gradient1 = Color(0xFF4F46E5);
+  static const gradient2 = Color(0xFF7C3AED);
+  static const gradient3 = Color(0xFFEC4899);
+}
+
 class BarAssociationHomeScreen extends ConsumerStatefulWidget {
   const BarAssociationHomeScreen({super.key});
 
@@ -18,13 +38,25 @@ class BarAssociationHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _BarAssociationHomeScreenState
-    extends ConsumerState<BarAssociationHomeScreen> {
+    extends ConsumerState<BarAssociationHomeScreen>
+    with SingleTickerProviderStateMixin {
   final _inviteCodeController = TextEditingController();
   bool _joining = false;
+  late AnimationController _shimmerController;
+
+  @override
+  void initState() {
+    super.initState();
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
+  }
 
   @override
   void dispose() {
     _inviteCodeController.dispose();
+    _shimmerController.dispose();
     super.dispose();
   }
 
@@ -33,30 +65,16 @@ class _BarAssociationHomeScreenState
     final associationsAsync = ref.watch(barAssociationsProvider);
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        title: Text(
-          'My Bar Association',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 20),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded),
-            tooltip: 'Join Association',
-            onPressed: () => _showJoinSheet(context),
-          ),
-        ],
-      ),
+      backgroundColor: _BarColors.surface,
       body: associationsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: _BarColors.primary),
+        ),
         error: (e, _) => _buildEmptyState(context),
         data: (associations) {
           if (associations.isEmpty) {
             return _buildEmptyState(context);
           }
-          // Use first association or selected one
           final selectedId = ref.watch(selectedBarAssociationIdProvider);
           final assoc = selectedId != null
               ? associations.firstWhere(
@@ -64,81 +82,110 @@ class _BarAssociationHomeScreenState
                   orElse: () => associations.first,
                 )
               : associations.first;
-
           return _buildAssociationHome(context, assoc, associations);
         },
       ),
     );
   }
 
+  // ── Empty State (Premium) ─────────────────────────────
   Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: const Color(0xFF0891B2).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: const Icon(
-                Icons.account_balance_rounded,
-                size: 48,
-                color: Color(0xFF0891B2),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Not a member yet',
-              style: GoogleFonts.inter(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF1E293B),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Join your local Bar Association to receive\nnotices, pay fees, and vote in elections.',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: const Color(0xFF64748B),
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton.icon(
-                onPressed: () => _showJoinSheet(context),
-                icon: const Icon(Icons.qr_code_rounded),
-                label: Text(
-                  'Enter Invite Code',
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
+    return SafeArea(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Animated icon
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.8, end: 1.0),
+                duration: const Duration(milliseconds: 800),
+                curve: Curves.elasticOut,
+                builder: (_, scale, child) =>
+                    Transform.scale(scale: scale, child: child),
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [_BarColors.gradient1, _BarColors.gradient2],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(36),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _BarColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 30,
+                        offset: const Offset(0, 12),
+                      ),
+                    ],
                   ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0891B2),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                  child: const Icon(
+                    Icons.account_balance_rounded,
+                    size: 52,
+                    color: Colors.white,
                   ),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 32),
+              Text(
+                'Join Your Bar Association',
+                style: GoogleFonts.inter(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: _BarColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Connect with your local bar to receive\nnotices, pay fees, and participate in elections.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  color: _BarColors.textSecondary,
+                  height: 1.6,
+                ),
+              ),
+              const SizedBox(height: 40),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: () => _showJoinSheet(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _BarColors.primary,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.vpn_key_rounded, size: 20),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Enter Invite Code',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
+  // ── Main Association Home ─────────────────────────────
   Widget _buildAssociationHome(
     BuildContext context,
     BarAssociation assoc,
@@ -150,6 +197,7 @@ class _BarAssociationHomeScreenState
     final eventsAsync = ref.watch(barEventsProvider(assoc.id));
 
     return RefreshIndicator(
+      color: _BarColors.primary,
       onRefresh: () async {
         ref.invalidate(barAssociationsProvider);
         ref.invalidate(barMembershipProvider(assoc.id));
@@ -157,86 +205,296 @@ class _BarAssociationHomeScreenState
         ref.invalidate(barElectionProvider(assoc.id));
         ref.invalidate(barEventsProvider(assoc.id));
       },
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // ── Multi-association switcher ──
-          if (allAssociations.length > 1) ...[
-            _buildAssociationSwitcher(allAssociations, assoc),
-            const SizedBox(height: 16),
-          ],
-
-          // ── Header Card ──
-          _buildHeaderCard(assoc),
-          const SizedBox(height: 16),
-
-          // ── Membership Card Preview ──
-          membershipAsync.when(
-            loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
-            data: (member) {
-              if (member == null) return const SizedBox.shrink();
-              return Column(
-                children: [
-                  _buildMembershipCardPreview(assoc, member),
-                  const SizedBox(height: 16),
-                  _buildFeeStatusCard(assoc, member),
-                  const SizedBox(height: 16),
-                ],
-              );
-            },
-          ),
-
-          // ── Election Banner ──
-          electionAsync.when(
-            loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
-            data: (election) {
-              if (election == null || !election.isVotingOpen) {
-                return const SizedBox.shrink();
-              }
-              return Column(
-                children: [
-                  _buildElectionBanner(election),
-                  const SizedBox(height: 16),
-                ],
-              );
-            },
-          ),
-
-          // ── Quick Actions Grid ──
-          _buildQuickActions(context),
-          const SizedBox(height: 16),
-
-          // ── Latest Notices ──
-          noticesAsync.when(
-            loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
-            data: (notices) {
-              if (notices.isEmpty) return const SizedBox.shrink();
-              return _buildLatestNotices(notices.take(3).toList());
-            },
-          ),
-          const SizedBox(height: 16),
-
-          // ── Upcoming Events ──
-          eventsAsync.when(
-            loading: () => const SizedBox.shrink(),
-            error: (_, __) => const SizedBox.shrink(),
-            data: (events) {
-              final upcoming = events
-                  .where(
-                    (e) => e.eventDate.isAfter(
-                      DateTime.now().subtract(const Duration(days: 1)),
+      child: CustomScrollView(
+        slivers: [
+          // ── Gradient App Bar ──
+          SliverAppBar(
+            expandedHeight: 200,
+            floating: false,
+            pinned: true,
+            backgroundColor: _BarColors.primary,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      _BarColors.gradient1,
+                      _BarColors.gradient2,
+                      _BarColors.gradient3,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: assoc.logoUrl != null
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(14),
+                                      child: Image.network(
+                                        assoc.logoUrl!,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) =>
+                                            const Icon(
+                                          Icons.account_balance_rounded,
+                                          color: Colors.white,
+                                          size: 24,
+                                        ),
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.account_balance_rounded,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    assoc.name,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.white,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${assoc.court} • ${assoc.district}',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      color: Colors.white.withValues(alpha: 0.85),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        // Stats Row
+                        Row(
+                          children: [
+                            _buildStatChip(
+                              Icons.people_rounded,
+                              '${assoc.memberCount ?? 0} Members',
+                            ),
+                            const SizedBox(width: 10),
+                            _buildStatChip(
+                              Icons.calendar_today_rounded,
+                              'Est. ${assoc.createdAt.year}',
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  )
-                  .take(3)
-                  .toList();
-              if (upcoming.isEmpty) return const SizedBox.shrink();
-              return _buildUpcomingEvents(upcoming);
-            },
+                  ),
+                ),
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.add_circle_outline_rounded,
+                    color: Colors.white),
+                tooltip: 'Join Another Association',
+                onPressed: () => _showJoinSheet(context),
+              ),
+            ],
           ),
-          const SizedBox(height: 32),
+
+          // ── Content ──
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // Multi-association switcher
+                if (allAssociations.length > 1) ...[
+                  _buildAssociationSwitcher(allAssociations, assoc),
+                  const SizedBox(height: 16),
+                ],
+
+                // Membership + Fee
+                membershipAsync.when(
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                  data: (member) {
+                    if (member == null) return const SizedBox.shrink();
+
+                    // Check if member is suspended
+                    if (member.status == 'suspended') {
+                      return _buildSuspendedBanner();
+                    }
+
+                    return Column(
+                      children: [
+                        _buildMembershipCard(assoc, member),
+                        const SizedBox(height: 12),
+                        _buildFeeCard(assoc, member),
+                        const SizedBox(height: 16),
+                      ],
+                    );
+                  },
+                ),
+
+                // Election Banner
+                electionAsync.when(
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                  data: (election) {
+                    if (election == null || !election.isVotingOpen) {
+                      return const SizedBox.shrink();
+                    }
+                    return Column(
+                      children: [
+                        _buildElectionBanner(election),
+                        const SizedBox(height: 16),
+                      ],
+                    );
+                  },
+                ),
+
+                // Quick Actions
+                _buildQuickActions(context),
+                const SizedBox(height: 20),
+
+                // Notices
+                noticesAsync.when(
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                  data: (notices) {
+                    if (notices.isEmpty) return const SizedBox.shrink();
+                    return _buildNoticesSection(notices.take(3).toList());
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Events
+                eventsAsync.when(
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                  data: (events) {
+                    final upcoming = events
+                        .where((e) => e.eventDate.isAfter(
+                              DateTime.now().subtract(const Duration(days: 1)),
+                            ))
+                        .take(3)
+                        .toList();
+                    if (upcoming.isEmpty) return const SizedBox.shrink();
+                    return _buildEventsSection(upcoming);
+                  },
+                ),
+                const SizedBox(height: 40),
+              ]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Stat Chip (header) ────────────────────────────────
+  Widget _buildStatChip(IconData icon, String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.white, size: 14),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Suspended Banner ──────────────────────────────────
+  Widget _buildSuspendedBanner() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: _BarColors.danger.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: _BarColors.danger.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: _BarColors.danger.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(
+              Icons.block_rounded,
+              color: _BarColors.danger,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Membership Suspended',
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: _BarColors.danger,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Your membership has been suspended. Please contact your bar association secretary.',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: _BarColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -249,12 +507,17 @@ class _BarAssociationHomeScreenState
   ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: AppTheme.cardDecoration(),
+      decoration: BoxDecoration(
+        color: _BarColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _BarColors.border),
+      ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: current.id,
           isExpanded: true,
-          icon: const Icon(Icons.swap_horiz_rounded, color: Color(0xFF0891B2)),
+          icon: const Icon(Icons.swap_horiz_rounded,
+              color: _BarColors.primary),
           items: associations.map((a) {
             return DropdownMenuItem(
               value: a.id,
@@ -275,190 +538,99 @@ class _BarAssociationHomeScreenState
     );
   }
 
-  // ── Header Card ───────────────────────────────────────
-  Widget _buildHeaderCard(BarAssociation assoc) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: AppTheme.glassGradient,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6366F1).withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: assoc.logoUrl != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.network(
-                          assoc.logoUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(
-                            Icons.account_balance_rounded,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                      )
-                    : const Icon(
-                        Icons.account_balance_rounded,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      assoc.name,
-                      style: GoogleFonts.inter(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${assoc.court} • ${assoc.district}',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: Colors.white.withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.people_rounded, color: Colors.white, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  '${assoc.memberCount ?? 0} Active Members',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Membership Card Preview ───────────────────────────
-  Widget _buildMembershipCardPreview(BarAssociation assoc, BarMember member) {
+  // ── Membership Card (Premium) ─────────────────────────
+  Widget _buildMembershipCard(BarAssociation assoc, BarMember member) {
     return GestureDetector(
       onTap: () => context.push('/bar-membership?assocId=${assoc.id}'),
       child: Container(
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFF1E293B), Color(0xFF334155)],
+            colors: [Color(0xFF0F172A), Color(0xFF1E293B), Color(0xFF334155)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1E293B).withValues(alpha: 0.3),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
+              color: const Color(0xFF0F172A).withValues(alpha: 0.4),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
         padding: const EdgeInsets.all(20),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: const Color(0xFF0891B2).withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Icon(
-                Icons.badge_rounded,
-                color: Color(0xFF22D3EE),
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    member.name,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Enrl: ${member.enrollmentNumber ?? 'N/A'} • ${member.membershipTypeLabel}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Column(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Text(
+                  'MEMBERSHIP CARD',
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white.withValues(alpha: 0.5),
+                    letterSpacing: 2,
+                  ),
+                ),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                    color: _BarColors.success.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: _BarColors.success.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Text(
                     'VALID ${DateTime.now().year}',
                     style: GoogleFonts.inter(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF10B981),
+                      color: _BarColors.success,
                     ),
                   ),
                 ),
-                const SizedBox(height: 4),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              member.name,
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                _buildCardDetail(
+                  'Enrollment',
+                  member.enrollmentNumber ?? 'N/A',
+                ),
+                const SizedBox(width: 24),
+                _buildCardDetail('Type', member.membershipTypeLabel),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  assoc.name,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: Colors.white.withValues(alpha: 0.4),
+                  ),
+                ),
                 const Icon(
                   Icons.chevron_right_rounded,
-                  color: Colors.white54,
+                  color: Colors.white38,
                   size: 20,
                 ),
               ],
@@ -469,34 +641,64 @@ class _BarAssociationHomeScreenState
     );
   }
 
-  // ── Fee Status Card ───────────────────────────────────
-  Widget _buildFeeStatusCard(BarAssociation assoc, BarMember member) {
+  Widget _buildCardDetail(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: GoogleFonts.inter(
+            fontSize: 9,
+            fontWeight: FontWeight.w600,
+            color: Colors.white.withValues(alpha: 0.4),
+            letterSpacing: 1,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Colors.white.withValues(alpha: 0.9),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── Fee Card ──────────────────────────────────────────
+  Widget _buildFeeCard(BarAssociation assoc, BarMember member) {
     final isPaid = member.isFeePaidForCurrentYear;
     final currentYear = DateTime.now().year;
 
     return Container(
-      decoration: AppTheme.cardDecoration(),
-      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: _BarColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _BarColors.border),
+      ),
+      padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               color: isPaid
-                  ? const Color(0xFF10B981).withValues(alpha: 0.1)
-                  : const Color(0xFFF59E0B).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(14),
+                  ? _BarColors.success.withValues(alpha: 0.1)
+                  : _BarColors.warning.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               isPaid
                   ? Icons.check_circle_rounded
                   : Icons.warning_amber_rounded,
-              color: isPaid ? const Color(0xFF10B981) : const Color(0xFFF59E0B),
-              size: 24,
+              color: isPaid ? _BarColors.success : _BarColors.warning,
+              size: 22,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -504,19 +706,18 @@ class _BarAssociationHomeScreenState
                 Text(
                   isPaid ? 'Fee Paid ✅' : 'Fee Due',
                   style: GoogleFonts.inter(
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1E293B),
+                    color: _BarColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 2),
                 Text(
                   isPaid
-                      ? 'Paid until $currentYear-${currentYear + 1}'
+                      ? 'Paid for $currentYear-${currentYear + 1}'
                       : '₹${assoc.annualFee.toStringAsFixed(0)} due for $currentYear-${currentYear + 1}',
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: const Color(0xFF64748B),
+                    color: _BarColors.textSecondary,
                   ),
                 ),
               ],
@@ -526,7 +727,7 @@ class _BarAssociationHomeScreenState
             TextButton(
               onPressed: () => context.push('/bar-fees?assocId=${assoc.id}'),
               style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFF0891B2),
+                backgroundColor: _BarColors.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -549,64 +750,134 @@ class _BarAssociationHomeScreenState
     );
   }
 
-  // ── Election Banner ───────────────────────────────────
+  // ── Election Banner (Pulsing) ─────────────────────────
   Widget _buildElectionBanner(BarElection election) {
     return GestureDetector(
       onTap: () => context.push(
         '/bar-elections?assocId=${election.associationId}',
       ),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF7C3AED), Color(0xFFDB2777)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            const Text('🗳️', style: TextStyle(fontSize: 32)),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Vote Now — ${election.title}',
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Voting closes ${DateFormat('dd/MM/yyyy').format(election.votingEnd)}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.8),
-                    ),
-                  ),
+      child: AnimatedBuilder(
+        animation: _shimmerController,
+        builder: (context, child) {
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: const [
+                  Color(0xFF7C3AED),
+                  Color(0xFFDB2777),
+                  Color(0xFF7C3AED),
                 ],
+                stops: [
+                  0.0,
+                  _shimmerController.value,
+                  1.0,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF7C3AED).withValues(alpha: 0.4),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
-            const Icon(
-              Icons.arrow_forward_rounded,
-              color: Colors.white,
-              size: 24,
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    Icons.how_to_vote_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'VOTE NOW',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white.withValues(alpha: 0.7),
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        election.title,
+                        style: GoogleFonts.inter(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Ends ${DateFormat('dd MMM yyyy').format(election.votingEnd)}',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: Colors.white.withValues(alpha: 0.8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  // ── Quick Actions Grid ────────────────────────────────
+  // ── Quick Actions (Redesigned) ────────────────────────
   Widget _buildQuickActions(BuildContext context) {
     final assocs = ref.watch(barAssociationsProvider).valueOrNull ?? [];
     final assocId = assocs.isNotEmpty ? assocs.first.id : '';
+
+    final actions = [
+      _QuickAction(
+        icon: Icons.campaign_rounded,
+        label: 'Notices',
+        gradient: const [Color(0xFFEF4444), Color(0xFFF97316)],
+        route: '/bar-notices?assocId=$assocId',
+      ),
+      _QuickAction(
+        icon: Icons.receipt_long_rounded,
+        label: 'Fees',
+        gradient: const [Color(0xFF10B981), Color(0xFF059669)],
+        route: '/bar-fees?assocId=$assocId',
+      ),
+      _QuickAction(
+        icon: Icons.how_to_vote_rounded,
+        label: 'Elections',
+        gradient: const [Color(0xFF7C3AED), Color(0xFF4F46E5)],
+        route: '/bar-elections?assocId=$assocId',
+      ),
+      _QuickAction(
+        icon: Icons.event_rounded,
+        label: 'Events',
+        gradient: const [Color(0xFF0EA5E9), Color(0xFF0284C7)],
+        route: '/bar-events?assocId=$assocId',
+      ),
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -614,88 +885,77 @@ class _BarAssociationHomeScreenState
         Text(
           'Quick Actions',
           style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF1E293B),
+            fontSize: 17,
+            fontWeight: FontWeight.w800,
+            color: _BarColors.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
         Row(
-          children: [
-            _buildActionTile(
-              icon: Icons.campaign_rounded,
-              label: 'Notices',
-              color: const Color(0xFFEF4444),
-              onTap: () => context.push('/bar-notices?assocId=$assocId'),
-            ),
-            const SizedBox(width: 12),
-            _buildActionTile(
-              icon: Icons.receipt_long_rounded,
-              label: 'Fees',
-              color: const Color(0xFF10B981),
-              onTap: () => context.push('/bar-fees?assocId=$assocId'),
-            ),
-            const SizedBox(width: 12),
-            _buildActionTile(
-              icon: Icons.how_to_vote_rounded,
-              label: 'Elections',
-              color: const Color(0xFF7C3AED),
-              onTap: () => context.push('/bar-elections?assocId=$assocId'),
-            ),
-            const SizedBox(width: 12),
-            _buildActionTile(
-              icon: Icons.event_rounded,
-              label: 'Events',
-              color: const Color(0xFF0891B2),
-              onTap: () => context.push('/bar-events?assocId=$assocId'),
-            ),
-          ],
+          children: actions.map((action) {
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  right: action != actions.last ? 10 : 0,
+                ),
+                child: GestureDetector(
+                  onTap: () => context.push(action.route),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    decoration: BoxDecoration(
+                      color: _BarColors.card,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: _BarColors.border),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.03),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: action.gradient,
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Icon(
+                            action.icon,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          action.label,
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: _BarColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );
   }
 
-  Widget _buildActionTile({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          decoration: AppTheme.cardDecoration(),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Column(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(icon, color: color, size: 22),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF475569),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ── Latest Notices ────────────────────────────────────
-  Widget _buildLatestNotices(List<BarNotice> notices) {
+  // ── Notices Section (Redesigned) ──────────────────────
+  Widget _buildNoticesSection(List<BarNotice> notices) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -705,9 +965,9 @@ class _BarAssociationHomeScreenState
             Text(
               'Latest Notices',
               style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF1E293B),
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: _BarColors.textPrimary,
               ),
             ),
             TextButton(
@@ -719,195 +979,292 @@ class _BarAssociationHomeScreenState
                 }
               },
               child: Text(
-                'View All',
+                'View All →',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF0891B2),
+                  color: _BarColors.primary,
                 ),
               ),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        ...notices.map((notice) => _buildNoticeItem(notice)),
+        ...notices.map((notice) => _buildNoticeCard(notice)),
       ],
     );
   }
 
-  Widget _buildNoticeItem(BarNotice notice) {
+  Widget _buildNoticeCard(BarNotice notice) {
+    final categoryColors = {
+      'general': _BarColors.primary,
+      'urgent': _BarColors.danger,
+      'election': const Color(0xFF7C3AED),
+      'event': const Color(0xFF0EA5E9),
+      'holiday': _BarColors.accent,
+    };
+    final color = categoryColors[notice.category] ?? _BarColors.primary;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      decoration: AppTheme.cardDecoration(),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: notice.isPinned
-                ? const Color(0xFFF59E0B).withValues(alpha: 0.1)
-                : const Color(0xFF6366F1).withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(
-            notice.isPinned ? Icons.push_pin_rounded : Icons.article_rounded,
-            color: notice.isPinned
-                ? const Color(0xFFF59E0B)
-                : const Color(0xFF6366F1),
-            size: 20,
-          ),
-        ),
-        title: Row(
-          children: [
-            if (!notice.isRead)
-              Container(
-                width: 8,
-                height: 8,
-                margin: const EdgeInsets.only(right: 8),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF2563EB),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            Expanded(
-              child: Text(
-                notice.title,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight:
-                      notice.isRead ? FontWeight.w500 : FontWeight.w700,
-                  color: const Color(0xFF1E293B),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+      decoration: BoxDecoration(
+        color: _BarColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _BarColors.border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 64,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                bottomLeft: Radius.circular(16),
               ),
             ),
-          ],
-        ),
-        subtitle: Text(
-          DateFormat('dd/MM/yyyy').format(notice.publishedAt),
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: const Color(0xFF94A3B8),
           ),
-        ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Text(
-            notice.categoryLabel,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF64748B),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            if (!notice.isRead)
+                              Container(
+                                width: 7,
+                                height: 7,
+                                margin: const EdgeInsets.only(right: 8),
+                                decoration: const BoxDecoration(
+                                  color: _BarColors.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            if (notice.isPinned)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 6),
+                                child: Icon(
+                                  Icons.push_pin_rounded,
+                                  size: 13,
+                                  color: _BarColors.accent,
+                                ),
+                              ),
+                            Expanded(
+                              child: Text(
+                                notice.title,
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  fontWeight: notice.isRead
+                                      ? FontWeight.w500
+                                      : FontWeight.w700,
+                                  color: _BarColors.textPrimary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          DateFormat('dd MMM yyyy').format(notice.publishedAt),
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: _BarColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      notice.category,
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: color,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  // ── Upcoming Events ───────────────────────────────────
-  Widget _buildUpcomingEvents(List<BarEvent> events) {
+  // ── Events Section (Timeline Style) ──────────────────
+  Widget _buildEventsSection(List<BarEvent> events) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Upcoming Events',
           style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF1E293B),
+            fontSize: 17,
+            fontWeight: FontWeight.w800,
+            color: _BarColors.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
-        ...events.map((event) => Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          decoration: AppTheme.cardDecoration(),
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0891B2).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      DateFormat('dd').format(event.eventDate),
-                      style: GoogleFonts.inter(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF0891B2),
+        ...events.asMap().entries.map((entry) {
+          final event = entry.value;
+          final isLast = entry.key == events.length - 1;
+          return _buildEventItem(event, isLast);
+        }),
+      ],
+    );
+  }
+
+  Widget _buildEventItem(BarEvent event, bool isLast) {
+    final categoryColors = {
+      'meeting': const Color(0xFF2563EB),
+      'holiday': _BarColors.danger,
+      'lecture': _BarColors.success,
+      'sports': _BarColors.accent,
+      'annual': const Color(0xFF7C3AED),
+    };
+    final color = categoryColors[event.category] ?? _BarColors.primary;
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Timeline dot + line
+          SizedBox(
+            width: 24,
+            child: Column(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.4),
+                        blurRadius: 6,
                       ),
-                    ),
-                    Text(
-                      DateFormat('MMM').format(event.eventDate),
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF0891B2),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                if (!isLast)
+                  Expanded(
+                    child: Container(
+                      width: 2,
+                      color: _BarColors.border,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Event card
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: _BarColors.card,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: _BarColors.border),
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      event.title,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF1E293B),
-                      ),
-                    ),
-                    if (event.location != null) ...[
-                      const SizedBox(height: 2),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
                       Text(
-                        '📍 ${event.location}',
+                        DateFormat('dd MMM').format(event.eventDate),
                         style: GoogleFonts.inter(
                           fontSize: 12,
-                          color: const Color(0xFF64748B),
+                          fontWeight: FontWeight.w700,
+                          color: color,
+                        ),
+                      ),
+                      if (event.startTime != null) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          event.startTime!,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: _BarColors.textMuted,
+                          ),
+                        ),
+                      ],
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          event.categoryLabel,
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: color,
+                          ),
                         ),
                       ),
                     ],
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  event.categoryLabel,
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF475569),
                   ),
-                ),
+                  const SizedBox(height: 6),
+                  Text(
+                    event.title,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: _BarColors.textPrimary,
+                    ),
+                  ),
+                  if (event.location != null) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on_rounded,
+                          size: 13,
+                          color: _BarColors.textMuted,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          event.location!,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: _BarColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
               ),
-            ],
+            ),
           ),
-        )),
-      ],
+        ],
+      ),
     );
   }
 
@@ -943,22 +1300,38 @@ class _BarAssociationHomeScreenState
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
+              const SizedBox(height: 24),
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [_BarColors.gradient1, _BarColors.gradient2],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(
+                  Icons.vpn_key_rounded,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
               const SizedBox(height: 20),
               Text(
                 'Join Bar Association',
                 style: GoogleFonts.inter(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1E293B),
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: _BarColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Enter the 6-character invite code provided by\nyour Bar Association Secretary.',
+                'Enter the 6-character invite code from\nyour Bar Association Secretary.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: const Color(0xFF64748B),
+                  fontSize: 14,
+                  color: _BarColors.textSecondary,
                   height: 1.5,
                 ),
               ),
@@ -972,20 +1345,23 @@ class _BarAssociationHomeScreenState
                   UpperCaseTextFormatter(),
                 ],
                 style: GoogleFonts.inter(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 8,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 10,
+                  color: _BarColors.primary,
                 ),
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
-                  hintText: 'TNTKSI',
+                  hintText: '• • • • • •',
                   hintStyle: GoogleFonts.inter(
-                    fontSize: 24,
+                    fontSize: 28,
                     fontWeight: FontWeight.w300,
-                    letterSpacing: 8,
+                    letterSpacing: 10,
                     color: const Color(0xFFCBD5E1),
                   ),
                   counterText: '',
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
@@ -993,7 +1369,7 @@ class _BarAssociationHomeScreenState
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: const BorderSide(
-                      color: Color(0xFF0891B2),
+                      color: _BarColors.primary,
                       width: 2,
                     ),
                   ),
@@ -1006,7 +1382,7 @@ class _BarAssociationHomeScreenState
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                height: 52,
+                height: 56,
                 child: ElevatedButton(
                   onPressed: _joining
                       ? null
@@ -1036,7 +1412,7 @@ class _BarAssociationHomeScreenState
                                 content: Text(
                                   '✅ Successfully joined the Bar Association!',
                                 ),
-                                backgroundColor: Color(0xFF10B981),
+                                backgroundColor: _BarColors.success,
                               ),
                             );
                           } catch (e) {
@@ -1051,8 +1427,9 @@ class _BarAssociationHomeScreenState
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0891B2),
+                    backgroundColor: _BarColors.primary,
                     foregroundColor: Colors.white,
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -1070,7 +1447,7 @@ class _BarAssociationHomeScreenState
                           'Join Association',
                           style: GoogleFonts.inter(
                             fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                 ),
@@ -1081,6 +1458,21 @@ class _BarAssociationHomeScreenState
       ),
     );
   }
+}
+
+// ── Helper Classes ──────────────────────────────────────
+
+class _QuickAction {
+  final IconData icon;
+  final String label;
+  final List<Color> gradient;
+  final String route;
+  const _QuickAction({
+    required this.icon,
+    required this.label,
+    required this.gradient,
+    required this.route,
+  });
 }
 
 /// Formatter to auto-uppercase the invite code input.

@@ -37,6 +37,17 @@ class MainActivity : FlutterActivity() {
                 enableVibration(true)
             }
             manager.createNotificationChannel(chatChannel)
+
+            // Channel 3: Direct Messages (1-on-1 DMs)
+            val dmChannel = NotificationChannel(
+                "dm_messages",
+                "Direct Messages",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "1-on-1 direct messages from other advocates"
+                enableVibration(true)
+            }
+            manager.createNotificationChannel(dmChannel)
         }
     }
 }

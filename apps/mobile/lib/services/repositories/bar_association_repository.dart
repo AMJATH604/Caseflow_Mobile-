@@ -20,10 +20,12 @@ class BarAssociationRepository extends BaseRepository {
     final user = BaseRepository.requireAuth();
 
     // Get all association IDs where user is a member
+    // Only include associations where the user has 'active' membership
     final memberRows = await BaseRepository.client
         .from('bar_members')
         .select('association_id')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .eq('status', 'active');
 
     if ((memberRows as List).isEmpty) return [];
 

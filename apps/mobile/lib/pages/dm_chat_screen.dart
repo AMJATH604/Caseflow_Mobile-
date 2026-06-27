@@ -299,71 +299,66 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
       conversationId: widget.conversationId,
     );
 
-    if (url != null) {
-      final fileName = file.path.split(Platform.pathSeparator).last;
+    if (url != null && attachmentType != null) {
+      try {
+        final replyId = _replyingTo?.id;
+        final replyMessage =
+            _replyingTo?.hasAttachment == true
+                ? (_replyingTo!.isImage
+                    ? '📷 Photo'
+                    : (_replyingTo!.isVideo
+                        ? '🎥 Video'
+                        : '📄 Document'))
+                : _replyingTo?.message;
+        final replySender = _replyingTo?.senderId == _myProfile?.id
+            ? _myProfile?.fullName
+            : _partnerProfile?['full_name'];
 
-      final replyId = _replyingTo?.id;
-      final replyMessage =
-          _replyingTo?.hasAttachment == true
-              ? (_replyingTo!.isImage
-                  ? '📷 Photo'
-                  : (_replyingTo!.isVideo
-                      ? '🎥 Video'
-                      : '📄 Document'))
-              : _replyingTo?.message;
-      final replySender = _replyingTo?.senderId == _myProfile?.id
-          ? _myProfile?.fullName
-          : _partnerProfile?['full_name'];
+        setState(() {
+          _replyingTo = null;
+        });
 
-      setState(() {
-        _replyingTo = null; // Clear reply context
-      });
-
-      await SupabaseService.sendDirectMessage(
-        widget.conversationId,
-        attachmentType == 'image'
-            ? '📷 Photo'
-            : (attachmentType == 'video' ? '🎥 Video' : '📎 $fileName'),
-        attachmentUrl: url,
-        attachmentType: attachmentType,
-        replyToId: replyId,
-        replyToMessage: replyMessage,
-        replyToSender: replySender,
-      );
-      _scrollToBottom();
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Upload failed. Check connection.')),
+        await SupabaseService.sendDirectMessage(
+          widget.conversationId,
+          attachmentType == 'image'
+              ? '📷 Photo'
+              : (attachmentType == 'video' ? '🎥 Video' : '📄 Document'),
+          attachmentUrl: url,
+          attachmentType: attachmentType,
+          replyToId: replyId,
+          replyToMessage: replyMessage,
+          replyToSender: replySender,
         );
+        _scrollToBottom();
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to send attachment: $e')),
+          );
+        }
       }
     }
 
     if (mounted) setState(() => _isUploading = false);
   }
 
-  // ─── Local Caching & Custom Downloaders ───────────────
+  // ─── Local cache / file helpers ──────────────────────
   Future<String> _getLocalFilePath(String url) async {
     final dir = await getApplicationDocumentsDirectory();
-    final uri = Uri.parse(url);
-    final fileName = Uri.decodeComponent(uri.pathSegments.last);
-    final dmsDir = Directory('${dir.path}/caseflow_dms');
-    if (!await dmsDir.exists()) {
-      await dmsDir.create(recursive: true);
-    }
-    return '${dmsDir.path}/$fileName';
+    final name = url.split('/').last.split('?').first;
+    return '${dir.path}/$name';
   }
 
   void _checkLocalFiles(List<DirectMessage> messages) async {
-    for (final msg in messages) {
-      if (msg.hasAttachment && msg.attachmentUrl != null) {
-        final url = msg.attachmentUrl!;
-        if (!_localPaths.containsKey(url)) {
+    for (final m in messages) {
+      if (m.attachmentUrl != null) {
+        final url = m.attachmentUrl!;
+        if (!_localFilesExist.containsKey(url)) {
           final path = await _getLocalFilePath(url);
-          _localPaths[url] = path;
           final exists = await File(path).exists();
           if (mounted) {
             setState(() {
+              _localPaths[url] = path;
               _localFilesExist[url] = exists;
             });
           }
@@ -373,11 +368,11 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
   }
 
   Future<bool> _downloadFile(String url, String displayName) async {
-    if (_downloadProgress.containsKey(url)) return false;
+    if (mounted) {
+      setState(() => _downloadProgress[url] = 0.01);
+    }
 
     try {
-      setState(() => _downloadProgress[url] = 0.0);
-
       String relativePath = url;
       if (url.startsWith('http')) {
         final uri = Uri.parse(url);
@@ -391,7 +386,6 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
       }
       relativePath = Uri.decodeComponent(relativePath);
 
-      debugPrint('Downloading DM attachment from Supabase: $relativePath');
       final bytes = await Supabase.instance.client.storage
           .from('chat-attachments')
           .download(relativePath);
@@ -447,7 +441,6 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
       return;
     }
 
-    // Prevent duplicate triggers
     _downloadProgress[url] = 0.0;
 
     final localPath = _localPaths[url] ?? await _getLocalFilePath(url);
@@ -490,7 +483,6 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
     }
   }
 
-  // ─── Download & Open File ───────────────────────────
   Future<void> _downloadAndOpen(String url, String displayName) async {
     final localPath = _localPaths[url] ?? await _getLocalFilePath(url);
     _localPaths[url] = localPath;
@@ -513,7 +505,6 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
     }
   }
 
-  // ─── Full-screen Image Viewer ──────────────────────
   void _openImageViewer(String pathOrUrl, {required bool isLocal}) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -533,17 +524,17 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                       isLocal
                           ? Image.file(File(pathOrUrl), fit: BoxFit.contain)
                           : Image.network(
-                            pathOrUrl,
-                            fit: BoxFit.contain,
-                            loadingBuilder: (_, child, progress) {
-                              if (progress == null) return child;
-                              return const Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                ),
-                              );
-                            },
-                          ),
+                              pathOrUrl,
+                              fit: BoxFit.contain,
+                              loadingBuilder: (_, child, progress) {
+                                if (progress == null) return child;
+                                return const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                );
+                              },
+                            ),
                 ),
               ),
             ),
@@ -701,7 +692,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
       if (await cachedFile.exists()) {
         await cachedFile.copy(tempPath);
       } else {
-        final success = await _downloadFile(url, fileName);
+        final success = await _downloadFile(url, displayName);
         if (success && await cachedFile.exists()) {
           await cachedFile.copy(tempPath);
         } else {
@@ -761,20 +752,20 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      backgroundColor: isDark ? const Color(0xFF1F2C34) : Colors.white,
+      backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
       builder:
           (ctx) => SafeArea(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Container(
-                  width: 36,
+                  width: 38,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey[isDark ? 700 : 300],
+                    color: isDark ? Colors.white24 : const Color(0xFFE2E8F0),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -782,12 +773,13 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                 ListTile(
                   leading: Icon(
                     Icons.reply_rounded,
-                    color: isDark ? Colors.white70 : Colors.black87,
+                    color: isDark ? Colors.white70 : const Color(0xFF4F46E5),
                   ),
                   title: Text(
                     'Reply',
-                    style: TextStyle(
-                      color: isDark ? Colors.white : Colors.black87,
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
                     ),
                   ),
                   onTap: () {
@@ -801,12 +793,13 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                   ListTile(
                     leading: Icon(
                       Icons.copy_rounded,
-                      color: isDark ? Colors.white70 : Colors.black87,
+                      color: isDark ? Colors.white70 : const Color(0xFF4F46E5),
                     ),
                     title: Text(
                       'Copy Text',
-                      style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black87,
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
                       ),
                     ),
                     onTap: () {
@@ -821,12 +814,13 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                   ListTile(
                     leading: Icon(
                       Icons.download_rounded,
-                      color: isDark ? Colors.white70 : Colors.black87,
+                      color: isDark ? Colors.white70 : const Color(0xFF4F46E5),
                     ),
                     title: Text(
                       'Save to Device',
-                      style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black87,
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
                       ),
                     ),
                     onTap: () {
@@ -838,11 +832,14 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                   ListTile(
                     leading: const Icon(
                       Icons.delete_rounded,
-                      color: Colors.redAccent,
+                      color: Color(0xFFEF4444),
                     ),
-                    title: const Text(
+                    title: Text(
                       'Delete for Everyone',
-                      style: TextStyle(color: Colors.redAccent),
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFEF4444),
+                      ),
                     ),
                     onTap: () async {
                       Navigator.pop(ctx);
@@ -852,19 +849,20 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                             (dial) => AlertDialog(
                               backgroundColor:
                                   isDark
-                                      ? const Color(0xFF1F2C34)
+                                      ? const Color(0xFF1E293B)
                                       : Colors.white,
                               title: Text(
                                 'Delete Message?',
-                                style: TextStyle(
-                                  color: isDark ? Colors.white : Colors.black,
+                                style: GoogleFonts.outfit(
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
                                 ),
                               ),
                               content: Text(
                                 'Are you sure you want to delete this message for everyone?',
-                                style: TextStyle(
+                                style: GoogleFonts.inter(
                                   color:
-                                      isDark ? Colors.white70 : Colors.black87,
+                                      isDark ? Colors.white70 : const Color(0xFF475569),
                                 ),
                               ),
                               actions: [
@@ -876,7 +874,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                                   onPressed: () => Navigator.pop(dial, true),
                                   child: const Text(
                                     'Delete',
-                                    style: TextStyle(color: Colors.redAccent),
+                                    style: TextStyle(color: Color(0xFFEF4444)),
                                   ),
                                 ),
                               ],
@@ -928,15 +926,16 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1F2C34) : const Color(0xFFF0F2F5),
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
         border: Border(
-          top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+          top: BorderSide(color: isDark ? Colors.white10 : Colors.black10),
         ),
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF2A3942) : Colors.white,
-          borderRadius: BorderRadius.circular(8),
+          color: isDark ? const Color(0xFF0F172A) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
         ),
         child: Row(
           children: [
@@ -944,14 +943,14 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
               width: 4,
               height: 48,
               decoration: const BoxDecoration(
-                color: Color(0xFFD4AF37),
+                color: Color(0xFF4F46E5),
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(4),
-                  bottomLeft: Radius.circular(4),
+                  topLeft: Radius.circular(12),
+                  bottomLeft: Radius.circular(12),
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
@@ -961,18 +960,18 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                   children: [
                     Text(
                       previewSender ?? 'Advocate',
-                      style: const TextStyle(
+                      style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFFD4AF37),
+                        color: const Color(0xFF4F46E5),
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       previewText,
-                      style: TextStyle(
+                      style: GoogleFonts.inter(
                         fontSize: 13,
-                        color: isDark ? Colors.white70 : Colors.black87,
+                        color: isDark ? Colors.white70 : const Color(0xFF334155),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -1016,7 +1015,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
         ),
         child: Row(
           children: [
-            Container(width: 3, height: 36, color: const Color(0xFFD4AF37)),
+            Container(width: 3, height: 36, color: const Color(0xFF4F46E5)),
             const SizedBox(width: 8),
             Expanded(
               child: Column(
@@ -1024,18 +1023,18 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                 children: [
                   Text(
                     msg.replyToSender ?? 'Advocate',
-                    style: const TextStyle(
+                    style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFFD4AF37),
+                      color: const Color(0xFF4F46E5),
                     ),
                   ),
                   const SizedBox(height: 1),
                   Text(
                     msg.replyToMessage ?? '',
-                    style: TextStyle(
+                    style: GoogleFonts.inter(
                       fontSize: 12,
-                      color: isDark ? Colors.white70 : Colors.black87,
+                      color: isDark ? Colors.white70 : const Color(0xFF334155),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -1049,7 +1048,6 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
     );
   }
 
-  // ─── Scroll to Message helper ───────────────────────
   void _scrollToMessage(String replyToId) {
     final idx = _currentMessagesList.indexWhere((m) => m.id == replyToId);
     if (idx != -1) {
@@ -1059,20 +1057,9 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOutCubic,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Scrolling to original message...'),
-          duration: Duration(milliseconds: 800),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Original message not found or deleted')),
-      );
     }
   }
 
-  // ─── Swipe to Reply Widget ─────────────────────────
   Widget _buildSwipeToReply({
     required Widget child,
     required DirectMessage message,
@@ -1089,7 +1076,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
       background: Container(
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.only(left: 16),
-        child: const Icon(Icons.reply_rounded, color: Color(0xFF00A884)),
+        child: const Icon(Icons.reply_rounded, color: Color(0xFF4F46E5)),
       ),
       child: child,
     );
@@ -1099,46 +1086,52 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
   Widget _buildBubble(DirectMessage msg, bool isMe, bool isDark) {
     final bubbleColor =
         isMe
-            ? (isDark ? const Color(0xFF005C4B) : const Color(0xFFDCF8C6))
-            : (isDark ? const Color(0xFF1F2C34) : Colors.white);
-    final textColor = isDark ? Colors.white : const Color(0xFF111B21);
-    final metaColor = isDark ? Colors.white38 : const Color(0xFF667781);
+            ? (isDark ? const Color(0xFF4F46E5) : const Color(0xFFEEF2FF))
+            : (isDark ? const Color(0xFF1E293B) : Colors.white);
+    final textColor = isMe
+        ? (isDark ? Colors.white : const Color(0xFF0F172A))
+        : (isDark ? Colors.white : const Color(0xFF0F172A));
+    final metaColor = isMe
+        ? (isDark ? Colors.white54 : const Color(0xFF64748B))
+        : (isDark ? Colors.white38 : const Color(0xFF94A3B8));
 
     final bubbleWidget = Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: GestureDetector(
         onLongPress: () => _showMessageOptions(msg, isMe),
         child: Container(
-          margin: const EdgeInsets.only(bottom: 4),
+          margin: const EdgeInsets.only(bottom: 6),
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.78,
           ),
           decoration: BoxDecoration(
             color: bubbleColor,
             borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(12),
-              topRight: const Radius.circular(12),
-              bottomLeft: Radius.circular(isMe ? 12 : 2),
-              bottomRight: Radius.circular(isMe ? 2 : 12),
+              topLeft: const Radius.circular(16),
+              topRight: const Radius.circular(16),
+              bottomLeft: Radius.circular(isMe ? 16 : 4),
+              bottomRight: Radius.circular(isMe ? 4 : 16),
             ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 2,
-                offset: const Offset(0, 1),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
             ],
+            border: Border.all(
+              color: isMe
+                  ? Colors.transparent
+                  : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+            ),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // ── Reply box (quoted message) ──
                 if (msg.hasReply) _buildQuotedReplyBox(msg, isDark),
-
-                // ── Attachment rendering ──
                 if (msg.hasAttachment) ...[
                   if (msg.isImage)
                     _buildImageBubble(msg, isDark)
@@ -1149,39 +1142,32 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                     _buildVoiceBubble(msg, isMe, isDark)
                   else
                     _buildDocumentBubble(msg, isMe, isDark),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                 ],
-
-                // Text (hide if just an attachment label)
                 if (!msg.hasAttachment)
                   Text(
                     msg.message,
-                    style: TextStyle(
+                    style: GoogleFonts.inter(
                       color: textColor,
                       fontSize: 14,
-                      height: 1.35,
+                      height: 1.4,
                     ),
                   ),
-
-                // Time + ticks
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
                       DateFormat('hh:mm a').format(msg.createdAt.toLocal()),
-                      style: TextStyle(fontSize: 10, color: metaColor),
+                      style: GoogleFonts.inter(fontSize: 10, color: metaColor, fontWeight: FontWeight.w500),
                     ),
                     if (isMe) ...[
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 6),
                       Icon(
                         Icons.done_all_rounded,
                         size: 14,
-                        color:
-                            msg.isRead
-                                ? const Color(0xFF53BDEB)
-                                : metaColor,
+                        color: msg.isRead ? const Color(0xFF10B981) : metaColor,
                       ),
                     ],
                   ],
@@ -1202,7 +1188,6 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
     final localExists = _localFilesExist[url] == true;
     final localPath = _localPaths[url];
 
-    // Background download so images cache auto
     if (!localExists && !_downloadProgress.containsKey(url)) {
       _downloadInBackground(url, 'Image.png');
     }
@@ -1216,7 +1201,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
         }
       },
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         child:
             localExists && localPath != null
                 ? Image.file(
@@ -1244,7 +1229,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
           height: 200,
           decoration: BoxDecoration(
             color: isDark ? Colors.white10 : Colors.grey[200],
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
             child: CircularProgressIndicator(
@@ -1254,7 +1239,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                       ? progress.cumulativeBytesLoaded /
                           progress.expectedTotalBytes!
                       : null,
-              color: AppTheme.accent,
+              color: const Color(0xFF4F46E5),
             ),
           ),
         );
@@ -1265,7 +1250,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
             height: 80,
             decoration: BoxDecoration(
               color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: const Center(
               child: Icon(
@@ -1328,7 +1313,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                     height: 56,
                     child: CircularProgressIndicator(
                       value: progress > 0 ? progress : null,
-                      color: const Color(0xFFD4AF37),
+                      color: const Color(0xFF4F46E5),
                       strokeWidth: 4,
                     ),
                   ),
@@ -1364,7 +1349,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                     child: const Icon(
                       Icons.play_arrow_rounded,
                       size: 40,
-                      color: Color(0xFFD4AF37),
+                      color: Color(0xFF4F46E5),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -1378,226 +1363,71 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                   ),
                 ],
               ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.black38 : Colors.white38,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(11),
-                    bottomRight: Radius.circular(11),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.movie_creation_rounded,
-                      size: 14,
-                      color: isDark ? Colors.white70 : Colors.black87,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'VIDEO',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: isDark ? Colors.white70 : Colors.black87,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ],
         ),
       ),
     );
   }
 
-  // ─── DOCUMENT BUBBLE ───────────────────────────────
-  Widget _buildDocumentBubble(DirectMessage msg, bool isMe, bool isDark) {
-    final fileName = msg.message.replaceFirst('📎 ', '');
-    final ext = fileName.split('.').last.toUpperCase();
-    final url = msg.attachmentUrl!;
-    final isDownloading = _downloadProgress.containsKey(url);
-    final progress = _downloadProgress[url] ?? 0.0;
-    final localExists = _localFilesExist[url] == true;
-
-    final docColor = _docColor(ext);
-
-    return GestureDetector(
-      onTap: isDownloading ? null : () => _downloadAndOpen(url, fileName),
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // File icon
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: docColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Center(
-                child:
-                    isDownloading
-                        ? SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            value: progress > 0 ? progress : null,
-                            color: docColor,
-                          ),
-                        )
-                        : Icon(_docIcon(ext), size: 22, color: docColor),
-              ),
-            ),
-            const SizedBox(width: 10),
-            // File info
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    fileName,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : const Color(0xFF111B21),
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 3),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 5,
-                          vertical: 1,
-                        ),
-                        decoration: BoxDecoration(
-                          color: docColor.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        child: Text(
-                          ext,
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w900,
-                            color: docColor,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        isDownloading
-                            ? 'Downloading...'
-                            : (localExists ? 'Tap to view' : 'Tap to download'),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: isDark ? Colors.white38 : Colors.black38,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            // Download icon
-            if (!isDownloading && !localExists)
-              Icon(
-                Icons.download_rounded,
-                size: 22,
-                color: isDark ? Colors.white38 : Colors.black26,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ─── VOICE BUBBLE ──────────────────────────────────
+  // ─── VOICE MESSAGE BUBBLE ──────────────────────────
   Widget _buildVoiceBubble(DirectMessage msg, bool isMe, bool isDark) {
     final url = msg.attachmentUrl!;
     final isPlayingThis = _playingUrl == url;
     final isPlaying = isPlayingThis && _playerState == PlayerState.playing;
 
-    final durationText =
-        isPlayingThis && _audioDuration > Duration.zero
-            ? '${_formatDuration(_audioPosition.inSeconds)} / ${_formatDuration(_audioDuration.inSeconds)}'
-            : msg.message
-                .replaceFirst('🎤 Voice message (', '')
-                .replaceFirst(')', '');
+    double progressValue = 0.0;
+    if (isPlayingThis && _audioDuration.inMilliseconds > 0) {
+      progressValue =
+          _audioPosition.inMilliseconds / _audioDuration.inMilliseconds;
+    }
 
-    final progressValue =
-        isPlayingThis && _audioDuration.inMilliseconds > 0
-            ? _audioPosition.inMilliseconds / _audioDuration.inMilliseconds
-            : 0.0;
+    String durationText = '0:00';
+    if (isPlayingThis && _audioDuration != Duration.zero) {
+      final rem = _audioDuration - _audioPosition;
+      final m = rem.inMinutes;
+      final s = rem.inSeconds % 60;
+      durationText = '$m:${s.toString().padLeft(2, '0')}';
+    } else {
+      final reg = RegExp(r'\((\d+:\d+)\)');
+      final match = reg.firstMatch(msg.message);
+      if (match != null) {
+        durationText = match.group(1) ?? '0:00';
+      }
+    }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      width: 240,
-      decoration: BoxDecoration(
-        color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(10),
-      ),
+      width: 250,
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           GestureDetector(
             onTap: () => _playVoice(url),
             child: Container(
-              width: 38,
-              height: 38,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
-                color:
-                    isMe
-                        ? (isDark ? Colors.white24 : Colors.black12)
-                        : (isDark ? Colors.white10 : Colors.grey[200]),
+                color: isMe ? Colors.white24 : const Color(0xFF4F46E5).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                color: isDark ? Colors.white : Colors.black87,
+                color: isMe ? Colors.white : const Color(0xFF4F46E5),
                 size: 24,
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SliderTheme(
                   data: SliderThemeData(
-                    trackHeight: 2,
-                    thumbShape: const RoundSliderThumbShape(
-                      enabledThumbRadius: 5,
-                    ),
-                    overlayShape: const RoundSliderOverlayShape(
-                      overlayRadius: 10,
-                    ),
-                    activeTrackColor:
-                        isDark ? Colors.white : const Color(0xFF00A884),
-                    inactiveTrackColor:
-                        isDark ? Colors.white24 : Colors.black12,
-                    thumbColor: isDark ? Colors.white : const Color(0xFF00A884),
+                    trackHeight: 3,
+                    activeTrackColor: isMe ? Colors.white : const Color(0xFF4F46E5),
+                    inactiveTrackColor: isMe ? Colors.white30 : Colors.grey[300],
+                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                    thumbColor: isMe ? Colors.white : const Color(0xFF4F46E5),
                   ),
                   child: Slider(
                     value: progressValue.clamp(0.0, 1.0),
@@ -1621,18 +1451,86 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                         durationText,
                         style: TextStyle(
                           fontSize: 10,
-                          color: isDark ? Colors.white38 : Colors.black38,
+                          color: isMe ? Colors.white70 : Colors.black45,
                         ),
                       ),
-                      Icon(
+                      const Icon(
                         Icons.mic_rounded,
                         size: 14,
-                        color: isDark ? const Color(0xFF53BDEB) : Colors.blue,
+                        color: Color(0xFF10B981),
                       ),
                     ],
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── DOCUMENT BUBBLE ────────────────────────────────
+  Widget _buildDocumentBubble(DirectMessage msg, bool isMe, bool isDark) {
+    final url = msg.attachmentUrl!;
+    final name = msg.message.replaceFirst('📄 ', '');
+    final ext = url.split('.').last.split('?').first.toLowerCase();
+    final isDownloading = _downloadProgress.containsKey(url);
+
+    return Container(
+      width: 250,
+      decoration: BoxDecoration(
+        color: isMe ? Colors.black12 : const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: _docColor(ext).withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: isDownloading
+                ? Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: _docColor(ext),
+                    ),
+                  )
+                : Icon(_docIcon(ext), color: _docColor(ext), size: 24),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _downloadAndOpen(url, name),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : const Color(0xFF1E293B),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    ext.toUpperCase(),
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -1656,7 +1554,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
       case 'txt':
         return Colors.grey;
       default:
-        return AppTheme.accent;
+        return const Color(0xFF4F46E5);
     }
   }
 
@@ -1711,7 +1609,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder:
           (ctx) => SafeArea(
@@ -1721,7 +1619,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 36,
+                    width: 38,
                     height: 4,
                     decoration: BoxDecoration(
                       color: Colors.grey[300],
@@ -1809,7 +1707,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
           const SizedBox(height: 8),
           Text(
             label,
-            style: TextStyle(
+            style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: Colors.grey[600],
@@ -1827,9 +1725,9 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
     if (_loading) {
       return Scaffold(
         backgroundColor:
-            isDark ? const Color(0xFF0B141A) : const Color(0xFFECE5DD),
+            isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
         body: const Center(
-          child: CircularProgressIndicator(color: AppTheme.accent),
+          child: CircularProgressIndicator(color: Color(0xFF4F46E5)),
         ),
       );
     }
@@ -1837,7 +1735,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
     if (_partnerProfile == null) {
       return Scaffold(
         backgroundColor:
-            isDark ? const Color(0xFF0B141A) : const Color(0xFFECE5DD),
+            isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
         appBar: AppBar(title: const Text('Error')),
         body: const Center(child: Text('Failed to load advocate details.')),
       );
@@ -1854,15 +1752,15 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
       backgroundColor:
           isDark ? const Color(0xFF0B141A) : const Color(0xFFECE5DD),
       appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF1F2C34) : AppTheme.accent,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
+        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+        foregroundColor: isDark ? Colors.white : const Color(0xFF0F172A),
+        elevation: 0.5,
+        scrolledUnderElevation: 0.5,
         leadingWidth: 40,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: Colors.white,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
             size: 20,
           ),
           onPressed: () => Navigator.pop(context),
@@ -1884,8 +1782,8 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                     partnerName,
                     style: GoogleFonts.outfit(
                       fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
                     ),
                   ),
                   _isPartnerTyping
@@ -1893,7 +1791,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                           'typing...',
                           style: GoogleFonts.inter(
                             fontSize: 11,
-                            color: const Color(0xFF25D366),
+                            color: const Color(0xFF10B981),
                             fontWeight: FontWeight.w700,
                           ),
                         )
@@ -1902,7 +1800,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                               partnerLocation,
                               style: GoogleFonts.inter(
                                 fontSize: 11,
-                                color: Colors.white.withValues(alpha: 0.7),
+                                color: isDark ? Colors.white70 : const Color(0xFF64748B),
                                 fontWeight: FontWeight.w500,
                               ),
                               maxLines: 1,
@@ -1924,7 +1822,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                   height: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.white,
+                    color: Color(0xFF4F46E5),
                   ),
                 ),
               ),
@@ -1939,7 +1837,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
-                    child: CircularProgressIndicator(color: AppTheme.accent),
+                    child: CircularProgressIndicator(color: Color(0xFF4F46E5)),
                   );
                 }
 
@@ -1954,14 +1852,12 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                   return _buildEmptyState(partnerName, isDark);
                 }
 
-                // Asynchronously check and load local file presence
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (mounted) {
                     _checkLocalFiles(messages);
                   }
                 });
 
-                // Scroll to bottom on new message
                 WidgetsBinding.instance.addPostFrameCallback(
                   (_) => _scrollToBottom(),
                 );
@@ -1974,7 +1870,6 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                     final msg = messages[index];
                     final isMe = msg.senderId == _myProfile?.id;
 
-                    // Date separator
                     Widget? dateSeparator;
                     if (index == 0 ||
                         !_isSameDay(
@@ -2011,15 +1906,15 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
     if (_isRecording) {
       return Container(
         padding: EdgeInsets.only(
-          left: 6,
-          right: 6,
-          top: 6,
+          left: 8,
+          right: 8,
+          top: 8,
           bottom:
               MediaQuery.of(context).viewInsets.bottom > 0
-                  ? 6
-                  : MediaQuery.of(context).padding.bottom + 6,
+                  ? 8
+                  : MediaQuery.of(context).padding.bottom + 8,
         ),
-        color: isDark ? const Color(0xFF1F2C34) : const Color(0xFFF0F2F5),
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
         child: Row(
           children: [
             Expanded(
@@ -2029,29 +1924,30 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2A3942) : Colors.white,
+                  color: isDark ? const Color(0xFF0F172A) : Colors.white,
                   borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
                 child: Row(
                   children: [
                     const Icon(
                       Icons.fiber_manual_record,
-                      color: Colors.redAccent,
+                      color: Color(0xFFEF4444),
                       size: 16,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       _formatDuration(_recordDuration),
-                      style: TextStyle(
+                      style: GoogleFonts.inter(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : const Color(0xFF111B21),
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Text(
                       'Recording voice...',
-                      style: TextStyle(
+                      style: GoogleFonts.inter(
                         fontSize: 14,
                         color: isDark ? Colors.white60 : Colors.grey[600],
                       ),
@@ -2060,21 +1956,23 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             IconButton(
               icon: const Icon(
                 Icons.delete_outline_rounded,
-                color: Colors.redAccent,
+                color: Color(0xFFEF4444),
                 size: 26,
               ),
               onPressed: _cancelRecording,
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             Container(
               width: 48,
               height: 48,
               decoration: const BoxDecoration(
-                color: Color(0xFF00A884),
+                gradient: LinearGradient(
+                  colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                ),
                 shape: BoxShape.circle,
               ),
               child: IconButton(
@@ -2093,22 +1991,25 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
 
     return Container(
       padding: EdgeInsets.only(
-        left: 6,
-        right: 6,
-        top: 6,
+        left: 8,
+        right: 8,
+        top: 8,
         bottom:
             MediaQuery.of(context).viewInsets.bottom > 0
-                ? 6
-                : MediaQuery.of(context).padding.bottom + 6,
+                ? 8
+                : MediaQuery.of(context).padding.bottom + 8,
       ),
-      color: isDark ? const Color(0xFF1F2C34) : const Color(0xFFF0F2F5),
+      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
       child: Row(
         children: [
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF2A3942) : Colors.white,
+                color: isDark ? const Color(0xFF0F172A) : Colors.white,
                 borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                ),
               ),
               child: Row(
                 children: [
@@ -2116,7 +2017,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                     icon: Icon(
                       Icons.attach_file_rounded,
                       size: 22,
-                      color: isDark ? Colors.white54 : Colors.grey[600],
+                      color: Color(0xFF4F46E5),
                     ),
                     onPressed: _isUploading ? null : _showAttachmentSheet,
                   ),
@@ -2125,9 +2026,9 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                       controller: _msgController,
                       maxLines: 4,
                       minLines: 1,
-                      style: TextStyle(
+                      style: GoogleFonts.inter(
                         fontSize: 15,
-                        color: isDark ? Colors.white : const Color(0xFF111B21),
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
                       ),
                       textInputAction: TextInputAction.newline,
                       onChanged: (val) {
@@ -2135,8 +2036,8 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                         setState(() {});
                       },
                       decoration: InputDecoration(
-                        hintText: 'Type a message',
-                        hintStyle: TextStyle(
+                        hintText: 'Type a message...',
+                        hintStyle: GoogleFonts.inter(
                           color: isDark ? Colors.white38 : Colors.grey[500],
                           fontSize: 15,
                         ),
@@ -2151,7 +2052,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                     icon: Icon(
                       Icons.camera_alt_rounded,
                       size: 22,
-                      color: isDark ? Colors.white54 : Colors.grey[600],
+                      color: Color(0xFF4F46E5),
                     ),
                     onPressed:
                         _isUploading
@@ -2162,18 +2063,20 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
               ),
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           Container(
             width: 48,
             height: 48,
             decoration: const BoxDecoration(
-              color: Color(0xFF00A884),
+              gradient: LinearGradient(
+                colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+              ),
               shape: BoxShape.circle,
             ),
             child: IconButton(
               icon: Icon(
                 showMic ? Icons.mic_rounded : Icons.send_rounded,
-                size: 22,
+                size: 20,
                 color: Colors.white,
               ),
               onPressed: showMic ? _startRecording : _sendMessage,
@@ -2191,19 +2094,19 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
       decoration: BoxDecoration(
         color:
             isDark
-                ? const Color(0xFF1F2C34)
+                ? const Color(0xFF1E293B)
                 : Colors.white.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 3),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4),
         ],
       ),
       child: Text(
         _formatDateLabel(date),
-        style: TextStyle(
+        style: GoogleFonts.inter(
           fontSize: 11,
           fontWeight: FontWeight.w700,
-          color: isDark ? Colors.white60 : Colors.black45,
+          color: isDark ? Colors.white70 : const Color(0xFF475569),
         ),
       ),
     );
@@ -2234,12 +2137,12 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+              color: const Color(0xFF4F46E5).withValues(alpha: 0.1),
             ),
             child: const Icon(
               Icons.waving_hand_rounded,
               size: 40,
-              color: AppTheme.accent,
+              color: Color(0xFF4F46E5),
             ),
           ),
           const SizedBox(height: 16),

@@ -301,6 +301,116 @@ export function useUpdateElection() {
   });
 }
 
+export function useDeleteElection() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('bar_elections').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['elections'] }),
+  });
+}
+
+export function useCreateElectionPost(electionId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (post: { post_name: string; max_winners?: number }) => {
+      const { data, error } = await supabase
+        .from('bar_election_posts')
+        .insert({ ...post, election_id: electionId })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['election-posts', electionId] }),
+  });
+}
+
+export function useDeleteElectionPost(electionId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('bar_election_posts').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['election-posts', electionId] }),
+  });
+}
+
+export function useCreateNomination(postId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (nomination: { nominee_member_id: string }) => {
+      const { data, error } = await supabase
+        .from('bar_nominations')
+        .insert({ ...nomination, post_id: postId, status: 'approved' })
+        .select('*, nominee:nominee_member_id(name, photo_url)')
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['nominations', postId] }),
+  });
+}
+
+export function useDeleteNomination(postId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('bar_nominations').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['nominations', postId] }),
+  });
+}
+
+export function useElectionPosts(electionId: string) {
+  return useQuery({
+    queryKey: ['election-posts', electionId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('bar_election_posts')
+        .select('*')
+        .eq('election_id', electionId)
+        .order('created_at');
+      if (error) throw error;
+      return data as BarElectionPost[];
+    },
+    enabled: !!electionId,
+  });
+}
+
+export function useNominations(postId: string) {
+  return useQuery({
+    queryKey: ['nominations', postId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('bar_nominations')
+        .select('*, nominee:nominee_member_id(name, photo_url)')
+        .eq('post_id', postId)
+        .order('created_at');
+      if (error) throw error;
+      return data as (BarNomination & { nominee?: { name: string; photo_url?: string } })[];
+    },
+    enabled: !!postId,
+  });
+}
+
+export function useVoteCounts(postId: string) {
+  return useQuery({
+    queryKey: ['vote-counts', postId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .rpc('get_vote_counts', { p_post_id: postId });
+      if (error) throw error;
+      return data as VoteCount[];
+    },
+    enabled: !!postId,
+  });
+}
+
 // ─── Events ──────────────────────────────────────────
 
 export function useEvents(associationId: string) {
@@ -333,6 +443,17 @@ export function useCreateEvent(associationId: string) {
       return data;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['events', associationId] }),
+  });
+}
+
+export function useDeleteEvent() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('bar_events').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['events'] }),
   });
 }
 

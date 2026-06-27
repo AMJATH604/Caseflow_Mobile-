@@ -5,7 +5,22 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../models/bar_association_models.dart';
 import '../../services/providers.dart';
-import '../../theme/app_theme.dart';
+
+// Premium Color Palette
+class _C {
+  static const primary = Color(0xFF4F46E5);
+  static const success = Color(0xFF10B981);
+  static const danger = Color(0xFFEF4444);
+  static const accent = Color(0xFFF59E0B);
+  static const violet = Color(0xFF7C3AED);
+  static const blue = Color(0xFF2563EB);
+  static const surface = Color(0xFFF8FAFC);
+  static const card = Colors.white;
+  static const textPrimary = Color(0xFF0F172A);
+  static const textSecondary = Color(0xFF64748B);
+  static const textMuted = Color(0xFF94A3B8);
+  static const border = Color(0xFFE2E8F0);
+}
 
 class BarEventsScreen extends ConsumerStatefulWidget {
   final String associationId;
@@ -31,28 +46,36 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final eventsAsync =
-        ref.watch(barEventsProvider(widget.associationId));
+    final eventsAsync = ref.watch(barEventsProvider(widget.associationId));
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: _C.surface,
       appBar: AppBar(
         title: Text(
           'Events & Calendar',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 20),
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w800,
+            fontSize: 20,
+            color: _C.textPrimary,
+          ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: const IconThemeData(color: _C.textPrimary),
       ),
       body: eventsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: _C.primary),
+        ),
         error: (e, _) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
+              Icon(Icons.error_outline_rounded, size: 48,
+                  color: _C.danger.withValues(alpha: 0.5)),
               const SizedBox(height: 12),
-              Text('Failed to load events', style: GoogleFonts.inter()),
+              Text('Failed to load events',
+                  style: GoogleFonts.inter(color: _C.textMuted)),
             ],
           ),
         ),
@@ -62,7 +85,6 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
   }
 
   Widget _buildContent(List<BarEvent> allEvents) {
-    // Build events map for calendar
     final eventMap = <DateTime, List<BarEvent>>{};
     for (final event in allEvents) {
       final date = DateTime(
@@ -73,16 +95,11 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
       eventMap.putIfAbsent(date, () => []).add(event);
     }
 
-    // Events for selected day
     final selectedDate = _selectedDay ?? _focusedDay;
     final normalizedSelected = DateTime(
-      selectedDate.year,
-      selectedDate.month,
-      selectedDate.day,
-    );
+      selectedDate.year, selectedDate.month, selectedDate.day);
     final dayEvents = eventMap[normalizedSelected] ?? [];
 
-    // Filter by category
     final filteredAll = _selectedCategory == 'all'
         ? allEvents
         : allEvents.where((e) => e.category == _selectedCategory).toList();
@@ -92,7 +109,18 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
         // ── Calendar ──
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: AppTheme.cardDecoration(),
+          decoration: BoxDecoration(
+            color: _C.card,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: _C.border),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
           child: TableCalendar(
             firstDay: DateTime(2024),
             lastDay: DateTime(2030),
@@ -105,27 +133,26 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
                 _focusedDay = focusedDay;
               });
             },
-            onFormatChanged: (format) {
-              setState(() => _calendarFormat = format);
-            },
-            onPageChanged: (focusedDay) {
-              _focusedDay = focusedDay;
-            },
+            onFormatChanged: (format) =>
+                setState(() => _calendarFormat = format),
+            onPageChanged: (focusedDay) => _focusedDay = focusedDay,
             eventLoader: (day) {
               final normalized = DateTime(day.year, day.month, day.day);
               return eventMap[normalized] ?? [];
             },
             calendarStyle: CalendarStyle(
               todayDecoration: BoxDecoration(
-                color: const Color(0xFF0891B2).withValues(alpha: 0.2),
+                color: _C.primary.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               todayTextStyle: GoogleFonts.inter(
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF0891B2),
+                color: _C.primary,
               ),
               selectedDecoration: const BoxDecoration(
-                color: Color(0xFF0891B2),
+                gradient: LinearGradient(
+                  colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                ),
                 shape: BoxShape.circle,
               ),
               selectedTextStyle: GoogleFonts.inter(
@@ -134,18 +161,18 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
               ),
               defaultTextStyle: GoogleFonts.inter(
                 fontSize: 14,
-                color: const Color(0xFF1E293B),
+                color: _C.textPrimary,
               ),
               weekendTextStyle: GoogleFonts.inter(
                 fontSize: 14,
-                color: const Color(0xFFEF4444),
+                color: _C.danger.withValues(alpha: 0.7),
               ),
               outsideTextStyle: GoogleFonts.inter(
                 fontSize: 14,
                 color: const Color(0xFFCBD5E1),
               ),
               markerDecoration: const BoxDecoration(
-                color: Color(0xFF6366F1),
+                color: Color(0xFF4F46E5),
                 shape: BoxShape.circle,
               ),
               markerSize: 6,
@@ -155,17 +182,17 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
               titleCentered: true,
               formatButtonVisible: true,
               formatButtonDecoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: _C.border),
                 borderRadius: BorderRadius.circular(8),
               ),
               formatButtonTextStyle: GoogleFonts.inter(
                 fontSize: 12,
-                color: const Color(0xFF475569),
+                color: _C.textSecondary,
               ),
               titleTextStyle: GoogleFonts.inter(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF1E293B),
+                color: _C.textPrimary,
               ),
               leftChevronIcon: const Icon(
                 Icons.chevron_left_rounded,
@@ -180,12 +207,12 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
               weekdayStyle: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF94A3B8),
+                color: _C.textMuted,
               ),
               weekendStyle: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFFEF4444).withValues(alpha: 0.6),
+                color: _C.danger.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -231,15 +258,13 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : const Color(0xFF475569),
+            color: isSelected ? Colors.white : _C.textSecondary,
           ),
         ),
-        selectedColor: color ?? const Color(0xFF0891B2),
-        backgroundColor: Colors.white,
+        selectedColor: color ?? _C.primary,
+        backgroundColor: _C.card,
         side: BorderSide(
-          color: isSelected
-              ? (color ?? const Color(0xFF0891B2))
-              : const Color(0xFFE2E8F0),
+          color: isSelected ? (color ?? _C.primary) : _C.border,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
@@ -261,13 +286,33 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: Text(
-            'Events on ${DateFormat('dd/MM/yyyy').format(_selectedDay ?? _focusedDay)}',
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF1E293B),
-            ),
+          child: Row(
+            children: [
+              Text(
+                'Events on ${DateFormat('dd MMM yyyy').format(_selectedDay ?? _focusedDay)}',
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: _C.textPrimary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: _C.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '${events.length}',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: _C.primary,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         ...events.map((e) => _buildEventCard(e)),
@@ -278,18 +323,10 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
 
   Widget _buildAllEvents(List<BarEvent> events) {
     final upcoming = events
-        .where(
-          (e) => e.eventDate.isAfter(
-            DateTime.now().subtract(const Duration(days: 1)),
-          ),
-        )
+        .where((e) => e.eventDate.isAfter(DateTime.now().subtract(const Duration(days: 1))))
         .toList();
     final past = events
-        .where(
-          (e) => e.eventDate.isBefore(
-            DateTime.now().subtract(const Duration(days: 1)),
-          ),
-        )
+        .where((e) => e.eventDate.isBefore(DateTime.now().subtract(const Duration(days: 1))))
         .toList();
 
     if (upcoming.isEmpty && past.isEmpty) {
@@ -301,13 +338,13 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
+                color: _C.primary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.event_rounded,
-                size: 40,
-                color: Color(0xFFCBD5E1),
+                size: 36,
+                color: _C.primary.withValues(alpha: 0.4),
               ),
             ),
             const SizedBox(height: 16),
@@ -316,7 +353,7 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
               style: GoogleFonts.inter(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF94A3B8),
+                color: _C.textMuted,
               ),
             ),
           ],
@@ -336,7 +373,7 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
           _buildSectionHeader('Past Events', past.length),
           ...past.map((e) => _buildEventCard(e, isPast: true)),
         ],
-        const SizedBox(height: 16),
+        const SizedBox(height: 32),
       ],
     );
   }
@@ -351,14 +388,14 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
             style: GoogleFonts.inter(
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF1E293B),
+              color: _C.textPrimary,
             ),
           ),
           const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: _C.primary.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -366,7 +403,7 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
               style: GoogleFonts.inter(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF64748B),
+                color: _C.primary,
               ),
             ),
           ),
@@ -376,15 +413,26 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
   }
 
   Widget _buildEventCard(BarEvent event, {bool isPast = false}) {
-    final color = _categoryColors[event.category] ?? const Color(0xFF475569);
+    final color = _categoryColors[event.category] ?? _C.textSecondary;
 
     return GestureDetector(
       onTap: () => _showEventDetail(event),
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
-        decoration: AppTheme.cardDecoration(),
+        decoration: BoxDecoration(
+          color: _C.card,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _C.border),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
         child: Opacity(
-          opacity: isPast ? 0.6 : 1.0,
+          opacity: isPast ? 0.5 : 1.0,
           child: Row(
             children: [
               // Color strip
@@ -394,8 +442,8 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
                 decoration: BoxDecoration(
                   color: color,
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    bottomLeft: Radius.circular(20),
+                    topLeft: Radius.circular(16),
+                    bottomLeft: Radius.circular(16),
                   ),
                 ),
               ),
@@ -438,7 +486,7 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
                         style: GoogleFonts.inter(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF1E293B),
+                          color: _C.textPrimary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -447,35 +495,21 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
                       Row(
                         children: [
                           if (event.startTime != null) ...[
-                            const Icon(
-                              Icons.schedule_rounded,
-                              size: 13,
-                              color: Color(0xFF94A3B8),
-                            ),
+                            Icon(Icons.schedule_rounded, size: 13, color: _C.textMuted),
                             const SizedBox(width: 4),
                             Text(
                               event.startTime!,
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: const Color(0xFF94A3B8),
-                              ),
+                              style: GoogleFonts.inter(fontSize: 12, color: _C.textMuted),
                             ),
                             const SizedBox(width: 12),
                           ],
                           if (event.location != null) ...[
-                            const Icon(
-                              Icons.location_on_rounded,
-                              size: 13,
-                              color: Color(0xFF94A3B8),
-                            ),
+                            Icon(Icons.location_on_rounded, size: 13, color: _C.textMuted),
                             const SizedBox(width: 4),
                             Flexible(
                               child: Text(
                                 event.location!,
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  color: const Color(0xFF94A3B8),
-                                ),
+                                style: GoogleFonts.inter(fontSize: 12, color: _C.textMuted),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -491,10 +525,7 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
               Padding(
                 padding: const EdgeInsets.only(right: 14),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -517,7 +548,7 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
   }
 
   void _showEventDetail(BarEvent event) {
-    final color = _categoryColors[event.category] ?? const Color(0xFF475569);
+    final color = _categoryColors[event.category] ?? _C.textSecondary;
 
     showModalBottomSheet(
       context: context,
@@ -541,7 +572,7 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE2E8F0),
+                  color: _C.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -552,10 +583,7 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -571,10 +599,10 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
                 ),
                 const Spacer(),
                 Text(
-                  DateFormat('EEEE, dd/MM/yyyy').format(event.eventDate),
+                  DateFormat('EEEE, dd MMM yyyy').format(event.eventDate),
                   style: GoogleFonts.inter(
                     fontSize: 13,
-                    color: const Color(0xFF64748B),
+                    color: _C.textSecondary,
                   ),
                 ),
               ],
@@ -586,8 +614,8 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
               event.title,
               style: GoogleFonts.inter(
                 fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF1E293B),
+                fontWeight: FontWeight.w800,
+                color: _C.textPrimary,
               ),
             ),
             const SizedBox(height: 16),
@@ -597,48 +625,59 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: _C.surface,
                   borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: _C.border),
                 ),
                 child: Column(
                   children: [
                     if (event.startTime != null)
                       Row(
                         children: [
-                          const Icon(
-                            Icons.schedule_rounded,
-                            size: 18,
-                            color: Color(0xFF475569),
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: _C.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.schedule_rounded,
+                                size: 18, color: _C.primary),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 12),
                           Text(
                             '${event.startTime}${event.endTime != null ? ' — ${event.endTime}' : ''}',
                             style: GoogleFonts.inter(
                               fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF1E293B),
+                              fontWeight: FontWeight.w600,
+                              color: _C.textPrimary,
                             ),
                           ),
                         ],
                       ),
                     if (event.startTime != null && event.location != null)
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
                     if (event.location != null)
                       Row(
                         children: [
-                          const Icon(
-                            Icons.location_on_rounded,
-                            size: 18,
-                            color: Color(0xFF475569),
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: _C.danger.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.location_on_rounded,
+                                size: 18, color: _C.danger),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               event.location!,
                               style: GoogleFonts.inter(
                                 fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: const Color(0xFF1E293B),
+                                fontWeight: FontWeight.w600,
+                                color: _C.textPrimary,
                               ),
                             ),
                           ),
@@ -655,7 +694,7 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
                 event.description!,
                 style: GoogleFonts.inter(
                   fontSize: 14,
-                  color: const Color(0xFF475569),
+                  color: _C.textSecondary,
                   height: 1.6,
                 ),
               ),
@@ -663,13 +702,13 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
 
             // Agenda
             if (event.agenda != null) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Text(
                 'Agenda',
                 style: GoogleFonts.inter(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1E293B),
+                  color: _C.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -677,7 +716,7 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
                 event.agenda!,
                 style: GoogleFonts.inter(
                   fontSize: 14,
-                  color: const Color(0xFF475569),
+                  color: _C.textSecondary,
                   height: 1.6,
                 ),
               ),

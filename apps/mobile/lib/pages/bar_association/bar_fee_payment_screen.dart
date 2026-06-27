@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import '../../models/bar_association_models.dart';
 import '../../services/providers.dart';
 import '../../services/repositories/bar_association_repository.dart';
-import '../../theme/app_theme.dart';
 
 class BarFeePaymentScreen extends ConsumerStatefulWidget {
   final String associationId;
@@ -27,14 +26,15 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
         ref.watch(barMembershipProvider(widget.associationId));
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Text(
           'Membership Fees',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 20),
+          style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 20, color: const Color(0xFF0F172A)),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
       ),
       body: assocAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -42,7 +42,7 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
+              const Icon(Icons.error_outline_rounded, size: 48, color: Color(0xFFEF4444)),
               const SizedBox(height: 12),
               Text('Failed to load data', style: GoogleFonts.inter()),
             ],
@@ -73,6 +73,7 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
     final feeHistoryAsync = ref.watch(barFeeHistoryProvider(member.id));
 
     return RefreshIndicator(
+      color: const Color(0xFF4F46E5),
       onRefresh: () async {
         ref.invalidate(barMembershipProvider(widget.associationId));
         ref.invalidate(barFeeHistoryProvider(member.id));
@@ -281,7 +282,11 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
             data: (payments) {
               if (payments.isEmpty) {
                 return Container(
-                  decoration: AppTheme.cardDecoration(),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
                   padding: const EdgeInsets.all(32),
                   child: Center(
                     child: Column(
@@ -318,7 +323,11 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
   Widget _buildPaymentItem(BarFeePayment payment) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      decoration: AppTheme.cardDecoration(),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [

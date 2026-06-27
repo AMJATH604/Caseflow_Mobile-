@@ -65,6 +65,7 @@ dependencies:
   audioplayers: ^6.1.0
   image_gallery_saver_plus: ^4.0.1
   permission_handler: ^11.3.1
+  flutter_local_notifications: ^19.0.0
 
 
 dev_dependencies:

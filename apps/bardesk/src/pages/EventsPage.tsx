@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { useEvents, useCreateEvent, useCurrentAdmin } from '@/hooks/useBarDesk';
+import { useEvents, useCreateEvent, useDeleteEvent, useCurrentAdmin } from '@/hooks/useBarDesk';
 import { formatDate, getCategoryColor } from '@/lib/utils';
-import { Plus, MapPin, Clock, X, CalendarDays } from 'lucide-react';
+import { Plus, MapPin, Clock, X, CalendarDays, Trash2 } from 'lucide-react';
 
 export default function EventsPage() {
   const { data: admin } = useCurrentAdmin();
   const associationId = admin?.association_id || '';
   const { data: events, isLoading } = useEvents(associationId);
   const createEvent = useCreateEvent(associationId);
+  const deleteEvent = useDeleteEvent();
 
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
@@ -19,6 +20,11 @@ export default function EventsPage() {
     await createEvent.mutateAsync(form as any);
     setShowModal(false);
     setForm({ title: '', description: '', event_date: '', start_time: '', end_time: '', location: '', agenda: '', category: 'meeting' });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Delete this event? This action cannot be undone.')) return;
+    await deleteEvent.mutateAsync(id);
   };
 
   const now = new Date();
@@ -54,7 +60,7 @@ export default function EventsPage() {
           <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Upcoming</h2>
           <div className="space-y-3">
             {upcoming.map((event) => (
-              <EventCard key={event.id} event={event} />
+              <EventCard key={event.id} event={event} onDelete={handleDelete} />
             ))}
           </div>
         </div>
@@ -66,7 +72,7 @@ export default function EventsPage() {
           <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Past Events</h2>
           <div className="space-y-3 opacity-60">
             {past.map((event) => (
-              <EventCard key={event.id} event={event} />
+              <EventCard key={event.id} event={event} onDelete={handleDelete} />
             ))}
           </div>
         </div>
@@ -160,14 +166,14 @@ export default function EventsPage() {
   );
 }
 
-function EventCard({ event }: { event: any }) {
+function EventCard({ event, onDelete }: { event: any; onDelete: (id: string) => void }) {
   const color = getCategoryColor(event.category);
   const date = new Date(event.event_date);
   const day = date.getDate();
   const month = date.toLocaleString('en', { month: 'short' }).toUpperCase();
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition flex gap-4">
+    <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition flex gap-4 group">
       <div className="flex flex-col items-center justify-center w-14 flex-shrink-0">
         <span className="text-2xl font-extrabold" style={{ color }}>{day}</span>
         <span className="text-xs font-bold" style={{ color }}>{month}</span>
@@ -195,6 +201,12 @@ function EventCard({ event }: { event: any }) {
           <p className="text-xs text-slate-500 mt-1 line-clamp-1">{event.description}</p>
         )}
       </div>
+      <button
+        onClick={(e) => { e.stopPropagation(); onDelete(event.id); }}
+        className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition p-1 self-start"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
     </div>
   );
 }

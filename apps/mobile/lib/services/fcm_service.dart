@@ -1,24 +1,43 @@
+import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../main.dart'; // For rootNavigatorKey
+import 'package:go_router/go_router.dart';
 
 /// Handles Firebase Cloud Messaging (FCM) for server-side push notifications.
-/// Manages device token registration, refresh, and removal.
+/// Includes WhatsApp-style rich notifications with Reply, Mark as Read actions.
 class FcmService {
   static final FcmService _instance = FcmService._internal();
   factory FcmService() => _instance;
   FcmService._internal();
 
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
   String? _currentToken;
   bool _listenersRegistered = false;
+  bool _localNotificationsInitialized = false;
+
+  // ─── Notification Channel IDs ──────────────────────────
+  static const _chamberChannelId = 'chat_messages';
+  static const _chamberChannelName = 'Chat Messages';
+  static const _dmChannelId = 'dm_messages';
+  static const _dmChannelName = 'Direct Messages';
+
+  // ─── Action IDs ────────────────────────────────────────
+  static const _actionReply = 'REPLY';
+  static const _actionMarkRead = 'MARK_READ';
 
   /// Initialize FCM: request permission, get token, store in Supabase.
   /// Call this after the user is authenticated.
   Future<void> initialize() async {
     debugPrint('FCM: Starting initialization...');
+
+    // Initialize local notifications first
+    await _initLocalNotifications();
 
     // Step 1: Request permission & register token
     await _registerFcmToken();
@@ -27,6 +46,28 @@ class FcmService {
     _setupListeners();
 
     debugPrint('FCM: Initialization complete');
+  }
+
+  /// Initialize flutter_local_notifications with Android settings and actions.
+  Future<void> _initLocalNotifications() async {
+    if (_localNotificationsInitialized) return;
+
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
+
+    const initSettings = InitializationSettings(
+      android: androidSettings,
+    );
+
+    await _localNotifications.initialize(
+      initSettings,
+      onDidReceiveNotificationResponse: _onNotificationTap,
+      onDidReceiveBackgroundNotificationResponse: _onBackgroundNotificationAction,
+    );
+
+    _localNotificationsInitialized = true;
+    debugPrint('FCM: Local notifications initialized');
   }
 
   /// Register the FCM token with Supabase.
@@ -92,16 +133,10 @@ class FcmService {
       debugPrint('FCM: ✅ Token refreshed and stored');
     });
 
-    // Handle foreground messages — show in-app notification banner
+    // Handle foreground messages — show rich notification
     FirebaseMessaging.onMessage.listen((message) {
       debugPrint('FCM: Foreground message: ${message.notification?.title}');
-      final title = message.notification?.title;
-      final body = message.notification?.body;
-      final data = message.data;
-
-      if (title != null) {
-        _showInAppNotification(title: title, body: body ?? '', data: data);
-      }
+      _showRichNotification(message);
     });
 
     // Handle background/terminated tap
@@ -197,18 +232,241 @@ class FcmService {
     }
   }
 
-  /// Handle when user taps on a notification.
-  void _handleMessageTap(RemoteMessage message) {
-    debugPrint('FCM: Message tap: ${message.data}');
-    // Future: deep-link to specific chat/case based on message.data
+  // ─── Rich Notification Display ─────────────────────────────
+
+  /// Show a WhatsApp-style rich notification with Reply and Mark as Read actions.
+  Future<void> _showRichNotification(RemoteMessage message) async {
+    final title = message.notification?.title ?? 'CaseFlow';
+    final body = message.notification?.body ?? '';
+    final data = message.data;
+    final type = data['type'] ?? '';
+    final senderName = data['sender_name'] ?? title;
+
+    // Determine channel based on message type
+    final isDm = type == 'dm_message';
+    final channelId = isDm ? _dmChannelId : _chamberChannelId;
+    final channelName = isDm ? _dmChannelName : _chamberChannelName;
+
+    // Create notification with actions
+    final androidDetails = AndroidNotificationDetails(
+      channelId,
+      channelName,
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+      category: AndroidNotificationCategory.message,
+      styleInformation: BigTextStyleInformation(
+        body,
+        contentTitle: senderName,
+        summaryText: isDm ? 'Direct Message' : (data['channel'] ?? 'Chambers'),
+      ),
+      actions: [
+        const AndroidNotificationAction(
+          _actionReply,
+          'Reply',
+          showsUserInterface: false,
+          inputs: [
+            AndroidNotificationActionInput(
+              label: 'Type a message...',
+            ),
+          ],
+        ),
+        const AndroidNotificationAction(
+          _actionMarkRead,
+          'Mark as Read',
+          showsUserInterface: false,
+        ),
+      ],
+    );
+
+    final details = NotificationDetails(android: androidDetails);
+
+    // Use a unique ID based on conversation/channel
+    final notifId = isDm
+        ? (data['conversation_id']?.hashCode ?? DateTime.now().millisecondsSinceEpoch) % 2147483647
+        : (data['firm_id']?.hashCode ?? DateTime.now().millisecondsSinceEpoch) % 2147483647;
+
+    await _localNotifications.show(
+      notifId.abs(),
+      senderName,
+      body,
+      details,
+      payload: jsonEncode(data),
+    );
   }
 
-  // ─── In-App Notification Banner ─────────────────────────────
-  /// Shows a WhatsApp-style notification banner at the top of the screen
-  /// when a message arrives while the app is in the foreground.
+  // ─── Notification Actions ──────────────────────────────────
+
+  /// Handle notification tap — deep-link to chat screen.
+  static void _onNotificationTap(NotificationResponse response) {
+    debugPrint('FCM: Notification tapped. Payload: ${response.payload}');
+
+    if (response.payload == null) return;
+
+    try {
+      final data = jsonDecode(response.payload!) as Map<String, dynamic>;
+      _navigateToChat(data);
+    } catch (e) {
+      debugPrint('FCM: Error parsing notification payload: $e');
+    }
+  }
+
+  /// Handle background notification actions (Reply, Mark as Read).
+  @pragma('vm:entry-point')
+  static void _onBackgroundNotificationAction(NotificationResponse response) {
+    debugPrint('FCM: Background action: ${response.actionId}');
+
+    if (response.payload == null) return;
+
+    try {
+      final data = jsonDecode(response.payload!) as Map<String, dynamic>;
+      final type = data['type'] ?? '';
+      final isDm = type == 'dm_message';
+
+      if (response.actionId == _actionReply) {
+        final replyText = response.input;
+        if (replyText != null && replyText.isNotEmpty) {
+          _handleReplyAction(data, replyText, isDm);
+        }
+      } else if (response.actionId == _actionMarkRead) {
+        _handleMarkReadAction(data, isDm);
+      }
+    } catch (e) {
+      debugPrint('FCM: Error handling action: $e');
+    }
+  }
+
+  /// Send a reply directly from the notification.
+  static Future<void> _handleReplyAction(
+    Map<String, dynamic> data,
+    String replyText,
+    bool isDm,
+  ) async {
+    try {
+      final supabase = Supabase.instance.client;
+      final user = supabase.auth.currentUser;
+      if (user == null) return;
+
+      if (isDm) {
+        // Send DM reply
+        final conversationId = data['conversation_id'];
+        if (conversationId == null) return;
+
+        // Get sender's name
+        final profile = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', user.id)
+            .single();
+
+        await supabase.from('direct_messages').insert({
+          'conversation_id': conversationId,
+          'sender_id': user.id,
+          'message': replyText,
+        });
+
+        // Update conversation's last_message_at
+        await supabase.from('direct_conversations').update({
+          'last_message_at': DateTime.now().toUtc().toIso8601String(),
+        }).eq('id', conversationId);
+
+        debugPrint('FCM: ✅ DM reply sent from notification');
+      } else {
+        // Send chambers reply
+        final firmId = data['firm_id'];
+        final caseId = data['case_id'];
+        if (firmId == null) return;
+
+        final profile = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', user.id)
+            .single();
+
+        await supabase.from('case_discussions').insert({
+          'firm_id': firmId,
+          'case_id': (caseId != null && caseId.isNotEmpty) ? caseId : null,
+          'sender_id': user.id,
+          'sender_name': profile['full_name'] ?? 'You',
+          'message': replyText,
+        });
+
+        debugPrint('FCM: ✅ Chambers reply sent from notification');
+      }
+    } catch (e) {
+      debugPrint('FCM: ❌ Reply action failed: $e');
+    }
+  }
+
+  /// Mark messages as read from the notification.
+  static Future<void> _handleMarkReadAction(
+    Map<String, dynamic> data,
+    bool isDm,
+  ) async {
+    try {
+      final supabase = Supabase.instance.client;
+      final user = supabase.auth.currentUser;
+      if (user == null) return;
+
+      if (isDm) {
+        final conversationId = data['conversation_id'];
+        if (conversationId == null) return;
+
+        await supabase
+            .from('direct_messages')
+            .update({'is_read': true})
+            .eq('conversation_id', conversationId)
+            .neq('sender_id', user.id)
+            .eq('is_read', false);
+
+        debugPrint('FCM: ✅ DM messages marked as read');
+      }
+      // For chambers, no explicit read tracking needed
+
+      // Dismiss the notification
+      final notifId = isDm
+          ? (data['conversation_id']?.hashCode ?? 0) % 2147483647
+          : (data['firm_id']?.hashCode ?? 0) % 2147483647;
+
+      final plugin = FlutterLocalNotificationsPlugin();
+      await plugin.cancel(notifId.abs());
+
+      debugPrint('FCM: ✅ Notification dismissed after mark-as-read');
+    } catch (e) {
+      debugPrint('FCM: ❌ Mark as read failed: $e');
+    }
+  }
+
+  /// Navigate to the appropriate chat screen.
+  static void _navigateToChat(Map<String, dynamic> data) {
+    final ctx = rootNavigatorKey.currentContext;
+    if (ctx == null) return;
+
+    final type = data['type'] ?? '';
+
+    if (type == 'dm_message') {
+      final conversationId = data['conversation_id'];
+      if (conversationId != null) {
+        GoRouter.of(ctx).push('/dm/$conversationId');
+      }
+    } else if (type == 'chat_message') {
+      GoRouter.of(ctx).push('/chambers');
+    }
+  }
+
+  /// Handle when user taps on a Firebase notification (background/terminated).
+  void _handleMessageTap(RemoteMessage message) {
+    debugPrint('FCM: Message tap: ${message.data}');
+    _navigateToChat(message.data);
+  }
+
+  // ─── In-App Notification Banner (Foreground) ──────────────
+
+  /// Also shows a slide-down banner for extra visibility in foreground.
   static OverlayEntry? _currentOverlay;
 
-  void _showInAppNotification({
+  void showInAppBanner({
     required String title,
     required String body,
     Map<String, dynamic>? data,
@@ -224,16 +482,20 @@ class FcmService {
 
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder:
-          (context) => _NotificationBanner(
-            title: title,
-            body: body,
-            channelContext: data?['channel'] ?? '',
-            onDismiss: () {
-              entry.remove();
-              if (_currentOverlay == entry) _currentOverlay = null;
-            },
-          ),
+      builder: (context) => _NotificationBanner(
+        title: title,
+        body: body,
+        channelContext: data?['channel'] ?? '',
+        onDismiss: () {
+          entry.remove();
+          if (_currentOverlay == entry) _currentOverlay = null;
+        },
+        onTap: () {
+          entry.remove();
+          if (_currentOverlay == entry) _currentOverlay = null;
+          if (data != null) _navigateToChat(data);
+        },
+      ),
     );
 
     _currentOverlay = entry;
@@ -255,12 +517,14 @@ class _NotificationBanner extends StatefulWidget {
   final String body;
   final String channelContext;
   final VoidCallback onDismiss;
+  final VoidCallback onTap;
 
   const _NotificationBanner({
     required this.title,
     required this.body,
     required this.channelContext,
     required this.onDismiss,
+    required this.onTap,
   });
 
   @override
@@ -304,7 +568,7 @@ class _NotificationBannerState extends State<_NotificationBanner>
       child: SlideTransition(
         position: _slideAnimation,
         child: GestureDetector(
-          onTap: widget.onDismiss,
+          onTap: widget.onTap,
           onVerticalDragEnd: (details) {
             if (details.primaryVelocity != null &&
                 details.primaryVelocity! < 0) {
@@ -313,29 +577,34 @@ class _NotificationBannerState extends State<_NotificationBanner>
           },
           child: Container(
             margin: EdgeInsets.only(top: topPadding, left: 8, right: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF1E293B) : Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 20,
-                  offset: const Offset(0, 4),
+                  color: Colors.black.withValues(alpha: 0.12),
+                  blurRadius: 24,
+                  offset: const Offset(0, 6),
                 ),
               ],
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.06)
+                    : Colors.black.withValues(alpha: 0.04),
+              ),
             ),
             child: Row(
               children: [
-                // App icon
+                // Avatar icon
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: 44,
+                  height: 44,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                      colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
                     ),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     Icons.chat_bubble_rounded,
@@ -357,48 +626,35 @@ class _NotificationBannerState extends State<_NotificationBanner>
                               widget.title,
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
-                                fontSize: 13,
-                                color:
-                                    isDark
-                                        ? Colors.white
-                                        : const Color(0xFF0F172A),
+                                fontSize: 14,
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF0F172A),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (widget.channelContext.isNotEmpty)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(
-                                  0xFF6366F1,
-                                ).withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                widget.channelContext,
-                                style: const TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF6366F1),
-                                ),
-                              ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'now',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isDark
+                                  ? const Color(0xFF64748B)
+                                  : const Color(0xFF94A3B8),
                             ),
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 3),
                       Text(
                         widget.body,
                         style: TextStyle(
-                          fontSize: 12,
-                          color:
-                              isDark
-                                  ? const Color(0xFF94A3B8)
-                                  : const Color(0xFF64748B),
+                          fontSize: 13,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
