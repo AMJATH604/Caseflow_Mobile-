@@ -253,7 +253,7 @@ export function useNominations(postId: string) {
         .eq('post_id', postId)
         .order('created_at');
       if (error) throw error;
-      return data as BarNomination[];
+      return data as (BarNomination & { nominee?: { name: string; photo_url?: string }; proposer?: { name: string } })[];
     },
     enabled: !!postId,
   });
@@ -363,51 +363,6 @@ export function useDeleteNomination(postId: string) {
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['nominations', postId] }),
-  });
-}
-
-export function useElectionPosts(electionId: string) {
-  return useQuery({
-    queryKey: ['election-posts', electionId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('bar_election_posts')
-        .select('*')
-        .eq('election_id', electionId)
-        .order('created_at');
-      if (error) throw error;
-      return data as BarElectionPost[];
-    },
-    enabled: !!electionId,
-  });
-}
-
-export function useNominations(postId: string) {
-  return useQuery({
-    queryKey: ['nominations', postId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('bar_nominations')
-        .select('*, nominee:nominee_member_id(name, photo_url)')
-        .eq('post_id', postId)
-        .order('created_at');
-      if (error) throw error;
-      return data as (BarNomination & { nominee?: { name: string; photo_url?: string } })[];
-    },
-    enabled: !!postId,
-  });
-}
-
-export function useVoteCounts(postId: string) {
-  return useQuery({
-    queryKey: ['vote-counts', postId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .rpc('get_vote_counts', { p_post_id: postId });
-      if (error) throw error;
-      return data as VoteCount[];
-    },
-    enabled: !!postId,
   });
 }
 
