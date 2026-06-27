@@ -371,6 +371,38 @@ class BarAssociationRepository extends BaseRepository {
     });
   }
 
+  /// Alias for castVotes.
+  static Future<void> castVote({
+    required String electionId,
+    required String memberId,
+    required Map<String, String> votes,
+  }) => castVotes(electionId: electionId, memberId: memberId, votes: votes);
+
+  /// Gets approved nominations for a post with vote counts included.
+  static Future<List<BarNomination>> getNominationsWithVotes(String postId) async {
+    final nominations = await getNominations(postId);
+    final voteCounts = await getVoteCounts(postId);
+
+    return nominations.map((nom) {
+      final count = voteCounts[nom.id] ?? 0;
+      return BarNomination(
+        id: nom.id,
+        postId: nom.postId,
+        nomineeMemberId: nom.nomineeMemberId,
+        proposerMemberId: nom.proposerMemberId,
+        seconderMemberId: nom.seconderMemberId,
+        status: nom.status,
+        bio: nom.bio,
+        photoUrl: nom.photoUrl,
+        createdAt: nom.createdAt,
+        nomineeName: nom.nomineeName,
+        proposerName: nom.proposerName,
+        seconderName: nom.seconderName,
+        voteCount: count,
+      );
+    }).toList();
+  }
+
   /// Gets vote counts per nomination for a post (for results).
   static Future<Map<String, int>> getVoteCounts(String postId) async {
     final rows = await BaseRepository.client.rpc(

@@ -118,6 +118,7 @@ class DiscussionRepository {
     // Cleanup on cancel
     controller.onCancel = () {
       _client.removeChannel(channel);
+      controller.close();
     };
 
     return controller.stream;
@@ -174,5 +175,32 @@ class DiscussionRepository {
       return 'document';
     }
     return 'file';
+  }
+
+  static Future<String?> uploadChambersAttachment({
+    required File file,
+    required String firmId,
+  }) => uploadAttachment(file: file, firmId: firmId);
+
+  static Future<void> postChambersAttachment({
+    required String firmId,
+    required String message,
+    required String url,
+    required String type,
+    required String senderName,
+    String? replyToId,
+    String? replyToMessage,
+    String? replyToSender,
+  }) async {
+    await postDiscussion({
+      'firm_id': firmId,
+      'message': message,
+      'attachment_url': url,
+      'attachment_type': type,
+      'sender_name': senderName,
+      'reply_to_id': replyToId,
+      'reply_to_message': replyToMessage,
+      'reply_to_sender': replyToSender,
+    });
   }
 }

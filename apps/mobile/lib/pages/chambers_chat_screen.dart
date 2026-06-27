@@ -900,7 +900,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
         border: Border(
-          top: BorderSide(color: isDark ? Colors.white10 : Colors.black10),
+          top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
         ),
       ),
       child: Container(
@@ -931,7 +931,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      previewMsg.senderName,
+                      previewMsg.senderName ?? 'Team Member',
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -1116,7 +1116,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
               children: [
                 if (!isMe) ...[
                   Text(
-                    msg.senderName,
+                    msg.senderName ?? 'Team Member',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
@@ -1316,8 +1316,37 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
               )
             else
               Column(
-                mainAxisAlignment: Main.....
-                  // Truncated for compilation space limit
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.play_arrow_rounded,
+                      size: 40,
+                      color: Color(0xFF4F46E5),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Tap to Play Video',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white70 : Colors.black87,
+                    ),
+                  ),
                 ],
               ),
           ],
@@ -1793,7 +1822,13 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
           Expanded(
             child: Consumer(
               builder: (context, ref, child) {
-                final discussionsAsync = ref.watch(caseDiscussionsProvider(null));
+                final firmId = _firmId;
+                if (firmId == null) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF4F46E5)),
+                  );
+                }
+                final discussionsAsync = ref.watch(firmNoticesProvider(firmId));
 
                 return discussionsAsync.when(
                   loading: () => const Center(

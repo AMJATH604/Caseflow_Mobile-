@@ -692,7 +692,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
       if (await cachedFile.exists()) {
         await cachedFile.copy(tempPath);
       } else {
-        final success = await _downloadFile(url, displayName);
+        final success = await _downloadFile(url, fileName);
         if (success && await cachedFile.exists()) {
           await cachedFile.copy(tempPath);
         } else {
@@ -928,7 +928,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
         border: Border(
-          top: BorderSide(color: isDark ? Colors.white10 : Colors.black10),
+          top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
         ),
       ),
       child: Container(

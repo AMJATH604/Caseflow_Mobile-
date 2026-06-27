@@ -364,6 +364,31 @@ class SupabaseService {
   static Future<void> deleteDiscussion(String id) =>
       DiscussionRepository.deleteDiscussion(id);
 
+  static Future<String?> uploadChambersAttachment({
+    required File file,
+    required String firmId,
+  }) => DiscussionRepository.uploadChambersAttachment(file: file, firmId: firmId);
+
+  static Future<void> postChambersAttachment({
+    required String firmId,
+    required String message,
+    required String url,
+    required String type,
+    required String senderName,
+    String? replyToId,
+    String? replyToMessage,
+    String? replyToSender,
+  }) => DiscussionRepository.postChambersAttachment(
+        firmId: firmId,
+        message: message,
+        url: url,
+        type: type,
+        senderName: senderName,
+        replyToId: replyToId,
+        replyToMessage: replyToMessage,
+        replyToSender: replyToSender,
+      );
+
   // ─── Direct Messages ────────────────────────────────
 
   static Future<List<DirectConversation>> fetchDirectConversations() =>
