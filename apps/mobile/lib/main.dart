@@ -22,7 +22,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  debugPrint('FCM: Background message: ${message.notification?.title}');
+  debugPrint('FCM: Background message received: ${message.data}');
+  
+  final service = FcmService();
+  await service.initLocalNotifications();
+  await service.showRichNotification(message);
 }
 
 void main() async {

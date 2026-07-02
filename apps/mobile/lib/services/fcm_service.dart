@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart'; // For rootNavigatorKey
 import 'package:go_router/go_router.dart';
 
@@ -37,7 +38,7 @@ class FcmService {
     debugPrint('FCM: Starting initialization...');
 
     // Initialize local notifications first
-    await _initLocalNotifications();
+    await initLocalNotifications();
 
     // Step 1: Request permission & register token
     await _registerFcmToken();
@@ -49,7 +50,7 @@ class FcmService {
   }
 
   /// Initialize flutter_local_notifications with Android settings and actions.
-  Future<void> _initLocalNotifications() async {
+  Future<void> initLocalNotifications() async {
     if (_localNotificationsInitialized) return;
 
     const androidSettings = AndroidInitializationSettings(
@@ -136,7 +137,7 @@ class FcmService {
     // Handle foreground messages — show rich notification
     FirebaseMessaging.onMessage.listen((message) {
       debugPrint('FCM: Foreground message: ${message.notification?.title}');
-      _showRichNotification(message);
+      showRichNotification(message);
     });
 
     // Handle background/terminated tap
@@ -234,16 +235,44 @@ class FcmService {
 
   // ─── Rich Notification Display ─────────────────────────────
 
-  /// Show a WhatsApp-style rich notification with Reply and Mark as Read actions.
-  Future<void> _showRichNotification(RemoteMessage message) async {
-    final title = message.notification?.title ?? 'CaseFlow';
-    final body = message.notification?.body ?? '';
+  /// Show a WhatsApp-style rich notification with Reply, Mark as Read, and Mute actions.
+  Future<void> showRichNotification(RemoteMessage message) async {
     final data = message.data;
     final type = data['type'] ?? '';
+    final title = message.notification?.title ?? data['title'] ?? 'CaseFlow';
+    final body = message.notification?.body ?? data['body'] ?? '';
     final senderName = data['sender_name'] ?? title;
 
-    // Determine channel based on message type
     final isDm = type == 'dm_message';
+
+    // Check if notifications are muted for this chat/sender
+    final muteKey = isDm 
+        ? 'muted_conv_${data['conversation_id']}' 
+        : 'muted_firm_${data['firm_id']}';
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool(muteKey) == true) {
+        debugPrint('FCM: Notification is muted for $muteKey. Skipping display.');
+        return;
+      }
+    } catch (e) {
+      debugPrint('FCM: Error checking mute preference: $e');
+    }
+
+    // Determine suggested reply based on message body (WhatsApp-style smart suggestion)
+    String suggestion = 'Okay';
+    final lowerBody = body.toLowerCase();
+    if (lowerBody.contains('hi') || lowerBody.contains('hello')) {
+      suggestion = 'How are you?';
+    } else if (lowerBody.contains('?') || lowerBody.contains('how')) {
+      suggestion = 'Fine, thank you';
+    } else if (lowerBody.contains('where') || lowerBody.contains('when')) {
+      suggestion = 'I will let you know';
+    } else if (lowerBody.contains('urgent') || lowerBody.contains('call')) {
+      suggestion = 'I will call you back';
+    }
+
     final channelId = isDm ? _dmChannelId : _chamberChannelId;
     final channelName = isDm ? _dmChannelName : _chamberChannelName;
 
@@ -262,6 +291,11 @@ class FcmService {
         summaryText: isDm ? 'Direct Message' : (data['channel'] ?? 'Chambers'),
       ),
       actions: [
+        AndroidNotificationAction(
+          'SMART_REPLY:$suggestion',
+          suggestion,
+          showsUserInterface: false,
+        ),
         const AndroidNotificationAction(
           _actionReply,
           'Reply',
@@ -275,6 +309,11 @@ class FcmService {
         const AndroidNotificationAction(
           _actionMarkRead,
           'Mark as Read',
+          showsUserInterface: false,
+        ),
+        const AndroidNotificationAction(
+          'MUTE',
+          'Mute',
           showsUserInterface: false,
         ),
       ],
@@ -312,7 +351,7 @@ class FcmService {
     }
   }
 
-  /// Handle background notification actions (Reply, Mark as Read).
+  /// Handle background notification actions (Reply, Mark as Read, Mute, Smart Reply).
   @pragma('vm:entry-point')
   static void _onBackgroundNotificationAction(NotificationResponse response) {
     debugPrint('FCM: Background action: ${response.actionId}');
@@ -331,6 +370,11 @@ class FcmService {
         }
       } else if (response.actionId == _actionMarkRead) {
         _handleMarkReadAction(data, isDm);
+      } else if (response.actionId == 'MUTE') {
+        _handleMuteAction(data, isDm);
+      } else if (response.actionId != null && response.actionId!.startsWith('SMART_REPLY:')) {
+        final suggestionText = response.actionId!.substring('SMART_REPLY:'.length);
+        _handleReplyAction(data, suggestionText, isDm);
       }
     } catch (e) {
       debugPrint('FCM: Error handling action: $e');
@@ -394,6 +438,14 @@ class FcmService {
 
         debugPrint('FCM: ✅ Chambers reply sent from notification');
       }
+
+      // Dismiss the notification upon successful reply
+      final notifId = isDm
+          ? (data['conversation_id']?.hashCode ?? 0) % 2147483647
+          : (data['firm_id']?.hashCode ?? 0) % 2147483647;
+
+      final plugin = FlutterLocalNotificationsPlugin();
+      await plugin.cancel(notifId.abs());
     } catch (e) {
       debugPrint('FCM: ❌ Reply action failed: $e');
     }
@@ -422,7 +474,6 @@ class FcmService {
 
         debugPrint('FCM: ✅ DM messages marked as read');
       }
-      // For chambers, no explicit read tracking needed
 
       // Dismiss the notification
       final notifId = isDm
@@ -438,20 +489,72 @@ class FcmService {
     }
   }
 
+  /// Mute notifications for this sender/chat.
+  static Future<void> _handleMuteAction(
+    Map<String, dynamic> data,
+    bool isDm,
+  ) async {
+    try {
+      final muteKey = isDm 
+          ? 'muted_conv_${data['conversation_id']}' 
+          : 'muted_firm_${data['firm_id']}';
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(muteKey, true);
+      debugPrint('FCM: ✅ Muted notifications for $muteKey');
+
+      // Dismiss the notification
+      final notifId = isDm
+          ? (data['conversation_id']?.hashCode ?? 0) % 2147483647
+          : (data['firm_id']?.hashCode ?? 0) % 2147483647;
+
+      final plugin = FlutterLocalNotificationsPlugin();
+      await plugin.cancel(notifId.abs());
+    } catch (e) {
+      debugPrint('FCM: ❌ Mute action failed: $e');
+    }
+  }
+
   /// Navigate to the appropriate chat screen.
   static void _navigateToChat(Map<String, dynamic> data) {
-    final ctx = rootNavigatorKey.currentContext;
-    if (ctx == null) return;
-
+    debugPrint('FCM: Navigating to chat screen with data: $data');
     final type = data['type'] ?? '';
 
-    if (type == 'dm_message') {
-      final conversationId = data['conversation_id'];
-      if (conversationId != null) {
-        GoRouter.of(ctx).push('/dm/$conversationId');
+    // Wait until context is ready and router is fully initialized
+    Future.delayed(const Duration(milliseconds: 500), () {
+      final ctx = rootNavigatorKey.currentContext;
+      if (ctx == null) {
+        debugPrint('FCM: Navigation context is null. Retrying in 1.5s...');
+        Future.delayed(const Duration(milliseconds: 1500), () {
+          final retryCtx = rootNavigatorKey.currentContext;
+          if (retryCtx != null) {
+            _performNavigation(retryCtx, type, data);
+          } else {
+            debugPrint('FCM: Retry failed - context still null.');
+          }
+        });
+      } else {
+        _performNavigation(ctx, type, data);
       }
-    } else if (type == 'chat_message') {
-      GoRouter.of(ctx).push('/chambers');
+    });
+  }
+
+  static void _performNavigation(BuildContext ctx, String type, Map<String, dynamic> data) {
+    try {
+      if (type == 'dm_message') {
+        final conversationId = data['conversation_id'];
+        if (conversationId != null) {
+          debugPrint('FCM: Pushing route /dm/$conversationId');
+          GoRouter.of(ctx).push('/dm/$conversationId');
+        } else {
+          debugPrint('FCM: conversation_id is null');
+        }
+      } else if (type == 'chat_message') {
+        debugPrint('FCM: Pushing route /chambers-chat');
+        GoRouter.of(ctx).push('/chambers-chat');
+      }
+    } catch (e) {
+      debugPrint('FCM: Navigation failed with error: $e');
     }
   }
 

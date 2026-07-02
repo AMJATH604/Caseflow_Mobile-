@@ -207,7 +207,7 @@ Deno.serve(async (req: Request) => {
     // ─── Step 2: Fetch FCM tokens for all recipients ─────────
     const { data: tokens, error: tokensError } = await supabase
       .from("fcm_tokens")
-      .select("user_id, token")
+      .select("user_id, token, device_info")
       .in("user_id", targetUserIds);
 
     if (tokensError) {
@@ -258,6 +258,45 @@ Deno.serve(async (req: Request) => {
 
     for (const t of tokens) {
       try {
+        const isAndroid = t.device_info === "TargetPlatform.android";
+
+        const fcmPayload: any = {
+          message: {
+            token: t.token,
+            data: {
+              type: "chat_message",
+              title: title,
+              body: notificationBody,
+              firm_id: firmId,
+              case_id: caseId || "",
+              sender_id: senderId || "",
+              sender_name: senderName,
+              channel: channelContext,
+            },
+          }
+        };
+
+        if (isAndroid) {
+          // Data-only message for Android to trigger background handlers for rich actions
+          fcmPayload.message.android = {
+            priority: "high",
+          };
+        } else {
+          // Normal notification for iOS/Web
+          fcmPayload.message.notification = {
+            title: title,
+            body: notificationBody,
+          };
+          fcmPayload.message.apns = {
+            payload: {
+              aps: {
+                sound: "default",
+                badge: 1,
+              },
+            },
+          };
+        }
+
         const fcmResponse = await fetch(
           `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
           {
@@ -266,32 +305,7 @@ Deno.serve(async (req: Request) => {
               Authorization: `Bearer ${accessToken}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              message: {
-                token: t.token,
-                notification: {
-                  title: title,
-                  body: notificationBody,
-                },
-                data: {
-                  type: "chat_message",
-                  firm_id: firmId,
-                  case_id: caseId || "",
-                  sender_id: senderId || "",
-                  sender_name: senderName,
-                  channel: channelContext,
-                },
-                android: {
-                  priority: "high",
-                  notification: {
-                    channel_id: "chat_messages",
-                    sound: "default",
-                    click_action: "FLUTTER_NOTIFICATION_CLICK",
-                    tag: `chat_${firmId}_${caseId || "firm"}`,
-                  },
-                },
-              },
-            }),
+            body: JSON.stringify(fcmPayload),
           }
         );
 

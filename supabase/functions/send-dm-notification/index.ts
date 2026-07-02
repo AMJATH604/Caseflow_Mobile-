@@ -150,7 +150,7 @@ Deno.serve(async (req: Request) => {
     // ─── Step 3: Fetch recipient's FCM tokens ───────────────────
     const { data: tokens, error: tokensError } = await supabase
       .from("fcm_tokens")
-      .select("token")
+      .select("token, device_info")
       .eq("user_id", recipientId);
 
     if (tokensError) {
@@ -194,6 +194,45 @@ Deno.serve(async (req: Request) => {
 
     for (const t of tokens) {
       try {
+        const isAndroid = t.device_info === "TargetPlatform.android";
+
+        const fcmPayload: any = {
+          message: {
+            token: t.token,
+            data: {
+              type: "dm_message",
+              title: title,
+              body: notificationBody,
+              conversation_id: conversationId,
+              sender_id: senderId,
+              sender_name: senderName,
+              sender_avatar: senderAvatar,
+              channel: "Direct Message",
+            },
+          }
+        };
+
+        if (isAndroid) {
+          // Data-only message for Android to trigger background handlers for rich actions
+          fcmPayload.message.android = {
+            priority: "high",
+          };
+        } else {
+          // Normal notification for iOS/Web
+          fcmPayload.message.notification = {
+            title: title,
+            body: notificationBody,
+          };
+          fcmPayload.message.apns = {
+            payload: {
+              aps: {
+                sound: "default",
+                badge: 1,
+              },
+            },
+          };
+        }
+
         const fcmResponse = await fetch(
           `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
           {
@@ -202,34 +241,7 @@ Deno.serve(async (req: Request) => {
               Authorization: `Bearer ${accessToken}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              message: {
-                token: t.token,
-                notification: {
-                  title: title,
-                  body: notificationBody,
-                },
-                data: {
-                  type: "dm_message",
-                  conversation_id: conversationId,
-                  sender_id: senderId,
-                  sender_name: senderName,
-                  sender_avatar: senderAvatar,
-                  channel: "Direct Message",
-                },
-                android: {
-                  priority: "high",
-                  notification: {
-                    channel_id: "dm_messages",
-                    sound: "default",
-                    click_action: "FLUTTER_NOTIFICATION_CLICK",
-                    tag: `dm_${conversationId}`,
-                    // Group notifications from same conversation
-                    notification_count: 0,
-                  },
-                },
-              },
-            }),
+            body: JSON.stringify(fcmPayload),
           }
         );
 
