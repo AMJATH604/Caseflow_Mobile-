@@ -279,27 +279,33 @@ class DashboardScreen extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
           child: Row(
             children: [
-              StatChip(
-                label: 'Disposed',
-                value: stats['disposedCasesCount'] ?? 0,
-                color: const Color(0xFF14B8A6),
-                icon: Icons.done_all_rounded,
-              ),
-              const SizedBox(width: 8),
-              StatChip(
-                label: 'Dismissed',
-                value: stats['dismissedCasesCount'] ?? 0,
-                color: const Color(0xFF64748B),
-                icon: Icons.cancel_rounded,
-              ),
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: () => context.go('/payments'),
+              Expanded(
                 child: StatChip(
-                  label: 'Payments',
-                  value: stats['pendingPaymentsCount'] ?? 0,
-                  color: const Color(0xFFF97316),
-                  icon: Icons.account_balance_wallet_rounded,
+                  label: 'Disposed',
+                  value: stats['disposedCasesCount'] ?? 0,
+                  color: const Color(0xFF14B8A6),
+                  icon: Icons.done_all_rounded,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: StatChip(
+                  label: 'Dismissed',
+                  value: stats['dismissedCasesCount'] ?? 0,
+                  color: const Color(0xFF64748B),
+                  icon: Icons.cancel_rounded,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => context.go('/payments'),
+                  child: StatChip(
+                    label: 'Payments',
+                    value: stats['pendingPaymentsCount'] ?? 0,
+                    color: const Color(0xFFF97316),
+                    icon: Icons.account_balance_wallet_rounded,
+                  ),
                 ),
               ),
             ],
@@ -907,27 +913,33 @@ class DashboardScreen extends ConsumerWidget {
         // Secondary stats row
         Row(
           children: [
-            StatChip(
-              label: 'Disposed',
-              value: stats['disposedCasesCount'] ?? 0,
-              color: const Color(0xFF14B8A6),
-              icon: Icons.done_all_rounded,
-            ),
-            const SizedBox(width: 10),
-            StatChip(
-              label: 'Dismissed',
-              value: stats['dismissedCasesCount'] ?? 0,
-              color: const Color(0xFF64748B),
-              icon: Icons.cancel_rounded,
-            ),
-            const SizedBox(width: 10),
-            GestureDetector(
-              onTap: () => context.go('/payments'),
+            Expanded(
               child: StatChip(
-                label: 'Payments',
-                value: stats['pendingPaymentsCount'] ?? 0,
-                color: const Color(0xFFF97316),
-                icon: Icons.account_balance_wallet_rounded,
+                label: 'Disposed',
+                value: stats['disposedCasesCount'] ?? 0,
+                color: const Color(0xFF14B8A6),
+                icon: Icons.done_all_rounded,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: StatChip(
+                label: 'Dismissed',
+                value: stats['dismissedCasesCount'] ?? 0,
+                color: const Color(0xFF64748B),
+                icon: Icons.cancel_rounded,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: GestureDetector(
+                onTap: () => context.go('/payments'),
+                child: StatChip(
+                  label: 'Payments',
+                  value: stats['pendingPaymentsCount'] ?? 0,
+                  color: const Color(0xFFF97316),
+                  icon: Icons.account_balance_wallet_rounded,
+                ),
               ),
             ),
           ],
