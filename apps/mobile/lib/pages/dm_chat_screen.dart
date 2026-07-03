@@ -191,8 +191,8 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
         .onPresenceSync((payload) {
           final presences = _presenceChannel!.presenceState();
           bool partnerOnline = false;
-          for (final entry in presences.entries) {
-            for (final presence in entry.value) {
+          for (final state in presences) {
+            for (final presence in state.presences) {
               if (presence.payload['user_id'] == partnerId) {
                 partnerOnline = true;
                 break;
