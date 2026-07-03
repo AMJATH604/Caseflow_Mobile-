@@ -91,8 +91,14 @@ class _AppShellState extends ConsumerState<AppShell> {
           return;
         }
 
-        // For any sub-page, navigate back to home
-        context.go(homeRoute);
+        // Try to pop one step back in the navigation stack first
+        final router = GoRouter.of(context);
+        if (router.canPop()) {
+          router.pop();
+        } else {
+          // At a top-level tab (e.g., /cases, /hearings) — go to dashboard
+          context.go(homeRoute);
+        }
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -104,14 +110,17 @@ class _AppShellState extends ConsumerState<AppShell> {
                   elevation: 0,
                   surfaceTintColor: Colors.transparent,
                   centerTitle: false,
-                  title: Text(
-                    'CaseFlow',
-                    style: Theme.of(
-                      context,
-                    ).appBarTheme.titleTextStyle?.copyWith(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.5,
+                  title: GestureDetector(
+                    onTap: () => context.go(homeRoute),
+                    child: Text(
+                      'CaseFlow',
+                      style: Theme.of(
+                        context,
+                      ).appBarTheme.titleTextStyle?.copyWith(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.5,
+                      ),
                     ),
                   ),
                   actions: [

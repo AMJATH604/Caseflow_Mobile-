@@ -89,14 +89,31 @@ class ProfileAvatar extends StatelessWidget {
     return CircleAvatar(
       radius: radius,
       backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-      backgroundImage: NetworkImage(avatarUrl!),
-      onBackgroundImageError: (_, __) {},
       child: ClipOval(
         child: Image.network(
           avatarUrl!,
           width: radius * 2,
           height: radius * 2,
           fit: BoxFit.cover,
+          headers: const {'Cache-Control': 'no-cache'},
+          cacheWidth: (radius * 2 * 2).toInt(), // 2x for retina
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return SizedBox(
+              width: radius * 2,
+              height: radius * 2,
+              child: Center(
+                child: SizedBox(
+                  width: radius * 0.6,
+                  height: radius * 0.6,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: colors[0].withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+            );
+          },
           errorBuilder: (context, error, stack) =>
               _buildInitialContent(colors),
         ),

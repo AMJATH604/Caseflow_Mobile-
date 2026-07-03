@@ -134,6 +134,13 @@ class MobileMoreSheet extends ConsumerWidget {
                 Colors.pink,
                 '/notifications',
               ),
+              _buildMenuItem(
+                context,
+                Icons.settings_rounded,
+                'Settings',
+                const Color(0xFF64748B),
+                '/settings',
+              ),
             ],
           ),
           const SizedBox(height: 24),

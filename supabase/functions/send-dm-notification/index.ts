@@ -199,6 +199,10 @@ Deno.serve(async (req: Request) => {
         const fcmPayload: any = {
           message: {
             token: t.token,
+            notification: {
+              title: title,
+              body: notificationBody,
+            },
             data: {
               type: "dm_message",
               title: title,
@@ -209,29 +213,25 @@ Deno.serve(async (req: Request) => {
               sender_avatar: senderAvatar,
               channel: "Direct Message",
             },
-          }
-        };
-
-        if (isAndroid) {
-          // Data-only message for Android to trigger background handlers for rich actions
-          fcmPayload.message.android = {
-            priority: "high",
-          };
-        } else {
-          // Normal notification for iOS/Web
-          fcmPayload.message.notification = {
-            title: title,
-            body: notificationBody,
-          };
-          fcmPayload.message.apns = {
-            payload: {
-              aps: {
+            android: {
+              priority: "high",
+              notification: {
+                channel_id: "dm_messages",
                 sound: "default",
-                badge: 1,
+                click_action: "FLUTTER_NOTIFICATION_CLICK",
+                tag: `dm_${conversationId}`,
               },
             },
-          };
-        }
+            apns: {
+              payload: {
+                aps: {
+                  sound: "default",
+                  badge: 1,
+                },
+              },
+            },
+          }
+        };
 
         const fcmResponse = await fetch(
           `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,

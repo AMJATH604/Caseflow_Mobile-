@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -688,6 +689,17 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Column(
         children: [
+          _buildActionButton(
+            isDark,
+            icon: Icons.settings_rounded,
+            label: 'Settings',
+            color: const Color(0xFF64748B),
+            onTap: () {
+              Navigator.pop(context);
+              GoRouter.of(context).go('/settings');
+            },
+          ),
+          const SizedBox(height: 12),
           _buildActionButton(
             isDark,
             icon: Icons.logout_rounded,

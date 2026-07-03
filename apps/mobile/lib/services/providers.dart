@@ -42,6 +42,9 @@ final userProfileProvider = FutureProvider<UserProfile>((ref) async {
   ref.watch(authStateProvider);
   // Invalidate the static cache when auth state changes
   BaseRepository.invalidateProfileCache();
+  // Clear Flutter's image cache so profile photos load fresh
+  PaintingBinding.instance.imageCache.clear();
+  PaintingBinding.instance.imageCache.clearLiveImages();
   return RetryHelper.retry(() => SupabaseService.fetchProfile());
 });
 

@@ -34,6 +34,7 @@ import '../pages/legal_pulse_screen.dart';
 import '../pages/chambers_chat_screen.dart';
 import '../pages/chat_hub_screen.dart';
 import '../pages/dm_chat_screen.dart';
+import '../pages/settings_screen.dart';
 
 import '../pages/bar_association/bar_association_home_screen.dart';
 import '../pages/bar_association/bar_notices_screen.dart';
@@ -192,6 +193,10 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/notifications',
           builder: (context, state) => const NotificationsScreen(),
+        ),
+        GoRoute(
+          path: '/settings',
+          builder: (context, state) => const SettingsScreen(),
         ),
         GoRoute(
           path: '/firm',
