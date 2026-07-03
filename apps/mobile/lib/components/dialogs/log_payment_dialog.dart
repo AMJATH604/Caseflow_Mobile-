@@ -111,6 +111,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
       }
 
       ref.invalidate(paymentsProvider);
+      ref.invalidate(dashboardStatsProvider);
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {

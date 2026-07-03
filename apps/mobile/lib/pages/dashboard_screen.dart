@@ -207,29 +207,7 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
-                // Compact stats inside header
-                Row(
-                  children: [
-                    _buildHeaderStat(
-                      "${stats['activeCasesCount'] ?? 0}",
-                      'Active',
-                      const Color(0xFF818CF8),
-                    ),
-                    const SizedBox(width: 8),
-                    _buildHeaderStat(
-                      '${todayHearings.length}',
-                      'Today',
-                      const Color(0xFFFBBF24),
-                    ),
-                    const SizedBox(width: 8),
-                    _buildHeaderStat(
-                      "${stats['clientsCount'] ?? 0}",
-                      'Clients',
-                      const Color(0xFF34D399),
-                    ),
-                  ],
-                ),
+
               ],
             ),
           ),
@@ -309,24 +287,20 @@ class DashboardScreen extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               StatChip(
-                label: 'Closed',
+                label: 'Dismissed',
                 value: stats['dismissedCasesCount'] ?? 0,
                 color: const Color(0xFF64748B),
-                icon: Icons.close_rounded,
+                icon: Icons.cancel_rounded,
               ),
               const SizedBox(width: 8),
-              StatChip(
-                label: 'E-Filings',
-                value: stats['filingsCount'] ?? 0,
-                color: const Color(0xFF3B82F6),
-                icon: Icons.file_present_rounded,
-              ),
-              const SizedBox(width: 8),
-              StatChip(
-                label: 'Pending ₹',
-                value: stats['pendingPaymentsCount'] ?? 0,
-                color: const Color(0xFFF97316),
-                icon: Icons.account_balance_wallet_rounded,
+              GestureDetector(
+                onTap: () => context.go('/payments'),
+                child: StatChip(
+                  label: 'Payments',
+                  value: stats['pendingPaymentsCount'] ?? 0,
+                  color: const Color(0xFFF97316),
+                  icon: Icons.account_balance_wallet_rounded,
+                ),
               ),
             ],
           ),
@@ -941,24 +915,20 @@ class DashboardScreen extends ConsumerWidget {
             ),
             const SizedBox(width: 10),
             StatChip(
-              label: 'Closed',
+              label: 'Dismissed',
               value: stats['dismissedCasesCount'] ?? 0,
               color: const Color(0xFF64748B),
-              icon: Icons.close_rounded,
+              icon: Icons.cancel_rounded,
             ),
             const SizedBox(width: 10),
-            StatChip(
-              label: 'E-Filings',
-              value: stats['filingsCount'] ?? 0,
-              color: const Color(0xFF3B82F6),
-              icon: Icons.file_present_rounded,
-            ),
-            const SizedBox(width: 10),
-            StatChip(
-              label: 'Pending ₹',
-              value: stats['pendingPaymentsCount'] ?? 0,
-              color: const Color(0xFFF97316),
-              icon: Icons.account_balance_wallet_rounded,
+            GestureDetector(
+              onTap: () => context.go('/payments'),
+              child: StatChip(
+                label: 'Payments',
+                value: stats['pendingPaymentsCount'] ?? 0,
+                color: const Color(0xFFF97316),
+                icon: Icons.account_balance_wallet_rounded,
+              ),
             ),
           ],
         ),
@@ -991,40 +961,7 @@ class DashboardScreen extends ConsumerWidget {
 
   // ─── HELPERS ─────────────────────────────────────────
 
-  Widget _buildHeaderStat(String value, String label, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-        ),
-        child: Column(
-          children: [
-            Text(
-              value,
-              style: GoogleFonts.outfit(
-                color: color,
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label.toUpperCase(),
-              style: GoogleFonts.inter(
-                color: Colors.white.withValues(alpha: 0.5),
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // _buildHeaderStat removed — stats now shown only in KPI cards
 
   Widget _buildFeatureCard(
     BuildContext context,

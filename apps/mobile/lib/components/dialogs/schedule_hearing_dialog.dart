@@ -46,6 +46,7 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
       });
 
       ref.invalidate(hearingsProvider);
+      ref.invalidate(dashboardStatsProvider);
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {

@@ -62,6 +62,7 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                 : _districtController.text.trim(),
       });
       ref.invalidate(clientsProvider);
+      ref.invalidate(dashboardStatsProvider);
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(

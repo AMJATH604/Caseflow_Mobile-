@@ -95,9 +95,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
     final active =
         cases.where((c) => c.status.name.toLowerCase() == 'active').length;
     final closed =
-        cases.where((c) => c.status.name.toLowerCase() == 'closed').length;
-    final pending =
-        cases.where((c) => c.status.name.toLowerCase() == 'pending').length;
+        cases.where((c) => ['closed', 'disposed', 'dismissed'].contains(c.status.name.toLowerCase())).length;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -106,8 +104,6 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
           _summaryChip('$active Active', AppTheme.success, isDark),
           const SizedBox(width: 8),
           _summaryChip('$closed Closed', AppTheme.error, isDark),
-          const SizedBox(width: 8),
-          _summaryChip('$pending Pending', AppTheme.warning, isDark),
           const Spacer(),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -202,18 +198,27 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children:
-                  ['all', 'active', 'closed', 'pending'].map((s) {
+                  ['all', 'active', 'closed'].map((s) {
                     final isActive = _statusFilter == s;
                     final count =
                         s == 'all'
                             ? cases.length
-                            : cases
-                                .where(
-                                  (c) =>
-                                      c.status.name.toLowerCase() ==
-                                      s.toLowerCase(),
-                                )
-                                .length;
+                            : s == 'closed'
+                                ? cases
+                                    .where(
+                                      (c) =>
+                                          ['closed', 'disposed', 'dismissed'].contains(
+                                            c.status.name.toLowerCase(),
+                                          ),
+                                    )
+                                    .length
+                                : cases
+                                    .where(
+                                      (c) =>
+                                          c.status.name.toLowerCase() ==
+                                          s.toLowerCase(),
+                                    )
+                                    .length;
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: InkWell(
@@ -379,7 +384,9 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
               );
           final matchesStatus =
               _statusFilter == 'all' ||
-              c.status.name.toLowerCase() == _statusFilter.toLowerCase();
+              (_statusFilter == 'closed'
+                  ? ['closed', 'disposed', 'dismissed'].contains(c.status.name.toLowerCase())
+                  : c.status.name.toLowerCase() == _statusFilter.toLowerCase());
           return matchesSearch && matchesStatus;
         }).toList();
 

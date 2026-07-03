@@ -555,6 +555,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                         ref.invalidate(
                           casesProvider,
                         ); // Invalidate cases to refresh status
+                        ref.invalidate(dashboardStatsProvider);
 
                         if (context.mounted) {
                           if (!isFinal) {

@@ -65,6 +65,11 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
   Timer? _typingDebounce;
   bool _amITyping = false;
 
+  // Online / Last Seen
+  RealtimeChannel? _presenceChannel;
+  bool _isPartnerOnline = false;
+  DateTime? _partnerLastSeenAt;
+
   // Download tracking: attachmentUrl -> progress (0.0..1.0) or null
   final Map<String, double> _downloadProgress = {};
 
@@ -86,6 +91,11 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
     if (_typingChannel != null) {
       Supabase.instance.client.removeChannel(_typingChannel!);
     }
+    if (_presenceChannel != null) {
+      Supabase.instance.client.removeChannel(_presenceChannel!);
+    }
+    // Update own last_seen_at on leaving chat
+    _updateLastSeen();
     super.dispose();
   }
 
@@ -108,14 +118,21 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
               ? conv['participant_2']
               : conv['participant_1'];
 
-      // Fetch partner profile
+      // Fetch partner profile (include last_seen_at)
       final partnerProfile = await Supabase.instance.client
           .from('profiles')
           .select(
-            'id, full_name, avatar_url, practice_state, practice_district',
+            'id, full_name, avatar_url, practice_state, practice_district, last_seen_at',
           )
           .eq('id', partnerId)
           .single();
+
+      // Parse last_seen_at
+      final lastSeenRaw = partnerProfile['last_seen_at'];
+      DateTime? lastSeen;
+      if (lastSeenRaw != null) {
+        lastSeen = DateTime.tryParse(lastSeenRaw.toString());
+      }
 
       // Mark messages as read
       await SupabaseService.markDirectMessagesRead(widget.conversationId);
@@ -123,12 +140,15 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
       if (mounted) {
         setState(() {
           _partnerProfile = partnerProfile;
+          _partnerLastSeenAt = lastSeen;
           _messagesStream = SupabaseService.directMessagesStream(
             widget.conversationId,
           );
           _loading = false;
         });
         _initTypingChannel();
+        _initPresenceChannel(partnerId);
+        _updateLastSeen();
         _scrollToBottom();
       }
     } catch (e) {
@@ -157,6 +177,70 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
           },
         )
         .subscribe();
+  }
+
+  /// Presence channel for online/offline detection
+  void _initPresenceChannel(String partnerId) {
+    final channelName = 'online_status_${widget.conversationId}';
+    _presenceChannel = Supabase.instance.client.channel(
+      channelName,
+      opts: const RealtimeChannelConfig(self: true),
+    );
+
+    _presenceChannel!
+        .onPresenceSync((payload) {
+          final presences = _presenceChannel!.presenceState();
+          bool partnerOnline = false;
+          for (final entry in presences.entries) {
+            for (final presence in entry.value) {
+              if (presence.payload['user_id'] == partnerId) {
+                partnerOnline = true;
+                break;
+              }
+            }
+            if (partnerOnline) break;
+          }
+          if (mounted && _isPartnerOnline != partnerOnline) {
+            setState(() => _isPartnerOnline = partnerOnline);
+          }
+        })
+        .subscribe((status, [error]) async {
+          if (status == RealtimeSubscribeStatus.subscribed) {
+            await _presenceChannel!.track({
+              'user_id': _myProfile?.id ?? '',
+              'online_at': DateTime.now().toIso8601String(),
+            });
+          }
+        });
+  }
+
+  /// Update own last_seen_at in profiles table
+  Future<void> _updateLastSeen() async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) return;
+      await Supabase.instance.client
+          .from('profiles')
+          .update({'last_seen_at': DateTime.now().toUtc().toIso8601String()})
+          .eq('id', user.id);
+    } catch (_) {}
+  }
+
+  /// Format the last seen time for display
+  String _formatLastSeen(DateTime lastSeen) {
+    final now = DateTime.now();
+    final local = lastSeen.toLocal();
+    final diff = now.difference(local);
+
+    if (diff.inMinutes < 1) return 'last seen just now';
+    if (diff.inMinutes < 60) return 'last seen ${diff.inMinutes}m ago';
+    if (diff.inHours < 24) {
+      return 'last seen at ${DateFormat('hh:mm a').format(local)}';
+    }
+    if (diff.inDays == 1) {
+      return 'last seen yesterday at ${DateFormat('hh:mm a').format(local)}';
+    }
+    return 'last seen ${DateFormat('dd/MM/yy').format(local)}';
   }
 
   void _initAudioPlayerListeners() {
@@ -1084,16 +1168,13 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
 
   // ─── MESSAGE BUBBLE ─────────────────────────────────
   Widget _buildBubble(DirectMessage msg, bool isMe, bool isDark) {
-    final bubbleColor =
-        isMe
-            ? (isDark ? const Color(0xFF4F46E5) : const Color(0xFFEEF2FF))
-            : (isDark ? const Color(0xFF1E293B) : Colors.white);
-    final textColor = isMe
-        ? (isDark ? Colors.white : const Color(0xFF0F172A))
-        : (isDark ? Colors.white : const Color(0xFF0F172A));
+    final bubbleColor = isMe
+        ? (isDark ? const Color(0xFF005C4B) : const Color(0xFFDCF8C6))
+        : (isDark ? const Color(0xFF202C33) : Colors.white);
+    final textColor = isDark ? Colors.white : const Color(0xFF1F2C34);
     final metaColor = isMe
-        ? (isDark ? Colors.white54 : const Color(0xFF64748B))
-        : (isDark ? Colors.white38 : const Color(0xFF94A3B8));
+        ? (isDark ? Colors.white54 : const Color(0xFF667781))
+        : (isDark ? Colors.white38 : const Color(0xFF667781));
 
     final bubbleWidget = Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -1533,6 +1614,24 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
               ),
             ),
           ),
+          // Download / Save button
+          if (!isDownloading)
+            GestureDetector(
+              onTap: () => _saveAttachmentToDevice(msg),
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: _docColor(ext).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.download_rounded,
+                  color: _docColor(ext),
+                  size: 20,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -1750,7 +1849,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF0B141A) : const Color(0xFFECE5DD),
+          isDark ? const Color(0xFF0B141A) : const Color(0xFFF0F2F5),
       appBar: AppBar(
         backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
         foregroundColor: isDark ? Colors.white : const Color(0xFF0F172A),
@@ -1795,18 +1894,38 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                             fontWeight: FontWeight.w700,
                           ),
                         )
-                      : (partnerLocation.isNotEmpty
+                      : _isPartnerOnline
                           ? Text(
-                              partnerLocation,
+                              'Online',
                               style: GoogleFonts.inter(
                                 fontSize: 11,
-                                color: isDark ? Colors.white70 : const Color(0xFF64748B),
-                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFF10B981),
+                                fontWeight: FontWeight.w600,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             )
-                          : const SizedBox.shrink()),
+                          : (_partnerLastSeenAt != null
+                              ? Text(
+                                  _formatLastSeen(_partnerLastSeenAt!),
+                                  style: GoogleFonts.inter(
+                                    fontSize: 11,
+                                    color: isDark ? Colors.white54 : const Color(0xFF94A3B8),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                )
+                              : (partnerLocation.isNotEmpty
+                                  ? Text(
+                                      partnerLocation,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 11,
+                                        color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    )
+                                  : const SizedBox.shrink())),
                 ],
               ),
             ),

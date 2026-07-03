@@ -1056,14 +1056,13 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
 
   // ─── MESSAGE BUBBLE ─────────────────────────────────
   Widget _buildBubble(CaseComment msg, bool isMe, bool isDark) {
-    final bubbleColor =
-        isMe
-            ? (isDark ? const Color(0xFF4F46E5) : const Color(0xFFEEF2FF))
-            : (isDark ? const Color(0xFF1E293B) : Colors.white);
-    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final bubbleColor = isMe
+        ? (isDark ? const Color(0xFF005C4B) : const Color(0xFFDCF8C6))
+        : (isDark ? const Color(0xFF202C33) : Colors.white);
+    final textColor = isDark ? Colors.white : const Color(0xFF1F2C34);
     final metaColor = isMe
-        ? (isDark ? Colors.white54 : const Color(0xFF64748B))
-        : (isDark ? Colors.white38 : const Color(0xFF94A3B8));
+        ? (isDark ? Colors.white54 : const Color(0xFF667781))
+        : (isDark ? Colors.white38 : const Color(0xFF667781));
 
     // Custom sender name colors for group chats to identify who's talking
     final List<Color> nameColors = [
@@ -1519,6 +1518,24 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
               ),
             ),
           ),
+          // Download / Save button
+          if (!isDownloading)
+            GestureDetector(
+              onTap: () => _saveAttachmentToDevice(msg),
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: _docColor(ext).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.download_rounded,
+                  color: _docColor(ext),
+                  size: 20,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -1728,7 +1745,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF0B141A) : const Color(0xFFECE5DD),
+          isDark ? const Color(0xFF0B141A) : const Color(0xFFF0F2F5),
       appBar: AppBar(
         backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
         foregroundColor: isDark ? Colors.white : const Color(0xFF0F172A),

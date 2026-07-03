@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../services/supabase_service.dart';
+import '../services/providers.dart';
 
 import '../theme/app_theme.dart';
 
@@ -61,6 +62,10 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
       if (newHearing != null) {}
 
       if (mounted) {
+        ref.invalidate(hearingsProvider);
+        ref.invalidate(casesProvider);
+        ref.invalidate(dashboardStatsProvider);
+
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
