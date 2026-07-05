@@ -1,144 +1,224 @@
-# ⚖️ CaseFlow
+<p align="center">
+  <img src="apps/mobile/assets/images/logo.png" width="80" alt="CaseFlow Logo" />
+</p>
 
-> Production-grade legal practice management for Tamil Nadu district court advocates.
+<h1 align="center">CaseFlow</h1>
 
-[![CI](https://github.com/AMJATH604/caseflow-flutter/actions/workflows/ci.yml/badge.svg)](https://github.com/AMJATH604/caseflow-flutter/actions)
+<p align="center">
+  <strong>Intelligent Legal Practice Management for Indian Advocates</strong>
+</p>
 
-## Overview
+<p align="center">
+  <a href="https://github.com/AMJATH604/Caseflow_Final/actions/workflows/build-apk.yml">
+    <img src="https://github.com/AMJATH604/Caseflow_Final/actions/workflows/build-apk.yml/badge.svg" alt="Build APK" />
+  </a>
+  <a href="https://github.com/AMJATH604/Caseflow_Final/actions/workflows/ci.yml">
+    <img src="https://github.com/AMJATH604/Caseflow_Final/actions/workflows/ci.yml/badge.svg" alt="CI" />
+  </a>
+  <img src="https://img.shields.io/badge/Flutter-3.29+-02569B?logo=flutter&logoColor=white" alt="Flutter" />
+  <img src="https://img.shields.io/badge/Supabase-Backend-3FCF8E?logo=supabase&logoColor=white" alt="Supabase" />
+  <img src="https://img.shields.io/badge/Gemini_AI-Powered-4285F4?logo=google&logoColor=white" alt="Gemini AI" />
+  <img src="https://img.shields.io/badge/License-MIT-blue" alt="License" />
+</p>
 
-CaseFlow is a full-stack legal-tech platform designed specifically for Indian advocates practicing in Tamil Nadu district courts. It provides end-to-end case lifecycle management — from client onboarding and hearing scheduling to fee tracking, evidence documentation, and automated eCourts integration.
+<p align="center">
+  <em>Production-grade mobile app powering legal case lifecycle management — from client onboarding to court hearings, evidence documentation, and AI-driven legal research.</em>
+</p>
 
-### Key Features
+---
 
-| Category | Features |
-|----------|----------|
-| **Case Management** | Full CRUD, CNR linking, stage tracking, case collaboration |
-| **Hearing Calendar** | Smart scheduling, adjourn workflow, today's-hearings dashboard |
-| **Financial Ledger** | Revenue/expense tracking, installments, case-level fee summary |
-| **Evidence Lab** | Checklists, witness examination notes, GPS-tagged photos with SHA-256 hashing |
-| **Commissioner Module** | Court-compliant commissioner reports with sketch tool, GPS evidence, bulk download |
-| **eCourts Integration** | CNR scraping, hearing history sync, dossier (acts, IAs, interim orders) |
-| **Legal Library** | Bare acts (BNS, BNSS, CPC, Constitution), stamp duty calculator, legal templates |
-| **AI Assistant** | Gemini-powered legal research via server-side proxy |
-| **PDF Tools** | Compress, merge, convert — via server-side iLovePDF proxy |
+## ✨ Features
+
+<table>
+<tr>
+<td width="50%">
+
+### 📋 Case Management
+- Full CRUD with CNR linking & stage tracking
+- Case collaboration across firm members
+- eCourts integration with hearing history sync
+- Smart case dossier (acts, IAs, interim orders)
+
+### 📅 Hearing Calendar
+- Smart scheduling with court-aware date picker
+- Adjourn workflow with reason tracking
+- Today's-hearings dashboard with quick actions
+- Automated FCM push reminders (cron-based)
+
+### 💰 Financial Ledger
+- Revenue & expense tracking per case
+- Installment management with due dates
+- ePay court fee integration
+- Payment receipt generation (PDF)
+
+</td>
+<td width="50%">
+
+### 🔬 Evidence Lab
+- Witness examination notes
+- GPS-tagged evidence photos with SHA-256 hashing
+- Commissioner reports with sketch tool
+- Bulk evidence download & export
+
+### 🤖 AI Legal Assistant
+- Gemini 2.0 Flash powered research
+- Server-side proxy (API keys never on device)
+- Context-aware legal Q&A
+
+### 📚 Legal Library
+- Full bare acts: BNS, BNSS, BSA, CPC, Constitution, DVC, NI Act, Motor Vehicles Act, Specific Relief Act
+- Stamp duty & court fee calculators
+- Legal templates & dictionaries
+- Know Your Rights citizen guide
+
+</td>
+</tr>
+</table>
+
+### Additional Capabilities
+
+| Module | Description |
+|--------|-------------|
 | **Firm Management** | Multi-advocate firms, member invitations, shared data visibility |
-| **Notifications** | FCM push notifications for upcoming hearings (automated cron) |
-| **Dashboard** | Real-time web dashboard with analytics and case overview |
+| **Chambers Chat** | Real-time firm-wide messaging with Supabase Realtime |
+| **Direct Messages** | WhatsApp-style advocate-to-advocate chat with attachments |
+| **Bar Association** | Membership cards, elections, notices, events, fee payments |
+| **Citizen Portal** | Case tracking, legal tools, and Know Your Rights for citizens |
+| **PDF Tools** | Compress, merge, convert, OCR — via server-side iLovePDF proxy |
+| **Broadcast** | Push notices to all firm members |
+| **Certified Copies** | Digital request tracking with status workflow |
+| **Legal Pulse** | Curated legal news feed |
 
-## Architecture
+---
+
+## 🏗️ Architecture
 
 ```
 caseflow/
 ├── apps/
-│   ├── mobile/                  # Flutter mobile app (Android)
-│   │   ├── lib/
-│   │   │   ├── models/          # Data models with fromJson/toJson
-│   │   │   ├── services/
-│   │   │   │   ├── repositories/ # Domain-specific repositories ⭐
-│   │   │   │   │   ├── base_repository.dart      # Profile cache, auth, visibility
-│   │   │   │   │   ├── case_repository.dart       # Cases, dossier, search
-│   │   │   │   │   ├── client_repository.dart     # Clients CRUD
-│   │   │   │   │   ├── hearing_repository.dart    # Hearings, adjourn
-│   │   │   │   │   ├── payment_repository.dart    # Payments, ledger
-│   │   │   │   │   ├── evidence_repository.dart   # Evidence lab
-│   │   │   │   │   ├── filing_repository.dart     # E-filing, certified copies
-│   │   │   │   │   ├── content_repository.dart    # Acts, templates, tasks
-│   │   │   │   │   ├── discussion_repository.dart # Realtime chat
-│   │   │   │   │   └── repositories.dart          # Barrel export
-│   │   │   │   ├── supabase_service.dart  # Thin facade (backward compat)
-│   │   │   │   ├── providers.dart         # Riverpod state management
-│   │   │   │   ├── retry_helper.dart      # Exponential backoff
-│   │   │   │   └── fcm_service.dart       # Push notifications
-│   │   │   ├── screens/          # UI screens
-│   │   │   ├── components/       # Reusable widgets
-│   │   │   └── utils/            # Helpers, env config, theme
-│   │   └── test/                 # Unit tests
-│   └── dashboard/               # React + Vite web dashboard
-│       └── src/
-│           ├── pages/           # Dashboard, Analytics, Settings
-│           ├── components/      # Shadcn UI components
-│           └── lib/             # Supabase client, utilities
+│   └── mobile/                     # Flutter mobile app (Android)
+│       ├── lib/
+│       │   ├── models/             # Data models (fromJson / toJson)
+│       │   ├── services/
+│       │   │   ├── repositories/   # Domain repositories (10 modules)
+│       │   │   ├── supabase_service.dart   # Facade pattern
+│       │   │   ├── providers.dart          # Riverpod state management
+│       │   │   └── fcm_service.dart        # Push notifications
+│       │   ├── pages/              # 36+ screens
+│       │   ├── components/         # 40+ reusable widgets
+│       │   ├── theme/              # App theme system
+│       │   └── utils/              # Responsive utilities, config
+│       └── android/                # Android platform config
 ├── supabase/
 │   └── functions/
-│       ├── send-hearing-reminders/  # Cron: FCM push for hearings
-│       ├── gemini-proxy/            # Server-side Gemini API proxy ⭐
-│       └── pdf-proxy/               # Server-side iLovePDF proxy ⭐
-├── data/                        # Legal data (BNS, BNSS, CPC, etc.)
-├── scripts/                     # Data migration & admin tools
-└── .github/workflows/ci.yml    # CI pipeline ⭐
+│       ├── send-hearing-reminders/ # Cron: automated FCM push
+│       ├── gemini-proxy/           # Server-side Gemini API proxy
+│       └── pdf-proxy/              # Server-side iLovePDF proxy
+├── data/                           # Legal datasets (bare acts JSON)
+├── scripts/                        # DB migrations & admin tools
+└── .github/workflows/
+    ├── build-apk.yml               # CI/CD: auto-build release APK
+    └── ci.yml                      # CI: analyze, test, lint
 ```
 
-### Repository Pattern
-
-The service layer follows the **Repository Pattern** with a **Facade**:
+### Service Layer — Repository Pattern
 
 ```
 ┌─────────────────────────────────┐
 │      UI Screens / Providers     │
-│  (unchanged — zero migration)   │
+│     (36 screens, 40+ widgets)   │
 └──────────────┬──────────────────┘
                │ calls
 ┌──────────────▼──────────────────┐
 │    SupabaseService (Facade)     │
-│    ~270 lines, pure delegation  │
+│     Thin delegation layer       │
 └──────────────┬──────────────────┘
                │ delegates to
 ┌──────────────▼──────────────────┐
-│    Domain Repositories (9)      │
-│    Single Responsibility each   │
+│  Domain Repositories (10)       │
+│  Cases · Clients · Hearings     │
+│  Payments · Evidence · Filing   │
+│  Content · Discussion · DM      │
+│  Profile · Bar Association      │
 └──────────────┬──────────────────┘
-               │ uses
+               │ extends
 ┌──────────────▼──────────────────┐
 │    BaseRepository (Shared)      │
-│    - Profile cache (5-min TTL)  │
-│    - Auth guards                │
-│    - Visibility filter builder  │
-│    - Date normalization         │
+│  • Profile cache (5-min TTL)    │
+│  • Auth guards & RLS filters    │
+│  • Firm visibility builder      │
 └─────────────────────────────────┘
 ```
 
-### Performance Optimizations
+### Responsive UI System
 
-- **Profile caching**: `fetchProfile()` is cached with 5-minute TTL, eliminating the N+1 problem where it was called inside every data-fetching method
-- **Parallel dashboard queries**: `fetchDashboardStats()` uses `Future.wait()` instead of serial await chains
-- **Realtime discussions**: Replaced 2-second polling loop with Supabase Realtime WebSocket stream
+All screens use `flutter_screenutil` with a `390×844` design baseline:
 
-### Security Model
+- **Font sizes** → `.sp` (scale to screen width)
+- **Widths** → `.w` / **Heights** → `.h` (proportional scaling)
+- **Border radius** → `.r` (proportional scaling)
+- **Text scaling** → Clamped to `0.8×–1.15×` globally
 
-- **Row Level Security (RLS)**: All tables protected by Supabase RLS policies
-- **Firm visibility**: Users see their own data + firm data via OR-filter
-- **Subscription gating**: `isPro`/`isBusiness` check actual tier + expiration date
-- **API key isolation**: Gemini and iLovePDF keys stored as Supabase Edge Function secrets (never in client binary)
-- **Evidence integrity**: SHA-256 hashing for commissioner evidence photos
+Tested across screen widths from 320dp (budget phones) to 430dp+ (flagships).
 
-## Quick Start
+---
+
+## ⚡ Performance
+
+| Optimization | Impact |
+|-------------|--------|
+| **Profile caching** | 5-min TTL eliminates N+1 query problem |
+| **Parallel dashboard** | `Future.wait()` loads stats ~3× faster |
+| **Realtime chat** | WebSocket stream replaces 2s polling loop |
+| **Pagination** | Limit/offset on all list screens |
+| **Offline cache** | SQLite-backed offline data access |
+| **Image optimization** | Cached network images with placeholder shimmer |
+
+---
+
+## 🔒 Security
+
+- **Row Level Security (RLS)** on all Supabase tables
+- **API key isolation** — Gemini & iLovePDF keys stored as Edge Function secrets, never in client binary
+- **Evidence integrity** — SHA-256 hashing for commissioner evidence photos
+- **Subscription gating** — Server-validated tier + expiration checks
+- **Firm visibility** — OR-filter ensures users see own + firm data only
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Flutter 3.27+ with Android SDK
-- Node.js 20+
-- Supabase CLI (for Edge Functions)
+| Tool | Version |
+|------|---------|
+| Flutter | ≥ 3.29 |
+| Dart | ≥ 3.7 |
+| Android SDK | API 21+ |
+| Node.js | ≥ 20 (for scripts) |
+| Supabase CLI | Latest (for Edge Functions) |
 
-### Mobile App
+### Setup
 
 ```bash
+# Clone the repository
+git clone https://github.com/AMJATH604/Caseflow_Final.git
+cd Caseflow_Final
+
+# Install Flutter dependencies
 cd apps/mobile
 flutter pub get
-flutter run --dart-define=SUPABASE_URL=<url> --dart-define=SUPABASE_ANON_KEY=<key>
-```
 
-### Web Dashboard
-
-```bash
-cd apps/dashboard
-npm install
-npm run dev
+# Run (with Supabase config)
+flutter run \
+  --dart-define=SUPABASE_URL=<your-url> \
+  --dart-define=SUPABASE_ANON_KEY=<your-key>
 ```
 
 ### Edge Functions
 
 ```bash
-# Deploy all functions
+# Deploy serverless functions
 supabase functions deploy send-hearing-reminders
 supabase functions deploy gemini-proxy
 supabase functions deploy pdf-proxy
@@ -149,36 +229,47 @@ supabase secrets set ILOVEPDF_PUBLIC_KEY=<key>
 supabase secrets set ILOVEPDF_SECRET_KEY=<key>
 ```
 
-### NPM Scripts (from root)
+---
+
+## 🧪 Testing & CI/CD
 
 ```bash
-npm run dashboard:dev     # Start dashboard dev server
-npm run mobile:get        # Install Flutter deps
-npm run upload-bnss       # Sync legal data to Supabase
-npm run list-admins       # Check admin status
+flutter test              # Run unit tests
+flutter test --coverage   # With coverage report
+flutter analyze           # Static analysis
 ```
 
-## Testing
+### Automated Pipeline
 
-```bash
-cd apps/mobile
-flutter test                    # Run all tests
-flutter test --coverage         # With coverage report
-flutter analyze                 # Static analysis
-```
+Every push to `main` triggers:
+1. **Code Analysis** — `flutter analyze`
+2. **Release APK Build** — Signed, optimized production binary
+3. **Artifact Upload** — Downloadable from GitHub Actions (30-day retention)
+4. **Firebase Distribution** — Auto-deploy to testers (when configured)
 
-## Tech Stack
+---
+
+## 🛠️ Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Mobile | Flutter 3.27, Dart 3.7, Riverpod, GoRouter |
-| Dashboard | React 18, TypeScript, Vite, Shadcn/UI, React Query |
-| Backend | Supabase (PostgreSQL, Auth, Storage, Realtime, Edge Functions) |
-| AI | Google Gemini 2.0 Flash (via Edge Function proxy) |
-| PDF | iLovePDF API (via Edge Function proxy) |
-| CI/CD | GitHub Actions |
-| Notifications | Firebase Cloud Messaging (FCM v1 API) |
+| **Mobile** | Flutter 3.29 · Dart 3.7 · Riverpod · GoRouter · ScreenUtil |
+| **Backend** | Supabase (PostgreSQL · Auth · Storage · Realtime · Edge Functions) |
+| **AI** | Google Gemini 2.0 Flash (server-side proxy) |
+| **PDF Engine** | iLovePDF API (server-side proxy) |
+| **Notifications** | Firebase Cloud Messaging (FCM v1 HTTP API) |
+| **Analytics** | Firebase Analytics · Crashlytics |
+| **CI/CD** | GitHub Actions (auto-build APK on push) |
+| **Responsive UI** | flutter_screenutil (390×844 baseline) |
 
-## License
+---
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+## 📄 License
+
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+
+---
+
+<p align="center">
+  <sub>Built with ❤️ for the Indian legal community</sub>
+</p>
