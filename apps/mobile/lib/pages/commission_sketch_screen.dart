@@ -905,7 +905,7 @@ class _SketchPainter extends CustomPainter {
     canvas.drawPath(southPath, southPaint);
 
     // N label
-    textSpan = TextSpan(
+    final textSpan = TextSpan(
       text: 'N',
       style: TextStyle(
         color: Color(0xFFEF4444),

@@ -346,13 +346,13 @@ class _CommissionReportScreenState
         fontSize: 10.sp,
         fontWeight: pw.FontWeight.bold,
       );
-      valueStyle = pw.TextStyle(fontSize: 10.sp);
-      bodyStyle = pw.TextStyle(fontSize: 10.sp);
+      final valueStyle = pw.TextStyle(fontSize: 10.sp);
+      final bodyStyle = pw.TextStyle(fontSize: 10.sp);
       final smallBold = pw.TextStyle(
         fontSize: 9.sp,
         fontWeight: pw.FontWeight.bold,
       );
-      smallStyle = pw.TextStyle(fontSize: 9.sp);
+      final smallStyle = pw.TextStyle(fontSize: 9.sp);
 
       // ── Track section numbering ──
       const int sectionNum = 0;
