@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PartitionCalculator extends StatefulWidget {
   const PartitionCalculator({super.key});
@@ -570,13 +571,13 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
         content: const Row(
           children: [
             Icon(Icons.check_circle, color: Colors.white, size: 18),
-            SizedBox(width: 8),
+            SizedBox(width: 8.w),
             Text('Partition memo copied! Paste in your plaint draft.'),
           ],
         ),
         backgroundColor: Colors.green[700],
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
       ),
     );
   }
@@ -591,7 +592,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -627,7 +628,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                     });
                   },
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 _buildDropdown(
                   'Gender of Deceased',
                   _deceasedGender,
@@ -681,7 +682,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                         },
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Expanded(
                       child: _buildDropdown(
                         'Gender of Deceased',
@@ -714,7 +715,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                   ],
                 ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
 
               if (isMobile) ...[
                 TextField(
@@ -726,7 +727,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                   ),
                   keyboardType: TextInputType.number,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 TextField(
                   controller: _debtsCtrl,
                   decoration: const InputDecoration(
@@ -750,7 +751,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                         keyboardType: TextInputType.number,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Expanded(
                       child: TextField(
                         controller: _debtsCtrl,
@@ -767,7 +768,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
             ],
           ),
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
 
           // ─── Heirs Selection ──
           _buildCard(
@@ -780,9 +781,9 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                 _selectedLaw == 'Muslim (Hanafi)'
                     ? 'Select primary heirs under Hanafi Mohammedan Law'
                     : 'Select Class I heirs under Hindu Succession Act, 1956',
-                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
               ),
-              const Divider(height: 20),
+              const Divider(height: 20.h),
 
               if (_deceasedGender == 'Male')
                 _buildCounterRow(
@@ -821,7 +822,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                 }),
               ),
 
-              const SizedBox(height: 4),
+              SizedBox(height: 4.h),
               SwitchListTile(
                 title: const Text(
                   'Father Alive',
@@ -831,7 +832,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                   _selectedLaw == 'Muslim (Hanafi)'
                       ? 'Gets 1/6 fixed + residuary'
                       : 'Not a Class I heir for male deceased',
-                  style: const TextStyle(fontSize: 11),
+                  style: const TextStyle(fontSize: 11.sp),
                 ),
                 value: _fatherAlive,
                 onChanged:
@@ -851,7 +852,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                   _selectedLaw == 'Muslim (Hanafi)'
                       ? 'Gets 1/6 or 1/3 fixed share'
                       : 'Class I heir for male deceased',
-                  style: const TextStyle(fontSize: 11),
+                  style: const TextStyle(fontSize: 11.sp),
                 ),
                 value: _motherAlive,
                 onChanged:
@@ -863,10 +864,10 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                 contentPadding: EdgeInsets.zero,
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               SizedBox(
                 width: double.infinity,
-                height: 52,
+                height: 52.h,
                 child: ElevatedButton.icon(
                   onPressed: _calculate,
                   icon: const Icon(Icons.calculate_rounded, size: 20),
@@ -881,7 +882,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                     backgroundColor: AppTheme.accent,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                   ),
                 ),
@@ -891,7 +892,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
 
           // ─── Results Section ──
           if (_showResults) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
 
             // Results Table
             if (_results.isNotEmpty)
@@ -905,7 +906,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                   icon: const Icon(Icons.copy_rounded, size: 14),
                   label: const Text(
                     'Copy Memo',
-                    style: TextStyle(fontSize: 12),
+                    style: TextStyle(fontSize: 12.sp),
                   ),
                 ),
                 children: [
@@ -923,7 +924,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                           AppTheme.primary.withValues(alpha: 0.05),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -945,26 +946,26 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                           ),
                           style: const TextStyle(
                             fontWeight: FontWeight.w900,
-                            fontSize: 18,
+                            fontSize: 18.sp,
                             color: AppTheme.primary,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
 
                   // Share cards
                   ..._results.map(
                     (row) => Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.all(14),
+                      margin: EdgeInsets.only(bottom: 8.h),
+                      padding: EdgeInsets.all(14.r),
                       decoration: BoxDecoration(
                         color:
                             isDark
                                 ? Colors.white.withValues(alpha: 0.04)
                                 : Colors.grey[50],
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10.r),
                         border: Border.all(
                           color: isDark ? Colors.white10 : Colors.grey[200]!,
                         ),
@@ -972,11 +973,11 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                       child: Row(
                         children: [
                           Container(
-                            width: 40,
-                            height: 40,
+                            width: 40.w,
+                            height: 40.h,
                             decoration: BoxDecoration(
                               color: AppTheme.accent.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: const Icon(
                               Icons.person,
@@ -984,7 +985,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                               size: 20,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12.w),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -993,14 +994,14 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                                   row['heir'],
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w700,
-                                    fontSize: 14,
+                                    fontSize: 14.sp,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
+                                SizedBox(height: 2.h),
                                 Text(
                                   "Share: ${row['fraction']}",
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 12.sp,
                                     color: Colors.grey[500],
                                   ),
                                 ),
@@ -1011,7 +1012,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                             formatCurrency.format(row['amount']),
                             style: const TextStyle(
                               fontWeight: FontWeight.w900,
-                              fontSize: 16,
+                              fontSize: 16.sp,
                               color: AppTheme.primary,
                             ),
                           ),
@@ -1024,7 +1025,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
 
             // How It Was Calculated
             if (_calculationSteps.isNotEmpty) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               _buildCard(
                 isDark,
                 icon: Icons.school_rounded,
@@ -1033,18 +1034,18 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                 children: [
                   Text(
                     'Step-by-step legal reasoning used to arrive at the above figures:',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12.h),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16.r),
                     decoration: BoxDecoration(
                       color:
                           isDark
                               ? const Color(0xFF0F172A)
                               : const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10.r),
                       border: Border.all(
                         color:
                             isDark ? Colors.white10 : const Color(0xFFE2E8F0),
@@ -1054,22 +1055,22 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children:
                           _calculationSteps.map((step) {
-                            if (step.isEmpty) return const SizedBox(height: 8);
+                            if (step.isEmpty) return SizedBox(height: 8.h);
                             final bool isHeader =
                                 step.startsWith('Step') ||
                                 step.startsWith('📜') ||
                                 step.startsWith('☪') ||
                                 step.startsWith('Rule:');
                             return Padding(
-                              padding: const EdgeInsets.only(bottom: 4),
+                              padding: EdgeInsets.only(bottom: 4.h),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   if (!isHeader && !step.startsWith('⚠'))
                                     Padding(
-                                      padding: const EdgeInsets.only(
-                                        top: 3,
-                                        right: 6,
+                                      padding: EdgeInsets.only(
+                                        top: 3.h,
+                                        right: 6.w,
                                       ),
                                       child: Icon(
                                         Icons.arrow_right,
@@ -1080,8 +1081,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                                   if (isHeader)
                                     const Padding(
                                       padding: EdgeInsets.only(
-                                        top: 3,
-                                        right: 6,
+                                        top: 3.h,
+                                        right: 6.w,
                                       ),
                                       child: Icon(
                                         Icons.bookmark,
@@ -1092,8 +1093,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                                   if (step.startsWith('⚠'))
                                     const Padding(
                                       padding: EdgeInsets.only(
-                                        top: 3,
-                                        right: 6,
+                                        top: 3.h,
+                                        right: 6.w,
                                       ),
                                       child: Icon(
                                         Icons.warning_amber,
@@ -1105,7 +1106,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                                     child: Text(
                                       step,
                                       style: TextStyle(
-                                        fontSize: 13,
+                                        fontSize: 13.sp,
                                         fontWeight:
                                             isHeader
                                                 ? FontWeight.w700
@@ -1118,7 +1119,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                                                 : (isHeader
                                                     ? Colors.black87
                                                     : Colors.grey[700]),
-                                        height: 1.5,
+                                        height: 1.5.h,
                                       ),
                                     ),
                                   ),
@@ -1133,7 +1134,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
             ],
           ],
 
-          const SizedBox(height: 100),
+          SizedBox(height: 100.h),
         ],
       ),
     );
@@ -1149,7 +1150,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
     required List<Widget> children,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       decoration: AppTheme.cardDecoration(isDark: isDark),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1157,14 +1158,14 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Icon(icon, color: iconColor, size: 18),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Expanded(
                 child: Text(
                   title,
@@ -1176,7 +1177,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
               if (trailing != null) trailing,
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           ...children,
         ],
       ),
@@ -1205,19 +1206,19 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
   // ─── COUNTER ROW ──
   Widget _buildCounterRow(String label, int value, Function(int) onChanged) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15.sp),
             ),
           ),
           Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.r),
               color:
                   Theme.of(context).brightness == Brightness.dark
                       ? Colors.white.withValues(alpha: 0.05)
@@ -1233,12 +1234,12 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                   visualDensity: VisualDensity.compact,
                 ),
                 SizedBox(
-                  width: 32,
+                  width: 32.w,
                   child: Text(
                     value.toString(),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

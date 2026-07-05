@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class StatusBadge extends StatelessWidget {
   final String status;
@@ -12,22 +13,22 @@ class StatusBadge extends StatelessWidget {
     final config = _getConfig(status.toLowerCase());
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
       decoration: BoxDecoration(
         color: config.color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(6.r),
         border: Border.all(color: config.color.withValues(alpha: 0.12)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(config.icon, size: 10, color: config.color),
-          const SizedBox(width: 6),
+          SizedBox(width: 6.w),
           Text(
             status.isEmpty ? 'UNKNOWN' : status.toUpperCase(),
             style: GoogleFonts.inter(
               color: config.color,
-              fontSize: 9,
+              fontSize: 9.sp,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.5,
             ),

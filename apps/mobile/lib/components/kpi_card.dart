@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// A premium KPI card with frosted glass effect, colored accent bar,
 /// animated counter, and optional pulse indicator.
@@ -74,12 +75,12 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
 
     return InkWell(
       onTap: widget.onTap,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(20.r),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.r),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E2030) : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
             color:
                 isDark
@@ -103,8 +104,8 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
           children: [
             // Colored accent bar
             Container(
-              width: 4,
-              height: 52,
+              width: 4.w,
+              height: 52.h,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -114,10 +115,10 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(4.r),
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16.w),
             // Content
             Expanded(
               child: Column(
@@ -126,10 +127,10 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: EdgeInsets.all(8.r),
                         decoration: BoxDecoration(
                           color: widget.accentColor.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(10.r),
                         ),
                         child: Icon(
                           widget.icon,
@@ -142,8 +143,8 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
                         FadeTransition(
                           opacity: _pulseController,
                           child: Container(
-                            width: 8,
-                            height: 8,
+                            width: 8.w,
+                            height: 8.h,
                             decoration: BoxDecoration(
                               color: widget.accentColor,
                               shape: BoxShape.circle,
@@ -161,7 +162,7 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
                         ),
                       if (widget.onTap != null)
                         Padding(
-                          padding: const EdgeInsets.only(left: 8),
+                          padding: EdgeInsets.only(left: 8.w),
                           child: Icon(
                             Icons.arrow_forward_ios_rounded,
                             size: 12,
@@ -173,7 +174,7 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
                         ),
                     ],
                   ),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14.h),
                   // Animated counter
                   AnimatedBuilder(
                     animation: _countAnimation,
@@ -183,7 +184,7 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
                       return Text(
                         '$displayValue',
                         style: GoogleFonts.outfit(
-                          fontSize: 30,
+                          fontSize: 30.sp,
                           fontWeight: FontWeight.w700,
                           color:
                               isDark ? Colors.white : const Color(0xFF0F172A),
@@ -192,7 +193,7 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
                       );
                     },
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2.h),
                   Text(
                     widget.title.toUpperCase(),
                     style: GoogleFonts.inter(
@@ -200,18 +201,18 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
                           isDark
                               ? const Color(0xFF94A3B8)
                               : const Color(0xFF64748B),
-                      fontSize: 9,
+                      fontSize: 9.sp,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 1.2,
                     ),
                   ),
                   if (widget.subtitle != null) ...[
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2.h),
                     Text(
                       widget.subtitle!,
                       style: GoogleFonts.inter(
                         color: widget.accentColor.withValues(alpha: 0.7),
-                        fontSize: 10,
+                        fontSize: 10.sp,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -245,32 +246,32 @@ class StatChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
       decoration: BoxDecoration(
         color:
             isDark
                 ? color.withValues(alpha: 0.08)
                 : color.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
         border: Border.all(color: color.withValues(alpha: 0.12)),
       ),
       child: Column(
         children: [
           Icon(icon, size: 16, color: color),
-          const SizedBox(height: 6),
+          SizedBox(height: 6.h),
           Text(
             '$value',
             style: GoogleFonts.outfit(
-              fontSize: 18,
+              fontSize: 18.sp,
               fontWeight: FontWeight.w700,
               color: isDark ? Colors.white : const Color(0xFF0F172A),
             ),
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: 2.h),
           Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 8,
+              fontSize: 8.sp,
               fontWeight: FontWeight.w700,
               color: color,
               letterSpacing: 0.5,

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_theme.dart';
 import '../../services/supabase_service.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BareActsLibraryScreen extends StatefulWidget {
   const BareActsLibraryScreen({super.key});
@@ -287,14 +288,14 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
           content: Row(
             children: [
               const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Text('$label copied to clipboard'),
             ],
           ),
           backgroundColor: const Color(0xFF059669),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          margin: EdgeInsets.all(16.r),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -402,10 +403,10 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
               // Shimmer Hero
               SliverToBoxAdapter(
                 child: Container(
-                  margin: const EdgeInsets.all(16),
-                  height: 180,
+                  margin: EdgeInsets.all(16.r),
+                  height: 180.h,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(24.r),
                     gradient: LinearGradient(
                       begin: Alignment(
                         -1.0 + 2.0 * _shimmerController.value,
@@ -427,14 +428,14 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
               // Shimmer Category Bar
               SliverToBoxAdapter(
                 child: Container(
-                  height: 40,
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  height: 40.h,
+                  margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                   child: Row(
                     children: List.generate(
                       4,
                       (i) => Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: _buildShimmerBox(width: 80, height: 36, radius: 20),
+                        padding: EdgeInsets.only(right: 8.w),
+                        child: _buildShimmerBox(width: 80.w, height: 36.h, radius: 20),
                       ),
                     ),
                   ),
@@ -491,17 +492,17 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
     return Container(
       decoration: BoxDecoration(
         color: _cardColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: _borderColor),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Accent stripe shimmer
             Container(
-              height: 4,
+              height: 4.h,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment(
@@ -518,17 +519,17 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16.r),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildShimmerBox(width: 44, height: 44, radius: 12),
-                  const SizedBox(height: 16),
-                  _buildShimmerBox(width: 60, height: 20, radius: 6),
-                  const SizedBox(height: 8),
-                  _buildShimmerBox(height: 12, radius: 4),
-                  const SizedBox(height: 6),
-                  _buildShimmerBox(width: 80, height: 12, radius: 4),
+                  _buildShimmerBox(width: 44.w, height: 44.h, radius: 12),
+                  SizedBox(height: 16.h),
+                  _buildShimmerBox(width: 60.w, height: 20.h, radius: 6),
+                  SizedBox(height: 8.h),
+                  _buildShimmerBox(height: 12.h, radius: 4),
+                  SizedBox(height: 6.h),
+                  _buildShimmerBox(width: 80.w, height: 12.h, radius: 4),
                 ],
               ),
             ),
@@ -572,24 +573,24 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                     child: Row(
                       children: [
                         Container(
-                          width: 4,
-                          height: 20,
+                          width: 4.w,
+                          height: 20.h,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [AppTheme.accent, AppTheme.accentViolet],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                             ),
-                            borderRadius: BorderRadius.circular(2),
+                            borderRadius: BorderRadius.circular(2.r),
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10.w),
                         Text(
                           _selectedCategory == 'All'
                               ? 'All Statutes'
                               : '$_selectedCategory Law',
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.w800,
                             color: _textPrimary,
                             letterSpacing: -0.3,
@@ -599,7 +600,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                         Text(
                           '${acts.length} ${acts.length == 1 ? 'act' : 'acts'}',
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             fontWeight: FontWeight.w600,
                             color: _textMuted,
                           ),
@@ -645,12 +646,12 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(24.r),
         child: Stack(
           children: [
             // Base Gradient
             Container(
-              height: 190,
+              height: 190.h,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -668,8 +669,8 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
               right: -40,
               top: -30,
               child: Container(
-                width: 180,
-                height: 180,
+                width: 180.w,
+                height: 180.h,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
@@ -687,8 +688,8 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
               left: -30,
               bottom: -40,
               child: Container(
-                width: 150,
-                height: 150,
+                width: 150.w,
+                height: 150.h,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
@@ -703,11 +704,11 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
 
             // Gradient Orb — Center (Amber glow)
             Positioned(
-              left: 60,
-              top: 20,
+              left: 60.w,
+              top: 20.h,
               child: Container(
-                width: 100,
-                height: 100,
+                width: 100.w,
+                height: 100.h,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
@@ -722,8 +723,8 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
 
             // Content
             Container(
-              height: 190,
-              padding: const EdgeInsets.all(24),
+              height: 190.h,
+              padding: EdgeInsets.all(24.r),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -731,10 +732,10 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(10),
+                        padding: EdgeInsets.all(10.r),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(14.r),
                           border: Border.all(
                             color: Colors.white.withValues(alpha: 0.08),
                           ),
@@ -745,7 +746,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                           size: 22,
                         ),
                       ),
-                      const SizedBox(width: 14),
+                      SizedBox(width: 14.w),
                       const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -754,17 +755,17 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                               'Legal Library',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 24,
+                                fontSize: 24.sp,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: -0.5,
                               ),
                             ),
-                            SizedBox(height: 3),
+                            SizedBox(height: 3.h),
                             Text(
                               'Browse & Search Indian Statutes',
                               style: TextStyle(
                                 color: Color(0xAAFFFFFF),
-                                fontSize: 13,
+                                fontSize: 13.sp,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
@@ -780,7 +781,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   GestureDetector(
                     onTap: _openSearchOverlay,
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16.r),
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                         child: Container(
@@ -790,7 +791,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                           ),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.10),
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(16.r),
                             border: Border.all(
                               color: Colors.white.withValues(alpha: 0.15),
                             ),
@@ -802,12 +803,12 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                                 color: Colors.white.withValues(alpha: 0.65),
                                 size: 20,
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12.w),
                               Text(
                                 'Search across all acts...',
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.5),
-                                  fontSize: 14,
+                                  fontSize: 14.sp,
                                   fontWeight: FontWeight.w400,
                                 ),
                               ),
@@ -819,13 +820,13 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                                 ),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(6),
+                                  borderRadius: BorderRadius.circular(6.r),
                                 ),
                                 child: Text(
                                   '⌘K',
                                   style: TextStyle(
                                     color: Colors.white.withValues(alpha: 0.4),
-                                    fontSize: 11,
+                                    fontSize: 11.sp,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -848,11 +849,11 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
   // ─── Category Filter Bar ─────────────────────────────────────
   Widget _buildCategoryBar() {
     return Container(
-      height: 48,
-      margin: const EdgeInsets.only(top: 4, bottom: 4),
+      height: 48.h,
+      margin: EdgeInsets.only(top: 4.h, bottom: 4.h),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         itemCount: _categories.length,
         itemBuilder: (context, index) {
           final cat = _categories[index];
@@ -862,7 +863,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
               : _getDomainColor(cat);
 
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: EdgeInsets.only(right: 8.w),
             child: GestureDetector(
               onTap: () => setState(() => _selectedCategory = cat),
               child: AnimatedContainer(
@@ -876,7 +877,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   color: isSelected
                       ? color.withValues(alpha: 0.1)
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(24.r),
                   border: Border.all(
                     color: isSelected ? color : _borderColor,
                     width: isSelected ? 1.5 : 1.0,
@@ -888,7 +889,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                     style: TextStyle(
                       color: isSelected ? color : _textMuted,
                       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                      fontSize: 13,
+                      fontSize: 13.sp,
                     ),
                   ),
                 ),
@@ -903,7 +904,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
   // ─── Stats Row ───────────────────────────────────────────────
   Widget _buildStatsRow(List<dynamic> acts) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
       child: Row(
         children: [
           _buildStatPill(
@@ -912,7 +913,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
             'Statutes',
             AppTheme.accent,
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           _buildStatPill(
             Icons.category_rounded,
             '${_domainColors.length}',
@@ -931,10 +932,10 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
     Color color,
   ) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
       decoration: BoxDecoration(
         color: _cardColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: _borderColor),
         boxShadow: [
           BoxShadow(
@@ -948,21 +949,21 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 15, color: color),
-          const SizedBox(width: 6),
+          SizedBox(width: 6.w),
           Text(
             value,
             style: const TextStyle(
               fontWeight: FontWeight.w800,
-              fontSize: 14,
+              fontSize: 14.sp,
               color: _textPrimary,
             ),
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4.w),
           Text(
             label,
             style: const TextStyle(
               color: _textMuted,
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -1010,7 +1011,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
           onTap: () => _selectAct(Map<String, dynamic>.from(act)),
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20.r),
               boxShadow: [
                 BoxShadow(
                   color: domainColor.withValues(alpha: 0.08),
@@ -1025,11 +1026,11 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20.r),
               child: Container(
                 decoration: BoxDecoration(
                   color: _cardColor,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(20.r),
                   border: Border.all(color: _borderColor),
                 ),
                 child: Column(
@@ -1037,7 +1038,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   children: [
                     // Top Accent Stripe
                     Container(
-                      height: 4,
+                      height: 4.h,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
@@ -1060,10 +1061,10 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                               children: [
                                 // Domain Icon
                                 Container(
-                                  padding: const EdgeInsets.all(10),
+                                  padding: EdgeInsets.all(10.r),
                                   decoration: BoxDecoration(
                                     color: domainColor.withValues(alpha: 0.08),
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(12.r),
                                     border: Border.all(
                                       color:
                                           domainColor.withValues(alpha: 0.12),
@@ -1085,7 +1086,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFDC2626)
                                           .withValues(alpha: 0.08),
-                                      borderRadius: BorderRadius.circular(8),
+                                      borderRadius: BorderRadius.circular(8.r),
                                     ),
                                     child: const Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -1095,12 +1096,12 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                                           color: Color(0xFFDC2626),
                                           size: 12,
                                         ),
-                                        SizedBox(width: 3),
+                                        SizedBox(width: 3.w),
                                         Text(
                                           'PDF',
                                           style: TextStyle(
                                             color: Color(0xFFDC2626),
-                                            fontSize: 10,
+                                            fontSize: 10.sp,
                                             fontWeight: FontWeight.w700,
                                           ),
                                         ),
@@ -1118,14 +1119,14 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                                 shortTitle,
                                 style: const TextStyle(
                                   color: _textPrimary,
-                                  fontSize: 18,
+                                  fontSize: 18.sp,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: -0.3,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: 4.h),
 
                             // Full Title
                             Text(
@@ -1134,13 +1135,13 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 color: _textSecondary,
-                                fontSize: 11,
-                                height: 1.4,
+                                fontSize: 11.sp,
+                                height: 1.4.h,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
 
-                            const SizedBox(height: 10),
+                            SizedBox(height: 10.h),
 
                             // Bottom: Category + Arrow
                             Row(
@@ -1152,13 +1153,13 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                                   ),
                                   decoration: BoxDecoration(
                                     color: domainColor.withValues(alpha: 0.06),
-                                    borderRadius: BorderRadius.circular(6),
+                                    borderRadius: BorderRadius.circular(6.r),
                                   ),
                                   child: Text(
                                     category,
                                     style: TextStyle(
                                       color: domainColor,
-                                      fontSize: 9,
+                                      fontSize: 9.sp,
                                       fontWeight: FontWeight.w700,
                                       letterSpacing: 0.3,
                                     ),
@@ -1191,12 +1192,12 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
     final isFiltered = _selectedCategory != 'All';
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 32),
+        padding: EdgeInsets.symmetric(vertical: 60.h, horizontal: 32.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(28),
+              padding: EdgeInsets.all(28.r),
               decoration: BoxDecoration(
                 color: AppTheme.accent.withValues(alpha: 0.06),
                 shape: BoxShape.circle,
@@ -1209,25 +1210,25 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                 color: AppTheme.accent.withValues(alpha: 0.35),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             Text(
               isFiltered ? 'No Statutes in Category' : 'No Statutes Yet',
               style: const TextStyle(
-                fontSize: 18,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
                 color: _textPrimary,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               isFiltered
                   ? 'Try selecting a different category above'
                   : 'Upload bare acts from the admin dashboard',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: _textMuted, fontSize: 13),
+              style: const TextStyle(color: _textMuted, fontSize: 13.sp),
             ),
             if (isFiltered) ...[
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               TextButton(
                 onPressed: () => setState(() => _selectedCategory = 'All'),
                 child: const Text(
@@ -1268,10 +1269,10 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
             elevation: 0,
             leading: IconButton(
               icon: Container(
-                padding: const EdgeInsets.all(6),
+                padding: EdgeInsets.all(6.r),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: const Icon(
                   Icons.arrow_back_rounded,
@@ -1287,7 +1288,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
             actions: [
               if (hasPdf)
                 Padding(
-                  padding: const EdgeInsets.only(right: 12),
+                  padding: EdgeInsets.only(right: 12.w),
                   child: TextButton.icon(
                     onPressed: _openPdf,
                     icon: const Icon(
@@ -1300,13 +1301,13 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
-                        fontSize: 12,
+                        fontSize: 12.sp,
                       ),
                     ),
                     style: TextButton.styleFrom(
                       backgroundColor: const Color(0xFFDC2626).withValues(alpha: 0.3),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10.r),
                       ),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
@@ -1332,8 +1333,8 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                       right: -20,
                       bottom: -20,
                       child: Container(
-                        width: 120,
-                        height: 120,
+                        width: 120.w,
+                        height: 120.h,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
@@ -1360,30 +1361,30 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                             ),
                             decoration: BoxDecoration(
                               color: domainColor.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: Text(
                               category.toUpperCase(),
                               style: TextStyle(
                                 color: domainColor,
-                                fontSize: 10,
+                                fontSize: 10.sp,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 1.5,
                               ),
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          SizedBox(height: 10.h),
                           // Short title
                           Text(
                             _selectedAct!['short_title'] ?? '',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 26,
+                              fontSize: 26.sp,
                               fontWeight: FontWeight.w900,
                               letterSpacing: -0.5,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4.h),
                           // Full title
                           Text(
                             _selectedAct!['title'] ?? '',
@@ -1391,9 +1392,9 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.6),
-                              fontSize: 13,
+                              fontSize: 13.sp,
                               fontWeight: FontWeight.w400,
-                              height: 1.4,
+                              height: 1.4.h,
                             ),
                           ),
                         ],
@@ -1415,7 +1416,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                 child: TextField(
                   controller: _searchController,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     color: _textPrimary,
                     fontWeight: FontWeight.w500,
                   ),
@@ -1424,7 +1425,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                         'Search ${sectionLabel.toLowerCase()}s or keywords...',
                     hintStyle: const TextStyle(
                       color: _textMuted,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                     ),
                     prefixIcon: const Icon(
                       Icons.search_rounded,
@@ -1444,21 +1445,21 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                     filled: true,
                     fillColor: _cardColor,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16.r),
                       borderSide: const BorderSide(color: _borderColor),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16.r),
                       borderSide: const BorderSide(color: _borderColor),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16.r),
                       borderSide: BorderSide(
                         color: domainColor,
-                        width: 1.5,
+                        width: 1.5.w,
                       ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                    contentPadding: EdgeInsets.symmetric(vertical: 14.h),
                   ),
                 ),
               ),
@@ -1475,26 +1476,26 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                       '${_filteredSections.length} ${sectionLabel.toLowerCase()}${_filteredSections.length == 1 ? '' : 's'}',
                       style: const TextStyle(
                         color: _textMuted,
-                        fontSize: 12,
+                        fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     if (_searchController.text.isNotEmpty) ...[
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6.w),
                       Container(
-                        width: 4,
-                        height: 4,
+                        width: 4.w,
+                        height: 4.h,
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                           color: _textMuted,
                         ),
                       ),
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6.w),
                       Text(
                         'filtered',
                         style: TextStyle(
                           color: domainColor,
-                          fontSize: 12,
+                          fontSize: 12.sp,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -1512,17 +1513,17 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(
-                      width: 32,
-                      height: 32,
+                      width: 32.w,
+                      height: 32.h,
                       child: CircularProgressIndicator(
                         strokeWidth: 3,
                         color: AppTheme.accent,
                       ),
                     ),
-                    SizedBox(height: 16),
+                    SizedBox(height: 16.h),
                     Text(
                       'Loading sections...',
-                      style: TextStyle(color: _textMuted, fontSize: 13),
+                      style: TextStyle(color: _textMuted, fontSize: 13.sp),
                     ),
                   ],
                 ),
@@ -1555,13 +1556,13 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                       if (showChapterHeader &&
                           chapterNo != null &&
                           chapterNo.toString().isNotEmpty) ...[
-                        if (index > 0) const SizedBox(height: 24),
+                        if (index > 0) SizedBox(height: 24.h),
                         _buildChapterDivider(
                           chapterNo.toString(),
                           chapterTitle?.toString(),
                           domainColor,
                         ),
-                        const SizedBox(height: 14),
+                        SizedBox(height: 14.h),
                       ],
                       _buildSectionCard(
                         section,
@@ -1587,10 +1588,10 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
   ) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 20.w),
       decoration: BoxDecoration(
         color: const Color(0xFF0F172A),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.08),
@@ -1602,18 +1603,18 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
       child: Row(
         children: [
           Container(
-            width: 4,
-            height: 36,
+            width: 4.w,
+            height: 36.h,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [domainColor, domainColor.withValues(alpha: 0.4)],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(2.r),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1623,20 +1624,20 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   style: TextStyle(
                     color: domainColor,
                     fontWeight: FontWeight.w900,
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     letterSpacing: 2.0,
                   ),
                 ),
                 if (chapterTitle != null && chapterTitle.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.only(top: 5),
+                    padding: EdgeInsets.only(top: 5.h),
                     child: Text(
                       chapterTitle,
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
-                        fontSize: 15,
-                        height: 1.3,
+                        fontSize: 15.sp,
+                        height: 1.3.h,
                       ),
                     ),
                   ),
@@ -1661,7 +1662,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
     final sectionText = section['section_text'] ?? '';
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(bottom: 8.h),
       child: GestureDetector(
         onTap: () => _toggleSection(index),
         child: AnimatedContainer(
@@ -1669,7 +1670,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
           curve: Curves.easeInOut,
           decoration: BoxDecoration(
             color: _cardColor,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color: isExpanded
                   ? domainColor.withValues(alpha: 0.25)
@@ -1709,7 +1710,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                       ),
                       decoration: BoxDecoration(
                         color: domainColor.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(8.r),
                         border: Border.all(
                           color: domainColor.withValues(alpha: 0.12),
                         ),
@@ -1719,27 +1720,27 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                         style: TextStyle(
                           color: domainColor,
                           fontWeight: FontWeight.w800,
-                          fontSize: 11,
+                          fontSize: 11.sp,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10.w),
                     // Section title
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.only(top: 2),
+                        padding: EdgeInsets.only(top: 2.h),
                         child: Text(
                           sectionTitle,
                           style: const TextStyle(
                             color: _textPrimary,
                             fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                            height: 1.4,
+                            fontSize: 14.sp,
+                            height: 1.4.h,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8.w),
                     // Expand indicator
                     AnimatedRotation(
                       turns: isExpanded ? 0.5 : 0.0,
@@ -1756,7 +1757,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
 
               // Expanded content
               AnimatedCrossFade(
-                firstChild: const SizedBox(width: double.infinity, height: 0),
+                firstChild: SizedBox(width: double.infinity, height: 0.h),
                 secondChild: _buildExpandedSectionContent(
                   sectionText,
                   sectionLabel,
@@ -1791,8 +1792,8 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
       children: [
         // Divider
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: 14),
-          height: 1,
+          margin: EdgeInsets.symmetric(horizontal: 14.w),
+          height: 1.h,
           color: _borderColor,
         ),
 
@@ -1801,17 +1802,17 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(18),
+            padding: EdgeInsets.all(18.r),
             decoration: BoxDecoration(
               color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               border: Border.all(color: _borderColor.withValues(alpha: 0.5)),
             ),
             child: SelectableText(
               text,
               style: const TextStyle(
-                fontSize: 14,
-                height: 1.85,
+                fontSize: 14.sp,
+                height: 1.85.h,
                 color: _textSecondary,
                 letterSpacing: 0.15,
               ),
@@ -1834,7 +1835,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                 ),
                 domainColor,
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               // Copy full reference
               _buildActionButton(
                 Icons.format_quote_rounded,
@@ -1860,24 +1861,24 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
   ) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(8.r),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
           border: Border.all(color: color.withValues(alpha: 0.1)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 14, color: color),
-            const SizedBox(width: 5),
+            SizedBox(width: 5.w),
             Text(
               label,
               style: TextStyle(
                 color: color,
-                fontSize: 11,
+                fontSize: 11.sp,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -1892,12 +1893,12 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
     return SliverFillRemaining(
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(32),
+          padding: EdgeInsets.all(32.r),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(24.r),
                 decoration: BoxDecoration(
                   color: const Color(0xFFDC2626).withValues(alpha: 0.06),
                   shape: BoxShape.circle,
@@ -1908,26 +1909,26 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   color: Color(0xFFDC2626),
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               const Text(
                 'PDF Available',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 20.sp,
                   fontWeight: FontWeight.w800,
                   color: _textPrimary,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               const Text(
                 'This statute is available as a PDF.\nSection-wise search will be available\nwhen sections are uploaded.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: _textMuted,
-                  height: 1.6,
-                  fontSize: 13,
+                  height: 1.6.h,
+                  fontSize: 13.sp,
                 ),
               ),
-              const SizedBox(height: 28),
+              SizedBox(height: 28.h),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -1935,14 +1936,14 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   icon: const Icon(Icons.open_in_new_rounded, size: 18),
                   label: const Text(
                     'Open Full PDF',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.sp),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF0F172A),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: EdgeInsets.symmetric(vertical: 16.h),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(14.r),
                     ),
                     elevation: 0,
                   ),
@@ -1963,7 +1964,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(24.r),
               decoration: BoxDecoration(
                 color: AppTheme.accent.withValues(alpha: 0.06),
                 shape: BoxShape.circle,
@@ -1974,19 +1975,19 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                 color: AppTheme.accent.withValues(alpha: 0.4),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             const Text(
               'Coming Soon',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 20.sp,
                 fontWeight: FontWeight.w800,
                 color: _textPrimary,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             const Text(
               'Sections for this act will be uploaded soon.',
-              style: TextStyle(color: _textMuted, fontSize: 13),
+              style: TextStyle(color: _textMuted, fontSize: 13.sp),
             ),
           ],
         ),
@@ -2049,7 +2050,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                         margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                         decoration: BoxDecoration(
                           color: _cardColor,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(24.r),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.12),
@@ -2071,14 +2072,14 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                                     color: _textMuted,
                                     size: 22,
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: 12.w),
                                   Expanded(
                                     child: TextField(
                                       controller: _globalSearchController,
                                       autofocus: true,
                                       style: const TextStyle(
                                         color: _textPrimary,
-                                        fontSize: 16,
+                                        fontSize: 16.sp,
                                         fontWeight: FontWeight.w500,
                                       ),
                                       decoration: const InputDecoration(
@@ -2086,11 +2087,11 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                                             'Search sections, titles, keywords...',
                                         hintStyle: TextStyle(
                                           color: _textMuted,
-                                          fontSize: 15,
+                                          fontSize: 15.sp,
                                         ),
                                         border: InputBorder.none,
                                         contentPadding:
-                                            EdgeInsets.symmetric(vertical: 14),
+                                            EdgeInsets.symmetric(vertical: 14.h),
                                       ),
                                       onChanged: (value) {
                                         setState(() {});
@@ -2120,10 +2121,10 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                                     ),
                                   IconButton(
                                     icon: Container(
-                                      padding: const EdgeInsets.all(4),
+                                      padding: EdgeInsets.all(4.r),
                                       decoration: BoxDecoration(
                                         color: const Color(0xFFF1F5F9),
-                                        borderRadius: BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(8.r),
                                       ),
                                       child: const Icon(
                                         Icons.close_rounded,
@@ -2138,12 +2139,12 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                             ),
 
                             // Divider
-                            const Divider(color: _borderColor, height: 1),
+                            const Divider(color: _borderColor, height: 1.h),
 
                             // Filter Chips
                             Container(
-                              height: 52,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              height: 52.h,
+                              padding: EdgeInsets.symmetric(vertical: 8.h),
                               child: ListView(
                                 scrollDirection: Axis.horizontal,
                                 padding: const EdgeInsets.symmetric(
@@ -2169,10 +2170,10 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                         child: _isSearchingGlobal
                             ? const Center(
                                 child: Padding(
-                                  padding: EdgeInsets.only(top: 48),
+                                  padding: EdgeInsets.only(top: 48.h),
                                   child: SizedBox(
-                                    width: 28,
-                                    height: 28,
+                                    width: 28.w,
+                                    height: 28.h,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 3,
                                       color: AppTheme.accent,
@@ -2215,7 +2216,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
   Widget _buildSearchEmptyState() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.only(top: 48),
+        padding: EdgeInsets.only(top: 48.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -2226,24 +2227,24 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
               size: 52,
               color: Colors.white.withValues(alpha: 0.25),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Text(
               _globalSearchController.text.isEmpty
                   ? 'Search for any section or keyword'
                   : 'No results found',
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.5),
-                fontSize: 14,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
               ),
             ),
             if (_globalSearchController.text.isEmpty) ...[
-              const SizedBox(height: 6),
+              SizedBox(height: 6.h),
               Text(
                 'Try "Art 14", "Section 302", or "right to life"',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.3),
-                  fontSize: 12,
+                  fontSize: 12.sp,
                 ),
               ),
             ],
@@ -2277,10 +2278,10 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
         }
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
+        margin: EdgeInsets.only(bottom: 10.h),
         decoration: BoxDecoration(
           color: _cardColor,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(color: _borderColor),
           boxShadow: [
             BoxShadow(
@@ -2295,12 +2296,12 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
           children: [
             // Act Badge Header
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
               decoration: BoxDecoration(
                 color: domainColor.withValues(alpha: 0.04),
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
+                  topLeft: Radius.circular(16.r),
+                  topRight: Radius.circular(16.r),
                 ),
                 border: Border(
                   bottom: BorderSide(color: _borderColor.withValues(alpha: 0.5)),
@@ -2313,13 +2314,13 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                     color: domainColor,
                     size: 14,
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6.w),
                   Text(
                     actShortTitle,
                     style: TextStyle(
                       color: domainColor,
                       fontWeight: FontWeight.w800,
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       letterSpacing: 0.3,
                     ),
                   ),
@@ -2331,14 +2332,14 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                     ),
                     decoration: BoxDecoration(
                       color: domainColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(6.r),
                     ),
                     child: Text(
                       '$sectionLabel $sectionNumber',
                       style: TextStyle(
                         color: domainColor,
                         fontWeight: FontWeight.w800,
-                        fontSize: 11,
+                        fontSize: 11.sp,
                       ),
                     ),
                   ),
@@ -2348,7 +2349,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
 
             // Section Content
             Padding(
-              padding: const EdgeInsets.all(14),
+              padding: EdgeInsets.all(14.r),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -2356,33 +2357,33 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                     sectionTitle,
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       color: _textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6.h),
                   Text(
                     sectionText,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: _textSecondary,
-                      fontSize: 13,
-                      height: 1.5,
+                      fontSize: 13.sp,
+                      height: 1.5.h,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   Row(
                     children: [
                       Text(
                         'Tap to view full act',
                         style: TextStyle(
                           color: domainColor.withValues(alpha: 0.6),
-                          fontSize: 11,
+                          fontSize: 11.sp,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4.w),
                       Icon(
                         Icons.arrow_forward_rounded,
                         size: 12,
@@ -2403,7 +2404,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
   Widget _buildSearchFilterChip(String? id, String label) {
     final isSelected = _selectedSearchActId == id;
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: EdgeInsets.only(right: 8.w),
       child: GestureDetector(
         onTap: () {
           setState(() => _selectedSearchActId = id);
@@ -2413,12 +2414,12 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
           decoration: BoxDecoration(
             color: isSelected
                 ? AppTheme.accent
                 : const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(20.r),
             border: Border.all(
               color: isSelected ? AppTheme.accent : _borderColor,
             ),
@@ -2428,7 +2429,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
             style: TextStyle(
               color: isSelected ? Colors.white : _textSecondary,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              fontSize: 12,
+              fontSize: 12.sp,
             ),
           ),
         ),

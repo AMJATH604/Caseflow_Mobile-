@@ -5,6 +5,7 @@ import '../../services/providers.dart';
 import '../../services/supabase_service.dart';
 import '../../theme/app_theme.dart';
 import 'dossier_shared.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class IASection extends ConsumerStatefulWidget {
   final String caseId;
@@ -69,9 +70,9 @@ class _IASectionState extends ConsumerState<IASection> {
             builder:
                 (ctx, setSheetState) => Container(
                   padding: EdgeInsets.only(
-                    left: 24,
-                    right: 24,
-                    top: 24,
+                    left: 24.w,
+                    right: 24.w,
+                    top: 24.h,
                     bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
                   ),
                   constraints: BoxConstraints(
@@ -80,7 +81,7 @@ class _IASectionState extends ConsumerState<IASection> {
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(24),
+                      top: Radius.circular(24.r),
                     ),
                   ),
                   child: SingleChildScrollView(
@@ -90,24 +91,24 @@ class _IASectionState extends ConsumerState<IASection> {
                       children: [
                         Center(
                           child: Container(
-                            width: 40,
-                            height: 4,
+                            width: 40.w,
+                            height: 4.h,
                             decoration: BoxDecoration(
                               color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(2),
+                              borderRadius: BorderRadius.circular(2.r),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20.h),
                         const Text(
                           'Add IA Application',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 18.sp,
                             fontWeight: FontWeight.w900,
                             color: Color(0xFF1E293B),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20.h),
                         TextField(
                           controller: iaNumberCtrl,
                           autofocus: true,
@@ -116,22 +117,22 @@ class _IASectionState extends ConsumerState<IASection> {
                             hintText: 'IA/1/2023',
                             prefixIcon: const Icon(Icons.tag_rounded),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         TextField(
                           controller: partyCtrl,
                           decoration: InputDecoration(
                             labelText: 'Party Name',
                             prefixIcon: const Icon(Icons.person_outline),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         TextField(
                           controller: classCtrl,
                           decoration: InputDecoration(
@@ -139,11 +140,11 @@ class _IASectionState extends ConsumerState<IASection> {
                             hintText: 'Injunction / Stay',
                             prefixIcon: const Icon(Icons.category_outlined),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           title: const Text('Filing Date'),
@@ -168,13 +169,13 @@ class _IASectionState extends ConsumerState<IASection> {
                             if (d != null) setSheetState(() => filingDate = d);
                           },
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         DropdownButtonFormField<String>(
                           initialValue: status,
                           decoration: InputDecoration(
                             labelText: 'Status',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                             ),
                           ),
                           items:
@@ -190,10 +191,10 @@ class _IASectionState extends ConsumerState<IASection> {
                                   .toList(),
                           onChanged: (v) => status = v ?? 'pending',
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20.h),
                         SizedBox(
                           width: double.infinity,
-                          height: 48,
+                          height: 48.h,
                           child: ElevatedButton.icon(
                             onPressed: () async {
                               if (iaNumberCtrl.text.trim().isEmpty) return;
@@ -234,7 +235,7 @@ class _IASectionState extends ConsumerState<IASection> {
                               backgroundColor: AppTheme.accent,
                               foregroundColor: Colors.black,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(14.r),
                               ),
                             ),
                           ),
@@ -275,11 +276,11 @@ class _IASectionState extends ConsumerState<IASection> {
                                       ? const Color(0xFFF59E0B)
                                       : const Color(0xFF3B82F6);
                               return Container(
-                                margin: const EdgeInsets.only(bottom: 10),
-                                padding: const EdgeInsets.all(14),
+                                margin: EdgeInsets.only(bottom: 10.h),
+                                padding: EdgeInsets.all(14.r),
                                 decoration: BoxDecoration(
                                   color: AppTheme.darkCard,
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(12.r),
                                   border: Border.all(
                                     color: AppTheme.darkBorder,
                                   ),
@@ -294,35 +295,35 @@ class _IASectionState extends ConsumerState<IASection> {
                                           Text(
                                             ia.iaNumber,
                                             style: const TextStyle(
-                                              fontSize: 13,
+                                              fontSize: 13.sp,
                                               fontWeight: FontWeight.w900,
                                               color: Color(0xFF1E293B),
                                             ),
                                           ),
-                                          const SizedBox(height: 2),
+                                          SizedBox(height: 2.h),
                                           if (ia.party != null)
                                             Text(
                                               ia.party!,
                                               style: const TextStyle(
-                                                fontSize: 11,
+                                                fontSize: 11.sp,
                                                 color: Color(0xFF64748B),
                                               ),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                             ),
-                                          const SizedBox(height: 6),
+                                          SizedBox(height: 6.h),
                                           Row(
                                             children: [
                                               if (ia.filingDate != null)
                                                 Padding(
                                                   padding:
-                                                      const EdgeInsets.only(
-                                                        right: 12,
+                                                      EdgeInsets.only(
+                                                        right: 12.w,
                                                       ),
                                                   child: Text(
                                                     "FILED: ${DateFormat('dd MMM').format(ia.filingDate!)}",
                                                     style: const TextStyle(
-                                                      fontSize: 9,
+                                                      fontSize: 9.sp,
                                                       fontWeight:
                                                           FontWeight.w800,
                                                       color: Color(0xFF94A3B8),
@@ -340,12 +341,12 @@ class _IASectionState extends ConsumerState<IASection> {
                                                     alpha: 0.1,
                                                   ),
                                                   borderRadius:
-                                                      BorderRadius.circular(4),
+                                                      BorderRadius.circular(4.r),
                                                 ),
                                                 child: Text(
                                                   ia.iaStatus.toUpperCase(),
                                                   style: TextStyle(
-                                                    fontSize: 8,
+                                                    fontSize: 8.sp,
                                                     fontWeight: FontWeight.w900,
                                                     color: statusColor,
                                                     letterSpacing: 0.5,
@@ -372,7 +373,7 @@ class _IASectionState extends ConsumerState<IASection> {
                       ),
           loading:
               () => const Padding(
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.all(16.r),
                 child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),
           error: (e, _) => DossierHelper.emptyHint('Error loading IAs'),

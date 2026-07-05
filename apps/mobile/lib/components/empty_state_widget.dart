@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EmptyStateWidget extends StatelessWidget {
   final IconData icon;
@@ -22,11 +23,11 @@ class EmptyStateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        margin: const EdgeInsets.all(24),
-        padding: const EdgeInsets.all(40),
+        margin: EdgeInsets.all(24.r),
+        padding: EdgeInsets.all(40.r),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(28.r),
           border: Border.all(color: AppTheme.border),
           boxShadow: [
             BoxShadow(
@@ -41,7 +42,7 @@ class EmptyStateWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(24.r),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -59,28 +60,28 @@ class EmptyStateWidget extends StatelessWidget {
                 color: AppTheme.accent.withValues(alpha: 0.6),
               ),
             ),
-            const SizedBox(height: 28),
+            SizedBox(height: 28.h),
             Text(
               title,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
-                fontSize: 22,
+                fontSize: 22.sp,
                 fontWeight: FontWeight.bold,
                 color: AppTheme.primary,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Text(
               message,
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
-                fontSize: 14,
+                fontSize: 14.sp,
                 color: Colors.grey[500],
-                height: 1.6,
+                height: 1.6.h,
               ),
             ),
             if (buttonText != null && onButtonTap != null) ...[
-              const SizedBox(height: 32),
+              SizedBox(height: 32.h),
               ElevatedButton.icon(
                 onPressed: onButtonTap,
                 icon: const Icon(Icons.add_rounded, size: 20),
@@ -96,7 +97,7 @@ class EmptyStateWidget extends StatelessWidget {
                     vertical: 16,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
                   elevation: 0,
                 ),

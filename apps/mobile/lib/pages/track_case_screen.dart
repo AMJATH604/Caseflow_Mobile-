@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../services/ecourt_parser_service.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TrackCaseScreen extends ConsumerStatefulWidget {
   final String? initialText;
@@ -94,16 +95,16 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               Text(
                 'Track My Case',
                 style: GoogleFonts.playfairDisplay(
-                  fontSize: 28,
+                  fontSize: 28.sp,
                   fontWeight: FontWeight.w700,
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6.h),
               Text(
                 'Paste your eCourts case details to see status, hearing history, and more.',
                 style: GoogleFonts.inter(
-                  fontSize: 13,
+                  fontSize: 13.sp,
                   color:
                       isDark
                           ? const Color(0xFF94A3B8)
@@ -111,21 +112,21 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
 
               // Input card
               _buildInputCard(isDark),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
 
               // Error
               if (_error != null)
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(14),
+                  padding: EdgeInsets.all(14.r),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFEE2E2),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                     border: Border.all(color: const Color(0xFFFCA5A5)),
                   ),
                   child: Row(
@@ -135,12 +136,12 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                         color: Color(0xFFDC2626),
                         size: 18,
                       ),
-                      const SizedBox(width: 10),
+                      SizedBox(width: 10.w),
                       Expanded(
                         child: Text(
                           _error!,
                           style: GoogleFonts.inter(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             color: const Color(0xFF991B1B),
                           ),
                         ),
@@ -151,29 +152,29 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
 
               // Results
               if (_result != null) ...[
-                const SizedBox(height: 20),
+                SizedBox(height: 20.h),
                 _buildStatusCard(isDark),
-                const SizedBox(height: 14),
+                SizedBox(height: 14.h),
                 _buildCaseDetailsCard(isDark),
-                const SizedBox(height: 14),
+                SizedBox(height: 14.h),
                 _buildPartyDetailsCard(isDark),
                 if (_result!['hearing_history'] != null &&
                     (_result!['hearing_history'] as List).isNotEmpty) ...[
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14.h),
                   _buildHearingTimeline(isDark),
                 ],
                 if (_result!['acts_sections'] != null &&
                     (_result!['acts_sections'] as List).isNotEmpty) ...[
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14.h),
                   _buildActsSections(isDark),
                 ],
-                const SizedBox(height: 20),
+                SizedBox(height: 20.h),
                 _buildAdvocatePrompt(isDark),
               ],
 
               // Empty state
               if (_result == null && _error == null && !_isLoading) ...[
-                const SizedBox(height: 40),
+                SizedBox(height: 40.h),
                 _buildEmptyState(isDark),
               ],
             ],
@@ -185,10 +186,10 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
 
   Widget _buildInputCard(bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(18.r),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
         ),
@@ -206,12 +207,12 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF10B981), Color(0xFF059669)],
                   ),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: const Icon(
                   Icons.search_rounded,
@@ -219,26 +220,26 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                   size: 18,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Text(
                 'Case Details',
                 style: GoogleFonts.inter(
-                  fontSize: 15,
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w700,
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14.h),
           Text(
             'Paste the full case status page content from the eCourts website or app:',
             style: GoogleFonts.inter(
-              fontSize: 12,
+              fontSize: 12.sp,
               color: const Color(0xFF94A3B8),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           TextFormField(
             controller: _textController,
             maxLines: 6,
@@ -247,18 +248,18 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               FilteringTextInputFormatter.deny(RegExp('')),
             ], // allow all
             style: GoogleFonts.inter(
-              fontSize: 13,
+              fontSize: 13.sp,
               color: isDark ? Colors.white : const Color(0xFF0F172A),
             ),
             decoration: InputDecoration(
               hintText:
                   'Paste eCourts case status text here...\n\nExample: Copy everything from the eCourts case status page including case number, parties, hearing details.',
               hintStyle: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 12.sp,
                 color: const Color(0xFF64748B),
               ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
                 borderSide: BorderSide(
                   color:
                       isDark
@@ -267,7 +268,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                 ),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
                 borderSide: BorderSide(
                   color:
                       isDark
@@ -276,37 +277,37 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
                 borderSide: const BorderSide(
                   color: Color(0xFF10B981),
-                  width: 2,
+                  width: 2.w,
                 ),
               ),
-              contentPadding: const EdgeInsets.all(14),
+              contentPadding: EdgeInsets.all(14.r),
               filled: true,
               fillColor:
                   isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
             ),
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14.h),
           SizedBox(
             width: double.infinity,
-            height: 48,
+            height: 48.h,
             child: ElevatedButton(
               onPressed: _isLoading ? null : _trackCase,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF10B981),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 elevation: 0,
               ),
               child:
                   _isLoading
-                      ? const SizedBox(
-                        width: 22,
-                        height: 22,
+                      ? SizedBox(
+                        width: 22.w,
+                        height: 22.h,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           color: Colors.white,
@@ -316,12 +317,12 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Icon(Icons.search_rounded, size: 18),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8.w),
                           Text(
                             'Track Case',
                             style: GoogleFonts.inter(
                               fontWeight: FontWeight.w700,
-                              fontSize: 14,
+                              fontSize: 14.sp,
                             ),
                           ),
                         ],
@@ -342,7 +343,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
     final nextDate = _result!['next_hearing_date'];
 
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(18.r),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors:
@@ -352,7 +353,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                   ? [const Color(0xFF991B1B), const Color(0xFFEF4444)]
                   : [const Color(0xFF1E3A5F), const Color(0xFF3B82F6)],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
             color: (isPending
@@ -376,7 +377,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(20.r),
                 ),
                 child: Row(
                   children: [
@@ -389,11 +390,11 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                       color: Colors.white,
                       size: 14,
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6.w),
                     Text(
                       status.toUpperCase(),
                       style: GoogleFonts.inter(
-                        fontSize: 11,
+                        fontSize: 11.sp,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
                         letterSpacing: 1,
@@ -405,30 +406,30 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
             ],
           ),
           if (nextDate != null) ...[
-            const SizedBox(height: 14),
+            SizedBox(height: 14.h),
             Text(
               'Next Hearing',
               style: GoogleFonts.inter(
-                fontSize: 11,
+                fontSize: 11.sp,
                 color: Colors.white70,
                 fontWeight: FontWeight.w500,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             Text(
               _formatDate(nextDate.toString()),
               style: GoogleFonts.playfairDisplay(
-                fontSize: 24,
+                fontSize: 24.sp,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
               ),
             ),
           ],
           if (_result!['cnr_number'] != null) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
             Text(
               "CNR: ${_result!['cnr_number']}",
-              style: GoogleFonts.inter(fontSize: 12, color: Colors.white70),
+              style: GoogleFonts.inter(fontSize: 12.sp, color: Colors.white70),
             ),
           ],
         ],
@@ -492,10 +493,10 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
   ) {
     if (children.isEmpty) return const SizedBox.shrink();
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(18.r),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
         ),
@@ -506,18 +507,18 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
           Row(
             children: [
               Icon(icon, color: color, size: 18),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               Text(
                 title,
                 style: GoogleFonts.inter(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14.h),
           ...children,
         ],
       ),
@@ -527,16 +528,16 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
   Widget _infoRow(String label, String value) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: 10.h),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 120,
+            width: 120.w,
             child: Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 11,
+                fontSize: 11.sp,
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFF94A3B8),
               ),
@@ -546,7 +547,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
             child: Text(
               value,
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
                 color: isDark ? Colors.white : const Color(0xFF0F172A),
               ),
@@ -561,10 +562,10 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
     final hearings = (_result!['hearing_history'] as List).take(10).toList();
 
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(18.r),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
         ),
@@ -579,11 +580,11 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                 color: Color(0xFF10B981),
                 size: 18,
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               Text(
                 'Hearing History',
                 style: GoogleFonts.inter(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
@@ -592,13 +593,13 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               Text(
                 '${hearings.length} hearings',
                 style: GoogleFonts.inter(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   color: const Color(0xFF94A3B8),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           ...hearings.asMap().entries.map((entry) {
             final i = entry.key;
             final h = entry.value as Map<String, dynamic>;
@@ -610,12 +611,12 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                 children: [
                   // Timeline dot + line
                   SizedBox(
-                    width: 24,
+                    width: 24.w,
                     child: Column(
                       children: [
                         Container(
-                          width: 10,
-                          height: 10,
+                          width: 10.w,
+                          height: 10.h,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color:
@@ -629,14 +630,14 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                                         0xFF10B981,
                                       ).withValues(alpha: 0.3)
                                       : Colors.transparent,
-                              width: 3,
+                              width: 3.w,
                             ),
                           ),
                         ),
                         if (!isLast)
                           Expanded(
                             child: Container(
-                              width: 1.5,
+                              width: 1.5.w,
                               color:
                                   isDark
                                       ? const Color(0xFF334155)
@@ -646,18 +647,18 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12.w),
                   // Content
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
+                      padding: EdgeInsets.only(bottom: 16.h),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             _formatDate(h['hearing_date']?.toString() ?? ''),
                             style: GoogleFonts.inter(
-                              fontSize: 12,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.w700,
                               color:
                                   isDark
@@ -666,21 +667,21 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                             ),
                           ),
                           if (h['purpose'] != null) ...[
-                            const SizedBox(height: 4),
+                            SizedBox(height: 4.h),
                             Text(
                               h['purpose'],
                               style: GoogleFonts.inter(
-                                fontSize: 11,
+                                fontSize: 11.sp,
                                 color: const Color(0xFF94A3B8),
                               ),
                             ),
                           ],
                           if (h['business_done'] != null) ...[
-                            const SizedBox(height: 3),
+                            SizedBox(height: 3.h),
                             Text(
                               h['business_done'],
                               style: GoogleFonts.inter(
-                                fontSize: 11,
+                                fontSize: 11.sp,
                                 color: const Color(0xFF64748B),
                                 fontStyle: FontStyle.italic,
                               ),
@@ -702,10 +703,10 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
   Widget _buildActsSections(bool isDark) {
     final acts = _result!['acts_sections'] as List;
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(18.r),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
         ),
@@ -720,18 +721,18 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                 color: Color(0xFFD4AF37),
                 size: 18,
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               Text(
                 'Acts & Sections',
                 style: GoogleFonts.inter(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -745,7 +746,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFD4AF37).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(8.r),
                       border: Border.all(
                         color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
                       ),
@@ -753,7 +754,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                     child: Text(
                       "${act['act_name'] ?? ''}${act['section'] != null ? ' - ${act['section']}' : ''}",
                       style: GoogleFonts.inter(
-                        fontSize: 11,
+                        fontSize: 11.sp,
                         fontWeight: FontWeight.w600,
                         color: const Color(0xFFD4AF37),
                       ),
@@ -768,12 +769,12 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
 
   Widget _buildAdvocatePrompt(bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(18.r),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFF1E3A5F), Color(0xFF2563EB)],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
       ),
       child: Row(
         children: [
@@ -782,7 +783,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
             color: Colors.white70,
             size: 20,
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -790,35 +791,35 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                 Text(
                   'Need legal advice on your case?',
                   style: GoogleFonts.inter(
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Text(
                   'This is general information only. Please consult a qualified advocate for legal advice.',
-                  style: GoogleFonts.inter(fontSize: 11, color: Colors.white70),
+                  style: GoogleFonts.inter(fontSize: 11.sp, color: Colors.white70),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           ElevatedButton(
             onPressed: () => context.push('/advocate-directory'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: const Color(0xFF2563EB),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10.r),
               ),
               elevation: 0,
             ),
             child: Text(
               'Find Advocate',
               style: GoogleFonts.inter(
-                fontSize: 11,
+                fontSize: 11.sp,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -837,22 +838,22 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
             size: 60,
             color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Text(
             'Paste your eCourts case details above\nto see case status and hearing history',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
-              fontSize: 14,
+              fontSize: 14.sp,
               color: const Color(0xFF94A3B8),
-              height: 1.5,
+              height: 1.5.h,
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16.r),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
                 color:
                     isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
@@ -864,12 +865,12 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                 Text(
                   'How to use:',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
                     color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 _stepItem('1', 'Visit ecourts.gov.in or eCourts app'),
                 _stepItem(
                   '2',
@@ -887,32 +888,32 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
 
   Widget _stepItem(String num, String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: EdgeInsets.only(bottom: 6.h),
       child: Row(
         children: [
           Container(
-            width: 20,
-            height: 20,
+            width: 20.w,
+            height: 20.h,
             decoration: BoxDecoration(
               color: const Color(0xFF10B981).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(6.r),
             ),
             child: Center(
               child: Text(
                 num,
                 style: GoogleFonts.inter(
-                  fontSize: 10,
+                  fontSize: 10.sp,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF10B981),
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           Text(
             text,
             style: GoogleFonts.inter(
-              fontSize: 12,
+              fontSize: 12.sp,
               color: const Color(0xFF64748B),
             ),
           ),

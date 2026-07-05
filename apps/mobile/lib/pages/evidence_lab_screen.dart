@@ -6,6 +6,7 @@ import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Premium Evidence Lab — No double header, custom segmented pills,
 /// premium checklist cards, modern witness lab, and staggered photo vault.
@@ -54,9 +55,9 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
     // No Scaffold — embeds directly as a tab
     return Column(
       children: [
-        const SizedBox(height: 12),
+        SizedBox(height: 12.h),
         _buildSegmentedControl(),
-        const SizedBox(height: 12),
+        SizedBox(height: 12.h),
         Expanded(
           child: IndexedStack(
             index: _selectedTab,
@@ -74,11 +75,11 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
   // ─── SEGMENTED PILL CONTROL ──────────────────────────
   Widget _buildSegmentedControl() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(4),
+      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.all(4.r),
       decoration: BoxDecoration(
         color: const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Row(
@@ -89,10 +90,10 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
               onTap: () => setState(() => _selectedTab = i),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: EdgeInsets.symmetric(vertical: 10.h),
                 decoration: BoxDecoration(
                   color: sel ? Colors.white : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                   boxShadow:
                       sel
                           ? [
@@ -112,11 +113,11 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                       size: 15,
                       color: sel ? _tabColors[i] : const Color(0xFF94A3B8),
                     ),
-                    const SizedBox(width: 5),
+                    SizedBox(width: 5.w),
                     Text(
                       _tabLabels[i],
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 11.sp,
                         fontWeight: FontWeight.w800,
                         color: sel ? _tabColors[i] : const Color(0xFF94A3B8),
                       ),
@@ -150,10 +151,10 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                 // Progress header
                 if (total > 0) ...[
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16.r),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16.r),
                       border: Border.all(color: const Color(0xFFE2E8F0)),
                       boxShadow: [
                         BoxShadow(
@@ -166,8 +167,8 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                     child: Row(
                       children: [
                         SizedBox(
-                          width: 48,
-                          height: 48,
+                          width: 48.w,
+                          height: 48.h,
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
@@ -182,7 +183,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                               Text(
                                 '${total > 0 ? ((completed / total) * 100).round() : 0}%',
                                 style: const TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 11.sp,
                                   fontWeight: FontWeight.w900,
                                   color: Color(0xFF10B981),
                                 ),
@@ -190,7 +191,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(width: 14),
+                        SizedBox(width: 14.w),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,15 +200,15 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                                 'Preparation Progress',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w800,
-                                  fontSize: 14,
+                                  fontSize: 14.sp,
                                   color: Color(0xFF0F172A),
                                 ),
                               ),
-                              const SizedBox(height: 2),
+                              SizedBox(height: 2.h),
                               Text(
                                 '$completed of $total items completed',
                                 style: const TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                   color: Color(0xFF64748B),
                                 ),
                               ),
@@ -217,7 +218,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14.h),
                 ],
 
                 // Checklist Items
@@ -234,8 +235,8 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
             ),
             // FAB
             Positioned(
-              bottom: 24,
-              right: 20,
+              bottom: 24.h,
+              right: 20.w,
               child: _buildActionFab(
                 'Add Item',
                 Icons.add_task_rounded,
@@ -263,11 +264,11 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
       direction: DismissDirection.endToStart,
       background: Container(
         alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        margin: const EdgeInsets.only(bottom: 10),
+        padding: EdgeInsets.only(right: 20.w),
+        margin: EdgeInsets.only(bottom: 10.h),
         decoration: BoxDecoration(
           color: const Color(0xFFEF4444),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
         ),
         child: const Icon(Icons.delete_rounded, color: Colors.white, size: 22),
       ),
@@ -276,11 +277,11 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
         ref.invalidate(evidenceChecklistProvider(widget.caseId));
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
+        margin: EdgeInsets.only(bottom: 10.h),
+        padding: EdgeInsets.all(14.r),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           border: Border.all(
             color:
                 item.isCompleted
@@ -307,8 +308,8 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                width: 28,
-                height: 28,
+                width: 28.w,
+                height: 28.h,
                 decoration: BoxDecoration(
                   gradient:
                       item.isCompleted
@@ -317,13 +318,13 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                           )
                           : null,
                   color: item.isCompleted ? null : Colors.white,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                   border:
                       item.isCompleted
                           ? null
                           : Border.all(
                             color: const Color(0xFFCBD5E1),
-                            width: 2,
+                            width: 2.w,
                           ),
                 ),
                 child:
@@ -336,7 +337,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                         : null,
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12.w),
             // Content
             Expanded(
               child: Column(
@@ -346,7 +347,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                     item.itemName,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       color:
                           item.isCompleted
                               ? const Color(0xFF94A3B8)
@@ -360,20 +361,20 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
             ),
             // Type Badge
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
               decoration: BoxDecoration(
                 color: typeColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(6.r),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(typeIcon, size: 12, color: typeColor),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4.w),
                   Text(
                     item.itemType.toUpperCase(),
                     style: TextStyle(
-                      fontSize: 9,
+                      fontSize: 9.sp,
                       fontWeight: FontWeight.w800,
                       color: typeColor,
                       letterSpacing: 0.5,
@@ -408,7 +409,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                 ),
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -416,24 +417,24 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                   children: [
                     Center(
                       child: Container(
-                        width: 40,
-                        height: 4,
+                        width: 40.w,
+                        height: 4.h,
                         decoration: BoxDecoration(
                           color: const Color(0xFFE2E8F0),
-                          borderRadius: BorderRadius.circular(2),
+                          borderRadius: BorderRadius.circular(2.r),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20.h),
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(10),
+                          padding: EdgeInsets.all(10.r),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
                             ),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12.r),
                           ),
                           child: const Icon(
                             Icons.add_task_rounded,
@@ -441,7 +442,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                             size: 20,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12.w),
                         const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -449,14 +450,14 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                               'Add Prep Item',
                               style: TextStyle(
                                 fontWeight: FontWeight.w800,
-                                fontSize: 18,
+                                fontSize: 18.sp,
                                 color: Color(0xFF0F172A),
                               ),
                             ),
                             Text(
                               'Track evidence preparation',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 12.sp,
                                 color: Color(0xFF64748B),
                               ),
                             ),
@@ -464,13 +465,13 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24.h),
                     TextField(
                       decoration: InputDecoration(
                         labelText: 'Description',
                         prefixIcon: const Icon(Icons.edit_rounded, size: 20),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(14.r),
                         ),
                         filled: true,
                         fillColor: const Color(0xFFF8FAFC),
@@ -478,16 +479,16 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                       onChanged: (v) => name = v,
                       autofocus: true,
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16.h),
                     const Text(
                       'Type',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
-                        fontSize: 13,
+                        fontSize: 13.sp,
                         color: Color(0xFF334155),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8.h),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -515,7 +516,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                                           )
                                           : null,
                                   color: sel ? null : const Color(0xFFF1F5F9),
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(12.r),
                                   border:
                                       sel
                                           ? null
@@ -534,11 +535,11 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                                               ? Colors.white
                                               : const Color(0xFF64748B),
                                     ),
-                                    const SizedBox(width: 6),
+                                    SizedBox(width: 6.w),
                                     Text(
                                       t.toUpperCase(),
                                       style: TextStyle(
-                                        fontSize: 11,
+                                        fontSize: 11.sp,
                                         fontWeight: FontWeight.w800,
                                         color:
                                             sel
@@ -552,10 +553,10 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                             );
                           }).toList(),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24.h),
                     SizedBox(
                       width: double.infinity,
-                      height: 52,
+                      height: 52.h,
                       child: ElevatedButton(
                         onPressed: () async {
                           if (name.isNotEmpty) {
@@ -574,7 +575,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                           backgroundColor: const Color(0xFF2563EB),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14.r),
                           ),
                           elevation: 0,
                         ),
@@ -582,7 +583,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                           'Add Item',
                           style: TextStyle(
                             fontWeight: FontWeight.w800,
-                            fontSize: 15,
+                            fontSize: 15.sp,
                           ),
                         ),
                       ),
@@ -634,8 +635,8 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
 
   Widget _buildVoiceRecorder() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors:
@@ -645,7 +646,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(18.r),
         border: Border.all(
           color:
               _isListening ? const Color(0xFFFCA5A5) : const Color(0xFFE2E8F0),
@@ -656,13 +657,13 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
                   color:
                       _isListening
                           ? const Color(0xFFEF4444).withValues(alpha: 0.1)
                           : const Color(0xFF8B5CF6).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Icon(
                   _isListening ? Icons.mic : Icons.mic_none_rounded,
@@ -673,13 +674,13 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                           : const Color(0xFF8B5CF6),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Expanded(
                 child: Text(
                   _isListening ? 'Listening...' : 'Voice Examination Lab',
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     color:
                         _isListening
                             ? const Color(0xFFEF4444)
@@ -708,14 +709,14 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                                 const Color(0xFFA78BFA),
                               ],
                     ),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: Text(
                     _isListening ? 'Stop' : 'Record',
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
-                      fontSize: 12,
+                      fontSize: 12.sp,
                     ),
                   ),
                 ),
@@ -723,25 +724,25 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
             ],
           ),
           if (_currentVoiceNote.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(12.r),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
               child: Text(
                 _currentVoiceNote,
                 style: const TextStyle(
-                  fontSize: 13,
+                  fontSize: 13.sp,
                   color: Color(0xFF334155),
-                  height: 1.4,
+                  height: 1.4.h,
                 ),
               ),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -752,14 +753,14 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                     style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
                 ElevatedButton(
                   onPressed: _saveVoiceNote,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF8B5CF6),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10.r),
                     ),
                     elevation: 0,
                   ),
@@ -789,11 +790,11 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
     final colors = tagColors[prefix] ?? tagColors['CW']!;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
+      margin: EdgeInsets.only(bottom: 10.h),
+      padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
         border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: [
           BoxShadow(
@@ -808,21 +809,21 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
         children: [
           // Tag badge
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
             decoration: BoxDecoration(
               gradient: LinearGradient(colors: colors),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.r),
             ),
             child: Text(
               note.witnessTag.toUpperCase(),
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 10,
+                fontSize: 10.sp,
                 fontWeight: FontWeight.w900,
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -831,28 +832,28 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                   note.witnessName,
                   style: const TextStyle(
                     fontWeight: FontWeight.w800,
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     color: Color(0xFF0F172A),
                   ),
                 ),
                 if (note.notes != null && note.notes!.isNotEmpty) ...[
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   Text(
                     note.notes!,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: Color(0xFF64748B),
-                      height: 1.4,
+                      height: 1.4.h,
                     ),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
-                const SizedBox(height: 6),
+                SizedBox(height: 6.h),
                 Text(
                   DateFormat('dd MMM yyyy, hh:mm a').format(note.createdAt),
                   style: const TextStyle(
-                    fontSize: 10,
+                    fontSize: 10.sp,
                     color: Color(0xFF94A3B8),
                     fontWeight: FontWeight.w600,
                   ),
@@ -910,7 +911,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
             ),
             decoration: const BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -918,30 +919,30 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
               children: [
                 Center(
                   child: Container(
-                    width: 40,
-                    height: 4,
+                    width: 40.w,
+                    height: 4.h,
                     decoration: BoxDecoration(
                       color: const Color(0xFFE2E8F0),
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: BorderRadius.circular(2.r),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20.h),
                 const Text(
                   'Save Voice Note',
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
-                    fontSize: 18,
+                    fontSize: 18.sp,
                     color: Color(0xFF0F172A),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20.h),
                 TextField(
                   decoration: InputDecoration(
                     labelText: 'Witness Name',
                     prefixIcon: const Icon(Icons.person_rounded, size: 20),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(14.r),
                     ),
                     filled: true,
                     fillColor: const Color(0xFFF8FAFC),
@@ -949,13 +950,13 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                   onChanged: (v) => name = v,
                   autofocus: true,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 TextField(
                   decoration: InputDecoration(
                     labelText: 'Tag (e.g., PW1, DW1)',
                     prefixIcon: const Icon(Icons.tag_rounded, size: 20),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(14.r),
                     ),
                     filled: true,
                     fillColor: const Color(0xFFF8FAFC),
@@ -963,10 +964,10 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                   controller: TextEditingController(text: tag),
                   onChanged: (v) => tag = v,
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20.h),
                 SizedBox(
                   width: double.infinity,
-                  height: 52,
+                  height: 52.h,
                   child: ElevatedButton(
                     onPressed: () async {
                       if (name.isNotEmpty) {
@@ -985,7 +986,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                       backgroundColor: const Color(0xFF8B5CF6),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(14.r),
                       ),
                       elevation: 0,
                     ),
@@ -993,7 +994,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                       'Save',
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        fontSize: 15,
+                        fontSize: 15.sp,
                       ),
                     ),
                   ),
@@ -1042,8 +1043,8 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
         ),
         // Capture FAB
         Positioned(
-          bottom: 24,
-          right: 20,
+          bottom: 24.h,
+          right: 20.w,
           child: _buildActionFab(
             'Capture',
             Icons.camera_alt_rounded,
@@ -1058,7 +1059,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
   Widget _buildPhotoCard(dynamic photo) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -1068,7 +1069,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -1087,9 +1088,9 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
             ),
             // Gradient overlay at bottom
             Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
+              bottom: 0.h,
+              left: 0.w,
+              right: 0.w,
               child: Container(
                 padding: const EdgeInsets.fromLTRB(10, 24, 10, 10),
                 decoration: BoxDecoration(
@@ -1109,7 +1110,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                         photo.description ?? 'Evidence',
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 10,
+                          fontSize: 10.sp,
                           fontWeight: FontWeight.w700,
                         ),
                         maxLines: 1,
@@ -1122,10 +1123,10 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                         ref.invalidate(evidencePhotosProvider(widget.caseId));
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(4),
+                        padding: EdgeInsets.all(4.r),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(6.r),
                         ),
                         child: const Icon(
                           Icons.delete_outline_rounded,
@@ -1141,8 +1142,8 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
             // Tags
             if (photo.tags.isNotEmpty)
               Positioned(
-                top: 8,
-                left: 8,
+                top: 8.h,
+                left: 8.w,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
@@ -1150,13 +1151,13 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                   ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF59E0B),
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Text(
                     photo.tags.first.toUpperCase(),
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 9,
+                      fontSize: 9.sp,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
@@ -1195,27 +1196,27 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24.r),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 44, color: color),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Text(
             title,
             style: const TextStyle(
               fontWeight: FontWeight.w800,
-              fontSize: 16,
+              fontSize: 16.sp,
               color: Color(0xFF0F172A),
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6.h),
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+            style: const TextStyle(fontSize: 12.sp, color: Color(0xFF64748B)),
           ),
         ],
       ),
@@ -1231,12 +1232,12 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [color, color.withValues(alpha: 0.8)],
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
               color: color.withValues(alpha: 0.4),
@@ -1249,13 +1250,13 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: Colors.white, size: 20),
-            const SizedBox(width: 8),
+            SizedBox(width: 8.w),
             Text(
               label,
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
-                fontSize: 13,
+                fontSize: 13.sp,
               ),
             ),
           ],

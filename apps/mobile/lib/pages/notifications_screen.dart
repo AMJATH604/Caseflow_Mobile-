@@ -6,6 +6,7 @@ import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../components/empty_state_widget.dart';
 import '../components/error_state_widget.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
@@ -21,7 +22,7 @@ class NotificationsScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 24),
+            padding: EdgeInsets.only(bottom: 24.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -76,23 +77,23 @@ class NotificationsScreen extends ConsumerWidget {
       itemBuilder: (context, index) {
         final item = items[index];
         return Card(
-          margin: const EdgeInsets.only(bottom: 12),
+          margin: EdgeInsets.only(bottom: 12.h),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
           ),
           child: ListTile(
             leading: _buildIcon(item.status),
             title: Text(
               item.caseTitle,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp),
             ),
             subtitle: Text(
               'Updated to ${item.status.name}',
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              style: const TextStyle(fontSize: 12.sp, color: Colors.grey),
             ),
             trailing: Text(
               DateFormat('HH:mm').format(DateTime.now()),
-              style: const TextStyle(fontSize: 10, color: Colors.grey),
+              style: const TextStyle(fontSize: 10.sp, color: Colors.grey),
             ),
           ),
         );
@@ -114,10 +115,10 @@ class NotificationsScreen extends ConsumerWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: EdgeInsets.all(8.r),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
       ),
       child: Icon(icon, color: color, size: 20),
     );

@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import '../services/providers.dart';
 import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Self-contained Documents tab for a case.
 /// Displays uploaded files with download/delete actions and an upload FAB.
@@ -30,11 +31,11 @@ class CaseDocumentsTab extends ConsumerWidget {
                               size: 48,
                               color: Color(0xFFE2E8F0),
                             ),
-                            SizedBox(height: 24),
+                            SizedBox(height: 24.h),
                             Text(
                               'RECORDS VAULT EMPTY',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 11.sp,
                                 fontWeight: FontWeight.w900,
                                 color: Color(0xFF94A3B8),
                                 letterSpacing: 2,
@@ -44,17 +45,17 @@ class CaseDocumentsTab extends ConsumerWidget {
                         ),
                       )
                       : ListView.builder(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(16.r),
                         itemCount: docs.length,
                         itemBuilder: (context, index) {
                           final doc = docs[index];
                           final name = doc['name'] as String? ?? 'Unknown';
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            padding: const EdgeInsets.all(16),
+                            margin: EdgeInsets.only(bottom: 8.h),
+                            padding: EdgeInsets.all(16.r),
                             decoration: BoxDecoration(
                               color: AppTheme.darkCard,
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                               border: Border.all(color: AppTheme.darkBorder),
                             ),
                             child: Row(
@@ -64,7 +65,7 @@ class CaseDocumentsTab extends ConsumerWidget {
                                   color: const Color(0xFF94A3B8),
                                   size: 20,
                                 ),
-                                const SizedBox(width: 16),
+                                SizedBox(width: 16.w),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -74,18 +75,18 @@ class CaseDocumentsTab extends ConsumerWidget {
                                         name,
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 14,
+                                          fontSize: 14.sp,
                                           color: Color(0xFF1E293B),
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                      const SizedBox(height: 4),
+                                      SizedBox(height: 4.h),
                                       const Text(
                                         'SECURE VAULT',
                                         style: TextStyle(
                                           color: Color(0xFF94A3B8),
-                                          fontSize: 10,
+                                          fontSize: 10.sp,
                                           fontWeight: FontWeight.w900,
                                           letterSpacing: 0.5,
                                         ),
@@ -148,8 +149,8 @@ class CaseDocumentsTab extends ConsumerWidget {
               ),
         ),
         Positioned(
-          bottom: 24,
-          right: 24,
+          bottom: 24.h,
+          right: 24.w,
           child: FloatingActionButton(
             heroTag: 'upload_doc',
             onPressed: () => _uploadDocument(context, ref, caseId),

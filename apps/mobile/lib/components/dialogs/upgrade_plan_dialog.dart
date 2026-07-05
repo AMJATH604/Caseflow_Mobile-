@@ -4,6 +4,7 @@ import '../../services/payment_service.dart';
 import '../../services/supabase_service.dart';
 import '../../utils/app_config.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class UpgradePlanDialog extends StatefulWidget {
   final String targetTier; // 'pro' or 'business'
@@ -104,15 +105,15 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
     final planName = isPro ? 'Pro' : 'Business';
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
       elevation: 0,
       backgroundColor: Colors.transparent,
       child: Container(
         constraints: const BoxConstraints(maxHeight: 650, maxWidth: 400),
-        padding: const EdgeInsets.all(28),
+        padding: EdgeInsets.all(28.r),
         decoration: BoxDecoration(
           color: const Color(0xFF1E293B),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(24.r),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -126,7 +127,7 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
           children: [
             // Header
             Container(
-              padding: const EdgeInsets.all(14),
+              padding: EdgeInsets.all(14.r),
               decoration: BoxDecoration(
                 gradient:
                     isPro
@@ -144,24 +145,24 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                 size: 36,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Text(
               'Unlock CaseFlow $planName',
               style: const TextStyle(
-                fontSize: 22,
+                fontSize: 22.sp,
                 fontWeight: FontWeight.bold,
                 letterSpacing: -0.5,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               isPro
                   ? 'Everything you need to run a modern legal practice — all in one powerful app.'
                   : 'Transform your workspace into a collaborative law firm chambers.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[500], fontSize: 13),
+              style: TextStyle(color: Colors.grey[500], fontSize: 13.sp),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
 
             // Features list (scrollable)
             Flexible(
@@ -221,14 +222,14 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
 
             // Price
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: AppTheme.background,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(16.r),
                 border: Border.all(
                   color:
                       isPro
@@ -245,14 +246,14 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                         '$planName Plan',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                          fontSize: 15.sp,
                         ),
                       ),
                       Text(
                         isPro
                             ? '₹${AppConfig.proMonthlyPrice.toInt()}/mo or ₹${AppConfig.proYearlyPrice.toInt()}/yr'
                             : '₹${AppConfig.businessMonthlyPrice.toInt()}/mo or ₹${AppConfig.businessYearlyPrice.toInt()}/yr',
-                        style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                        style: TextStyle(fontSize: 11.sp, color: Colors.grey[500]),
                       ),
                     ],
                   ),
@@ -262,24 +263,24 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                         ? '₹${AppConfig.proPlanPrice.toInt()}'
                         : '₹${AppConfig.businessPlanPrice.toInt()}',
                     style: TextStyle(
-                      fontSize: 22,
+                      fontSize: 22.sp,
                       fontWeight: FontWeight.w900,
                       color: isPro ? AppTheme.primary : Colors.purple,
                     ),
                   ),
                   Text(
                     '/yr',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
 
             // CTA
             SizedBox(
               width: double.infinity,
-              height: 52,
+              height: 52.h,
               child: ElevatedButton.icon(
                 onPressed: _isProcessing ? null : _startCheckout,
                 icon:
@@ -288,9 +289,9 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                         : const Icon(Icons.bolt_rounded, size: 20),
                 label:
                     _isProcessing
-                        ? const SizedBox(
-                          height: 20,
-                          width: 20,
+                        ? SizedBox(
+                          height: 20.h,
+                          width: 20.w,
                           child: CircularProgressIndicator(
                             color: Colors.white,
                             strokeWidth: 2,
@@ -299,7 +300,7 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                         : Text(
                           'Upgrade to $planName',
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -307,18 +308,18 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                   backgroundColor: isPro ? AppTheme.primary : Colors.purple,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16.r),
                   ),
                   elevation: 0,
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
                 'Maybe Later',
-                style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                style: TextStyle(color: Colors.grey[400], fontSize: 12.sp),
               ),
             ),
           ],
@@ -329,18 +330,18 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
 
   Widget _buildFeatureRow(IconData icon, String title, String subtitle) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: EdgeInsets.symmetric(vertical: 6.h),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: EdgeInsets.all(6.r),
             decoration: BoxDecoration(
               color: Colors.green.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.r),
             ),
             child: Icon(icon, color: Colors.green, size: 16),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -348,13 +349,13 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
                   subtitle,
-                  style: TextStyle(fontSize: 10, color: Colors.grey[400]),
+                  style: TextStyle(fontSize: 10.sp, color: Colors.grey[400]),
                 ),
               ],
             ),

@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../services/payment_capture_service.dart';
 import '../services/providers.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// A rich bottom sheet that lets the user select a payment type
 /// and launches the official eCourts ePay portal.
@@ -181,7 +182,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
           (context, scrollController) => Container(
             decoration: const BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
             ),
             child: SingleChildScrollView(
               controller: scrollController,
@@ -192,31 +193,31 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                   // ─── Drag Handle ───
                   Center(
                     child: Container(
-                      width: 40,
-                      height: 4,
-                      margin: const EdgeInsets.only(bottom: 20),
+                      width: 40.w,
+                      height: 4.h,
+                      margin: EdgeInsets.only(bottom: 20.h),
                       decoration: BoxDecoration(
                         color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2),
+                        borderRadius: BorderRadius.circular(2.r),
                       ),
                     ),
                   ),
 
                   // ─── Header Banner ───
                   _buildHeaderBanner(),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24.h),
 
                   // ─── Case Selector (NEW — Smart Sync) ───
                   Text(
                     'SELECT CASE',
                     style: GoogleFonts.inter(
-                      fontSize: 11,
+                      fontSize: 11.sp,
                       fontWeight: FontWeight.w800,
                       color: Colors.grey[400],
                       letterSpacing: 1.5,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10.h),
                   casesAsync.when(
                     data:
                         (cases) => Container(
@@ -225,7 +226,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                                 _selectedCaseId != null
                                     ? const Color(0xFFF0FDF4)
                                     : const Color(0xFFF8FAFC),
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14.r),
                             border: Border.all(
                               color:
                                   _selectedCaseId != null
@@ -239,14 +240,14 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                             initialValue: _selectedCaseId,
                             isExpanded: true,
                             style: GoogleFonts.inter(
-                              fontSize: 14,
+                              fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
                               color: AppTheme.primary,
                             ),
                             decoration: InputDecoration(
                               hintText: 'Link a case for auto-sync...',
                               hintStyle: GoogleFonts.inter(
-                                fontSize: 13,
+                                fontSize: 13.sp,
                                 color: Colors.grey[400],
                               ),
                               prefixIcon: Icon(
@@ -303,7 +304,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
 
                   // Smart Sync hint
                   if (_selectedCaseId != null) ...[
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8.h),
                     Row(
                       children: [
                         const Icon(
@@ -311,11 +312,11 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                           size: 14,
                           color: Color(0xFF059669),
                         ),
-                        const SizedBox(width: 6),
+                        SizedBox(width: 6.w),
                         Text(
                           'Smart Sync ON — payment will auto-link when you return',
                           style: GoogleFonts.inter(
-                            fontSize: 11,
+                            fontSize: 11.sp,
                             color: const Color(0xFF059669),
                             fontWeight: FontWeight.w600,
                           ),
@@ -324,32 +325,32 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                     ),
                   ],
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24.h),
 
                   // ─── Case Context (if provided) ───
                   if (widget.caseTitle != null && _selectedCaseId == null) ...[
                     _buildCaseContext(),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20.h),
                   ],
 
                   // ─── Payment Type Selector ───
                   Text(
                     'SELECT PAYMENT TYPE',
                     style: GoogleFonts.inter(
-                      fontSize: 11,
+                      fontSize: 11.sp,
                       fontWeight: FontWeight.w800,
                       color: Colors.grey[400],
                       letterSpacing: 1.5,
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14.h),
                   ..._paymentTypes.map((pt) => _buildPaymentTypeCard(pt)),
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24.h),
 
                   // ─── Launch Button ───
                   _buildLaunchButton(),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
 
                   // ─── Info Footer ───
                   _buildInfoFooter(),
@@ -362,14 +363,14 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
 
   Widget _buildHeaderBanner() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFF1E3A5F), Color(0xFF2563EB), Color(0xFF3B82F6)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF2563EB).withValues(alpha: 0.3),
@@ -381,10 +382,10 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12.r),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
             ),
             child: const Icon(
               Icons.account_balance_rounded,
@@ -392,7 +393,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
               size: 28,
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,17 +401,17 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                 Text(
                   'eCourts ePay',
                   style: GoogleFonts.outfit(
-                    fontSize: 22,
+                    fontSize: 22.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     letterSpacing: -0.5,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2.h),
                 Text(
                   'Official court fee payment portal for all India',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: Colors.white.withValues(alpha: 0.75),
                   ),
                 ),
@@ -418,15 +419,15 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.r),
             ),
             child: Text(
               'GOV',
               style: GoogleFonts.inter(
-                fontSize: 10,
+                fontSize: 10.sp,
                 fontWeight: FontWeight.w900,
                 color: Colors.white,
                 letterSpacing: 1,
@@ -440,10 +441,10 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
 
   Widget _buildCaseContext() {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
         color: AppTheme.accent.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
         border: Border.all(color: AppTheme.accent.withValues(alpha: 0.15)),
       ),
       child: Row(
@@ -453,7 +454,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
             size: 18,
             color: AppTheme.accent.withValues(alpha: 0.7),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -461,7 +462,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                 Text(
                   'Paying for',
                   style: GoogleFonts.inter(
-                    fontSize: 10,
+                    fontSize: 10.sp,
                     color: Colors.grey[500],
                     fontWeight: FontWeight.w600,
                   ),
@@ -469,7 +470,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                 Text(
                   widget.caseTitle!,
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
                     color: AppTheme.primary,
                   ),
@@ -480,7 +481,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                   Text(
                     widget.courtName!,
                     style: GoogleFonts.inter(
-                      fontSize: 11,
+                      fontSize: 11.sp,
                       color: Colors.grey[500],
                     ),
                     maxLines: 1,
@@ -501,11 +502,11 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(16),
+        margin: EdgeInsets.only(bottom: 10.h),
+        padding: EdgeInsets.all(16.r),
         decoration: BoxDecoration(
           color: isSelected ? pt.color.withValues(alpha: 0.06) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
             color:
                 isSelected
@@ -528,14 +529,14 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(10.r),
               decoration: BoxDecoration(
                 color: pt.color.withValues(alpha: isSelected ? 0.15 : 0.08),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
               ),
               child: Icon(pt.icon, color: pt.color, size: 22),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -543,16 +544,16 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                   Text(
                     pt.title,
                     style: GoogleFonts.inter(
-                      fontSize: 15,
+                      fontSize: 15.sp,
                       fontWeight: FontWeight.w700,
                       color: isSelected ? pt.color : AppTheme.primary,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2.h),
                   Text(
                     pt.subtitle,
                     style: GoogleFonts.inter(
-                      fontSize: 11,
+                      fontSize: 11.sp,
                       color: Colors.grey[500],
                     ),
                   ),
@@ -561,14 +562,14 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
             ),
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              width: 22,
-              height: 22,
+              width: 22.w,
+              height: 22.h,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected ? pt.color : Colors.transparent,
                 border: Border.all(
                   color: isSelected ? pt.color : Colors.grey[300]!,
-                  width: 2,
+                  width: 2.w,
                 ),
               ),
               child:
@@ -590,7 +591,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
     final canLaunch = _selectedPaymentType != null && !_isLaunching;
     return SizedBox(
       width: double.infinity,
-      height: 56,
+      height: 56.h,
       child: ElevatedButton(
         onPressed: canLaunch ? _launchEPay : null,
         style: ElevatedButton.styleFrom(
@@ -599,15 +600,15 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
           elevation: canLaunch ? 6 : 0,
           shadowColor: const Color(0xFF2563EB).withValues(alpha: 0.4),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
           ),
           disabledBackgroundColor: Colors.grey[200],
         ),
         child:
             _isLaunching
-                ? const SizedBox(
-                  height: 24,
-                  width: 24,
+                ? SizedBox(
+                  height: 24.h,
+                  width: 24.w,
                   child: CircularProgressIndicator(
                     color: Colors.white,
                     strokeWidth: 2.5,
@@ -617,11 +618,11 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.launch_rounded, size: 20),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10.w),
                     Text(
                       'Open eCourts ePay Portal',
                       style: GoogleFonts.inter(
-                        fontSize: 16,
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.2,
                       ),
@@ -634,10 +635,10 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
 
   Widget _buildInfoFooter() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         color: const Color(0xFFFEF3C7),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
         border: Border.all(color: const Color(0xFFFDE68A)),
       ),
       child: Column(
@@ -650,18 +651,18 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                 size: 16,
                 color: Color(0xFF92400E),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               Text(
                 'Smart Sync Enabled',
                 style: GoogleFonts.inter(
-                  fontSize: 13,
+                  fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF92400E),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
           _buildInfoStep('1', 'Select your case above for automatic tracking'),
           _buildInfoStep(
             '2',
@@ -672,7 +673,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
             '4',
             "Return to CaseFlow — we'll ask for the amount & receipt",
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Row(
             children: [
               Icon(
@@ -680,12 +681,12 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                 size: 14,
                 color: Colors.green[700],
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: 6.w),
               Expanded(
                 child: Text(
                   'Secured by Government of India — National Informatics Centre (NIC)',
                   style: GoogleFonts.inter(
-                    fontSize: 10,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.green[800],
                   ),
@@ -700,14 +701,14 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
 
   Widget _buildInfoStep(String number, String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: EdgeInsets.only(bottom: 6.h),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 18,
-            height: 18,
-            margin: const EdgeInsets.only(right: 8, top: 1),
+            width: 18.w,
+            height: 18.h,
+            margin: EdgeInsets.only(right: 8.w, top: 1.h),
             decoration: BoxDecoration(
               color: const Color(0xFF92400E).withValues(alpha: 0.15),
               shape: BoxShape.circle,
@@ -716,7 +717,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
               child: Text(
                 number,
                 style: GoogleFonts.inter(
-                  fontSize: 10,
+                  fontSize: 10.sp,
                   fontWeight: FontWeight.w800,
                   color: const Color(0xFF92400E),
                 ),
@@ -727,9 +728,9 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
             child: Text(
               text,
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 12.sp,
                 color: const Color(0xFF78350F),
-                height: 1.4,
+                height: 1.4.h,
               ),
             ),
           ),

@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -149,7 +150,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                 vertical: 10,
                               ),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(20.r),
                                 side: BorderSide(
                                   color: Colors.white.withValues(alpha: 0.2),
                                 ),
@@ -159,7 +160,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                               'Skip',
                               style: GoogleFonts.inter(
                                 color: Colors.white.withValues(alpha: 0.7),
-                                fontSize: 14,
+                                fontSize: 14.sp,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -196,9 +197,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                   horizontal: 4,
                                 ),
                                 width: _currentPage == i ? 28 : 8,
-                                height: 8,
+                                height: 8.h,
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4),
+                                  borderRadius: BorderRadius.circular(4.r),
                                   color:
                                       _currentPage == i
                                           ? Colors.white
@@ -221,12 +222,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                             ),
                           ),
 
-                          const SizedBox(height: 32),
+                          SizedBox(height: 32.h),
 
                           // CTA Button
                           SizedBox(
                             width: double.infinity,
-                            height: 58,
+                            height: 58.h,
                             child: ElevatedButton(
                               onPressed: _nextPage,
                               style: ElevatedButton.styleFrom(
@@ -237,7 +238,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                   alpha: 0.25,
                                 ),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18),
+                                  borderRadius: BorderRadius.circular(18.r),
                                 ),
                               ),
                               child: Row(
@@ -248,12 +249,12 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                         ? 'Get Started'
                                         : 'Continue',
                                     style: GoogleFonts.outfit(
-                                      fontSize: 17,
+                                      fontSize: 17.sp,
                                       fontWeight: FontWeight.w700,
                                       letterSpacing: 0.5,
                                     ),
                                   ),
-                                  const SizedBox(width: 10),
+                                  SizedBox(width: 10.w),
                                   Icon(
                                     _currentPage == _slides.length - 1
                                         ? Icons.arrow_forward_rounded
@@ -277,7 +278,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   Widget _buildSlide(_OnboardingSlide slide, double screenHeight) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
+      padding: EdgeInsets.symmetric(horizontal: 32.w),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -290,8 +291,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               final pulse =
                   1.0 + 0.05 * sin(_iconPulseController.value * 2 * pi);
               return Container(
-                width: 200,
-                height: 200,
+                width: 200.w,
+                height: 200.h,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
@@ -311,20 +312,20 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       children: [
                         // Background ring
                         Container(
-                          width: 140,
-                          height: 140,
+                          width: 140.w,
+                          height: 140.h,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: Colors.white.withValues(alpha: 0.1),
-                              width: 2,
+                              width: 2.w,
                             ),
                           ),
                         ),
                         // Inner circle
                         Container(
-                          width: 110,
-                          height: 110,
+                          width: 110.w,
+                          height: 110.h,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: LinearGradient(
@@ -337,7 +338,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                             ),
                             border: Border.all(
                               color: Colors.white.withValues(alpha: 0.15),
-                              width: 1.5,
+                              width: 1.5.w,
                             ),
                           ),
                           child: Icon(
@@ -353,14 +354,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                             55 * sin(_iconPulseController.value * 2 * pi),
                           ),
                           child: Container(
-                            width: 40,
-                            height: 40,
+                            width: 40.w,
+                            height: 40.h,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: slide.accentColor.withValues(alpha: 0.25),
                               border: Border.all(
                                 color: slide.accentColor.withValues(alpha: 0.4),
-                                width: 1.5,
+                                width: 1.5.w,
                               ),
                             ),
                             child: Icon(
@@ -378,30 +379,30 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             },
           ),
 
-          const SizedBox(height: 48),
+          SizedBox(height: 48.h),
 
           // Title
           Text(
             slide.title,
             textAlign: TextAlign.center,
             style: GoogleFonts.playfairDisplay(
-              fontSize: 32,
+              fontSize: 32.sp,
               fontWeight: FontWeight.w700,
               color: Colors.white,
-              height: 1.2,
+              height: 1.2.h,
               letterSpacing: -0.5,
             ),
           ),
 
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
 
           // Ornamental divider
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 30,
-                height: 1.5,
+                width: 30.w,
+                height: 1.5.h,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -411,19 +412,19 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               Container(
-                width: 6,
-                height: 6,
+                width: 6.w,
+                height: 6.h,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: const Color(0xFFD4AF37).withValues(alpha: 0.6),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               Container(
-                width: 30,
-                height: 1.5,
+                width: 30.w,
+                height: 1.5.h,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -436,17 +437,17 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             ],
           ),
 
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
 
           // Subtitle
           Text(
             slide.subtitle,
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
-              fontSize: 15,
+              fontSize: 15.sp,
               fontWeight: FontWeight.w400,
               color: Colors.white.withValues(alpha: 0.7),
-              height: 1.6,
+              height: 1.6.h,
               letterSpacing: 0.2,
             ),
           ),

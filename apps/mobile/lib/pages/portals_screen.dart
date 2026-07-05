@@ -7,6 +7,7 @@ import '../services/supabase_service.dart';
 import '../components/epay_court_fee_sheet.dart';
 import '../services/analytics_service.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PortalsScreen extends StatefulWidget {
   const PortalsScreen({super.key});
@@ -113,13 +114,13 @@ class _PortalsScreenState extends State<PortalsScreen>
               color: Colors.white,
               size: 18,
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10.w),
             Expanded(child: Text(message)),
           ],
         ),
         backgroundColor: const Color(0xFFEF4444),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       ),
     );
   }
@@ -147,7 +148,7 @@ class _PortalsScreenState extends State<PortalsScreen>
                   SliverToBoxAdapter(child: _buildActionSection()),
                   // Footer Disclaimer
                   SliverToBoxAdapter(child: _buildFooter()),
-                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                  const SliverToBoxAdapter(child: SizedBox(height: 100.h)),
                 ],
               ),
     );
@@ -157,14 +158,14 @@ class _PortalsScreenState extends State<PortalsScreen>
   Widget _buildHeader() {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24.r),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFF0F172A), Color(0xFF1E3A5F), Color(0xFF0E7490)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF0E7490).withValues(alpha: 0.3),
@@ -179,10 +180,10 @@ class _PortalsScreenState extends State<PortalsScreen>
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(10.r),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                   border: Border.all(
                     color: Colors.white.withValues(alpha: 0.1),
                   ),
@@ -201,7 +202,7 @@ class _PortalsScreenState extends State<PortalsScreen>
                 ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF10B981).withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(20.r),
                   border: Border.all(
                     color: const Color(0xFF10B981).withValues(alpha: 0.3),
                   ),
@@ -210,18 +211,18 @@ class _PortalsScreenState extends State<PortalsScreen>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      width: 6,
-                      height: 6,
+                      width: 6.w,
+                      height: 6.h,
                       decoration: const BoxDecoration(
                         color: Color(0xFF10B981),
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6.w),
                     Text(
                       'OFFICIAL PORTALS',
                       style: GoogleFonts.inter(
-                        fontSize: 9,
+                        fontSize: 9.sp,
                         fontWeight: FontWeight.w800,
                         color: const Color(0xFF10B981),
                         letterSpacing: 1.2,
@@ -232,23 +233,23 @@ class _PortalsScreenState extends State<PortalsScreen>
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           Text(
             'Court Portals',
             style: GoogleFonts.outfit(
-              fontSize: 28,
+              fontSize: 28.sp,
               fontWeight: FontWeight.w800,
               color: Colors.white,
               letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6.h),
           Text(
             'Access official district court services, certified copies,\nvideo conferencing & court fee payments',
             style: GoogleFonts.inter(
-              fontSize: 13,
+              fontSize: 13.sp,
               color: Colors.white.withValues(alpha: 0.7),
-              height: 1.5,
+              height: 1.5.h,
             ),
           ),
         ],
@@ -267,13 +268,13 @@ class _PortalsScreenState extends State<PortalsScreen>
             '36 States',
             const Color(0xFF6366F1),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10.w),
           _buildStatChip(
             Icons.domain_rounded,
             '600+ Districts',
             const Color(0xFF0EA5E9),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10.w),
           _buildStatChip(
             Icons.security_rounded,
             'Secure Access',
@@ -287,22 +288,22 @@ class _PortalsScreenState extends State<PortalsScreen>
   Widget _buildStatChip(IconData icon, String label, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 10.w),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           border: Border.all(color: color.withValues(alpha: 0.12)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, size: 14, color: color),
-            const SizedBox(width: 6),
+            SizedBox(width: 6.w),
             Flexible(
               child: Text(
                 label,
                 style: GoogleFonts.inter(
-                  fontSize: 10,
+                  fontSize: 10.sp,
                   fontWeight: FontWeight.w700,
                   color: color,
                 ),
@@ -325,18 +326,18 @@ class _PortalsScreenState extends State<PortalsScreen>
           Row(
             children: [
               Container(
-                width: 4,
-                height: 16,
+                width: 4.w,
+                height: 16.h,
                 decoration: BoxDecoration(
                   color: AppTheme.accent,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(2.r),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Text(
                 'SELECT SERVICE',
                 style: GoogleFonts.inter(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w900,
                   color: const Color(0xFF64748B),
                   letterSpacing: 1.5,
@@ -344,7 +345,7 @@ class _PortalsScreenState extends State<PortalsScreen>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Row(
             children: [
               Expanded(
@@ -356,7 +357,7 @@ class _PortalsScreenState extends State<PortalsScreen>
                   const Color(0xFF6366F1),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Expanded(
                 child: _buildPremiumServiceCard(
                   'video_conference',
@@ -368,7 +369,7 @@ class _PortalsScreenState extends State<PortalsScreen>
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Row(
             children: [
               Expanded(
@@ -380,7 +381,7 @@ class _PortalsScreenState extends State<PortalsScreen>
                   const Color(0xFFF59E0B),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Expanded(
                 child: _buildPremiumServiceCard(
                   'court_fee_payment',
@@ -410,10 +411,10 @@ class _PortalsScreenState extends State<PortalsScreen>
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.all(18),
+        padding: EdgeInsets.all(18.r),
         decoration: BoxDecoration(
           color: isSelected ? color.withValues(alpha: 0.08) : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
             color:
                 isSelected
@@ -445,13 +446,13 @@ class _PortalsScreenState extends State<PortalsScreen>
               children: [
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
-                  padding: const EdgeInsets.all(10),
+                  padding: EdgeInsets.all(10.r),
                   decoration: BoxDecoration(
                     color:
                         isSelected
                             ? color.withValues(alpha: 0.15)
                             : color.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: Icon(
                     icon,
@@ -462,8 +463,8 @@ class _PortalsScreenState extends State<PortalsScreen>
                 const Spacer(),
                 if (isSelected)
                   Container(
-                    width: 22,
-                    height: 22,
+                    width: 22.w,
+                    height: 22.h,
                     decoration: BoxDecoration(
                       color: color,
                       shape: BoxShape.circle,
@@ -476,24 +477,24 @@ class _PortalsScreenState extends State<PortalsScreen>
                   ),
               ],
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14.h),
             Text(
               title,
               style: GoogleFonts.outfit(
                 fontWeight: FontWeight.w700,
-                fontSize: 15,
+                fontSize: 15.sp,
                 color:
                     isSelected
                         ? const Color(0xFF0F172A)
                         : const Color(0xFF334155),
-                height: 1.3,
+                height: 1.3.h,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             Text(
               subtitle,
               style: GoogleFonts.inter(
-                fontSize: 11,
+                fontSize: 11.sp,
                 color:
                     isSelected
                         ? color.withValues(alpha: 0.8)
@@ -520,18 +521,18 @@ class _PortalsScreenState extends State<PortalsScreen>
           Row(
             children: [
               Container(
-                width: 4,
-                height: 16,
+                width: 4.w,
+                height: 16.h,
                 decoration: BoxDecoration(
                   color: AppTheme.accent,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(2.r),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Text(
                 'SELECT JURISDICTION',
                 style: GoogleFonts.inter(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w900,
                   color: const Color(0xFF64748B),
                   letterSpacing: 1.5,
@@ -539,12 +540,12 @@ class _PortalsScreenState extends State<PortalsScreen>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(20.r),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20.r),
               border: Border.all(color: const Color(0xFFE2E8F0)),
               boxShadow: [
                 BoxShadow(
@@ -570,7 +571,7 @@ class _PortalsScreenState extends State<PortalsScreen>
                     });
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 // District Dropdown
                 _buildPremiumDropdown(
                   label: 'District Court',
@@ -607,34 +608,34 @@ class _PortalsScreenState extends State<PortalsScreen>
         Text(
           label,
           style: GoogleFonts.inter(
-            fontSize: 12,
+            fontSize: 12.sp,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF475569),
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         DropdownButtonFormField<String>(
           initialValue: value,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: GoogleFonts.inter(
-              fontSize: 13,
+              fontSize: 13.sp,
               color: const Color(0xFFCBD5E1),
             ),
             prefixIcon: Icon(icon, size: 18, color: AppTheme.accent),
             filled: true,
             fillColor: const Color(0xFFF8FAFC),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: AppTheme.accent, width: 1.5),
+              borderRadius: BorderRadius.circular(14.r),
+              borderSide: const BorderSide(color: AppTheme.accent, width: 1.5.w),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -642,12 +643,12 @@ class _PortalsScreenState extends State<PortalsScreen>
             ),
           ),
           style: GoogleFonts.inter(
-            fontSize: 14,
+            fontSize: 14.sp,
             fontWeight: FontWeight.w600,
             color: const Color(0xFF0F172A),
           ),
           dropdownColor: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           icon: const Icon(
             Icons.keyboard_arrow_down_rounded,
             color: Color(0xFF94A3B8),
@@ -660,7 +661,7 @@ class _PortalsScreenState extends State<PortalsScreen>
                       child: Text(
                         s,
                         style: GoogleFonts.inter(
-                          fontSize: 13,
+                          fontSize: 13.sp,
                           fontWeight: FontWeight.w500,
                           color: const Color(0xFF334155),
                         ),
@@ -689,7 +690,7 @@ class _PortalsScreenState extends State<PortalsScreen>
         children: [
           SizedBox(
             width: double.infinity,
-            height: 56,
+            height: 56.h,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor:
@@ -702,15 +703,15 @@ class _PortalsScreenState extends State<PortalsScreen>
                         ? AppTheme.accent.withValues(alpha: 0.4)
                         : Colors.transparent,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(16.r),
                 ),
               ),
               onPressed: canProceed ? _handleRedirect : null,
               child:
                   _isRedirecting
-                      ? const SizedBox(
-                        height: 22,
-                        width: 22,
+                      ? SizedBox(
+                        height: 22.h,
+                        width: 22.w,
                         child: CircularProgressIndicator(
                           color: Colors.white,
                           strokeWidth: 2.5,
@@ -725,13 +726,13 @@ class _PortalsScreenState extends State<PortalsScreen>
                                 : Icons.open_in_new_rounded,
                             size: 20,
                           ),
-                          const SizedBox(width: 10),
+                          SizedBox(width: 10.w),
                           Text(
                             isEPay
                                 ? 'Open Court Fee Payment'
                                 : 'Access Official Portal',
                             style: GoogleFonts.inter(
-                              fontSize: 15,
+                              fontSize: 15.sp,
                               fontWeight: FontWeight.w700,
                               letterSpacing: -0.2,
                             ),
@@ -750,10 +751,10 @@ class _PortalsScreenState extends State<PortalsScreen>
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.r),
         decoration: BoxDecoration(
           color: const Color(0xFFF1F5F9),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           border: Border.all(color: const Color(0xFFE2E8F0)),
         ),
         child: Row(
@@ -763,14 +764,14 @@ class _PortalsScreenState extends State<PortalsScreen>
               size: 18,
               color: Color(0xFF64748B),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12.w),
             Expanded(
               child: Text(
                 'You will be securely redirected to the official eCourts portal maintained by the Government of India.',
                 style: GoogleFonts.inter(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   color: const Color(0xFF64748B),
-                  height: 1.5,
+                  height: 1.5.h,
                 ),
               ),
             ),

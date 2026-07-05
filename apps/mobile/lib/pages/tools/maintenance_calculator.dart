@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MaintenanceCalculator extends StatefulWidget {
   const MaintenanceCalculator({super.key});
@@ -254,13 +255,13 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
         content: const Row(
           children: [
             Icon(Icons.check_circle, color: Colors.white, size: 18),
-            SizedBox(width: 8),
+            SizedBox(width: 8.w),
             Text('Maintenance memo copied!'),
           ],
         ),
         backgroundColor: Colors.green[700],
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
       ),
     );
   }
@@ -271,7 +272,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       child: Column(
         children: [
           // ─── Inputs ──
@@ -308,7 +309,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                       _showResults = false;
                     }),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               if (isMobile) ...[
                 DropdownButtonFormField<String>(
                   initialValue: _maintenanceType,
@@ -333,7 +334,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                         _showResults = false;
                       }),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 TextField(
                   controller: _husbandIncomeCtrl,
                   decoration: const InputDecoration(
@@ -343,7 +344,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                   ),
                   keyboardType: TextInputType.number,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 TextField(
                   controller: _wifeIncomeCtrl,
                   decoration: const InputDecoration(
@@ -381,7 +382,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                             }),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Expanded(
                       child: TextField(
                         controller: _husbandIncomeCtrl,
@@ -395,7 +396,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 Row(
                   children: [
                     Expanded(
@@ -409,18 +410,18 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                         keyboardType: TextInputType.number,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     const Expanded(
                       child: SizedBox(),
                     ), // Placeholder for alignment
                   ],
                 ),
               ],
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
 
               // Children counter
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
+                padding: EdgeInsets.symmetric(vertical: 4.h),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -429,13 +430,13 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                         'Number of Children',
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
-                          fontSize: 15,
+                          fontSize: 15.sp,
                         ),
                       ),
                     ),
                     Container(
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(8.r),
                         color:
                             isDark
                                 ? Colors.white.withValues(alpha: 0.05)
@@ -460,12 +461,12 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                             visualDensity: VisualDensity.compact,
                           ),
                           SizedBox(
-                            width: 32,
+                            width: 32.w,
                             child: Text(
                               _childCount.toString(),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
-                                fontSize: 18,
+                                fontSize: 18.sp,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -490,10 +491,10 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               SizedBox(
                 width: double.infinity,
-                height: 52,
+                height: 52.h,
                 child: ElevatedButton.icon(
                   onPressed: _calculate,
                   icon: const Icon(Icons.calculate_rounded, size: 20),
@@ -508,7 +509,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                     backgroundColor: Colors.pink[700],
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                   ),
                 ),
@@ -517,7 +518,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
           ),
 
           if (_showResults) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
 
             // ─── Results ──
             _card(
@@ -528,13 +529,13 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
               trailing: TextButton.icon(
                 onPressed: _copyToClipboard,
                 icon: const Icon(Icons.copy_rounded, size: 14),
-                label: const Text('Copy', style: TextStyle(fontSize: 12)),
+                label: const Text('Copy', style: TextStyle(fontSize: 12.sp)),
               ),
               children: [
                 // Total
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(20.r),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -542,7 +543,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                         AppTheme.primary.withValues(alpha: 0.05),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: Column(
                     children: [
@@ -550,39 +551,39 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                         'TOTAL MONTHLY MAINTENANCE',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          fontSize: 12,
+                          fontSize: 12.sp,
                           letterSpacing: 1,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8.h),
                       Text(
                         fmt.format(_totalMaintenance),
                         style: const TextStyle(
                           fontWeight: FontWeight.w900,
-                          fontSize: 28,
+                          fontSize: 28.sp,
                           color: Colors.pink,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4.h),
                       Text(
                         'per month (${fmt.format(_totalMaintenance * 12)}/year)',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
 
                 ..._results.map(
                   (r) => Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(14),
+                    margin: EdgeInsets.only(bottom: 8.h),
+                    padding: EdgeInsets.all(14.r),
                     decoration: BoxDecoration(
                       color:
                           isDark
                               ? Colors.white.withValues(alpha: 0.04)
                               : Colors.grey[50],
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10.r),
                       border: Border.all(
                         color: isDark ? Colors.white10 : Colors.grey[200]!,
                       ),
@@ -590,11 +591,11 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                     child: Row(
                       children: [
                         Container(
-                          width: 40,
-                          height: 40,
+                          width: 40.w,
+                          height: 40.h,
                           decoration: BoxDecoration(
                             color: Colors.pink.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(8.r),
                           ),
                           child: const Icon(
                             Icons.person,
@@ -602,7 +603,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                             size: 20,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12.w),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -611,14 +612,14 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                                 r['head'],
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 14,
+                                  fontSize: 14.sp,
                                 ),
                               ),
                               if (r['details'] != null)
                                 Text(
                                   r['details'],
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 11.sp,
                                     color: Colors.grey[500],
                                   ),
                                 ),
@@ -629,7 +630,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                           "${fmt.format(r['amount'])}/mo",
                           style: const TextStyle(
                             fontWeight: FontWeight.w900,
-                            fontSize: 14,
+                            fontSize: 14.sp,
                             color: AppTheme.primary,
                           ),
                         ),
@@ -640,7 +641,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
               ],
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
 
             // ─── How It Was Calculated ──
             _card(
@@ -651,18 +652,18 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
               children: [
                 Text(
                   'Step-by-step computation based on court guidelines:',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16.r),
                   decoration: BoxDecoration(
                     color:
                         isDark
                             ? const Color(0xFF0F172A)
                             : const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                     border: Border.all(
                       color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
                     ),
@@ -671,7 +672,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children:
                         _steps.map((s) {
-                          if (s.isEmpty) return const SizedBox(height: 8);
+                          if (s.isEmpty) return SizedBox(height: 8.h);
                           final bool isHeader =
                               s.startsWith('Step') ||
                               s.startsWith('⚖') ||
@@ -680,11 +681,11 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                               s.startsWith('TOTAL') ||
                               s.startsWith('ANNUAL');
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 3),
+                            padding: EdgeInsets.only(bottom: 3.h),
                             child: Text(
                               s,
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 13.sp,
                                 fontWeight:
                                     isHeader
                                         ? FontWeight.w700
@@ -697,7 +698,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                                         : (isHeader
                                             ? Colors.black87
                                             : Colors.grey[700]),
-                                height: 1.5,
+                                height: 1.5.h,
                               ),
                             ),
                           );
@@ -708,7 +709,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
             ),
           ],
 
-          const SizedBox(height: 100),
+          SizedBox(height: 100.h),
         ],
       ),
     );
@@ -723,7 +724,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
     required List<Widget> children,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       decoration: AppTheme.cardDecoration(isDark: isDark),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -731,14 +732,14 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Icon(icon, color: iconColor, size: 18),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Expanded(
                 child: Text(
                   title,
@@ -750,7 +751,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
               if (trailing != null) trailing,
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           ...children,
         ],
       ),

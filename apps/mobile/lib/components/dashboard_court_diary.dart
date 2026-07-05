@@ -8,6 +8,7 @@ import '../services/providers.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../components/status_badge.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DashboardCourtDiary extends ConsumerStatefulWidget {
   const DashboardCourtDiary({super.key});
@@ -28,20 +29,20 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         side: const BorderSide(color: AppTheme.border),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
               'Court Diary',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             hearingsAsync.when(
               data: (hearings) {
                 // Pre-compute markers for the calendar
@@ -66,9 +67,9 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                 return Column(
                   children: [
                     _buildCalendar(hearMap),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16.h),
                     const Divider(),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8.h),
                     _buildDailyList(selectedHearings),
                   ],
                 );
@@ -76,7 +77,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
               loading:
                   () => const Center(
                     child: Padding(
-                      padding: EdgeInsets.all(24.0),
+                      padding: EdgeInsets.all(24.0.r),
                       child: CircularProgressIndicator(),
                     ),
                   ),
@@ -126,8 +127,8 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
         markerBuilder: (context, date, events) {
           if (events.isNotEmpty) {
             return Positioned(
-              right: 1,
-              bottom: 1,
+              right: 1.w,
+              bottom: 1.h,
               child: _buildMarker(events.length),
             );
           }
@@ -143,14 +144,14 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
         color: Colors.red,
         shape: BoxShape.circle,
       ),
-      width: 16.0,
-      height: 16.0,
+      width: 16.0.w,
+      height: 16.0.h,
       child: Center(
         child: Text(
           '$count',
           style: const TextStyle(
             color: Color(0xFF1E293B),
-            fontSize: 10.0,
+            fontSize: 10.0.sp,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -161,12 +162,12 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
   Widget _buildDailyList(List<Hearing> hearings) {
     if (hearings.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24.0),
+        padding: EdgeInsets.symmetric(vertical: 24.0.h),
         child: Center(
           child: Column(
             children: [
               Icon(Icons.event_available, size: 48, color: Colors.grey[400]),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               Text(
                 "No hearings on ${DateFormat('MMM dd, yyyy').format(_selectedDate)}",
                 style: const TextStyle(color: Colors.grey),
@@ -186,10 +187,10 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
         final statusColor = _hearingStatusColor(h.status);
 
         return Container(
-          margin: const EdgeInsets.only(bottom: 10),
+          margin: EdgeInsets.only(bottom: 10.h),
           decoration: BoxDecoration(
             color: AppTheme.darkCard,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(14.r),
             border: Border.all(color: AppTheme.darkBorder),
             boxShadow: [
               BoxShadow(
@@ -204,19 +205,19 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
               children: [
                 // ── Left color strip ──
                 Container(
-                  width: 4,
+                  width: 4.w,
                   decoration: BoxDecoration(
                     color: statusColor,
                     borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(14),
-                      bottomLeft: Radius.circular(14),
+                      topLeft: Radius.circular(14.r),
+                      bottomLeft: Radius.circular(14.r),
                     ),
                   ),
                 ),
                 // ── Content ──
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(14),
+                    padding: EdgeInsets.all(14.r),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -228,7 +229,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                 h.caseTitle ?? 'Unknown Case',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w800,
-                                  fontSize: 14,
+                                  fontSize: 14.sp,
                                   color: Color(0xFF1E293B),
                                 ),
                                 maxLines: 1,
@@ -241,7 +242,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
 
                         // ── Case No + Court Name (prominent) ──
                         if (h.caseNumber != null || h.courtName != null) ...[
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8.h),
                           Container(
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(
@@ -250,7 +251,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                             ),
                             decoration: BoxDecoration(
                               color: const Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8.r),
                               border: Border.all(
                                 color: const Color(0xFFE2E8F0),
                               ),
@@ -266,13 +267,13 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                         size: 14,
                                         color: Color(0xFF64748B),
                                       ),
-                                      const SizedBox(width: 6),
+                                      SizedBox(width: 6.w),
                                       Expanded(
                                         child: Text(
                                           h.caseNumber!,
                                           style: const TextStyle(
                                             color: Color(0xFF334155),
-                                            fontSize: 13,
+                                            fontSize: 13.sp,
                                             fontWeight: FontWeight.w700,
                                           ),
                                           maxLines: 1,
@@ -282,7 +283,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                     ],
                                   ),
                                 if (h.caseNumber != null && h.courtName != null)
-                                  const SizedBox(height: 4),
+                                  SizedBox(height: 4.h),
                                 if (h.courtName != null)
                                   Row(
                                     children: [
@@ -291,13 +292,13 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                         size: 14,
                                         color: Color(0xFF64748B),
                                       ),
-                                      const SizedBox(width: 6),
+                                      SizedBox(width: 6.w),
                                       Expanded(
                                         child: Text(
                                           h.courtName!,
                                           style: const TextStyle(
                                             color: Color(0xFF475569),
-                                            fontSize: 12,
+                                            fontSize: 12.sp,
                                             fontWeight: FontWeight.w600,
                                           ),
                                           maxLines: 1,
@@ -311,7 +312,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                           ),
                         ],
 
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8.h),
 
                         // ── Purpose / Stage row ──
                         Row(
@@ -323,12 +324,12 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                               ),
                               decoration: BoxDecoration(
                                 color: AppTheme.accent.withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(6.r),
                               ),
                               child: Text(
                                 (h.purpose ?? 'Hearing').toUpperCase(),
                                 style: const TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 10.sp,
                                   fontWeight: FontWeight.w800,
                                   color: AppTheme.accent,
                                   letterSpacing: 0.3,
@@ -336,7 +337,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                               ),
                             ),
                             if (h.stage != null) ...[
-                              const SizedBox(width: 6),
+                              SizedBox(width: 6.w),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
@@ -344,12 +345,12 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                 ),
                                 decoration: BoxDecoration(
                                   color: Colors.grey.withValues(alpha: 0.08),
-                                  borderRadius: BorderRadius.circular(6),
+                                  borderRadius: BorderRadius.circular(6.r),
                                 ),
                                 child: Text(
                                   h.stage!,
                                   style: const TextStyle(
-                                    fontSize: 10,
+                                    fontSize: 10.sp,
                                     fontWeight: FontWeight.w600,
                                     color: Color(0xFF64748B),
                                   ),
@@ -359,7 +360,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                             if (h.isTeamCase(
                               ref.read(userProvider)?.id ?? '',
                             )) ...[
-                              const SizedBox(width: 6),
+                              SizedBox(width: 6.w),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 6,
@@ -367,7 +368,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                 ),
                                 decoration: BoxDecoration(
                                   color: Colors.indigo.withValues(alpha: 0.08),
-                                  borderRadius: BorderRadius.circular(6),
+                                  borderRadius: BorderRadius.circular(6.r),
                                   border: Border.all(
                                     color: Colors.indigo.withValues(
                                       alpha: 0.15,
@@ -378,7 +379,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                   'TEAM',
                                   style: TextStyle(
                                     color: Colors.indigo,
-                                    fontSize: 8,
+                                    fontSize: 8.sp,
                                     fontWeight: FontWeight.w900,
                                   ),
                                 ),
@@ -390,7 +391,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                 h.status != 'disposed')
                               InkWell(
                                 onTap: () => _showAdjournDialog(context, h),
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(8.r),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 10,
@@ -398,7 +399,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                   ),
                                   decoration: BoxDecoration(
                                     color: Colors.blue.withValues(alpha: 0.08),
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(8.r),
                                     border: Border.all(
                                       color: Colors.blue.withValues(
                                         alpha: 0.15,
@@ -413,11 +414,11 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                         size: 13,
                                         color: Colors.blue,
                                       ),
-                                      SizedBox(width: 4),
+                                      SizedBox(width: 4.w),
                                       Text(
                                         'ADJOURN',
                                         style: TextStyle(
-                                          fontSize: 9,
+                                          fontSize: 9.sp,
                                           fontWeight: FontWeight.w900,
                                           color: Colors.blue,
                                         ),

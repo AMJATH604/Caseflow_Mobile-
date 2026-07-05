@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LimitationCalculator extends StatefulWidget {
   const LimitationCalculator({super.key});
@@ -199,7 +200,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       child: Column(
         children: [
           // ─── Input Card ──
@@ -211,9 +212,9 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
             children: [
               Text(
                 'Select the article from the Limitation Act, 1963 or enter a custom period.',
-                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
               ),
-              const Divider(height: 20),
+              const Divider(height: 20.h),
 
               // Date of Accrual
               _buildDatePicker(
@@ -225,30 +226,30 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                   _calculate();
                 }),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
 
               // Article Selection
               Text(
                 'LIMITATION ACT ARTICLE',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w700,
                   color: Colors.grey[500],
                   letterSpacing: 0.5,
                 ),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
 
               ...(_articles.map((art) {
                 final isSelected = _selectedArticle == art['id'];
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
+                  padding: EdgeInsets.only(bottom: 8.h),
                   child: InkWell(
                     onTap: () {
                       setState(() => _selectedArticle = art['id']);
                       _calculate();
                     },
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(
@@ -262,7 +263,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                                 : (isDark
                                     ? Colors.white.withValues(alpha: 0.04)
                                     : Colors.grey[50]),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10.r),
                         border: Border.all(
                           color:
                               isSelected
@@ -285,12 +286,12 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                                   isSelected
                                       ? AppTheme.accent.withValues(alpha: 0.15)
                                       : Colors.grey.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(6),
+                              borderRadius: BorderRadius.circular(6.r),
                             ),
                             child: Text(
                               art['article'],
                               style: TextStyle(
-                                fontSize: 10,
+                                fontSize: 10.sp,
                                 fontWeight: FontWeight.w800,
                                 color:
                                     isSelected
@@ -299,7 +300,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          SizedBox(width: 10.w),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,7 +308,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                                 Text(
                                   art['desc'],
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 13.sp,
                                     fontWeight: FontWeight.w600,
                                     color:
                                         isSelected
@@ -320,7 +321,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                                 Text(
                                   art['label'],
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 11.sp,
                                     color: Colors.grey[500],
                                   ),
                                 ),
@@ -342,7 +343,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
 
               // Custom period inputs
               if (_selectedArticle == 'custom') ...[
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 Row(
                   children: [
                     Expanded(
@@ -357,7 +358,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Expanded(
                       child: DropdownButtonFormField<String>(
                         initialValue: _customUnit,
@@ -390,11 +391,11 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
 
           // ─── Result ──
           if (_result != null) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
 
             // Expiry Banner
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20.r),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors:
@@ -408,7 +409,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                             const Color(0xFF059669).withValues(alpha: 0.03),
                           ],
                 ),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
                 border: Border.all(
                   color:
                       _result!['isExpired']
@@ -428,13 +429,13 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                             : const Color(0xFF059669),
                     size: 40,
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12.h),
                   Text(
                     _result!['isExpired']
                         ? 'LIMITATION EXPIRED'
                         : 'WITHIN LIMITATION',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.w900,
                       color:
                           _result!['isExpired']
@@ -443,13 +444,13 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                       letterSpacing: 1,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6.h),
                   Text(
                     _result!['isExpired']
                         ? "Expired ${(-_result!['daysRemaining'])} day${(-_result!['daysRemaining']) == 1 ? '' : 's'} ago"
                         : "${_result!['daysRemaining']} day${_result!['daysRemaining'] == 1 ? '' : 's'} remaining",
                     style: TextStyle(
-                      fontSize: 22,
+                      fontSize: 22.sp,
                       fontWeight: FontWeight.w900,
                       color:
                           _result!['isExpired']
@@ -457,11 +458,11 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                               : const Color(0xFF059669),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10.h),
                   Text(
                     "Expiry: ${DateFormat('dd MMMM yyyy (EEEE)').format(_result!['expiryDate'])}",
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
                       color: isDark ? Colors.grey[300] : Colors.grey[600],
                     ),
@@ -471,7 +472,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
             ),
 
             // Info card
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             _buildCard(
               isDark,
               icon: Icons.bookmark_rounded,
@@ -487,18 +488,18 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                   );
                 },
                 icon: const Icon(Icons.copy_rounded, size: 14),
-                label: const Text('Copy', style: TextStyle(fontSize: 12)),
+                label: const Text('Copy', style: TextStyle(fontSize: 12.sp)),
               ),
               children: [
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(14),
+                  padding: EdgeInsets.all(14.r),
                   decoration: BoxDecoration(
                     color:
                         isDark
                             ? const Color(0xFF0F172A)
                             : const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                     border: Border.all(
                       color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
                     ),
@@ -507,14 +508,14 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildInfoRow('Article', _result!['articleRef']),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8.h),
                       _buildInfoRow('Period', _result!['periodLabel']),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8.h),
                       _buildInfoRow(
                         'From',
                         DateFormat('dd MMMM yyyy').format(_accrualDate!),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8.h),
                       _buildInfoRow(
                         'Expires',
                         DateFormat(
@@ -528,7 +529,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
             ),
           ],
 
-          const SizedBox(height: 100),
+          SizedBox(height: 100.h),
         ],
       ),
     );
@@ -539,11 +540,11 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 80,
+          width: 80.w,
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w700,
               color: Colors.grey[500],
             ),
@@ -552,7 +553,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -571,13 +572,13 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
         Text(
           label,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 11.sp,
             fontWeight: FontWeight.w700,
             color: Colors.grey[500],
             letterSpacing: 0.5,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         InkWell(
           onTap: () async {
             final picked = await showDatePicker(
@@ -588,15 +589,15 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
             );
             onChanged(picked);
           },
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
             decoration: BoxDecoration(
               border: Border.all(
                 color: isDark ? Colors.white12 : Colors.grey[300]!,
               ),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(10.r),
             ),
             child: Row(
               children: [
@@ -605,13 +606,13 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                   size: 16,
                   color: AppTheme.accent,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
                 Text(
                   value == null
                       ? 'Select date'
                       : DateFormat('dd MMM yyyy').format(value),
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight:
                         value != null ? FontWeight.w600 : FontWeight.w400,
                     color: value != null ? null : Colors.grey[400],
@@ -634,7 +635,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
     required List<Widget> children,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       decoration: AppTheme.cardDecoration(isDark: isDark),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -642,14 +643,14 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Icon(icon, color: iconColor, size: 18),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Expanded(
                 child: Text(
                   title,
@@ -661,7 +662,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
               if (trailing != null) trailing,
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           ...children,
         ],
       ),

@@ -5,6 +5,7 @@ import '../../models/models.dart';
 import '../../services/supabase_service.dart';
 import '../../services/providers.dart';
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Pre-filled edit dialog for modifying an existing client's details.
 /// Supports: name, phone, email, address, state, district.
@@ -96,14 +97,14 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                   color: Colors.white,
                   size: 18,
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10.w),
                 Text('${_nameController.text.trim()} updated successfully'),
               ],
             ),
             backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
           ),
         );
@@ -116,7 +117,7 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
             backgroundColor: const Color(0xFFEF4444),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
           ),
         );
@@ -132,12 +133,12 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
 
     return Dialog(
       backgroundColor: isDark ? const Color(0xFF1E2030) : Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      insetPadding: const EdgeInsets.all(20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
+      insetPadding: EdgeInsets.all(20.r),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 480),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24.r),
           child: Form(
             key: _formKey,
             child: Column(
@@ -148,10 +149,10 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: EdgeInsets.all(10.r),
                       decoration: BoxDecoration(
                         color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: const Icon(
                         Icons.edit_rounded,
@@ -159,7 +160,7 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                         size: 22,
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    SizedBox(width: 14.w),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,7 +168,7 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                           Text(
                             'Edit Client',
                             style: GoogleFonts.outfit(
-                              fontSize: 20,
+                              fontSize: 20.sp,
                               fontWeight: FontWeight.w700,
                               color:
                                   isDark
@@ -175,11 +176,11 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                                       : const Color(0xFF0F172A),
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2.h),
                           Text(
                             "Update ${widget.client.name}'s details",
                             style: GoogleFonts.inter(
-                              fontSize: 12,
+                              fontSize: 12.sp,
                               color: const Color(0xFF94A3B8),
                             ),
                           ),
@@ -195,13 +196,13 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                                 ? const Color(0xFF2D3748)
                                 : const Color(0xFFF1F5F9),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(10.r),
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24.h),
 
                 // Form Fields
                 _buildField(
@@ -243,12 +244,12 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                   icon: Icons.domain_rounded,
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
 
                 // Save Button
                 SizedBox(
                   width: double.infinity,
-                  height: 50,
+                  height: 50.h,
                   child: ElevatedButton(
                     onPressed: _isSaving ? null : _save,
                     style: ElevatedButton.styleFrom(
@@ -256,14 +257,14 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(14.r),
                       ),
                     ),
                     child:
                         _isSaving
-                            ? const SizedBox(
-                              height: 20,
-                              width: 20,
+                            ? SizedBox(
+                              height: 20.h,
+                              width: 20.w,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 color: Colors.white,
@@ -273,12 +274,12 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const Icon(Icons.save_rounded, size: 18),
-                                const SizedBox(width: 8),
+                                SizedBox(width: 8.w),
                                 Text(
                                   'Save Changes',
                                   style: GoogleFonts.inter(
                                     fontWeight: FontWeight.w700,
-                                    fontSize: 14,
+                                    fontSize: 14.sp,
                                   ),
                                 ),
                               ],
@@ -303,21 +304,21 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16.h),
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
         validator: validator,
         maxLines: maxLines,
         style: GoogleFonts.inter(
-          fontSize: 14,
+          fontSize: 14.sp,
           fontWeight: FontWeight.w500,
           color: isDark ? Colors.white : const Color(0xFF0F172A),
         ),
         decoration: InputDecoration(
           labelText: label,
           labelStyle: GoogleFonts.inter(
-            fontSize: 13,
+            fontSize: 13.sp,
             fontWeight: FontWeight.w500,
             color: const Color(0xFF94A3B8),
           ),
@@ -325,20 +326,20 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
           filled: true,
           fillColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(14.r),
             borderSide: BorderSide(
               color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0),
             ),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(14.r),
             borderSide: BorderSide(
               color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0),
             ),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: AppTheme.accent, width: 1.5),
+            borderRadius: BorderRadius.circular(14.r),
+            borderSide: const BorderSide(color: AppTheme.accent, width: 1.5.w),
           ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,

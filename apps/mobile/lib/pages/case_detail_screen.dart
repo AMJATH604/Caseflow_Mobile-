@@ -10,6 +10,7 @@ import '../components/case_witnesses_tab.dart';
 import 'evidence_lab_screen.dart';
 
 import '../components/case_header.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CaseDetailScreen extends ConsumerStatefulWidget {
   final String id;
@@ -53,7 +54,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
                 caseData: caseData,
                 onBack: () => Navigator.pop(context),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               _buildTabBar(),
               Expanded(
                 child: TabBarView(
@@ -92,11 +93,11 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
   // ─── TAB BAR ─────────────────────────────────────────
   Widget _buildTabBar() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      height: 44,
+      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      height: 44.h,
       decoration: BoxDecoration(
         color: AppTheme.darkCard,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),
         border: Border.all(color: AppTheme.darkBorder),
       ),
       child: TabBar(
@@ -104,7 +105,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
         isScrollable: true,
         indicator: BoxDecoration(
           color: AppTheme.accent,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
         ),
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,
@@ -112,12 +113,12 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
         unselectedLabelColor: const Color(0xFF64748B),
         labelStyle: const TextStyle(
           fontWeight: FontWeight.w900,
-          fontSize: 11,
+          fontSize: 11.sp,
           letterSpacing: 0.5,
         ),
         unselectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.w700,
-          fontSize: 11,
+          fontSize: 11.sp,
         ),
         tabs: const [
           Tab(text: 'DOSSIER'),

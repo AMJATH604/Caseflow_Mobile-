@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class WordToPdf extends StatefulWidget {
   const WordToPdf({super.key});
@@ -40,19 +41,19 @@ class _WordToPdfState extends State<WordToPdf> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24.r),
       child: Column(
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(40),
+            padding: EdgeInsets.all(40.r),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [AppTheme.primary, AppTheme.primary.withRed(100)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(24.r),
               boxShadow: [
                 BoxShadow(
                   color: AppTheme.primary.withValues(alpha: 0.3),
@@ -68,22 +69,22 @@ class _WordToPdfState extends State<WordToPdf> {
                   size: 64,
                   color: Color(0xFF1E293B),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 const Text(
                   'Word to PDF Converter',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF1E293B),
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 const Text(
                   'Convert your .docx legal drafts to PDF instantly',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white70),
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: 32.h),
                 ElevatedButton(
                   onPressed: _isProcessing ? null : _pickFile,
                   style: ElevatedButton.styleFrom(
@@ -94,7 +95,7 @@ class _WordToPdfState extends State<WordToPdf> {
                       vertical: 18,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                   ),
                   child: Text(
@@ -105,32 +106,32 @@ class _WordToPdfState extends State<WordToPdf> {
             ),
           ),
           if (_isProcessing) ...[
-            const SizedBox(height: 48),
+            SizedBox(height: 48.h),
             const LinearProgressIndicator(minHeight: 8),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             const Text(
               'Optimizing document structure...',
               style: TextStyle(color: Colors.grey),
             ),
           ],
           if (_isDone) ...[
-            const SizedBox(height: 48),
+            SizedBox(height: 48.h),
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(24.r),
               decoration: BoxDecoration(
                 color: Colors.green.withValues(alpha: 0.05),
                 border: Border.all(color: Colors.green.withValues(alpha: 0.2)),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(16.r),
               ),
               child: Column(
                 children: [
                   const Icon(Icons.check_circle, color: Colors.green, size: 48),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   Text(
                     "${_file?.name ?? 'Document'} converted successfully!",
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -139,7 +140,7 @@ class _WordToPdfState extends State<WordToPdf> {
                         icon: const Icon(Icons.download),
                         label: const Text('Download PDF'),
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: 16.w),
                       OutlinedButton.icon(
                         onPressed: () {},
                         icon: const Icon(Icons.share),

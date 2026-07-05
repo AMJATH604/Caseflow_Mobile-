@@ -9,6 +9,7 @@ import 'package:printing/printing.dart';
 import '../models/commission_models.dart';
 import '../services/commission_service.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CommissionReportScreen extends ConsumerStatefulWidget {
   final String commissionId;
@@ -85,18 +86,18 @@ class _CommissionReportScreenState
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.r),
         children: [
           // Template selection
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16.r),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFF0F172A), Color(0xFF1E3A5F)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,17 +105,17 @@ class _CommissionReportScreenState
                 Text(
                   'Report Template',
                   style: GoogleFonts.outfit(
-                    fontSize: 18,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Text(
                   _getTemplateDescription(c.commissionType),
-                  style: GoogleFonts.inter(fontSize: 12, color: Colors.white70),
+                  style: GoogleFonts.inter(fontSize: 12.sp, color: Colors.white70),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
@@ -122,12 +123,12 @@ class _CommissionReportScreenState
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: Text(
                     c.commissionType.label.toUpperCase(),
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.success,
                     ),
@@ -136,7 +137,7 @@ class _CommissionReportScreenState
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
 
           // Data summary cards
           _summaryCard(
@@ -181,18 +182,18 @@ class _CommissionReportScreenState
             '₹${_expenses.fold<double>(0, (s, e) => s + e.amount).toStringAsFixed(0)}',
             AppTheme.error,
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
 
           // Generate button
           SizedBox(
-            height: 54,
+            height: 54.h,
             child: ElevatedButton.icon(
               onPressed: _generating ? null : _generateReport,
               icon:
                   _generating
-                      ? const SizedBox(
-                        width: 20,
-                        height: 20,
+                      ? SizedBox(
+                        width: 20.w,
+                        height: 20.h,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           color: Colors.white,
@@ -203,19 +204,19 @@ class _CommissionReportScreenState
                 _generating ? 'Generating...' : 'Generate & Preview PDF',
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w700,
-                  fontSize: 15,
+                  fontSize: 15.sp,
                 ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.accent,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(16.r),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 60),
+          SizedBox(height: 60.h),
         ],
       ),
     );
@@ -228,11 +229,11 @@ class _CommissionReportScreenState
     String value,
     Color color,
   ) => Container(
-    margin: const EdgeInsets.only(bottom: 8),
-    padding: const EdgeInsets.all(14),
+    margin: EdgeInsets.only(bottom: 8.h),
+    padding: EdgeInsets.all(14.r),
     decoration: BoxDecoration(
       color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(14.r),
       border: Border.all(
         color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
       ),
@@ -240,14 +241,14 @@ class _CommissionReportScreenState
     child: Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(8.r),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10.r),
           ),
           child: Icon(icon, color: color, size: 20),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12.w),
         Text(
           title,
           style: GoogleFonts.inter(
@@ -327,31 +328,31 @@ class _CommissionReportScreenState
 
       // ── Define text styles ──
       final titleStyle = pw.TextStyle(
-        fontSize: 15,
+        fontSize: 15.sp,
         fontWeight: pw.FontWeight.bold,
         letterSpacing: 1.2,
       );
       final subtitleStyle = pw.TextStyle(
-        fontSize: 10,
+        fontSize: 10.sp,
         fontStyle: pw.FontStyle.italic,
         color: PdfColors.grey700,
       );
       final sectionHeaderStyle = pw.TextStyle(
-        fontSize: 11,
+        fontSize: 11.sp,
         fontWeight: pw.FontWeight.bold,
         letterSpacing: 0.5,
       );
       final labelStyle = pw.TextStyle(
-        fontSize: 10,
+        fontSize: 10.sp,
         fontWeight: pw.FontWeight.bold,
       );
-      const valueStyle = pw.TextStyle(fontSize: 10);
-      const bodyStyle = pw.TextStyle(fontSize: 10);
+      const valueStyle = pw.TextStyle(fontSize: 10.sp);
+      const bodyStyle = pw.TextStyle(fontSize: 10.sp);
       final smallBold = pw.TextStyle(
-        fontSize: 9,
+        fontSize: 9.sp,
         fontWeight: pw.FontWeight.bold,
       );
-      const smallStyle = pw.TextStyle(fontSize: 9);
+      const smallStyle = pw.TextStyle(fontSize: 9.sp);
 
       // ── Track section numbering ──
       const int sectionNum = 0;
@@ -362,44 +363,44 @@ class _CommissionReportScreenState
       pdf.addPage(
         pw.Page(
           pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.symmetric(horizontal: 50, vertical: 40),
+          margin: const pw.EdgeInsets.symmetric(horizontal: 50.w, vertical: 40.h),
           build:
               (ctx) => pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.center,
                 children: [
-                  pw.SizedBox(height: 20),
+                  pw.SizedBox(height: 20.h),
                   pw.Text(
                     'ADVOCATE COMMISSIONER\'S REPORT',
-                    style: titleStyle.copyWith(fontSize: 18),
+                    style: titleStyle.copyWith(fontSize: 18.sp),
                   ),
-                  pw.SizedBox(height: 10),
+                  pw.SizedBox(height: 10.h),
                   pw.Text(
                     'REPORT OF THE COMMISSIONER APPOINTED BY THE COURT',
-                    style: subtitleStyle.copyWith(fontSize: 11),
+                    style: subtitleStyle.copyWith(fontSize: 11.sp),
                   ),
-                  pw.SizedBox(height: 40),
+                  pw.SizedBox(height: 40.h),
 
                   // Court Caption
                   pw.Container(
-                    padding: const pw.EdgeInsets.all(16),
+                    padding: const pw.EdgeInsets.all(16.r),
                     decoration: pw.BoxDecoration(
-                      border: pw.Border.all(width: 1.5),
+                      border: pw.Border.all(width: 1.5.w),
                     ),
                     child: pw.Column(
                       children: [
                         pw.Text(
                           'IN THE COURT OF',
-                          style: const pw.TextStyle(fontSize: 10),
+                          style: const pw.TextStyle(fontSize: 10.sp),
                         ),
-                        pw.SizedBox(height: 4),
+                        pw.SizedBox(height: 4.h),
                         pw.Text(
                           (c.courtName ?? 'THE HONOURABLE COURT').toUpperCase(),
                           style: pw.TextStyle(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             fontWeight: pw.FontWeight.bold,
                           ),
                         ),
-                        pw.SizedBox(height: 20),
+                        pw.SizedBox(height: 20.h),
                         pw.Row(
                           children: [
                             pw.Expanded(
@@ -414,50 +415,50 @@ class _CommissionReportScreenState
                             ),
                           ],
                         ),
-                        pw.SizedBox(height: 12),
+                        pw.SizedBox(height: 12.h),
                         pw.Divider(),
-                        pw.SizedBox(height: 12),
+                        pw.SizedBox(height: 12.h),
                         pw.Row(
                           children: [
                             pw.Expanded(
                               child: pw.Text(
                                 c.partyPetitioner ?? 'Petitioner',
                                 style: pw.TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 11.sp,
                                   fontWeight: pw.FontWeight.bold,
                                 ),
                               ),
                             ),
                             pw.Text(
                               '... Petitioner(s)',
-                              style: const pw.TextStyle(fontSize: 10),
+                              style: const pw.TextStyle(fontSize: 10.sp),
                             ),
                           ],
                         ),
-                        pw.SizedBox(height: 8),
+                        pw.SizedBox(height: 8.h),
                         pw.Text(
                           'VERSUS',
                           style: pw.TextStyle(
-                            fontSize: 10,
+                            fontSize: 10.sp,
                             fontWeight: pw.FontWeight.bold,
                             fontStyle: pw.FontStyle.italic,
                           ),
                         ),
-                        pw.SizedBox(height: 8),
+                        pw.SizedBox(height: 8.h),
                         pw.Row(
                           children: [
                             pw.Expanded(
                               child: pw.Text(
                                 c.partyRespondent ?? 'Respondent',
                                 style: pw.TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 11.sp,
                                   fontWeight: pw.FontWeight.bold,
                                 ),
                               ),
                             ),
                             pw.Text(
                               '... Respondent(s)',
-                              style: const pw.TextStyle(fontSize: 10),
+                              style: const pw.TextStyle(fontSize: 10.sp),
                             ),
                           ],
                         ),
@@ -470,22 +471,22 @@ class _CommissionReportScreenState
                     crossAxisAlignment: pw.CrossAxisAlignment.center,
                     children: [
                       pw.Text('SUBMITTED BY:', style: smallBold),
-                      pw.SizedBox(height: 5),
+                      pw.SizedBox(height: 5.h),
                       pw.Text(
                         'ADVOCATE COMMISSIONER',
                         style: pw.TextStyle(
-                          fontSize: 12,
+                          fontSize: 12.sp,
                           fontWeight: pw.FontWeight.bold,
                         ),
                       ),
-                      pw.SizedBox(height: 2),
+                      pw.SizedBox(height: 2.h),
                       pw.Text(
                         'CaseFlow Professional Legal Services',
-                        style: const pw.TextStyle(fontSize: 10),
+                        style: const pw.TextStyle(fontSize: 10.sp),
                       ),
                     ],
                   ),
-                  pw.SizedBox(height: 40),
+                  pw.SizedBox(height: 40.h),
                 ],
               ),
         ),
@@ -495,7 +496,7 @@ class _CommissionReportScreenState
       pdf.addPage(
         pw.Page(
           pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.symmetric(horizontal: 50, vertical: 40),
+          margin: const pw.EdgeInsets.symmetric(horizontal: 50.w, vertical: 40.h),
           build:
               (ctx) => pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -506,14 +507,14 @@ class _CommissionReportScreenState
                       style: sectionHeaderStyle,
                     ),
                   ),
-                  pw.SizedBox(height: 20),
+                  pw.SizedBox(height: 20.h),
                   _indexRow('1.', 'Commission Details & Background', '1'),
                   _indexRow('2.', 'Memo of Inspection / Site Visits', '2'),
                   _indexRow('3.', 'Observations & Findings', '3'),
                   _indexRow('4.', 'Certification & Oath', '4'),
-                  pw.SizedBox(height: 20),
+                  pw.SizedBox(height: 20.h),
                   pw.Text('ANNEXURES', style: smallBold),
-                  pw.SizedBox(height: 10),
+                  pw.SizedBox(height: 10.h),
                   if (_evidence.isNotEmpty)
                     _indexRow('A', 'Photographic Evidence (Annexure-A)', '5'),
                   if (_sketches.isNotEmpty)
@@ -531,14 +532,14 @@ class _CommissionReportScreenState
       pdf.addPage(
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.symmetric(horizontal: 50, vertical: 40),
+          margin: const pw.EdgeInsets.symmetric(horizontal: 50.w, vertical: 40.h),
           header:
               (ctx) => pw.Container(
                 alignment: pw.Alignment.centerRight,
                 child: pw.Text(
                   'Advocate Commissioner Report | ${c.caseNumberRef ?? ""}',
                   style: const pw.TextStyle(
-                    fontSize: 8,
+                    fontSize: 8.sp,
                     color: PdfColors.grey500,
                   ),
                 ),
@@ -549,7 +550,7 @@ class _CommissionReportScreenState
                 child: pw.Text(
                   'Page ${ctx.pageNumber}',
                   style: const pw.TextStyle(
-                    fontSize: 8,
+                    fontSize: 8.sp,
                     color: PdfColors.grey500,
                   ),
                 ),
@@ -566,7 +567,7 @@ class _CommissionReportScreenState
                   style: bodyStyle,
                   textAlign: pw.TextAlign.justify,
                 ),
-                pw.SizedBox(height: 10),
+                pw.SizedBox(height: 10.h),
                 _courtLabelValue(
                   'Commission Type:',
                   c.commissionType.label,
@@ -592,9 +593,9 @@ class _CommissionReportScreenState
                   valueStyle,
                 ),
                 if (c.scopeOfWork != null) ...[
-                  pw.SizedBox(height: 12),
+                  pw.SizedBox(height: 12.h),
                   pw.Text('Scope of Work:', style: labelStyle),
-                  pw.SizedBox(height: 4),
+                  pw.SizedBox(height: 4.h),
                   pw.Text(
                     c.scopeOfWork!,
                     style: bodyStyle,
@@ -602,7 +603,7 @@ class _CommissionReportScreenState
                   ),
                 ],
 
-                pw.SizedBox(height: 20),
+                pw.SizedBox(height: 20.h),
 
                 // ─── SECTION 2: MEMO OF INSPECTION ─────────────────
                 _courtSectionHeader(
@@ -617,11 +618,11 @@ class _CommissionReportScreenState
                 ..._visits.asMap().entries.map((entry) {
                   final v = entry.value;
                   return pw.Container(
-                    margin: const pw.EdgeInsets.only(bottom: 12),
-                    padding: const pw.EdgeInsets.all(8),
+                    margin: const pw.EdgeInsets.only(bottom: 12.h),
+                    padding: const pw.EdgeInsets.all(8.r),
                     decoration: pw.BoxDecoration(
                       border: pw.Border.all(
-                        width: 0.3,
+                        width: 0.3.w,
                         color: PdfColors.grey400,
                       ),
                     ),
@@ -632,7 +633,7 @@ class _CommissionReportScreenState
                           '2.${entry.key + 1}. SITE VISIT - ${fmt.format(v.visitDate)}',
                           style: smallBold,
                         ),
-                        pw.SizedBox(height: 4),
+                        pw.SizedBox(height: 4.h),
                         pw.Row(
                           children: [
                             pw.Expanded(
@@ -664,11 +665,11 @@ class _CommissionReportScreenState
                         if (v.personsPresent != null)
                           _miniLabelVal('Present:', v.personsPresent!),
                         if (v.obstructionDetails != null) ...[
-                          pw.SizedBox(height: 4),
+                          pw.SizedBox(height: 4.h),
                           pw.Text(
                             'OBSTRUCTION ENCOUNTERED:',
                             style: pw.TextStyle(
-                              fontSize: 8,
+                              fontSize: 8.sp,
                               fontWeight: pw.FontWeight.bold,
                               color: PdfColors.red,
                             ),
@@ -676,7 +677,7 @@ class _CommissionReportScreenState
                           pw.Text(
                             v.obstructionDetails!,
                             style: const pw.TextStyle(
-                              fontSize: 9,
+                              fontSize: 9.sp,
                               color: PdfColors.red,
                             ),
                           ),
@@ -686,7 +687,7 @@ class _CommissionReportScreenState
                   );
                 }),
 
-                pw.SizedBox(height: 20),
+                pw.SizedBox(height: 20.h),
 
                 // ─── SECTION 3: OBSERVATIONS & FINDINGS ────────────
                 _courtSectionHeader(
@@ -701,7 +702,7 @@ class _CommissionReportScreenState
                 ..._observations.asMap().entries.map((entry) {
                   final o = entry.value;
                   return pw.Padding(
-                    padding: const pw.EdgeInsets.only(bottom: 8),
+                    padding: const pw.EdgeInsets.only(bottom: 8.h),
                     child: pw.Row(
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
@@ -718,7 +719,7 @@ class _CommissionReportScreenState
                   );
                 }),
 
-                pw.SizedBox(height: 20),
+                pw.SizedBox(height: 20.h),
 
                 // ─── ANNEXURE A: PHOTOGRAPHIC EVIDENCE (continuous) ─
                 if (_evidence.isNotEmpty) ...[
@@ -726,18 +727,18 @@ class _CommissionReportScreenState
                     'ANNEXURE - A: PHOTOGRAPHIC EVIDENCE',
                     sectionHeaderStyle,
                   ),
-                  pw.SizedBox(height: 10),
+                  pw.SizedBox(height: 10.h),
                   pw.Wrap(
                     spacing: 20,
                     runSpacing: 20,
                     children:
                         _evidence.map((e) {
                           return pw.Container(
-                            width: 230,
-                            padding: const pw.EdgeInsets.all(5),
+                            width: 230.w,
+                            padding: const pw.EdgeInsets.all(5.r),
                             decoration: pw.BoxDecoration(
                               border: pw.Border.all(
-                                width: 0.5,
+                                width: 0.5.w,
                                 color: PdfColors.grey300,
                               ),
                             ),
@@ -747,24 +748,24 @@ class _CommissionReportScreenState
                                 if (photoData.containsKey(e.id))
                                   pw.Image(
                                     pw.MemoryImage(photoData[e.id]!),
-                                    height: 160,
-                                    width: 220,
+                                    height: 160.h,
+                                    width: 220.w,
                                     fit: pw.BoxFit.cover,
                                   ),
-                                pw.SizedBox(height: 5),
+                                pw.SizedBox(height: 5.h),
                                 pw.Text(
                                   'PHOTO #${e.sequenceNumber}',
                                   style: smallBold,
                                 ),
                                 pw.Text(
                                   e.caption ?? 'N/A',
-                                  style: const pw.TextStyle(fontSize: 8),
+                                  style: const pw.TextStyle(fontSize: 8.sp),
                                   maxLines: 2,
                                 ),
                                 pw.Text(
                                   'GPS: ${e.locationText}',
                                   style: const pw.TextStyle(
-                                    fontSize: 7,
+                                    fontSize: 7.sp,
                                     color: PdfColors.grey600,
                                   ),
                                 ),
@@ -773,7 +774,7 @@ class _CommissionReportScreenState
                           );
                         }).toList(),
                   ),
-                  pw.SizedBox(height: 20),
+                  pw.SizedBox(height: 20.h),
                 ],
 
                 // ─── ANNEXURE B: DRAWINGS & SKETCHES (continuous) ───
@@ -782,10 +783,10 @@ class _CommissionReportScreenState
                     'ANNEXURE - B: DRAWINGS & SKETCHES',
                     sectionHeaderStyle,
                   ),
-                  pw.SizedBox(height: 10),
+                  pw.SizedBox(height: 10.h),
                   ..._sketches.map(
                     (sk) => pw.Container(
-                      margin: const pw.EdgeInsets.only(bottom: 30),
+                      margin: const pw.EdgeInsets.only(bottom: 30.h),
                       child: pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
@@ -793,24 +794,24 @@ class _CommissionReportScreenState
                             '${sk.title} (${sk.sketchTypeLabel})',
                             style: labelStyle,
                           ),
-                          pw.SizedBox(height: 5),
+                          pw.SizedBox(height: 5.h),
                           if (sketchData.containsKey(sk.id))
                             pw.Center(
                               child: pw.Image(
                                 pw.MemoryImage(sketchData[sk.id]!),
-                                height: 350,
+                                height: 350.h,
                               ),
                             ),
-                          pw.SizedBox(height: 5),
+                          pw.SizedBox(height: 5.h),
                           pw.Text(
                             'Annotations: ${sk.annotations.length} key points identified',
-                            style: const pw.TextStyle(fontSize: 8),
+                            style: const pw.TextStyle(fontSize: 8.sp),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  pw.SizedBox(height: 20),
+                  pw.SizedBox(height: 20.h),
                 ],
 
                 // ─── ANNEXURE C: WITNESS STATEMENTS (continuous) ────
@@ -819,13 +820,13 @@ class _CommissionReportScreenState
                     'ANNEXURE - C: WITNESS STATEMENTS',
                     sectionHeaderStyle,
                   ),
-                  pw.SizedBox(height: 10),
+                  pw.SizedBox(height: 10.h),
                   ..._witnesses.map(
                     (w) => pw.Container(
-                      margin: const pw.EdgeInsets.only(bottom: 20),
-                      padding: const pw.EdgeInsets.all(12),
+                      margin: const pw.EdgeInsets.only(bottom: 20.h),
+                      padding: const pw.EdgeInsets.all(12.r),
                       decoration: pw.BoxDecoration(
-                        border: pw.Border.all(width: 0.5),
+                        border: pw.Border.all(width: 0.5.w),
                       ),
                       child: pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -845,13 +846,13 @@ class _CommissionReportScreenState
                             ],
                           ),
                           pw.Divider(thickness: 0.5),
-                          pw.SizedBox(height: 8),
+                          pw.SizedBox(height: 8.h),
                           pw.Text(
                             w.statementText ?? 'No statement recorded',
                             style: bodyStyle,
                             textAlign: pw.TextAlign.justify,
                           ),
-                          pw.SizedBox(height: 15),
+                          pw.SizedBox(height: 15.h),
                           pw.Row(
                             mainAxisAlignment: pw.MainAxisAlignment.end,
                             children: [
@@ -860,16 +861,16 @@ class _CommissionReportScreenState
                                   if (signatureData.containsKey(w.id))
                                     pw.Image(
                                       pw.MemoryImage(signatureData[w.id]!),
-                                      height: 50,
+                                      height: 50.h,
                                     ),
                                   pw.Container(
-                                    width: 120,
-                                    height: 0.5,
+                                    width: 120.w,
+                                    height: 0.5.h,
                                     color: PdfColors.black,
                                   ),
                                   pw.Text(
                                     'Signature of Witness',
-                                    style: const pw.TextStyle(fontSize: 8),
+                                    style: const pw.TextStyle(fontSize: 8.sp),
                                   ),
                                 ],
                               ),
@@ -879,7 +880,7 @@ class _CommissionReportScreenState
                       ),
                     ),
                   ),
-                  pw.SizedBox(height: 20),
+                  pw.SizedBox(height: 20.h),
                 ],
 
                 // ─── ANNEXURE D: MEMO OF EXPENSES (continuous) ──────
@@ -888,7 +889,7 @@ class _CommissionReportScreenState
                     'ANNEXURE - D: MEMO OF EXPENSES',
                     sectionHeaderStyle,
                   ),
-                  pw.SizedBox(height: 10),
+                  pw.SizedBox(height: 10.h),
                   pw.TableHelper.fromTextArray(
                     headers: [
                       'Sl No',
@@ -912,14 +913,14 @@ class _CommissionReportScreenState
                         'INR ${_expenses.fold<double>(0, (s, e) => s + e.amount).toStringAsFixed(2)}',
                       ],
                     ],
-                    cellStyle: const pw.TextStyle(fontSize: 10),
+                    cellStyle: const pw.TextStyle(fontSize: 10.sp),
                     headerStyle: pw.TextStyle(
-                      fontSize: 10,
+                      fontSize: 10.sp,
                       fontWeight: pw.FontWeight.bold,
                     ),
-                    border: pw.TableBorder.all(width: 0.5),
+                    border: pw.TableBorder.all(width: 0.5.w),
                   ),
-                  pw.SizedBox(height: 20),
+                  pw.SizedBox(height: 20.h),
                 ],
 
                 // ─── SECTION 4: CERTIFICATION & OATH (at the end) ──
@@ -928,36 +929,36 @@ class _CommissionReportScreenState
                   'I, Advocate Commissioner, do hereby solemnly affirm and state as follows:',
                   style: labelStyle,
                 ),
-                pw.SizedBox(height: 10),
+                pw.SizedBox(height: 10.h),
                 pw.Text(
                   '1. Accuracy: I certify that the inspection was conducted in a fair and transparent manner, providing equal opportunity to all parties present.',
                   style: bodyStyle,
                 ),
-                pw.SizedBox(height: 6),
+                pw.SizedBox(height: 6.h),
                 pw.Text(
                   '2. Neutrality: That I have no interest, direct or indirect, in the subject matter or in the parties to the litigation.',
                   style: bodyStyle,
                 ),
-                pw.SizedBox(height: 6),
+                pw.SizedBox(height: 6.h),
                 pw.Text(
                   '3. Verified Data: That the photographic evidence, sketches, and statements attached herewith as Annexures were captured/recorded by me or under my direct supervision during the execution of the commission.',
                   style: bodyStyle,
                 ),
-                pw.SizedBox(height: 6),
+                pw.SizedBox(height: 6.h),
                 pw.Text(
                   '4. Integrity: That this report is a true and faithful representation of the facts as observed at the site.',
                   style: bodyStyle,
                 ),
 
-                pw.SizedBox(height: 50),
+                pw.SizedBox(height: 50.h),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Column(
                       children: [
                         pw.SizedBox(
-                          height: 40,
-                          width: 150,
+                          height: 40.h,
+                          width: 150.w,
                           child: pw.Divider(thickness: 1),
                         ),
                         pw.Text('DATE & PLACE', style: smallBold),
@@ -966,14 +967,14 @@ class _CommissionReportScreenState
                     pw.Column(
                       children: [
                         pw.SizedBox(
-                          height: 40,
-                          width: 200,
+                          height: 40.h,
+                          width: 200.w,
                           child: pw.Divider(thickness: 1),
                         ),
                         pw.Text('ADVOCATE COMMISSIONER', style: smallBold),
                         pw.Text(
                           '(Signature & Seal)',
-                          style: const pw.TextStyle(fontSize: 8),
+                          style: const pw.TextStyle(fontSize: 8.sp),
                         ),
                       ],
                     ),
@@ -1013,20 +1014,20 @@ class _CommissionReportScreenState
   pw.Widget _courtSectionHeader(String title, pw.TextStyle style) => pw.Column(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
     children: [
-      pw.SizedBox(height: 10),
+      pw.SizedBox(height: 10.h),
       pw.Text(title, style: style),
-      pw.SizedBox(height: 3),
-      pw.Container(height: 0.8, color: PdfColors.grey800),
-      pw.SizedBox(height: 8),
+      pw.SizedBox(height: 3.h),
+      pw.Container(height: 0.8.h, color: PdfColors.grey800),
+      pw.SizedBox(height: 8.h),
     ],
   );
 
   /// Horizontal divider between major sections
   pw.Widget _courtDivider() => pw.Column(
     children: [
-      pw.SizedBox(height: 6),
-      pw.Container(height: 0.5, color: PdfColors.grey300),
-      pw.SizedBox(height: 2),
+      pw.SizedBox(height: 6.h),
+      pw.Container(height: 0.5.h, color: PdfColors.grey300),
+      pw.SizedBox(height: 2.h),
     ],
   );
 
@@ -1037,47 +1038,47 @@ class _CommissionReportScreenState
     pw.TextStyle lStyle,
     pw.TextStyle vStyle,
   ) => pw.Padding(
-    padding: const pw.EdgeInsets.symmetric(vertical: 2),
+    padding: const pw.EdgeInsets.symmetric(vertical: 2.h),
     child: pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.SizedBox(width: 130, child: pw.Text(label, style: lStyle)),
-        pw.SizedBox(width: 10),
+        pw.SizedBox(width: 130.w, child: pw.Text(label, style: lStyle)),
+        pw.SizedBox(width: 10.w),
         pw.Expanded(child: pw.Text(value, style: vStyle)),
       ],
     ),
   );
 
   pw.Widget _indexRow(String sl, String title, String pg) => pw.Padding(
-    padding: const pw.EdgeInsets.symmetric(vertical: 4),
+    padding: const pw.EdgeInsets.symmetric(vertical: 4.h),
     child: pw.Row(
       children: [
         pw.SizedBox(
-          width: 30,
-          child: pw.Text(sl, style: const pw.TextStyle(fontSize: 10)),
+          width: 30.w,
+          child: pw.Text(sl, style: const pw.TextStyle(fontSize: 10.sp)),
         ),
         pw.Expanded(
-          child: pw.Text(title, style: const pw.TextStyle(fontSize: 10)),
+          child: pw.Text(title, style: const pw.TextStyle(fontSize: 10.sp)),
         ),
-        pw.Text('Pg. $pg', style: const pw.TextStyle(fontSize: 10)),
+        pw.Text('Pg. $pg', style: const pw.TextStyle(fontSize: 10.sp)),
       ],
     ),
   );
 
   pw.Widget _miniLabelVal(String label, String val) => pw.Padding(
-    padding: const pw.EdgeInsets.only(bottom: 2),
+    padding: const pw.EdgeInsets.only(bottom: 2.h),
     child: pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.SizedBox(
-          width: 60,
+          width: 60.w,
           child: pw.Text(
             label,
-            style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold),
+            style: pw.TextStyle(fontSize: 8.sp, fontWeight: pw.FontWeight.bold),
           ),
         ),
         pw.Expanded(
-          child: pw.Text(val, style: const pw.TextStyle(fontSize: 8)),
+          child: pw.Text(val, style: const pw.TextStyle(fontSize: 8.sp)),
         ),
       ],
     ),

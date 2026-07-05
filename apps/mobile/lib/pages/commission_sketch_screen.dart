@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/commission_models.dart';
 import '../services/commission_service.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // ─── Stroke data model ──────────────────────────────────────
 class DrawingStroke {
@@ -188,7 +189,7 @@ class _CommissionSketchScreenState
 
   // ─── Metadata Bar ──────────────────────────────────────
   Widget _buildMetadataBar(bool dk) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
     decoration: BoxDecoration(
       color: dk ? const Color(0xFF1E1E2E) : Colors.white,
       border: Border(
@@ -210,12 +211,12 @@ class _CommissionSketchScreenState
                   size: 16,
                   color: dk ? Colors.white38 : Colors.black38,
                 ),
-                const SizedBox(width: 6),
+                SizedBox(width: 6.w),
                 Flexible(
                   child: Text(
                     _title,
                     style: GoogleFonts.inter(
-                      fontSize: 13,
+                      fontSize: 13.sp,
                       fontWeight: FontWeight.w500,
                       color: dk ? Colors.white70 : const Color(0xFF1E293B),
                     ),
@@ -226,20 +227,20 @@ class _CommissionSketchScreenState
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8.w),
         // Type selector
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
           decoration: BoxDecoration(
             color: AppTheme.accent.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(8.r),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: _sketchType,
               isDense: true,
               style: GoogleFonts.inter(
-                fontSize: 11,
+                fontSize: 11.sp,
                 fontWeight: FontWeight.w600,
                 color: AppTheme.accent,
               ),
@@ -367,7 +368,7 @@ class _CommissionSketchScreenState
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6.h),
           // Color palette + stroke width
           Row(
             children: [
@@ -380,9 +381,9 @@ class _CommissionSketchScreenState
                         _tool = DrawingTool.pen;
                       }),
                   child: Container(
-                    width: 28,
-                    height: 28,
-                    margin: const EdgeInsets.only(right: 4),
+                    width: 28.w,
+                    height: 28.h,
+                    margin: EdgeInsets.only(right: 4.w),
                     decoration: BoxDecoration(
                       color: c,
                       shape: BoxShape.circle,
@@ -391,7 +392,7 @@ class _CommissionSketchScreenState
                             _selectedColor == c && _tool == DrawingTool.pen
                                 ? AppTheme.accent
                                 : Colors.transparent,
-                        width: 2.5,
+                        width: 2.5.w,
                       ),
                       boxShadow:
                           _selectedColor == c && _tool == DrawingTool.pen
@@ -412,9 +413,9 @@ class _CommissionSketchScreenState
                 (w) => GestureDetector(
                   onTap: () => setState(() => _strokeWidth = w),
                   child: Container(
-                    width: 28,
-                    height: 28,
-                    margin: const EdgeInsets.only(left: 2),
+                    width: 28.w,
+                    height: 28.h,
+                    margin: EdgeInsets.only(left: 2.w),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
@@ -452,14 +453,14 @@ class _CommissionSketchScreenState
     return GestureDetector(
       onTap: () => setState(() => _tool = tool),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        margin: const EdgeInsets.only(right: 6),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+        margin: EdgeInsets.only(right: 6.w),
         decoration: BoxDecoration(
           color:
               active
                   ? AppTheme.accent.withValues(alpha: 0.12)
                   : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
           border: Border.all(
             color: active ? AppTheme.accent : Colors.transparent,
           ),
@@ -475,11 +476,11 @@ class _CommissionSketchScreenState
                       ? AppTheme.accent
                       : (dk ? Colors.white38 : Colors.black38),
             ),
-            const SizedBox(width: 4),
+            SizedBox(width: 4.w),
             Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 11,
+                fontSize: 11.sp,
                 fontWeight: FontWeight.w600,
                 color:
                     active
@@ -622,11 +623,11 @@ class _CommissionSketchScreenState
               bottom: MediaQuery.of(ctx).viewInsets.bottom,
             ),
             child: Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20.r),
               decoration: BoxDecoration(
                 color: dk ? const Color(0xFF1E1E2E) : Colors.white,
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(24),
+                  top: Radius.circular(24.r),
                 ),
               ),
               child: Column(
@@ -635,27 +636,27 @@ class _CommissionSketchScreenState
                   Text(
                     'Add Text Label',
                     style: GoogleFonts.outfit(
-                      fontSize: 18,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.w700,
                       color: dk ? Colors.white : const Color(0xFF1E293B),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   TextField(
                     controller: ctrl,
                     autofocus: true,
-                    style: GoogleFonts.inter(fontSize: 14),
+                    style: GoogleFonts.inter(fontSize: 14.sp),
                     decoration: InputDecoration(
                       hintText: 'e.g., "Room A — 12ft x 10ft"',
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   SizedBox(
                     width: double.infinity,
-                    height: 48,
+                    height: 48.h,
                     child: ElevatedButton(
                       onPressed: () {
                         if (ctrl.text.isNotEmpty) {
@@ -674,7 +675,7 @@ class _CommissionSketchScreenState
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.accent,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(14.r),
                         ),
                       ),
                       child: Text(
@@ -858,7 +859,7 @@ class _SketchPainter extends CustomPainter {
         textPainter.height + 4,
       );
       canvas.drawRRect(
-        RRect.fromRectAndRadius(bgRect, const Radius.circular(4)),
+        RRect.fromRectAndRadius(bgRect, Radius.circular(4.r)),
         Paint()..color = Colors.white.withValues(alpha: 0.85),
       );
       textPainter.paint(canvas, ann.position);
@@ -908,7 +909,7 @@ class _SketchPainter extends CustomPainter {
       text: 'N',
       style: TextStyle(
         color: Color(0xFFEF4444),
-        fontSize: 12,
+        fontSize: 12.sp,
         fontWeight: FontWeight.w900,
       ),
     );

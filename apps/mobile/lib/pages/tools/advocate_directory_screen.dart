@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_theme.dart';
 import '../../models/geo_data.dart';
 import '../../components/profile_avatar.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // Provides the list of advocates based on current filters
 final advocateSearchProvider = FutureProvider.family<
@@ -111,10 +112,10 @@ class _AdvocateDirectoryScreenState
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: EdgeInsets.all(6.r),
               decoration: BoxDecoration(
                 color: AppTheme.accent.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8.r),
               ),
               child: const Icon(
                 Icons.contact_page_rounded,
@@ -122,7 +123,7 @@ class _AdvocateDirectoryScreenState
                 size: 20,
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10.w),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -130,13 +131,13 @@ class _AdvocateDirectoryScreenState
                   'Advocate Directory',
                   style: GoogleFonts.outfit(
                     fontWeight: FontWeight.w700,
-                    fontSize: 18,
+                    fontSize: 18.sp,
                   ),
                 ),
                 Text(
                   'Find peers across India',
                   style: GoogleFonts.inter(
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     color: Colors.grey[500],
                     fontWeight: FontWeight.w500,
                   ),
@@ -163,12 +164,12 @@ class _AdvocateDirectoryScreenState
                       () async =>
                           ref.invalidate(advocateSearchProvider(filterKey)),
                   child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16.r),
                     itemCount: advocates.length + 1, // +1 for count header
                     itemBuilder: (context, index) {
                       if (index == 0) {
                         return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
+                          padding: EdgeInsets.only(bottom: 12.h),
                           child: Row(
                             children: [
                               Container(
@@ -178,12 +179,12 @@ class _AdvocateDirectoryScreenState
                                 ),
                                 decoration: BoxDecoration(
                                   color: AppTheme.accent.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(20.r),
                                 ),
                                 child: Text(
                                   "${advocates.length} Advocate${advocates.length == 1 ? '' : 's'}",
                                   style: const TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 12.sp,
                                     fontWeight: FontWeight.w700,
                                     color: AppTheme.accent,
                                   ),
@@ -204,12 +205,12 @@ class _AdvocateDirectoryScreenState
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const CircularProgressIndicator(color: AppTheme.accent),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                         Text(
                           'Loading directory...',
                           style: TextStyle(
                             color: Colors.grey[500],
-                            fontSize: 13,
+                            fontSize: 13.sp,
                           ),
                         ),
                       ],
@@ -248,7 +249,7 @@ class _AdvocateDirectoryScreenState
             decoration: BoxDecoration(
               color:
                   isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               boxShadow:
                   !isDark
                       ? [
@@ -266,7 +267,7 @@ class _AdvocateDirectoryScreenState
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Search by Advocate Name...',
-                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14.sp),
                 prefixIcon: const Icon(
                   Icons.search_rounded,
                   color: AppTheme.accent,
@@ -278,11 +279,11 @@ class _AdvocateDirectoryScreenState
                   vertical: 14,
                 ),
               ),
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
               onChanged: (val) => setState(() => _searchQuery = val),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
 
           // ─── Filter Chips ──
           Row(
@@ -301,7 +302,7 @@ class _AdvocateDirectoryScreenState
                   },
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Expanded(
                 child: _buildFilterDropdown(
                   label: 'District',
@@ -331,10 +332,10 @@ class _AdvocateDirectoryScreenState
     required ValueChanged<String?> onChanged,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
         color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),
         border: Border.all(
           color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
         ),
@@ -349,7 +350,7 @@ class _AdvocateDirectoryScreenState
             color: Colors.grey[400],
           ),
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 13.sp,
             fontWeight: FontWeight.w600,
             color: isDark ? Colors.white : const Color(0xFF334155),
           ),
@@ -393,10 +394,10 @@ class _AdvocateDirectoryScreenState
     final gradientPair = colors[name.hashCode.abs() % colors.length];
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 12.h),
       decoration: BoxDecoration(
         color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color:
               isDark
@@ -417,7 +418,7 @@ class _AdvocateDirectoryScreenState
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16.r),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -428,7 +429,7 @@ class _AdvocateDirectoryScreenState
                   radius: 24,
                   gradientColors: gradientPair,
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,26 +437,26 @@ class _AdvocateDirectoryScreenState
                       Text(
                         name,
                         style: GoogleFonts.outfit(
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.w700,
                           color:
                               isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: 6.h),
                       _buildInfoChip(
                         Icons.location_on_rounded,
                         location,
                         isDark,
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4.h),
                       _buildInfoChip(Icons.badge_rounded, regNo, isDark),
                       if (address != null && address.toString().isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4.h),
                         _buildInfoChip(Icons.business_rounded, address, isDark),
                       ],
                       if (email != null && email.toString().isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4.h),
                         _buildInfoChip(Icons.email_rounded, email, isDark),
                       ],
                     ],
@@ -468,15 +469,15 @@ class _AdvocateDirectoryScreenState
           // ─── Action Bar ──
           if (mobile != null && mobile.toString().isNotEmpty) ...[
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
               decoration: BoxDecoration(
                 color:
                     isDark
                         ? Colors.white.withValues(alpha: 0.02)
                         : const Color(0xFFF8FAFC),
                 borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
+                  bottomLeft: Radius.circular(16.r),
+                  bottomRight: Radius.circular(16.r),
                 ),
                 border: Border(
                   top: BorderSide(
@@ -490,13 +491,13 @@ class _AdvocateDirectoryScreenState
               child: Row(
                 children: [
                   const Icon(Icons.phone_rounded, size: 16, color: AppTheme.accent),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8.w),
                   Expanded(
                     child: Text(
                       mobile,
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: 13,
+                        fontSize: 13.sp,
                         color:
                             isDark ? Colors.grey[300] : const Color(0xFF334155),
                       ),
@@ -506,7 +507,7 @@ class _AdvocateDirectoryScreenState
                     _buildActionButton(Icons.mail_outline_rounded, 'Email', () {
                       launchUrl(Uri.parse('mailto:$email'));
                     }),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8.w),
                   _buildActionButton(Icons.call_rounded, 'Call', () {
                     launchUrl(Uri.parse('tel:$mobile'));
                   }, isPrimary: true),
@@ -527,13 +528,13 @@ class _AdvocateDirectoryScreenState
           size: 13,
           color: isDark ? Colors.grey[500] : Colors.grey[400],
         ),
-        const SizedBox(width: 6),
+        SizedBox(width: 6.w),
         Expanded(
           child: Text(
             text,
             style: TextStyle(
               color: isDark ? Colors.grey[400] : Colors.grey[600],
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w500,
             ),
             overflow: TextOverflow.ellipsis,
@@ -554,21 +555,21 @@ class _AdvocateDirectoryScreenState
           isPrimary
               ? AppTheme.accent.withValues(alpha: 0.1)
               : Colors.transparent,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(20.r),
       child: InkWell(
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icon, size: 15, color: AppTheme.accent),
-              const SizedBox(width: 4),
+              SizedBox(width: 4.w),
               Text(
                 label,
                 style: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w700,
                   color: AppTheme.accent,
                 ),
@@ -586,7 +587,7 @@ class _AdvocateDirectoryScreenState
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(20.r),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: AppTheme.accent.withValues(alpha: 0.08),
@@ -597,22 +598,22 @@ class _AdvocateDirectoryScreenState
               color: AppTheme.accent.withValues(alpha: 0.4),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           Text(
             'No Advocates Found',
             style: GoogleFonts.outfit(
-              fontSize: 20,
+              fontSize: 20.sp,
               fontWeight: FontWeight.w700,
               color: isDark ? Colors.white : const Color(0xFF0F172A),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
+            padding: EdgeInsets.symmetric(horizontal: 40.w),
             child: Text(
               'Try adjusting your search or filters to find advocates in your area.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[500], height: 1.5),
+              style: TextStyle(color: Colors.grey[500], height: 1.5.h),
             ),
           ),
         ],
@@ -623,12 +624,12 @@ class _AdvocateDirectoryScreenState
   Widget _buildErrorState(Object error, String filterKey, bool isDark) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(32.r),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16.r),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.red.withValues(alpha: 0.08),
@@ -639,21 +640,21 @@ class _AdvocateDirectoryScreenState
                 size: 40,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Text(
               'Connection Error',
               style: GoogleFonts.outfit(
-                fontSize: 18,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               error.toString(),
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[500], fontSize: 13),
+              style: TextStyle(color: Colors.grey[500], fontSize: 13.sp),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             ElevatedButton.icon(
               onPressed:
                   () => ref.invalidate(advocateSearchProvider(filterKey)),
@@ -663,7 +664,7 @@ class _AdvocateDirectoryScreenState
                 backgroundColor: AppTheme.accent,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,

@@ -21,6 +21,7 @@ import 'commission_report_screen.dart';
 import 'commission_field_visit_screen.dart';
 import 'commission_witness_screen.dart';
 import 'commission_sketch_screen.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CommissionDetailScreen extends ConsumerStatefulWidget {
   final String commissionId;
@@ -159,7 +160,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           labelColor: AppTheme.accent,
           unselectedLabelColor: dk ? Colors.white38 : Colors.black38,
           labelStyle: GoogleFonts.inter(
-            fontSize: 12,
+            fontSize: 12.sp,
             fontWeight: FontWeight.w600,
           ),
           tabs: [
@@ -192,29 +193,29 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
 
   // ─── OVERVIEW TAB ────────────────────────────────────────
   Widget _overviewTab(bool dk, Commission c) => ListView(
-    padding: const EdgeInsets.all(16),
+    padding: EdgeInsets.all(16.r),
     children: [
       // Start Field Visit Button (Phase 2)
       if (_activeVisitId != null)
         Container(
-          margin: const EdgeInsets.only(bottom: 12),
+          margin: EdgeInsets.only(bottom: 12.h),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [Color(0xFF10B981), Color(0xFF059669)],
             ),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
           ),
           child: Material(
             color: Colors.transparent,
             child: InkWell(
               onTap: () => _goFieldVisit(_activeVisitId!),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16.r),
                 child: Row(
                   children: [
                     const Icon(Icons.gps_fixed, color: Colors.white, size: 28),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,7 +223,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                           Text(
                             'Active Field Visit',
                             style: GoogleFonts.outfit(
-                              fontSize: 16,
+                              fontSize: 16.sp,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
                             ),
@@ -230,7 +231,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                           Text(
                             'Tap to open field workspace',
                             style: GoogleFonts.inter(
-                              fontSize: 12,
+                              fontSize: 12.sp,
                               color: Colors.white70,
                             ),
                           ),
@@ -278,11 +279,11 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
             highlight: c.isOverdue,
           ),
       ]),
-      const SizedBox(height: 12),
+      SizedBox(height: 12.h),
 
       // Timeline (Phase 2)
       _buildTimeline(dk, c),
-      const SizedBox(height: 12),
+      SizedBox(height: 12.h),
 
       _infoCard(dk, 'Property Details', [
         if (c.propertyDescription != null)
@@ -290,7 +291,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
         if (c.surveyNumber != null) _row('Survey No.', c.surveyNumber!, dk),
         _row('Location', c.locationSummary, dk),
       ]),
-      const SizedBox(height: 12),
+      SizedBox(height: 12.h),
       if (c.partyPetitioner != null || c.partyRespondent != null)
         _infoCard(dk, 'Parties', [
           if (c.partyPetitioner != null)
@@ -298,22 +299,22 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           if (c.partyRespondent != null)
             _row('Respondent', c.partyRespondent!, dk),
         ]),
-      const SizedBox(height: 12),
+      SizedBox(height: 12.h),
       if (c.scopeOfWork != null)
         _infoCard(dk, 'Scope of Work', [
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12.r),
             child: Text(
               c.scopeOfWork!,
               style: GoogleFonts.inter(
-                fontSize: 13,
+                fontSize: 13.sp,
                 color: dk ? Colors.white70 : Colors.black54,
-                height: 1.5,
+                height: 1.5.h,
               ),
             ),
           ),
         ]),
-      const SizedBox(height: 16),
+      SizedBox(height: 16.h),
       // Quick Action Buttons
       Row(
         children: [
@@ -326,7 +327,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               () => _checkIn(),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           Expanded(
             child: _actionBtn(
               dk,
@@ -336,7 +337,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               () => _captureEvidence(),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           Expanded(
             child: _actionBtn(
               dk,
@@ -348,7 +349,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           ),
         ],
       ),
-      const SizedBox(height: 8),
+      SizedBox(height: 8.h),
       Row(
         children: [
           Expanded(
@@ -360,7 +361,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               () => _goWitness(),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           Expanded(
             child: _actionBtn(
               dk,
@@ -370,7 +371,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               () => _goReport(),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           Expanded(
             child: _actionBtn(
               dk,
@@ -465,7 +466,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
 
     return _infoCard(dk, 'Commission Timeline', [
       Padding(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(12.r),
         child: Column(
           children:
               events.asMap().entries.map((entry) {
@@ -478,19 +479,19 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                       Column(
                         children: [
                           Container(
-                            width: 12,
-                            height: 12,
+                            width: 12.w,
+                            height: 12.h,
                             decoration: BoxDecoration(
                               color: e.done ? e.color : Colors.transparent,
                               shape: BoxShape.circle,
-                              border: Border.all(color: e.color, width: 2),
+                              border: Border.all(color: e.color, width: 2.w),
                             ),
                           ),
                           if (!isLast)
                             Expanded(
                               child: Container(
-                                width: 2,
-                                margin: const EdgeInsets.symmetric(vertical: 2),
+                                width: 2.w,
+                                margin: EdgeInsets.symmetric(vertical: 2.h),
                                 color:
                                     dk
                                         ? const Color(0xFF2D2D3F)
@@ -499,10 +500,10 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                             ),
                         ],
                       ),
-                      const SizedBox(width: 10),
+                      SizedBox(width: 10.w),
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
+                          padding: EdgeInsets.only(bottom: 16.h),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -511,7 +512,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                                   Text(
                                     DateFormat('dd MMM').format(e.date),
                                     style: GoogleFonts.jetBrainsMono(
-                                      fontSize: 10,
+                                      fontSize: 10.sp,
                                       color:
                                           dk ? Colors.white38 : Colors.black38,
                                     ),
@@ -527,12 +528,12 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                                         color: AppTheme.error.withValues(
                                           alpha: 0.1,
                                         ),
-                                        borderRadius: BorderRadius.circular(4),
+                                        borderRadius: BorderRadius.circular(4.r),
                                       ),
                                       child: Text(
                                         'OVERDUE',
                                         style: GoogleFonts.inter(
-                                          fontSize: 9,
+                                          fontSize: 9.sp,
                                           fontWeight: FontWeight.w800,
                                           color: AppTheme.error,
                                         ),
@@ -540,11 +541,11 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                                     ),
                                 ],
                               ),
-                              const SizedBox(height: 2),
+                              SizedBox(height: 2.h),
                               Text(
                                 e.title,
                                 style: GoogleFonts.inter(
-                                  fontSize: 13,
+                                  fontSize: 13.sp,
                                   fontWeight: FontWeight.w600,
                                   color:
                                       dk
@@ -556,7 +557,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                                 Text(
                                   e.subtitle!,
                                   style: GoogleFonts.inter(
-                                    fontSize: 11,
+                                    fontSize: 11.sp,
                                     color: dk ? Colors.white54 : Colors.black45,
                                   ),
                                 ),
@@ -576,7 +577,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   Widget _infoCard(bool dk, String title, List<Widget> children) => Container(
     decoration: BoxDecoration(
       color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16.r),
       border: Border.all(
         color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
       ),
@@ -589,13 +590,13 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           child: Text(
             title,
             style: GoogleFonts.outfit(
-              fontSize: 15,
+              fontSize: 15.sp,
               fontWeight: FontWeight.w600,
               color: dk ? Colors.white : const Color(0xFF1E293B),
             ),
           ),
         ),
-        const Divider(height: 1),
+        const Divider(height: 1.h),
         ...children,
       ],
     ),
@@ -603,15 +604,15 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
 
   Widget _row(String label, String value, bool dk, {bool highlight = false}) =>
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
         child: Row(
           children: [
             SizedBox(
-              width: 100,
+              width: 100.w,
               child: Text(
                 label,
                 style: GoogleFonts.inter(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   color: dk ? Colors.white38 : Colors.black38,
                 ),
               ),
@@ -620,7 +621,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               child: Text(
                 value,
                 style: GoogleFonts.inter(
-                  fontSize: 13,
+                  fontSize: 13.sp,
                   fontWeight: FontWeight.w500,
                   color:
                       highlight
@@ -641,21 +642,21 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
     VoidCallback onTap,
   ) => Material(
     color: color.withValues(alpha: 0.1),
-    borderRadius: BorderRadius.circular(12),
+    borderRadius: BorderRadius.circular(12.r),
     child: InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(12.r),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: EdgeInsets.symmetric(vertical: 14.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: color, size: 22),
-            const SizedBox(height: 6),
+            SizedBox(height: 6.h),
             Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 11,
+                fontSize: 11.sp,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),
@@ -678,14 +679,14 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               size: 48,
               color: dk ? Colors.white24 : Colors.black26,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Text(
               'No visits recorded yet',
               style: GoogleFonts.inter(
                 color: dk ? Colors.white38 : Colors.black38,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             ElevatedButton.icon(
               onPressed: _checkIn,
               icon: const Icon(Icons.gps_fixed, size: 18),
@@ -696,7 +697,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
       );
     }
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       itemCount: _visits.length,
       itemBuilder: (_, i) {
         final v = _visits[i];
@@ -714,11 +715,11 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                   ? () => _goFieldVisit(v.id)
                   : null,
           child: Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 12.h),
+            padding: EdgeInsets.all(16.r),
             decoration: BoxDecoration(
               color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               border: Border.all(
                 color:
                     v.visitStatus == VisitStatus.checkedIn
@@ -733,7 +734,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                 Row(
                   children: [
                     Icon(Icons.location_on, color: sc, size: 20),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8.w),
                     Text(
                       DateFormat('dd MMM yyyy').format(v.visitDate),
                       style: GoogleFonts.outfit(
@@ -749,12 +750,12 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                       ),
                       decoration: BoxDecoration(
                         color: sc.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Text(
                         v.visitStatus.label,
                         style: GoogleFonts.inter(
-                          fontSize: 11,
+                          fontSize: 11.sp,
                           fontWeight: FontWeight.w600,
                           color: sc,
                         ),
@@ -763,11 +764,11 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                   ],
                 ),
                 if (v.checkinTime != null) ...[
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   Text(
                     'Check-in: ${DateFormat('hh:mm a').format(v.checkinTime!.toLocal())}',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: dk ? Colors.white54 : Colors.black45,
                     ),
                   ),
@@ -776,7 +777,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                   Text(
                     'GPS: ${v.checkinLat!.toStringAsFixed(6)}, ${v.checkinLng!.toStringAsFixed(6)}',
                     style: GoogleFonts.jetBrainsMono(
-                      fontSize: 10,
+                      fontSize: 10.sp,
                       color: dk ? Colors.white38 : Colors.black38,
                     ),
                   ),
@@ -784,46 +785,46 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                   Text(
                     '📍 ${v.checkinAddress}',
                     style: GoogleFonts.inter(
-                      fontSize: 11,
+                      fontSize: 11.sp,
                       color: dk ? Colors.white38 : Colors.black38,
                     ),
                   ),
                 if (v.checkoutTime != null) ...[
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   Text(
                     'Check-out: ${DateFormat('hh:mm a').format(v.checkoutTime!.toLocal())}${v.durationText != null ? ' (${v.durationText})' : ''}',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: dk ? Colors.white54 : Colors.black45,
                     ),
                   ),
                 ],
                 if (v.personsPresent != null) ...[
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   Text(
                     'Present: ${v.personsPresent}',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: dk ? Colors.white54 : Colors.black45,
                     ),
                   ),
                 ],
                 if (v.obstructionDetails != null) ...[
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   Text(
                     '⚠️ ${v.obstructionDetails}',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: AppTheme.error,
                     ),
                   ),
                 ],
                 if (v.visitStatus == VisitStatus.checkedIn) ...[
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   Text(
                     '🟢 Active — Tap to open Field Visit',
                     style: GoogleFonts.inter(
-                      fontSize: 11,
+                      fontSize: 11.sp,
                       fontWeight: FontWeight.w600,
                       color: AppTheme.success,
                     ),
@@ -849,14 +850,14 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               size: 48,
               color: dk ? Colors.white24 : Colors.black26,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Text(
               'No evidence captured',
               style: GoogleFonts.inter(
                 color: dk ? Colors.white38 : Colors.black38,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             ElevatedButton.icon(
               onPressed: _captureEvidence,
               icon: const Icon(Icons.camera_alt, size: 18),
@@ -870,7 +871,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
       children: [
         if (_evidence.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             child: SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
@@ -879,16 +880,16 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                 label: Text(
                   'Download All Photos for Print',
                   style: GoogleFonts.inter(
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppTheme.info,
                   side: BorderSide(color: AppTheme.info.withValues(alpha: 0.5)),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: EdgeInsets.symmetric(vertical: 12.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
                 ),
               ),
@@ -896,7 +897,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           ),
         Expanded(
           child: GridView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16.r),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               mainAxisSpacing: 12,
@@ -911,10 +912,10 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                       dk
                           ? const Color(0xFF1E1E2E)
                           : Colors.black.withValues(alpha: 0.04),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                   child: InkWell(
                     onTap: _captureEvidence,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -923,11 +924,11 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                           size: 32,
                           color: AppTheme.accent,
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8.h),
                         Text(
                           'Add Photo',
                           style: GoogleFonts.inter(
-                            fontSize: 13,
+                            fontSize: 13.sp,
                             color: AppTheme.accent,
                             fontWeight: FontWeight.w600,
                           ),
@@ -940,7 +941,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               final ev = _evidence[i - 1];
               return Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                   border: Border.all(
                     color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
                   ),
@@ -952,7 +953,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                         Expanded(
                           child: ClipRRect(
                             borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(13),
+                              top: Radius.circular(13.r),
                             ),
                             child: Image.network(
                               ev.fileUrl,
@@ -975,11 +976,11 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: EdgeInsets.all(8.r),
                           decoration: BoxDecoration(
                             color: dk ? const Color(0xFF1E1E2E) : Colors.white,
                             borderRadius: const BorderRadius.vertical(
-                              bottom: Radius.circular(13),
+                              bottom: Radius.circular(13.r),
                             ),
                           ),
                           child: Column(
@@ -988,7 +989,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                               Text(
                                 '#${ev.sequenceNumber}${ev.caption != null ? ' - ${ev.caption}' : ''}',
                                 style: GoogleFonts.inter(
-                                  fontSize: 11,
+                                  fontSize: 11.sp,
                                   fontWeight: FontWeight.w500,
                                   color: dk ? Colors.white70 : Colors.black54,
                                 ),
@@ -998,7 +999,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                               Text(
                                 ev.locationText,
                                 style: GoogleFonts.jetBrainsMono(
-                                  fontSize: 9,
+                                  fontSize: 9.sp,
                                   color: dk ? Colors.white38 : Colors.black38,
                                 ),
                               ),
@@ -1009,12 +1010,12 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                     ),
                     // Download button overlay
                     Positioned(
-                      top: 6,
-                      right: 6,
+                      top: 6.h,
+                      right: 6.w,
                       child: GestureDetector(
                         onTap: () => _downloadSinglePhoto(ev),
                         child: Container(
-                          padding: const EdgeInsets.all(6),
+                          padding: EdgeInsets.all(6.r),
                           decoration: BoxDecoration(
                             color: Colors.black.withValues(alpha: 0.6),
                             shape: BoxShape.circle,
@@ -1049,14 +1050,14 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               size: 48,
               color: dk ? Colors.white24 : Colors.black26,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Text(
               'No observations recorded',
               style: GoogleFonts.inter(
                 color: dk ? Colors.white38 : Colors.black38,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             ElevatedButton.icon(
               onPressed: _addNote,
               icon: const Icon(Icons.note_add, size: 18),
@@ -1067,15 +1068,15 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
       );
     }
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       children: [
         ..._observations.map(
           (o) => Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.all(14),
+            margin: EdgeInsets.only(bottom: 10.h),
+            padding: EdgeInsets.all(14.r),
             decoration: BoxDecoration(
               color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
                 color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
               ),
@@ -1092,12 +1093,12 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                       ),
                       decoration: BoxDecoration(
                         color: AppTheme.accentViolet.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: Text(
                         o.observationType.toUpperCase(),
                         style: GoogleFonts.inter(
-                          fontSize: 10,
+                          fontSize: 10.sp,
                           fontWeight: FontWeight.w700,
                           color: AppTheme.accentViolet,
                         ),
@@ -1109,7 +1110,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                         'dd MMM, hh:mm a',
                       ).format(o.createdAt.toLocal()),
                       style: GoogleFonts.inter(
-                        fontSize: 10,
+                        fontSize: 10.sp,
                         color: dk ? Colors.white38 : Colors.black38,
                       ),
                     ),
@@ -1126,17 +1127,17 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 Text(
                   o.content,
                   style: GoogleFonts.inter(
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     color: dk ? Colors.white : const Color(0xFF1E293B),
-                    height: 1.5,
+                    height: 1.5.h,
                   ),
                 ),
                 if (o.tags.isNotEmpty) ...[
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   Wrap(
                     spacing: 4,
                     children:
@@ -1145,7 +1146,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                               (t) => Chip(
                                 label: Text(
                                   '#$t',
-                                  style: GoogleFonts.inter(fontSize: 10),
+                                  style: GoogleFonts.inter(fontSize: 10.sp),
                                 ),
                                 visualDensity: VisualDensity.compact,
                                 materialTapTargetSize:
@@ -1159,7 +1160,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
             ),
           ),
         ),
-        const SizedBox(height: 60),
+        SizedBox(height: 60.h),
       ],
     );
   }
@@ -1176,14 +1177,14 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               size: 48,
               color: dk ? Colors.white24 : Colors.black26,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Text(
               'No witnesses recorded',
               style: GoogleFonts.inter(
                 color: dk ? Colors.white38 : Colors.black38,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             ElevatedButton.icon(
               onPressed: _goWitness,
               icon: const Icon(Icons.person_add, size: 18),
@@ -1194,24 +1195,24 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
       );
     }
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       itemCount: _witnesses.length + 1,
       itemBuilder: (_, i) {
         if (i == 0) {
           return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: EdgeInsets.only(bottom: 12.h),
             child: Material(
               color: AppTheme.warning.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               child: InkWell(
                 onTap: _goWitness,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16.r),
                   child: Row(
                     children: [
                       const Icon(Icons.person_add, color: AppTheme.warning),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12.w),
                       Text(
                         'Record New Witness',
                         style: GoogleFonts.inter(
@@ -1228,11 +1229,11 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
         }
         final w = _witnesses[i - 1];
         return Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.all(14),
+          margin: EdgeInsets.only(bottom: 10.h),
+          padding: EdgeInsets.all(14.r),
           decoration: BoxDecoration(
             color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(14.r),
             border: Border.all(
               color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
             ),
@@ -1242,19 +1243,19 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
             children: [
               // Photo
               ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
                 child:
                     w.photoUrl != null
                         ? Image.network(
                           w.photoUrl!,
-                          width: 56,
-                          height: 56,
+                          width: 56.w,
+                          height: 56.h,
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) => _witnessAvatar(dk, w),
                         )
                         : _witnessAvatar(dk, w),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1262,33 +1263,33 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                     Text(
                       w.witnessName,
                       style: GoogleFonts.outfit(
-                        fontSize: 15,
+                        fontSize: 15.sp,
                         fontWeight: FontWeight.w600,
                         color: dk ? Colors.white : const Color(0xFF1E293B),
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2.h),
                     Text(
                       '${w.idLabel}${w.idNumber != null ? ': ${w.idNumber}' : ''}',
                       style: GoogleFonts.inter(
-                        fontSize: 11,
+                        fontSize: 11.sp,
                         color: dk ? Colors.white54 : Colors.black45,
                       ),
                     ),
                     if (w.statementText != null) ...[
-                      const SizedBox(height: 6),
+                      SizedBox(height: 6.h),
                       Text(
                         w.statementText!,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.inter(
-                          fontSize: 12,
+                          fontSize: 12.sp,
                           color: dk ? Colors.white70 : Colors.black54,
-                          height: 1.4,
+                          height: 1.4.h,
                         ),
                       ),
                     ],
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                     Row(
                       children: [
                         if (w.audioUrl != null) ...[
@@ -1313,7 +1314,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                         Text(
                           w.locationText,
                           style: GoogleFonts.jetBrainsMono(
-                            fontSize: 9,
+                            fontSize: 9.sp,
                             color: dk ? Colors.white24 : Colors.black26,
                           ),
                         ),
@@ -1341,17 +1342,17 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   }
 
   Widget _witnessAvatar(bool dk, CommissionWitness w) => Container(
-    width: 56,
-    height: 56,
+    width: 56.w,
+    height: 56.h,
     decoration: BoxDecoration(
       color: AppTheme.warning.withValues(alpha: 0.1),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(12.r),
     ),
     child: Center(
       child: Text(
         w.witnessName.isNotEmpty ? w.witnessName[0].toUpperCase() : '?',
         style: GoogleFonts.outfit(
-          fontSize: 22,
+          fontSize: 22.sp,
           fontWeight: FontWeight.w700,
           color: AppTheme.warning,
         ),
@@ -1360,21 +1361,21 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   );
 
   Widget _witnessTag(IconData icon, String label, Color color) => Container(
-    margin: const EdgeInsets.only(right: 6),
-    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+    margin: EdgeInsets.only(right: 6.w),
+    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
     decoration: BoxDecoration(
       color: color.withValues(alpha: 0.1),
-      borderRadius: BorderRadius.circular(6),
+      borderRadius: BorderRadius.circular(6.r),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 10, color: color),
-        const SizedBox(width: 3),
+        SizedBox(width: 3.w),
         Text(
           label,
           style: GoogleFonts.inter(
-            fontSize: 9,
+            fontSize: 9.sp,
             fontWeight: FontWeight.w600,
             color: color,
           ),
@@ -1395,14 +1396,14 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               size: 48,
               color: dk ? Colors.white24 : Colors.black26,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Text(
               'No sketches created',
               style: GoogleFonts.inter(
                 color: dk ? Colors.white38 : Colors.black38,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             ElevatedButton.icon(
               onPressed: () => _openSketchPad(),
               icon: const Icon(Icons.add, size: 18),
@@ -1413,7 +1414,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
       );
     }
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: 12,
@@ -1428,19 +1429,19 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                 dk
                     ? const Color(0xFF1E1E2E)
                     : Colors.black.withValues(alpha: 0.04),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(14.r),
             child: InkWell(
               onTap: () => _openSketchPad(),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.add, size: 32, color: Color(0xFF8B5CF6)),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   Text(
                     'New Sketch',
                     style: GoogleFonts.inter(
-                      fontSize: 13,
+                      fontSize: 13.sp,
                       color: const Color(0xFF8B5CF6),
                       fontWeight: FontWeight.w600,
                     ),
@@ -1456,7 +1457,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           onLongPress: () => _deleteSketch(sk),
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               border: Border.all(
                 color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
               ),
@@ -1468,7 +1469,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                     Expanded(
                       child: ClipRRect(
                         borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(13),
+                          top: Radius.circular(13.r),
                         ),
                         child:
                             sk.sketchImageUrl != null
@@ -1483,11 +1484,11 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: EdgeInsets.all(10.r),
                       decoration: BoxDecoration(
                         color: dk ? const Color(0xFF1E1E2E) : Colors.white,
                         borderRadius: const BorderRadius.vertical(
-                          bottom: Radius.circular(13),
+                          bottom: Radius.circular(13.r),
                         ),
                       ),
                       child: Column(
@@ -1496,7 +1497,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                           Text(
                             sk.title,
                             style: GoogleFonts.inter(
-                              fontSize: 12,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.w600,
                               color:
                                   dk ? Colors.white70 : const Color(0xFF1E293B),
@@ -1507,7 +1508,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                           Text(
                             sk.sketchTypeLabel,
                             style: GoogleFonts.inter(
-                              fontSize: 10,
+                              fontSize: 10.sp,
                               color: dk ? Colors.white38 : Colors.black38,
                             ),
                           ),
@@ -1519,12 +1520,12 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                 // Download button
                 if (sk.sketchImageUrl != null)
                   Positioned(
-                    top: 4,
-                    left: 4,
+                    top: 4.h,
+                    left: 4.w,
                     child: GestureDetector(
                       onTap: () => _downloadSingleSketch(sk),
                       child: Container(
-                        padding: const EdgeInsets.all(4),
+                        padding: EdgeInsets.all(4.r),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.6),
                           shape: BoxShape.circle,
@@ -1539,12 +1540,12 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                   ),
                 // Delete button in corner
                 Positioned(
-                  top: 4,
-                  right: 4,
+                  top: 4.h,
+                  right: 4.w,
                   child: GestureDetector(
                     onTap: () => _deleteSketch(sk),
                     child: Container(
-                      padding: const EdgeInsets.all(4),
+                      padding: EdgeInsets.all(4.r),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.5),
                         shape: BoxShape.circle,
@@ -1593,25 +1594,25 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                   size: 56,
                   color: dk ? Colors.white24 : Colors.black12,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 Text(
                   'DOCUMENT VAULT EMPTY',
                   style: GoogleFonts.inter(
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     fontWeight: FontWeight.w900,
                     color: dk ? Colors.white24 : Colors.black26,
                     letterSpacing: 2,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 Text(
                   'Upload court warrants, orders, maps, etc.',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: dk ? Colors.white38 : Colors.black38,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 ElevatedButton.icon(
                   onPressed: _uploadDocument,
                   icon: const Icon(Icons.upload_file, size: 18),
@@ -1620,7 +1621,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                     backgroundColor: AppTheme.accent,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                   ),
                 ),
@@ -1635,11 +1636,11 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               final doc = _documents[i];
               final name = doc['name'] as String? ?? 'Unknown';
               return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(16),
+                margin: EdgeInsets.only(bottom: 10.h),
+                padding: EdgeInsets.all(16.r),
                 decoration: BoxDecoration(
                   color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                   border: Border.all(
                     color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
                   ),
@@ -1647,10 +1648,10 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: EdgeInsets.all(10.r),
                       decoration: BoxDecoration(
                         color: _docColor(name).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Icon(
                         _docIcon(name),
@@ -1658,7 +1659,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                         size: 22,
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    SizedBox(width: 14.w),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1666,7 +1667,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                           Text(
                             name,
                             style: GoogleFonts.inter(
-                              fontSize: 13,
+                              fontSize: 13.sp,
                               fontWeight: FontWeight.w600,
                               color:
                                   dk ? Colors.white : const Color(0xFF1E293B),
@@ -1674,11 +1675,11 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 3),
+                          SizedBox(height: 3.h),
                           Text(
                             'SECURE VAULT',
                             style: GoogleFonts.jetBrainsMono(
-                              fontSize: 9,
+                              fontSize: 9.sp,
                               fontWeight: FontWeight.w800,
                               color: dk ? Colors.white24 : Colors.black26,
                               letterSpacing: 1,
@@ -1723,8 +1724,8 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           ),
         // FAB for upload
         Positioned(
-          bottom: 24,
-          right: 24,
+          bottom: 24.h,
+          right: 24.w,
           child: FloatingActionButton(
             heroTag: 'upload_comm_doc',
             onPressed: _uploadDocument,
@@ -1848,34 +1849,34 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
     return Column(
       children: [
         Container(
-          margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.all(16),
+          margin: EdgeInsets.all(16.r),
+          padding: EdgeInsets.all(16.r),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [Color(0xFFF59E0B), Color(0xFFEF4444)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
           ),
           child: Row(
             children: [
               const Icon(Icons.receipt_long, color: Colors.white, size: 28),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Total Expenses',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: Colors.white70,
                     ),
                   ),
                   Text(
                     '₹${total.toStringAsFixed(0)}',
                     style: GoogleFonts.outfit(
-                      fontSize: 28,
+                      fontSize: 28.sp,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
@@ -1906,16 +1907,16 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                     ),
                   )
                   : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
                     itemCount: _expenses.length,
                     itemBuilder: (_, i) {
                       final e = _expenses[i];
                       return Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.all(14),
+                        margin: EdgeInsets.only(bottom: 8.h),
+                        padding: EdgeInsets.all(14.r),
                         decoration: BoxDecoration(
                           color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(12.r),
                           border: Border.all(
                             color:
                                 dk
@@ -1926,10 +1927,10 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                         child: Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: EdgeInsets.all(8.r),
                               decoration: BoxDecoration(
                                 color: AppTheme.warning.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(10.r),
                               ),
                               child: const Icon(
                                 Icons.receipt,
@@ -1937,7 +1938,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                                 size: 20,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12.w),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1946,7 +1947,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                                     e.expenseType.label,
                                     style: GoogleFonts.inter(
                                       fontWeight: FontWeight.w600,
-                                      fontSize: 13,
+                                      fontSize: 13.sp,
                                       color:
                                           dk
                                               ? Colors.white
@@ -1957,7 +1958,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                                     Text(
                                       e.description!,
                                       style: GoogleFonts.inter(
-                                        fontSize: 11,
+                                        fontSize: 11.sp,
                                         color:
                                             dk
                                                 ? Colors.white54
@@ -1971,7 +1972,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                                       'dd MMM yyyy',
                                     ).format(e.expenseDate),
                                     style: GoogleFonts.inter(
-                                      fontSize: 10,
+                                      fontSize: 10.sp,
                                       color:
                                           dk ? Colors.white38 : Colors.black38,
                                     ),
@@ -1982,13 +1983,13 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                             Text(
                               '₹${e.amount.toStringAsFixed(0)}',
                               style: GoogleFonts.outfit(
-                                fontSize: 16,
+                                fontSize: 16.sp,
                                 fontWeight: FontWeight.w700,
                                 color:
                                     dk ? Colors.white : const Color(0xFF1E293B),
                               ),
                             ),
-                            const SizedBox(width: 4),
+                            SizedBox(width: 4.w),
                             IconButton(
                               icon: Icon(
                                 Icons.delete_outline,
@@ -2407,11 +2408,11 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                     bottom: MediaQuery.of(ctx).viewInsets.bottom,
                   ),
                   child: Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.all(20.r),
                     decoration: BoxDecoration(
                       color: dk ? const Color(0xFF1E1E2E) : Colors.white,
                       borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(24),
+                        top: Radius.circular(24.r),
                       ),
                     ),
                     child: Column(
@@ -2421,12 +2422,12 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                         Text(
                           'Add Observation',
                           style: GoogleFonts.outfit(
-                            fontSize: 20,
+                            fontSize: 20.sp,
                             fontWeight: FontWeight.w700,
                             color: dk ? Colors.white : const Color(0xFF1E293B),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                         Wrap(
                           spacing: 6,
                           runSpacing: 6,
@@ -2436,7 +2437,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                                     (t) => ChoiceChip(
                                       label: Text(
                                         t,
-                                        style: GoogleFonts.inter(fontSize: 11),
+                                        style: GoogleFonts.inter(fontSize: 11.sp),
                                       ),
                                       selected: selType == t,
                                       onSelected: (v) => ss(() => selType = t),
@@ -2446,34 +2447,34 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                                   )
                                   .toList(),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                         TextField(
                           controller: contentCtrl,
                           maxLines: 5,
                           autofocus: true,
                           style: GoogleFonts.inter(
-                            fontSize: 14,
+                            fontSize: 14.sp,
                             color: dk ? Colors.white : const Color(0xFF1E293B),
                           ),
                           decoration: InputDecoration(
                             hintText: 'Write your observation...',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                               borderSide: const BorderSide(
                                 color: AppTheme.accent,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10.h),
                         // Voice dictation button (Phase 2)
                         if (_speechAvailable)
                           SizedBox(
                             width: double.infinity,
-                            height: 40,
+                            height: 40.h,
                             child: OutlinedButton.icon(
                               onPressed: () async {
                                 if (!isListening) {
@@ -2512,7 +2513,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                               label: Text(
                                 isListening ? 'Stop Dictation' : '🎤 Dictate',
                                 style: GoogleFonts.inter(
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -2528,15 +2529,15 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                                           : AppTheme.accentViolet,
                                 ),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(10.r),
                                 ),
                               ),
                             ),
                           ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         SizedBox(
                           width: double.infinity,
-                          height: 48,
+                          height: 48.h,
                           child: ElevatedButton(
                             onPressed: () async {
                               if (contentCtrl.text.isEmpty) return;
@@ -2552,7 +2553,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.accent,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(14.r),
                               ),
                             ),
                             child: Text(
@@ -2590,11 +2591,11 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                     bottom: MediaQuery.of(ctx).viewInsets.bottom,
                   ),
                   child: Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.all(20.r),
                     decoration: BoxDecoration(
                       color: dk ? const Color(0xFF1E1E2E) : Colors.white,
                       borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(24),
+                        top: Radius.circular(24.r),
                       ),
                     ),
                     child: Column(
@@ -2604,12 +2605,12 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                         Text(
                           'Add Expense',
                           style: GoogleFonts.outfit(
-                            fontSize: 20,
+                            fontSize: 20.sp,
                             fontWeight: FontWeight.w700,
                             color: dk ? Colors.white : const Color(0xFF1E293B),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                         Wrap(
                           spacing: 6,
                           runSpacing: 6,
@@ -2619,7 +2620,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                                     (t) => ChoiceChip(
                                       label: Text(
                                         t.label,
-                                        style: GoogleFonts.inter(fontSize: 11),
+                                        style: GoogleFonts.inter(fontSize: 11.sp),
                                       ),
                                       selected: selType == t,
                                       onSelected: (v) => ss(() => selType = t),
@@ -2629,49 +2630,49 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                                   )
                                   .toList(),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                         TextField(
                           controller: amountCtrl,
                           keyboardType: TextInputType.number,
                           style: GoogleFonts.outfit(
-                            fontSize: 24,
+                            fontSize: 24.sp,
                             fontWeight: FontWeight.w700,
                           ),
                           decoration: InputDecoration(
                             prefixText: '₹ ',
                             hintText: '0',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                               borderSide: const BorderSide(
                                 color: AppTheme.accent,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         TextField(
                           controller: descCtrl,
-                          style: GoogleFonts.inter(fontSize: 14),
+                          style: GoogleFonts.inter(fontSize: 14.sp),
                           decoration: InputDecoration(
                             hintText: 'Description (optional)',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                               borderSide: const BorderSide(
                                 color: AppTheme.accent,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                         SizedBox(
                           width: double.infinity,
-                          height: 48,
+                          height: 48.h,
                           child: ElevatedButton(
                             onPressed: () async {
                               final amt = double.tryParse(amountCtrl.text);
@@ -2691,7 +2692,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.accent,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(14.r),
                               ),
                             ),
                             child: Text(
@@ -2856,15 +2857,15 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           (ctx) => Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               Text(
                 'Change Status',
                 style: GoogleFonts.outfit(
-                  fontSize: 18,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               ...CommissionStatus.values.map(
                 (s) => ListTile(
                   leading: Icon(
@@ -2883,7 +2884,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                   },
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
             ],
           ),
     );

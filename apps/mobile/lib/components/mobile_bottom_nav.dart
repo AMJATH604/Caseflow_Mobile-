@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../services/providers.dart';
 import '../theme/app_theme.dart';
 import 'mobile_more_sheet.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MobileBottomNav extends ConsumerWidget {
   const MobileBottomNav({super.key});
@@ -22,7 +23,7 @@ class MobileBottomNav extends ConsumerWidget {
       ),
       child: SafeArea(
         child: SizedBox(
-          height: 60,
+          height: 60.h,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -83,19 +84,19 @@ class MobileBottomNav extends ConsumerWidget {
         context.go(route);
       },
       child: SizedBox(
-        width: 64,
+        width: 64.w,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             // Active indicator line
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              height: 2,
+              height: 2.h,
               width: isActive ? 24 : 0,
-              margin: const EdgeInsets.only(bottom: 8),
+              margin: EdgeInsets.only(bottom: 8.h),
               decoration: BoxDecoration(
                 color: AppTheme.accent,
-                borderRadius: BorderRadius.circular(1),
+                borderRadius: BorderRadius.circular(1.r),
               ),
             ),
             Icon(
@@ -103,11 +104,11 @@ class MobileBottomNav extends ConsumerWidget {
               color: isActive ? AppTheme.accent : const Color(0xFF4B5563),
               size: 22,
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 10,
+                fontSize: 10.sp,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                 color: isActive ? AppTheme.accent : const Color(0xFF4B5563),
               ),
@@ -129,21 +130,21 @@ class MobileBottomNav extends ConsumerWidget {
         );
       },
       child: SizedBox(
-        width: 64,
+        width: 64.w,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
             const Icon(
               Icons.more_horiz_rounded,
               color: Color(0xFF4B5563),
               size: 22,
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             Text(
               'More',
               style: GoogleFonts.inter(
-                fontSize: 10,
+                fontSize: 10.sp,
                 fontWeight: FontWeight.w500,
                 color: const Color(0xFF4B5563),
               ),

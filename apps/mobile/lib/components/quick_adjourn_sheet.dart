@@ -5,6 +5,7 @@ import '../services/supabase_service.dart';
 import '../services/providers.dart';
 
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class QuickAdjournSheet extends ConsumerStatefulWidget {
   final Hearing hearing;
@@ -94,9 +95,9 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 20,
-        right: 20,
-        top: 20,
+        left: 20.w,
+        right: 20.w,
+        top: 20.h,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -105,7 +106,7 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
           Row(
             children: [
               const Icon(Icons.forward, color: AppTheme.accent),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Text(
                 'Quick Adjourn',
                 style: AppTheme.lightTheme.textTheme.displaySmall,
@@ -117,12 +118,12 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           const Text(
             'Record what happened today and set the next date.',
             style: TextStyle(color: Colors.grey),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           TextField(
             controller: _notesController,
             maxLines: 3,
@@ -131,7 +132,7 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
               hintText: 'e.g., Petitioner absent, cost ₹500 imposed...',
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -164,7 +165,7 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
               ),
               if (_selectedStage != CaseStage.disposed &&
                   _selectedStage != CaseStage.dismissed) ...[
-                const SizedBox(width: 16),
+                SizedBox(width: 16.w),
                 Expanded(
                   child: InkWell(
                     onTap: () async {
@@ -196,22 +197,22 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
               ],
             ],
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32.h),
           ElevatedButton(
             onPressed: _isLoading ? null : _submit,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primary,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: EdgeInsets.symmetric(vertical: 16.h),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
               ),
             ),
             child:
                 _isLoading
-                    ? const SizedBox(
-                      height: 20,
-                      width: 20,
+                    ? SizedBox(
+                      height: 20.h,
+                      width: 20.w,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation(Colors.white),
@@ -219,7 +220,7 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
                     )
                     : const Text('Update Diary'),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32.h),
         ],
       ),
     );

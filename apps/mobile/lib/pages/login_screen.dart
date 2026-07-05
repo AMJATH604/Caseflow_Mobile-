@@ -9,6 +9,7 @@ import '../services/providers.dart';
 import '../services/fcm_service.dart';
 import '../models/geo_data.dart';
 import '../utils/responsive.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   final String initialRole;
@@ -308,40 +309,40 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.r),
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 40,
-              height: 4,
+              width: 40.w,
+              height: 4.h,
               decoration: BoxDecoration(
                 color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(2.r),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Text(
               'Add Profile Photo',
               style: GoogleFonts.outfit(
-                fontSize: 18,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
                 color: const Color(0xFF0F172A),
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             Text(
               'This is optional — you can always add it later',
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 12.sp,
                 color: const Color(0xFF94A3B8),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Row(
               children: [
                 Expanded(
@@ -355,7 +356,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     },
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 Expanded(
                   child: _buildPhotoOption(
                     icon: Icons.photo_library_rounded,
@@ -368,7 +369,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   ),
                 ),
                 if (_selectedPhoto != null) ...[
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12.w),
                   Expanded(
                     child: _buildPhotoOption(
                       icon: Icons.delete_outline_rounded,
@@ -383,7 +384,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 ],
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
           ],
         ),
       ),
@@ -398,22 +399,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(14.r),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.symmetric(vertical: 16.h),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           border: Border.all(color: color.withValues(alpha: 0.15)),
         ),
         child: Column(
           children: [
             Icon(icon, color: color, size: 28),
-            const SizedBox(height: 6),
+            SizedBox(height: 6.h),
             Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),
@@ -451,8 +452,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             Stack(
               children: [
                 Container(
-                  width: 88,
-                  height: 88,
+                  width: 88.w,
+                  height: 88.h,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: _selectedPhoto != null
@@ -465,12 +466,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     border: _selectedPhoto == null
                         ? Border.all(
                             color: const Color(0xFFCBD5E1),
-                            width: 2,
+                            width: 2.w,
                             strokeAlign: BorderSide.strokeAlignOutside,
                           )
                         : null,
                   ),
-                  padding: const EdgeInsets.all(3),
+                  padding: EdgeInsets.all(3.r),
                   child: CircleAvatar(
                     radius: 41,
                     backgroundColor: const Color(0xFFF8FAFC),
@@ -488,14 +489,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 ),
                 // Camera badge
                 Positioned(
-                  bottom: 0,
-                  right: 0,
+                  bottom: 0.h,
+                  right: 0.w,
                   child: Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: EdgeInsets.all(6.r),
                     decoration: BoxDecoration(
                       color: const Color(0xFF2563EB),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                      border: Border.all(color: Colors.white, width: 2.w),
                       boxShadow: [
                         BoxShadow(
                           color: const Color(0xFF2563EB).withValues(alpha: 0.3),
@@ -513,11 +514,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               _selectedPhoto != null ? 'Change Photo' : 'Add Photo (Optional)',
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
                 color: _selectedPhoto != null
                     ? const Color(0xFF2563EB)
@@ -561,15 +562,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               color: Colors.white,
               size: 18,
             ),
-            const SizedBox(width: 10),
-            Expanded(child: Text(msg, style: GoogleFonts.inter(fontSize: 13))),
+            SizedBox(width: 10.w),
+            Expanded(child: Text(msg, style: GoogleFonts.inter(fontSize: 13.sp))),
           ],
         ),
         backgroundColor:
             isWarning ? const Color(0xFFD97706) : const Color(0xFFDC2626),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        margin: EdgeInsets.all(16.r),
       ),
     );
   }
@@ -584,14 +585,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               color: Colors.white,
               size: 18,
             ),
-            const SizedBox(width: 10),
-            Expanded(child: Text(msg, style: GoogleFonts.inter(fontSize: 13))),
+            SizedBox(width: 10.w),
+            Expanded(child: Text(msg, style: GoogleFonts.inter(fontSize: 13.sp))),
           ],
         ),
         backgroundColor: const Color(0xFF059669),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        margin: EdgeInsets.all(16.r),
       ),
     );
   }
@@ -661,8 +662,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             top: -50 + 20 * sin(_headerController.value * pi),
             right: -80 + 15 * cos(_headerController.value * pi),
             child: Container(
-              width: 300,
-              height: 300,
+              width: 300.w,
+              height: 300.h,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
@@ -744,30 +745,30 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               fontSize: R.sp(36),
               fontWeight: FontWeight.w700,
               color: Colors.white,
-              height: 1.15,
+              height: 1.15.h,
               letterSpacing: -0.5,
             ),
           ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
 
           // Ornamental line
           Row(
             children: [
               Container(
-                width: 40,
-                height: 2,
+                width: 40.w,
+                height: 2.h,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(1),
+                  borderRadius: BorderRadius.circular(1.r),
                   gradient: const LinearGradient(
                     colors: [Color(0xFFD4AF37), Color(0xFF2563EB)],
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               Container(
-                width: 6,
-                height: 6,
+                width: 6.w,
+                height: 6.h,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Color(0xFFD4AF37),
@@ -776,20 +777,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ],
           ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
 
           Text(
             _authTab == 0
                 ? 'Sign in to access your legal workspace'
                 : 'Create your advocate account in 3 simple steps',
             style: GoogleFonts.inter(
-              fontSize: 13,
+              fontSize: 13.sp,
               color: Colors.white.withValues(alpha: 0.5),
               letterSpacing: 0.3,
             ),
           ),
 
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
         ],
       ),
     );
@@ -807,7 +808,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 width: double.infinity,
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
                   boxShadow: [
                     BoxShadow(
                       color: Color(0x20000000),
@@ -820,26 +821,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   padding: const EdgeInsets.fromLTRB(28, 0, 28, 28),
                   child: Column(
                     children: [
-                      const SizedBox(height: 6),
+                      SizedBox(height: 6.h),
                       // Drag handle
                       Container(
-                        width: 40,
-                        height: 4,
+                        width: 40.w,
+                        height: 4.h,
                         decoration: BoxDecoration(
                           color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(2),
+                          borderRadius: BorderRadius.circular(2.r),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20.h),
 
                       // Tab bar
                       _buildTabBar(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24.h),
 
                       // Content
                       _authTab == 0 ? _buildSignInForm() : _buildSignUpWizard(),
 
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20.h),
 
                       // Social proof
                       _buildSocialProof(),
@@ -854,10 +855,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   Widget _buildTabBar() {
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: EdgeInsets.all(4.r),
       decoration: BoxDecoration(
         color: const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
       ),
       child: Row(children: [_buildTab('Sign In', 0), _buildTab('Register', 1)]),
     );
@@ -875,10 +876,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(vertical: 12.h),
           decoration: BoxDecoration(
             color: isActive ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(11),
+            borderRadius: BorderRadius.circular(11.r),
             boxShadow:
                 isActive
                     ? [
@@ -894,7 +895,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             child: Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 14,
+                fontSize: 14.sp,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                 color:
                     isActive
@@ -929,7 +930,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               return null;
             },
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           _buildTextField(
             controller: _passwordController,
             label: 'Password',
@@ -942,7 +943,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             },
           ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
@@ -950,7 +951,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               child: Text(
                 'Forgot Password?',
                 style: GoogleFonts.inter(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFF2563EB),
                 ),
@@ -958,7 +959,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
           ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           _buildPrimaryButton(
             label: 'Sign In',
             icon: Icons.login_rounded,
@@ -976,7 +977,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       children: [
         // Step indicator
         _buildStepIndicator(),
-        const SizedBox(height: 24),
+        SizedBox(height: 24.h),
 
         // Step content
         AnimatedSwitcher(
@@ -1021,8 +1022,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             children: [
               // Step circle
               Container(
-                width: 28,
-                height: 28,
+                width: 28.w,
+                height: 28.h,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color:
@@ -1054,7 +1055,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           : Text(
                             '${i + 1}',
                             style: GoogleFonts.inter(
-                              fontSize: 12,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.w700,
                               color:
                                   isActive
@@ -1064,13 +1065,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           ),
                 ),
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: 6.w),
               // Label
               Expanded(
                 child: Text(
                   steps[i],
                   style: GoogleFonts.inter(
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                     color:
                         isActive
@@ -1085,11 +1086,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               // Connector line
               if (i < steps.length - 1)
                 Container(
-                  width: 16,
-                  height: 2,
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  width: 16.w,
+                  height: 2.h,
+                  margin: EdgeInsets.symmetric(horizontal: 2.w),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(1),
+                    borderRadius: BorderRadius.circular(1.r),
                     color:
                         isComplete
                             ? const Color(0xFF059669)
@@ -1115,7 +1116,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             'Create Your Account',
             'Set up your login credentials',
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           _buildTextField(
             controller: _emailController,
             label: 'Email Address',
@@ -1132,7 +1133,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               return null;
             },
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           _buildTextField(
             controller: _passwordController,
             label: 'Password',
@@ -1154,12 +1155,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           ),
           // Password Strength Indicator
           if (_passwordController.text.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
             Row(
               children: [
                 Expanded(
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(4.r),
                     child: LinearProgressIndicator(
                       value: _passwordStrength,
                       backgroundColor: const Color(0xFFE2E8F0),
@@ -1170,18 +1171,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 Text(
                   _passwordStrengthLabel,
                   style: GoogleFonts.inter(
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     fontWeight: FontWeight.w700,
                     color: _passwordStrengthColor,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Wrap(
               spacing: 12,
               runSpacing: 4,
@@ -1201,7 +1202,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               ],
             ),
           ],
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           _buildPrimaryButton(
             label: 'Continue',
             icon: Icons.arrow_forward_rounded,
@@ -1228,9 +1229,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             'Professional Details',
             'Your Bar Council information',
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           _buildPhotoPicker(),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           _buildTextField(
             controller: _nameController,
             label: 'Full Name',
@@ -1239,7 +1240,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             validator:
                 (v) => (v == null || v.isEmpty) ? 'Enter your name' : null,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           _buildTextField(
             controller: _mobileController,
             label: 'Mobile Number',
@@ -1249,7 +1250,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             validator:
                 (v) => (v == null || v.isEmpty) ? 'Enter mobile number' : null,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           _buildTextField(
             controller: _regNoController,
             label: 'Bar Council Registration No.',
@@ -1261,7 +1262,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         ? 'Enter registration number'
                         : null,
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           Row(
             children: [
               Expanded(
@@ -1270,7 +1271,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   onPressed: () => setState(() => _signupStep = 0),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Expanded(
                 flex: 2,
                 child: _buildPrimaryButton(
@@ -1299,9 +1300,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStepTitle('Your Details', 'Tell us about yourself'),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           _buildPhotoPicker(),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
 
           _buildTextField(
             controller: _nameController,
@@ -1312,7 +1313,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 (v) =>
                     (v == null || v.trim().isEmpty) ? 'Enter your name' : null,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
 
           _buildTextField(
             controller: _mobileController,
@@ -1326,7 +1327,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               return null;
             },
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
 
           // State dropdown
           _buildDropdown(
@@ -1341,7 +1342,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               });
             },
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
 
           // District dropdown
           _buildDropdown(
@@ -1355,7 +1356,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             onChanged: (val) => setState(() => _selectedDistrict = val),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           Row(
             children: [
               Expanded(
@@ -1364,7 +1365,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   onPressed: () => setState(() => _signupStep = 0),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Expanded(
                 flex: 2,
                 child: _buildPrimaryButton(
@@ -1398,7 +1399,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStepTitle('Practice Location', 'Where you practice law'),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
 
           // State dropdown
           _buildDropdown(
@@ -1413,7 +1414,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               });
             },
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
 
           // District dropdown
           _buildDropdown(
@@ -1426,7 +1427,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     : <String>[],
             onChanged: (val) => setState(() => _selectedDistrict = val),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
 
           _buildTextField(
             controller: _addressController,
@@ -1438,7 +1439,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 (v) => (v == null || v.isEmpty) ? 'Enter office address' : null,
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           Row(
             children: [
               Expanded(
@@ -1447,7 +1448,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   onPressed: () => setState(() => _signupStep = 1),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Expanded(
                 flex: 2,
                 child: _buildPrimaryButton(
@@ -1481,16 +1482,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         Text(
           title,
           style: GoogleFonts.outfit(
-            fontSize: 20,
+            fontSize: 20.sp,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF0F172A),
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4.h),
         Text(
           subtitle,
           style: GoogleFonts.inter(
-            fontSize: 13,
+            fontSize: 13.sp,
             color: const Color(0xFF94A3B8),
           ),
         ),
@@ -1507,11 +1508,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           size: 14,
           color: met ? const Color(0xFF059669) : const Color(0xFFCBD5E1),
         ),
-        const SizedBox(width: 4),
+        SizedBox(width: 4.w),
         Text(
           text,
           style: GoogleFonts.inter(
-            fontSize: 11,
+            fontSize: 11.sp,
             color: met ? const Color(0xFF059669) : const Color(0xFF94A3B8),
             fontWeight: FontWeight.w500,
           ),
@@ -1537,13 +1538,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         Text(
           label.toUpperCase(),
           style: GoogleFonts.inter(
-            fontSize: 11,
+            fontSize: 11.sp,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF94A3B8),
             letterSpacing: 1,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         TextFormField(
           controller: controller,
           obscureText: isPassword ? _obscurePassword : false,
@@ -1551,7 +1552,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           maxLines: isPassword ? 1 : maxLines,
           onChanged: onChanged,
           style: GoogleFonts.inter(
-            fontSize: 15,
+            fontSize: 15.sp,
             fontWeight: FontWeight.w500,
             color: const Color(0xFF0F172A),
           ),
@@ -1559,7 +1560,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: GoogleFonts.inter(
-              fontSize: 14,
+              fontSize: 14.sp,
               color: const Color(0xFFCBD5E1),
             ),
             prefixIcon: Icon(icon, color: const Color(0xFF94A3B8), size: 20),
@@ -1586,22 +1587,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               vertical: 16,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               borderSide: const BorderSide(
                 color: Color(0xFF2563EB),
-                width: 1.5,
+                width: 1.5.w,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               borderSide: const BorderSide(color: Color(0xFFEF4444)),
             ),
           ),
@@ -1623,18 +1624,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         Text(
           label.toUpperCase(),
           style: GoogleFonts.inter(
-            fontSize: 11,
+            fontSize: 11.sp,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF94A3B8),
             letterSpacing: 1,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         DropdownButtonFormField<String>(
           initialValue: value,
           isExpanded: true,
           style: GoogleFonts.inter(
-            fontSize: 15,
+            fontSize: 15.sp,
             fontWeight: FontWeight.w500,
             color: const Color(0xFF0F172A),
           ),
@@ -1642,7 +1643,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             prefixIcon: Icon(icon, color: const Color(0xFF94A3B8), size: 20),
             hintText: 'Select...',
             hintStyle: GoogleFonts.inter(
-              fontSize: 14,
+              fontSize: 14.sp,
               color: const Color(0xFFCBD5E1),
             ),
             filled: true,
@@ -1652,18 +1653,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               vertical: 16,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               borderSide: const BorderSide(
                 color: Color(0xFF2563EB),
-                width: 1.5,
+                width: 1.5.w,
               ),
             ),
           ),
@@ -1689,7 +1690,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }) {
     return SizedBox(
       width: double.infinity,
-      height: 54,
+      height: 54.h,
       child: ElevatedButton(
         onPressed: _isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
@@ -1697,15 +1698,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           foregroundColor: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(14.r),
           ),
           disabledBackgroundColor: const Color(0xFF94A3B8),
         ),
         child:
             _isLoading
-                ? const SizedBox(
-                  height: 22,
-                  width: 22,
+                ? SizedBox(
+                  height: 22.h,
+                  width: 22.w,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.5,
                     color: Colors.white,
@@ -1717,13 +1718,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     Text(
                       label,
                       style: GoogleFonts.inter(
-                        fontSize: 15,
+                        fontSize: 15.sp,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.3,
                       ),
                     ),
                     if (icon != null) ...[
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8.w),
                       Icon(icon, size: 18),
                     ],
                   ],
@@ -1737,19 +1738,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     required VoidCallback onPressed,
   }) {
     return SizedBox(
-      height: 54,
+      height: 54.h,
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: Color(0xFFE2E8F0)),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(14.r),
           ),
           foregroundColor: const Color(0xFF64748B),
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+          style: GoogleFonts.inter(fontSize: 14.sp, fontWeight: FontWeight.w600),
         ),
       ),
     );
@@ -1757,10 +1758,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   Widget _buildSocialProof() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 20.w),
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Row(
@@ -1768,15 +1769,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         children: [
           // Stacked avatars
           SizedBox(
-            width: 60,
-            height: 28,
+            width: 60.w,
+            height: 28.h,
             child: Stack(
               children: List.generate(3, (i) {
                 return Positioned(
                   left: i * 18.0,
                   child: Container(
-                    width: 28,
-                    height: 28,
+                    width: 28.w,
+                    height: 28.h,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color:
@@ -1785,13 +1786,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             const Color(0xFF059669),
                             const Color(0xFFD97706),
                           ][i],
-                      border: Border.all(color: Colors.white, width: 2),
+                      border: Border.all(color: Colors.white, width: 2.w),
                     ),
                     child: Center(
                       child: Text(
                         ['A', 'S', 'K'][i],
                         style: GoogleFonts.inter(
-                          fontSize: 10,
+                          fontSize: 10.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
                         ),
@@ -1802,19 +1803,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               }),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Trusted by advocates across India',
                 style: GoogleFonts.inter(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
                   color: const Color(0xFF475569),
                 ),
               ),
-              const SizedBox(height: 2),
+              SizedBox(height: 2.h),
               Row(
                 children: [
                   ...List.generate(
@@ -1825,11 +1826,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       color: Color(0xFFF59E0B),
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6.w),
                   Text(
                     '5.0 rating',
                     style: GoogleFonts.inter(
-                      fontSize: 10,
+                      fontSize: 10.sp,
                       color: const Color(0xFF94A3B8),
                       fontWeight: FontWeight.w500,
                     ),

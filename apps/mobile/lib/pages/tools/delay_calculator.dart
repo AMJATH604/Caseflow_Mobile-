@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DelayCalculator extends StatefulWidget {
   const DelayCalculator({super.key});
@@ -138,7 +139,7 @@ DEPONENT""";
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       child: Column(
         children: [
           // ─── Input Card ──
@@ -150,32 +151,32 @@ DEPONENT""";
             children: [
               Text(
                 'Select the limitation period and dates to calculate delay under Section 5, Limitation Act 1963',
-                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
               ),
-              const Divider(height: 20),
+              const Divider(height: 20.h),
 
               // Limitation Period Presets
               Text(
                 'LIMITATION PERIOD',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w700,
                   color: Colors.grey[500],
                   letterSpacing: 0.5,
                 ),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
               ...(_presets.map((p) {
                 final key = "${p['days']}|${p['desc']}";
                 final isSelected = _selectedPreset == key;
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
+                  padding: EdgeInsets.only(bottom: 8.h),
                   child: InkWell(
                     onTap: () {
                       setState(() => _selectedPreset = key);
                       _calculate();
                     },
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(
@@ -189,7 +190,7 @@ DEPONENT""";
                                 : (isDark
                                     ? Colors.white.withValues(alpha: 0.04)
                                     : Colors.grey[50]),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10.r),
                         border: Border.all(
                           color:
                               isSelected
@@ -208,7 +209,7 @@ DEPONENT""";
                             color:
                                 isSelected ? AppTheme.accent : Colors.grey[400],
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12.w),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,7 +217,7 @@ DEPONENT""";
                                 Text(
                                   p['desc'],
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 13.sp,
                                     fontWeight: FontWeight.w600,
                                     color:
                                         isSelected
@@ -229,7 +230,7 @@ DEPONENT""";
                                 Text(
                                   p['label'],
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 11.sp,
                                     color: Colors.grey[500],
                                   ),
                                 ),
@@ -249,7 +250,7 @@ DEPONENT""";
                 );
               })),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
 
               // Date pickers
               Row(
@@ -265,7 +266,7 @@ DEPONENT""";
                       }),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12.w),
                   Expanded(
                     child: _buildDatePicker(
                       'Date of Filing',
@@ -281,12 +282,12 @@ DEPONENT""";
               ),
 
               // Section 4 note
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12.r),
                 decoration: BoxDecoration(
                   color: Colors.amber.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                   border: Border.all(
                     color: Colors.amber.withValues(alpha: 0.3),
                   ),
@@ -299,15 +300,15 @@ DEPONENT""";
                       size: 16,
                       color: Colors.amber[700],
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8.w),
                     Expanded(
                       child: Text(
                         'If the due date falls on a day when the court is closed, the period is extended to the next working day under §4, Limitation Act.',
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 11.sp,
                           color: Colors.amber[800],
                           fontWeight: FontWeight.w500,
-                          height: 1.4,
+                          height: 1.4.h,
                         ),
                       ),
                     ),
@@ -319,17 +320,17 @@ DEPONENT""";
 
           // ─── Result Card ──
           if (_result != null) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
 
             // Status banner
             AnimatedContainer(
               duration: const Duration(milliseconds: 300),
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16.r),
               decoration: BoxDecoration(
                 color: (_result!['statusColor'] as Color).withValues(
                   alpha: 0.08,
                 ),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
                 border: Border.all(
                   color: (_result!['statusColor'] as Color).withValues(
                     alpha: 0.3,
@@ -343,7 +344,7 @@ DEPONENT""";
                     color: _result!['statusColor'],
                     size: 28,
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12.w),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -351,16 +352,16 @@ DEPONENT""";
                         Text(
                           _result!['status'],
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.w900,
                             color: _result!['statusColor'],
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4.h),
                         Text(
                           "Last date: ${_result!['dueDate']}",
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             color: Colors.grey[600],
                           ),
                         ),
@@ -372,7 +373,7 @@ DEPONENT""";
             ),
 
             // Stats
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Row(
               children: [
                 Expanded(
@@ -383,7 +384,7 @@ DEPONENT""";
                     isDark,
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
                 Expanded(
                   child: _buildStatBlock(
                     'Elapsed',
@@ -392,7 +393,7 @@ DEPONENT""";
                     isDark,
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
                 Expanded(
                   child: _buildStatBlock(
                     'Delay',
@@ -406,7 +407,7 @@ DEPONENT""";
 
             // Affidavit text (only show if delayed)
             if (_result!['isDelayed']) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               _buildCard(
                 isDark,
                 icon: Icons.description_rounded,
@@ -422,18 +423,18 @@ DEPONENT""";
                     );
                   },
                   icon: const Icon(Icons.copy_rounded, size: 14),
-                  label: const Text('Copy', style: TextStyle(fontSize: 12)),
+                  label: const Text('Copy', style: TextStyle(fontSize: 12.sp)),
                 ),
                 children: [
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16.r),
                     decoration: BoxDecoration(
                       color:
                           isDark
                               ? const Color(0xFF0F172A)
                               : const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10.r),
                       border: Border.all(
                         color:
                             isDark ? Colors.white10 : const Color(0xFFE2E8F0),
@@ -442,8 +443,8 @@ DEPONENT""";
                     child: Text(
                       _result!['affidavitText'],
                       style: GoogleFonts.sourceCodePro(
-                        fontSize: 11,
-                        height: 1.6,
+                        fontSize: 11.sp,
+                        height: 1.6.h,
                         color: isDark ? Colors.grey[300] : Colors.grey[700],
                       ),
                     ),
@@ -453,7 +454,7 @@ DEPONENT""";
             ],
           ],
 
-          const SizedBox(height: 100),
+          SizedBox(height: 100.h),
         ],
       ),
     );
@@ -461,10 +462,10 @@ DEPONENT""";
 
   Widget _buildStatBlock(String label, String value, Color color, bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14.r),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),
         border: Border.all(color: color.withValues(alpha: 0.15)),
       ),
       child: Column(
@@ -472,17 +473,17 @@ DEPONENT""";
           Text(
             label.toUpperCase(),
             style: TextStyle(
-              fontSize: 9,
+              fontSize: 9.sp,
               fontWeight: FontWeight.w700,
               color: Colors.grey[500],
               letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6.h),
           Text(
             value,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 16.sp,
               fontWeight: FontWeight.w900,
               color: color,
             ),
@@ -504,13 +505,13 @@ DEPONENT""";
         Text(
           label,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 11.sp,
             fontWeight: FontWeight.w700,
             color: Colors.grey[500],
             letterSpacing: 0.5,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         InkWell(
           onTap: () async {
             final picked = await showDatePicker(
@@ -521,14 +522,14 @@ DEPONENT""";
             );
             onChanged(picked);
           },
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
             decoration: BoxDecoration(
               border: Border.all(
                 color: isDark ? Colors.white12 : Colors.grey[300]!,
               ),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(10.r),
             ),
             child: Row(
               children: [
@@ -537,13 +538,13 @@ DEPONENT""";
                   size: 16,
                   color: AppTheme.accent,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
                 Text(
                   value == null
                       ? 'Select'
                       : DateFormat('dd MMM yyyy').format(value),
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     fontWeight:
                         value != null ? FontWeight.w600 : FontWeight.w400,
                     color: value != null ? null : Colors.grey[400],
@@ -566,7 +567,7 @@ DEPONENT""";
     required List<Widget> children,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       decoration: AppTheme.cardDecoration(isDark: isDark),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -574,14 +575,14 @@ DEPONENT""";
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Icon(icon, color: iconColor, size: 18),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Expanded(
                 child: Text(
                   title,
@@ -593,7 +594,7 @@ DEPONENT""";
               if (trailing != null) trailing,
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           ...children,
         ],
       ),

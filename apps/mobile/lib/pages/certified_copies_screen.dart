@@ -9,6 +9,7 @@ import '../components/error_state_widget.dart';
 import '../components/dialogs/log_cc_dialog.dart';
 import '../components/dialogs/payment_capture_overlay.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CertifiedCopiesScreen extends ConsumerWidget {
   const CertifiedCopiesScreen({super.key});
@@ -45,7 +46,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
             letterSpacing: 0.3,
           ),
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
       ),
     );
   }
@@ -84,7 +85,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
               horizontal: isMobile ? 16 : 32,
               vertical: 16,
             ),
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24.r),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [
@@ -95,7 +96,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(24.r),
               boxShadow: [
                 BoxShadow(
                   color: const Color(0xFF3B82F6).withValues(alpha: 0.3),
@@ -110,10 +111,10 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: EdgeInsets.all(10.r),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: const Icon(
                         Icons.description_outlined,
@@ -121,7 +122,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                         size: 24,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    SizedBox(width: 16.w),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,7 +130,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                           Text(
                             'Certified Copies',
                             style: GoogleFonts.outfit(
-                              fontSize: 26,
+                              fontSize: 26.sp,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                               letterSpacing: -0.5,
@@ -138,7 +139,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                           Text(
                             'Track your CC applications in real-time',
                             style: GoogleFonts.inter(
-                              fontSize: 13,
+                              fontSize: 13.sp,
                               color: Colors.white.withValues(alpha: 0.75),
                             ),
                           ),
@@ -147,7 +148,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24.h),
 
                 // Stats Row
                 Row(
@@ -182,7 +183,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
         ),
 
         // Bottom padding for FAB
-        const SliverToBoxAdapter(child: SizedBox(height: 100)),
+        const SliverToBoxAdapter(child: SizedBox(height: 100.h)),
       ],
     );
   }
@@ -190,21 +191,21 @@ class CertifiedCopiesScreen extends ConsumerWidget {
   Widget _buildHeaderStat(String emoji, String label, String count) {
     return Expanded(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        margin: EdgeInsets.symmetric(horizontal: 4.w),
+        padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
         ),
         child: Column(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 4),
+            Text(emoji, style: const TextStyle(fontSize: 18.sp)),
+            SizedBox(height: 4.h),
             Text(
               count,
               style: GoogleFonts.outfit(
-                fontSize: 22,
+                fontSize: 22.sp,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
@@ -212,7 +213,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
             Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 10,
+                fontSize: 10.sp,
                 color: Colors.white.withValues(alpha: 0.7),
                 fontWeight: FontWeight.w500,
               ),
@@ -229,7 +230,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(28),
+            padding: EdgeInsets.all(28.r),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -247,23 +248,23 @@ class CertifiedCopiesScreen extends ConsumerWidget {
               color: AppTheme.accent.withValues(alpha: 0.5),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           Text(
             'No CC Applications Yet',
             style: GoogleFonts.outfit(
-              fontSize: 22,
+              fontSize: 22.sp,
               fontWeight: FontWeight.bold,
               color: AppTheme.primary,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             'Track your certified copy status real-time.\nTap the + button to log your first application.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               color: Colors.grey[500],
-              height: 1.6,
-              fontSize: 14,
+              height: 1.6.h,
+              fontSize: 14.sp,
             ),
           ),
         ],
@@ -281,10 +282,10 @@ class CertifiedCopiesScreen extends ConsumerWidget {
     final statusLabel = _getStatusLabel(c.status);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -304,8 +305,8 @@ class CertifiedCopiesScreen extends ConsumerWidget {
               children: [
                 // Status indicator dot
                 Container(
-                  width: 10,
-                  height: 10,
+                  width: 10.w,
+                  height: 10.h,
                   decoration: BoxDecoration(
                     color: statusColor,
                     shape: BoxShape.circle,
@@ -317,7 +318,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -325,13 +326,13 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                       Text(
                         c.caseTitle ?? 'Unknown Case',
                         style: GoogleFonts.outfit(
-                          fontSize: 17,
+                          fontSize: 17.sp,
                           fontWeight: FontWeight.bold,
                           color: AppTheme.primary,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2.h),
                       Row(
                         children: [
                           if (c.caNumber != null && c.caNumber!.isNotEmpty) ...[
@@ -342,24 +343,24 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: AppTheme.background,
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(6.r),
                               ),
                               child: Text(
                                 'CA: ${c.caNumber}',
                                 style: GoogleFonts.inter(
-                                  fontSize: 11,
+                                  fontSize: 11.sp,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.grey[500],
                                   letterSpacing: 0.3,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8.w),
                           ],
                           Text(
                             'Filed: ${_formatDate(c.boxDropDate)}',
                             style: GoogleFonts.inter(
-                              fontSize: 11,
+                              fontSize: 11.sp,
                               color: Colors.grey[400],
                             ),
                           ),
@@ -376,7 +377,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                   ),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(20.r),
                     border: Border.all(
                       color: statusColor.withValues(alpha: 0.3),
                     ),
@@ -384,7 +385,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                   child: Text(
                     statusLabel,
                     style: GoogleFonts.inter(
-                      fontSize: 11,
+                      fontSize: 11.sp,
                       fontWeight: FontWeight.w700,
                       color: statusColor,
                       letterSpacing: 0.3,
@@ -393,7 +394,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                 ),
                 // NEW: Paid Badge
                 if (c.paidAmount != null) ...[
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8.w),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -401,7 +402,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                     ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF059669).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(20.r),
                       border: Border.all(
                         color: const Color(0xFF059669).withValues(alpha: 0.3),
                       ),
@@ -413,11 +414,11 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                           size: 12,
                           color: Color(0xFF059669),
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4.w),
                         Text(
                           'PAID',
                           style: GoogleFonts.inter(
-                            fontSize: 10,
+                            fontSize: 10.sp,
                             fontWeight: FontWeight.w900,
                             color: const Color(0xFF059669),
                             letterSpacing: 0.5,
@@ -432,15 +433,15 @@ class CertifiedCopiesScreen extends ConsumerWidget {
             ),
           ),
 
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
 
           // ─── Timeline Stepper ───
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: _buildTimelineStepper(c),
           ),
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
 
           // ─── Bottom Info Row ───
           _buildBottomSection(context, ref, c, statusColor),
@@ -525,13 +526,13 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                 : (isActive ? color : Colors.grey[400]),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8.h),
                     // Label
                     Text(
                       stageLabels[index],
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
-                        fontSize: 10,
+                        fontSize: 10.sp,
                         fontWeight:
                             isActive ? FontWeight.w700 : FontWeight.w500,
                         color: isActive ? AppTheme.primary : Colors.grey[400],
@@ -542,28 +543,28 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                       Text(
                         DateFormat('dd MMM').format(stageDates[index]!),
                         style: GoogleFonts.inter(
-                          fontSize: 9,
+                          fontSize: 9.sp,
                           color: Colors.grey[400],
                           fontWeight: FontWeight.w500,
                         ),
                       )
                     else
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12.h),
                   ],
                 ),
               ),
               // Connector line
               if (index < stages.length - 1)
                 Container(
-                  width: 16,
-                  height: 2.5,
-                  margin: const EdgeInsets.only(bottom: 24),
+                  width: 16.w,
+                  height: 2.5.h,
+                  margin: EdgeInsets.only(bottom: 24.h),
                   decoration: BoxDecoration(
                     color:
                         index < currentIdx
                             ? _getStatusColor(stages[index])
                             : Colors.grey[250],
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(2.r),
                   ),
                 ),
             ],
@@ -585,7 +586,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
       decoration: BoxDecoration(
         color: AppTheme.background.withValues(alpha: 0.4),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20.r)),
       ),
       child: Column(
         children: [
@@ -594,11 +595,11 @@ class CertifiedCopiesScreen extends ConsumerWidget {
             children: [
               if (expectedDate != null && c.status != 'collected') ...[
                 const Icon(Icons.schedule_rounded, size: 14, color: AppTheme.warning),
-                const SizedBox(width: 6),
+                SizedBox(width: 6.w),
                 Text(
                   "Expected: ${DateFormat('dd MMM yyyy').format(expectedDate)}",
                   style: GoogleFonts.inter(
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.warning,
                   ),
@@ -606,11 +607,11 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                 const Spacer(),
               ],
               Icon(Icons.update_rounded, size: 14, color: Colors.grey[400]),
-              const SizedBox(width: 6),
+              SizedBox(width: 6.w),
               Text(
                 'Updated: ${_formatDate(_getLastUpdateDate(c))}',
                 style: GoogleFonts.inter(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   color: Colors.grey[400],
                   fontWeight: FontWeight.w500,
                 ),
@@ -621,7 +622,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
           ),
           // Link Payment Button (NEW — Manual Fix)
           if (c.paidAmount == null) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
@@ -639,7 +640,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                   'Link Payment & Update Ledger',
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
-                    fontSize: 13,
+                    fontSize: 13.sp,
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
@@ -647,9 +648,9 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                   side: BorderSide(
                     color: const Color(0xFF059669).withValues(alpha: 0.4),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: EdgeInsets.symmetric(vertical: 14.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
                 ),
               ),
@@ -657,7 +658,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
           ],
           // Update Stage Button
           if (c.status != 'collected') ...[
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -667,16 +668,16 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                   'Advance to ${_getNextStageLabel(c.status)}',
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.bold,
-                    fontSize: 13,
+                    fontSize: 13.sp,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: statusColor,
                   foregroundColor: Colors.white,
                   elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: EdgeInsets.symmetric(vertical: 14.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
                 ),
               ),
@@ -694,7 +695,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
   ) {
     return PopupMenuButton(
       icon: Icon(Icons.more_vert_rounded, color: Colors.grey[400]),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
       itemBuilder:
           (context) => [
             PopupMenuItem(
@@ -702,7 +703,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
               child: const Row(
                 children: [
                   Icon(Icons.delete_outline, color: Colors.red, size: 20),
-                  SizedBox(width: 12),
+                  SizedBox(width: 12.w),
                   Text('Delete Entry', style: TextStyle(color: Colors.red)),
                 ],
               ),
@@ -760,7 +761,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
       builder:
           (context) => AlertDialog(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(24.r),
             ),
             title: Text(
               'Delete Record?',
@@ -768,7 +769,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
             ),
             content: Text(
               'Are you sure you want to delete this Certified Copy record? This action cannot be undone.',
-              style: GoogleFonts.inter(color: Colors.grey[600], height: 1.5),
+              style: GoogleFonts.inter(color: Colors.grey[600], height: 1.5.h),
             ),
             actions: [
               TextButton(
@@ -791,7 +792,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                   backgroundColor: AppTheme.error,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
                   elevation: 0,
                 ),
@@ -852,7 +853,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
             builder:
                 (context, setState) => Dialog(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
+                    borderRadius: BorderRadius.circular(28.r),
                   ),
                   backgroundColor: Colors.white,
                   child: ConstrainedBox(
@@ -862,7 +863,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                       children: [
                         // Header
                         Container(
-                          padding: const EdgeInsets.all(24),
+                          padding: EdgeInsets.all(24.r),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
@@ -873,16 +874,16 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(28),
+                              top: Radius.circular(28.r),
                             ),
                           ),
                           child: Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.all(10),
+                                padding: EdgeInsets.all(10.r),
                                 decoration: BoxDecoration(
                                   color: nextColor.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(14.r),
                                 ),
                                 child: Icon(
                                   Icons.upgrade_rounded,
@@ -890,7 +891,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                   size: 24,
                                 ),
                               ),
-                              const SizedBox(width: 16),
+                              SizedBox(width: 16.w),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -898,16 +899,16 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                     Text(
                                       headerTitle,
                                       style: GoogleFonts.outfit(
-                                        fontSize: 20,
+                                        fontSize: 20.sp,
                                         fontWeight: FontWeight.bold,
                                         color: AppTheme.primary,
                                       ),
                                     ),
-                                    const SizedBox(height: 2),
+                                    SizedBox(height: 2.h),
                                     Text(
                                       'Update the stage for this CC application',
                                       style: GoogleFonts.inter(
-                                        fontSize: 12,
+                                        fontSize: 12.sp,
                                         color: Colors.grey[500],
                                       ),
                                     ),
@@ -920,7 +921,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
 
                         // Body
                         Padding(
-                          padding: const EdgeInsets.all(24),
+                          padding: EdgeInsets.all(24.r),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -928,13 +929,13 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                               Text(
                                 'CA NUMBER',
                                 style: GoogleFonts.inter(
-                                  fontSize: 11,
+                                  fontSize: 11.sp,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.grey[400],
                                   letterSpacing: 1,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: 8.h),
                               TextField(
                                 controller: caController,
                                 style: GoogleFonts.inter(
@@ -951,38 +952,38 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                     alpha: 0.5,
                                   ),
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius: BorderRadius.circular(14.r),
                                     borderSide: const BorderSide(
                                       color: AppTheme.border,
                                     ),
                                   ),
                                   enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius: BorderRadius.circular(14.r),
                                     borderSide: const BorderSide(
                                       color: AppTheme.border,
                                     ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius: BorderRadius.circular(14.r),
                                     borderSide: const BorderSide(
                                       color: AppTheme.accent,
-                                      width: 1.5,
+                                      width: 1.5.w,
                                     ),
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              SizedBox(height: 20.h),
                               // Date
                               Text(
                                 dateLabel.toUpperCase(),
                                 style: GoogleFonts.inter(
-                                  fontSize: 11,
+                                  fontSize: 11.sp,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.grey[400],
                                   letterSpacing: 1,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: 8.h),
                               InkWell(
                                 onTap: () async {
                                   final picked = await showDatePicker(
@@ -995,14 +996,14 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                     setState(() => selectedDate = picked);
                                   }
                                 },
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(14.r),
                                 child: Container(
-                                  padding: const EdgeInsets.all(16),
+                                  padding: EdgeInsets.all(16.r),
                                   decoration: BoxDecoration(
                                     color: AppTheme.background.withValues(
                                       alpha: 0.5,
                                     ),
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius: BorderRadius.circular(14.r),
                                     border: Border.all(color: AppTheme.border),
                                   ),
                                   child: Row(
@@ -1012,14 +1013,14 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                         color: nextColor,
                                         size: 20,
                                       ),
-                                      const SizedBox(width: 12),
+                                      SizedBox(width: 12.w),
                                       Text(
                                         DateFormat(
                                           'dd MMMM yyyy',
                                         ).format(selectedDate),
                                         style: GoogleFonts.inter(
                                           fontWeight: FontWeight.w600,
-                                          fontSize: 15,
+                                          fontSize: 15.sp,
                                           color: AppTheme.primary,
                                         ),
                                       ),
@@ -1050,7 +1051,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                       vertical: 16,
                                     ),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
+                                      borderRadius: BorderRadius.circular(14.r),
                                     ),
                                     side: const BorderSide(color: AppTheme.border),
                                   ),
@@ -1063,7 +1064,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 16),
+                              SizedBox(width: 16.w),
                               Expanded(
                                 child: ElevatedButton.icon(
                                   icon: const Icon(
@@ -1098,7 +1099,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                       vertical: 16,
                                     ),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
+                                      borderRadius: BorderRadius.circular(14.r),
                                     ),
                                     elevation: 0,
                                   ),

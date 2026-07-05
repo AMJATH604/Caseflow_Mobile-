@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MactCalculator extends StatefulWidget {
   const MactCalculator({super.key});
@@ -292,13 +293,13 @@ class _MactCalculatorState extends State<MactCalculator> {
         content: const Row(
           children: [
             Icon(Icons.check_circle, color: Colors.white, size: 18),
-            SizedBox(width: 8),
+            SizedBox(width: 8.w),
             Text('MACT memo copied!'),
           ],
         ),
         backgroundColor: Colors.green[700],
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
       ),
     );
   }
@@ -317,7 +318,7 @@ class _MactCalculatorState extends State<MactCalculator> {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       child: Column(
         children: [
           // ─── Inputs ──
@@ -337,7 +338,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                   ),
                   keyboardType: TextInputType.number,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 TextField(
                   controller: _incomeCtrl,
                   decoration: const InputDecoration(
@@ -361,7 +362,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                         keyboardType: TextInputType.number,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Expanded(
                       child: TextField(
                         controller: _incomeCtrl,
@@ -375,7 +376,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                     ),
                   ],
                 ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               if (isMobile) ...[
                 DropdownButtonFormField<String>(
                   initialValue: _employmentType,
@@ -396,7 +397,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                   ],
                   onChanged: (v) => setState(() => _employmentType = v!),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 DropdownButtonFormField<String>(
                   initialValue: _dependentCategory,
                   isExpanded: true,
@@ -448,7 +449,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                         onChanged: (v) => setState(() => _employmentType = v!),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Expanded(
                       child: DropdownButtonFormField<String>(
                         initialValue: _dependentCategory,
@@ -481,7 +482,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                     ),
                   ],
                 ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               TextField(
                 controller: _medicalCtrl,
                 decoration: const InputDecoration(
@@ -491,10 +492,10 @@ class _MactCalculatorState extends State<MactCalculator> {
                 ),
                 keyboardType: TextInputType.number,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               SizedBox(
                 width: double.infinity,
-                height: 52,
+                height: 52.h,
                 child: ElevatedButton.icon(
                   onPressed: _calculate,
                   icon: const Icon(Icons.calculate_rounded, size: 20),
@@ -509,7 +510,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                     backgroundColor: Colors.red[700],
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                   ),
                 ),
@@ -518,7 +519,7 @@ class _MactCalculatorState extends State<MactCalculator> {
           ),
 
           if (_showResults) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
 
             // ─── Multiplier Reference ──
             _card(
@@ -529,7 +530,7 @@ class _MactCalculatorState extends State<MactCalculator> {
               children: [
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16.r),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -537,7 +538,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                         Colors.orange.withValues(alpha: 0.04),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -564,7 +565,7 @@ class _MactCalculatorState extends State<MactCalculator> {
               ],
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
 
             // ─── Results ──
             _card(
@@ -575,7 +576,7 @@ class _MactCalculatorState extends State<MactCalculator> {
               trailing: TextButton.icon(
                 onPressed: _copyToClipboard,
                 icon: const Icon(Icons.copy_rounded, size: 14),
-                label: const Text('Copy', style: TextStyle(fontSize: 12)),
+                label: const Text('Copy', style: TextStyle(fontSize: 12.sp)),
               ),
               children: [
                 // Total
@@ -592,7 +593,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                         AppTheme.primary.withValues(alpha: 0.05),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -601,32 +602,32 @@ class _MactCalculatorState extends State<MactCalculator> {
                         'TOTAL COMPENSATION',
                         style: TextStyle(
                           fontWeight: FontWeight.w800,
-                          fontSize: 14,
+                          fontSize: 14.sp,
                         ),
                       ),
                       Text(
                         fmt.format(_totalCompensation),
                         style: const TextStyle(
                           fontWeight: FontWeight.w900,
-                          fontSize: 22,
+                          fontSize: 22.sp,
                           color: Colors.green,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
 
                 ..._results.map(
                   (r) => Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(14),
+                    margin: EdgeInsets.only(bottom: 8.h),
+                    padding: EdgeInsets.all(14.r),
                     decoration: BoxDecoration(
                       color:
                           isDark
                               ? Colors.white.withValues(alpha: 0.04)
                               : Colors.grey[50],
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10.r),
                       border: Border.all(
                         color: isDark ? Colors.white10 : Colors.grey[200]!,
                       ),
@@ -641,14 +642,14 @@ class _MactCalculatorState extends State<MactCalculator> {
                                 r['head'],
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 14,
+                                  fontSize: 14.sp,
                                 ),
                               ),
                               if (r['details'] != null)
                                 Text(
                                   r['details'],
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 11.sp,
                                     color: Colors.grey[500],
                                   ),
                                 ),
@@ -659,7 +660,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                           fmt.format(r['amount']),
                           style: const TextStyle(
                             fontWeight: FontWeight.w900,
-                            fontSize: 15,
+                            fontSize: 15.sp,
                             color: AppTheme.primary,
                           ),
                         ),
@@ -670,7 +671,7 @@ class _MactCalculatorState extends State<MactCalculator> {
               ],
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
 
             // ─── How It Was Calculated ──
             _card(
@@ -681,18 +682,18 @@ class _MactCalculatorState extends State<MactCalculator> {
               children: [
                 Text(
                   'Step-by-step computation based on Supreme Court judgments:',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16.r),
                   decoration: BoxDecoration(
                     color:
                         isDark
                             ? const Color(0xFF0F172A)
                             : const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                     border: Border.all(
                       color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
                     ),
@@ -701,18 +702,18 @@ class _MactCalculatorState extends State<MactCalculator> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children:
                         _steps.map((s) {
-                          if (s.isEmpty) return const SizedBox(height: 8);
+                          if (s.isEmpty) return SizedBox(height: 8.h);
                           final bool isHeader =
                               s.startsWith('Step') ||
                               s.startsWith('🚗') ||
                               s.startsWith('Authority') ||
                               s.startsWith('═');
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 3),
+                            padding: EdgeInsets.only(bottom: 3.h),
                             child: Text(
                               s,
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 13.sp,
                                 fontWeight:
                                     isHeader
                                         ? FontWeight.w700
@@ -725,7 +726,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                                         : (isHeader
                                             ? Colors.black87
                                             : Colors.grey[700]),
-                                height: 1.5,
+                                height: 1.5.h,
                               ),
                             ),
                           );
@@ -736,7 +737,7 @@ class _MactCalculatorState extends State<MactCalculator> {
             ),
           ],
 
-          const SizedBox(height: 100),
+          SizedBox(height: 100.h),
         ],
       ),
     );
@@ -746,25 +747,25 @@ class _MactCalculatorState extends State<MactCalculator> {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(8.r),
           ),
           child: Text(
             value,
             style: TextStyle(
               fontWeight: FontWeight.w900,
-              fontSize: 16,
+              fontSize: 16.sp,
               color: color,
             ),
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4.h),
         Text(
           label,
           style: TextStyle(
-            fontSize: 10,
+            fontSize: 10.sp,
             fontWeight: FontWeight.w600,
             color: Colors.grey[500],
           ),
@@ -782,7 +783,7 @@ class _MactCalculatorState extends State<MactCalculator> {
     required List<Widget> children,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       decoration: AppTheme.cardDecoration(isDark: isDark),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -790,14 +791,14 @@ class _MactCalculatorState extends State<MactCalculator> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Icon(icon, color: iconColor, size: 18),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Expanded(
                 child: Text(
                   title,
@@ -809,7 +810,7 @@ class _MactCalculatorState extends State<MactCalculator> {
               if (trailing != null) trailing,
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           ...children,
         ],
       ),

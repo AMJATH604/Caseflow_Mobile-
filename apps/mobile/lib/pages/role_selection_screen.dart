@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../services/onboarding_service.dart';
 import '../router/app_router.dart';
 import '../utils/responsive.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RoleSelectionScreen extends StatefulWidget {
   const RoleSelectionScreen({super.key});
@@ -148,8 +149,8 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                   // Radial glow behind logo area
                   Positioned(
                     top: screenHeight * 0.08,
-                    left: 0,
-                    right: 0,
+                    left: 0.w,
+                    right: 0.w,
                     child: Center(
                       child: AnimatedBuilder(
                         animation: _pulseController,
@@ -210,7 +211,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                             height: 80 * scaleFactor,
                                             decoration: BoxDecoration(
                                               borderRadius:
-                                                  BorderRadius.circular(22),
+                                                  BorderRadius.circular(22.r),
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: const Color(
@@ -244,7 +245,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                             ),
                                             child: ClipRRect(
                                               borderRadius:
-                                                  BorderRadius.circular(22),
+                                                  BorderRadius.circular(22.r),
                                               child: Image.asset(
                                                 'assets/images/logo.png',
                                                 fit: BoxFit.contain,
@@ -267,17 +268,17 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                       'Welcome to CaseFlow',
                                       textAlign: TextAlign.center,
                                       style: GoogleFonts.playfairDisplay(
-                                        fontSize: 30 * scaleFactor,
+                                        fontSize: 30.sp * scaleFactor,
                                         fontWeight: FontWeight.w700,
                                         color: Colors.white,
                                         letterSpacing: -0.5,
                                       ),
                                     ),
-                                    SizedBox(height: 8 * scaleFactor),
+                                    SizedBox(height: 8.h * scaleFactor),
                                     // Gold accent line
                                     Container(
-                                      width: 60,
-                                      height: 2.5,
+                                      width: 60.w,
+                                      height: 2.5.h,
                                       decoration: BoxDecoration(
                                         gradient: const LinearGradient(
                                           colors: [
@@ -286,15 +287,15 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                             Colors.transparent,
                                           ],
                                         ),
-                                        borderRadius: BorderRadius.circular(2),
+                                        borderRadius: BorderRadius.circular(2.r),
                                       ),
                                     ),
-                                    SizedBox(height: 12 * scaleFactor),
+                                    SizedBox(height: 12.h * scaleFactor),
                                     Text(
                                       'How would you like to use CaseFlow?',
                                       textAlign: TextAlign.center,
                                       style: GoogleFonts.inter(
-                                        fontSize: 14 * scaleFactor,
+                                        fontSize: 14.sp * scaleFactor,
                                         color: Colors.white.withValues(
                                           alpha: 0.55,
                                         ),
@@ -334,7 +335,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                 ),
                               ),
 
-                              SizedBox(height: 16 * scaleFactor),
+                              SizedBox(height: 16.h * scaleFactor),
 
                               // ─── CITIZEN CARD (Glassmorphism) ───
                               _buildAnimatedEntry(
@@ -364,7 +365,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                 ),
                               ),
 
-                              SizedBox(height: 20 * scaleFactor),
+                              SizedBox(height: 20.h * scaleFactor),
 
                               // ─── GUEST MODE ───
                               _buildAnimatedEntry(
@@ -386,7 +387,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                             color: Colors.white.withValues(
                                               alpha: 0.12,
                                             ),
-                                            width: 1,
+                                            width: 1.w,
                                           ),
                                           color: Colors.white.withValues(
                                             alpha: 0.04,
@@ -402,11 +403,11 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                                 alpha: 0.45,
                                               ),
                                             ),
-                                            const SizedBox(width: 10),
+                                            SizedBox(width: 10.w),
                                             Text(
                                               'Just Explore (Guest Mode)',
                                               style: GoogleFonts.inter(
-                                                fontSize: 13 * scaleFactor,
+                                                fontSize: 13.sp * scaleFactor,
                                                 color: Colors.white.withValues(
                                                   alpha: 0.45,
                                                 ),
@@ -426,13 +427,13 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                           MainAxisAlignment.center,
                                       children: [
                                         Container(
-                                          width: 40,
-                                          height: 1,
+                                          width: 40.w,
+                                          height: 1.h,
                                           color: const Color(
                                             0xFFD4AF37,
                                           ).withValues(alpha: 0.3),
                                         ),
-                                        const SizedBox(width: 12),
+                                        SizedBox(width: 12.w),
                                         Icon(
                                           Icons.balance_rounded,
                                           size: 14,
@@ -440,10 +441,10 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                             0xFFD4AF37,
                                           ).withValues(alpha: 0.5),
                                         ),
-                                        const SizedBox(width: 12),
+                                        SizedBox(width: 12.w),
                                         Container(
-                                          width: 40,
-                                          height: 1,
+                                          width: 40.w,
+                                          height: 1.h,
                                           color: const Color(
                                             0xFFD4AF37,
                                           ).withValues(alpha: 0.3),
@@ -458,7 +459,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                       'Every Indian has the right to know the law',
                                       textAlign: TextAlign.center,
                                       style: GoogleFonts.inter(
-                                        fontSize: 11 * scaleFactor,
+                                        fontSize: 11.sp * scaleFactor,
                                         color: const Color(
                                           0xFFD4AF37,
                                         ).withValues(alpha: 0.45),
@@ -534,9 +535,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
               transform: Matrix4.identity()..scale(isHovered ? 1.02 : 1.0),
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(24.r),
                   border: Border.all(
-                    width: 1.5,
+                    width: 1.5.w,
                     color: _getShimmerBorderColor(gradient, isHovered),
                   ),
                   boxShadow: [
@@ -551,7 +552,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(24.r),
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                     child: Container(
@@ -566,7 +567,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(24.r),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -586,7 +587,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   ),
-                                  borderRadius: BorderRadius.circular(18),
+                                  borderRadius: BorderRadius.circular(18.r),
                                   border: Border.all(
                                     color: Colors.white.withValues(alpha: 0.15),
                                   ),
@@ -597,7 +598,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                   size: 26 * scaleFactor,
                                 ),
                               ),
-                              SizedBox(width: 16 * scaleFactor),
+                              SizedBox(width: 16.w * scaleFactor),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -605,16 +606,16 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                     Text(
                                       title,
                                       style: GoogleFonts.outfit(
-                                        fontSize: 20 * scaleFactor,
+                                        fontSize: 20.sp * scaleFactor,
                                         fontWeight: FontWeight.w700,
                                         color: Colors.white,
                                       ),
                                     ),
-                                    SizedBox(height: 3 * scaleFactor),
+                                    SizedBox(height: 3.h * scaleFactor),
                                     Text(
                                       subtitle,
                                       style: GoogleFonts.inter(
-                                        fontSize: 12 * scaleFactor,
+                                        fontSize: 12.sp * scaleFactor,
                                         color: Colors.white.withValues(
                                           alpha: 0.65,
                                         ),
@@ -628,7 +629,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                 padding: EdgeInsets.all(8 * scaleFactor),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(12.r),
                                 ),
                                 child: Icon(
                                   Icons.arrow_forward_rounded,
@@ -639,11 +640,11 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                             ],
                           ),
 
-                          SizedBox(height: 16 * scaleFactor),
+                          SizedBox(height: 16.h * scaleFactor),
 
                           // Divider
                           Container(
-                            height: 1,
+                            height: 1.h,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
@@ -655,12 +656,12 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                             ),
                           ),
 
-                          SizedBox(height: 14 * scaleFactor),
+                          SizedBox(height: 14.h * scaleFactor),
 
                           // Feature bullets
                           ...features.map(
                             (feature) => Padding(
-                              padding: EdgeInsets.only(bottom: 8 * scaleFactor),
+                              padding: EdgeInsets.only(bottom: 8.h * scaleFactor),
                               child: Row(
                                 children: [
                                   Icon(
@@ -668,17 +669,17 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                                     size: 14 * scaleFactor,
                                     color: accentColor.withValues(alpha: 0.9),
                                   ),
-                                  SizedBox(width: 10 * scaleFactor),
+                                  SizedBox(width: 10.w * scaleFactor),
                                   Expanded(
                                     child: Text(
                                       feature,
                                       style: GoogleFonts.inter(
-                                        fontSize: 12 * scaleFactor,
+                                        fontSize: 12.sp * scaleFactor,
                                         color: Colors.white.withValues(
                                           alpha: 0.8,
                                         ),
                                         fontWeight: FontWeight.w500,
-                                        height: 1.3,
+                                        height: 1.3.h,
                                       ),
                                     ),
                                   ),

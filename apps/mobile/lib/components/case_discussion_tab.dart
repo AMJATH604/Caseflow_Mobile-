@@ -6,6 +6,7 @@ import '../services/supabase_service.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import 'profile_avatar.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Premium Discussion Tab — WhatsApp-grade chat with avatar circles,
 /// date separator pills, rounded bubbles, and glassmorphic input bar.
@@ -194,17 +195,17 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
     }
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      margin: EdgeInsets.symmetric(vertical: 16.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Text(
         label,
         style: const TextStyle(
-          fontSize: 11,
+          fontSize: 11.sp,
           fontWeight: FontWeight.w700,
           color: Color(0xFF64748B),
           letterSpacing: 0.3,
@@ -222,7 +223,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
+        margin: EdgeInsets.only(bottom: 10.h),
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.78,
         ),
@@ -239,7 +240,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
                 showBorder: false,
                 gradientColors: avatarColors,
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
             ],
             // Bubble
             Flexible(
@@ -249,11 +250,11 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
                 children: [
                   if (!isMe)
                     Padding(
-                      padding: const EdgeInsets.only(left: 4, bottom: 3),
+                      padding: EdgeInsets.only(left: 4.w, bottom: 3.h),
                       child: Text(
                         msg.senderName?.toUpperCase() ?? 'ADVOCATE',
                         style: TextStyle(
-                          fontSize: 9,
+                          fontSize: 9.sp,
                           color: avatarColors[0],
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.8,
@@ -274,8 +275,8 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
                               : null,
                       color: isMe ? null : Colors.white,
                       borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(16),
-                        topRight: const Radius.circular(16),
+                        topLeft: Radius.circular(16.r),
+                        topRight: Radius.circular(16.r),
                         bottomLeft: Radius.circular(isMe ? 16 : 4),
                         bottomRight: Radius.circular(isMe ? 4 : 16),
                       ),
@@ -304,19 +305,19 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
                           style: TextStyle(
                             color:
                                 isMe ? Colors.white : const Color(0xFF1E293B),
-                            fontSize: 14,
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.w500,
-                            height: 1.4,
+                            height: 1.4.h,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4.h),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               timeStr.toUpperCase(),
                               style: TextStyle(
-                                fontSize: 9,
+                                fontSize: 9.sp,
                                 fontWeight: FontWeight.w700,
                                 color:
                                     isMe
@@ -325,7 +326,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
                               ),
                             ),
                             if (isMe) ...[
-                              const SizedBox(width: 4),
+                              SizedBox(width: 4.w),
                               Icon(
                                 Icons.done_all_rounded,
                                 size: 14,
@@ -353,7 +354,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24.r),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFFEEF2FF), Color(0xFFF0F9FF)],
@@ -375,25 +376,25 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
               color: Color(0xFF2563EB),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           const Text(
             'Start a Discussion',
             style: TextStyle(
               fontWeight: FontWeight.w800,
-              fontSize: 17,
+              fontSize: 17.sp,
               color: Color(0xFF0F172A),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 48),
+            padding: EdgeInsets.symmetric(horizontal: 48.w),
             child: Text(
               'Coordinate with your team members\nabout case strategy and updates',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Color(0xFF64748B),
-                fontSize: 13,
-                height: 1.4,
+                fontSize: 13.sp,
+                height: 1.4.h,
               ),
             ),
           ),
@@ -409,7 +410,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
       decoration: BoxDecoration(
         color: Colors.white,
         border: const Border(
-          top: BorderSide(color: Color(0xFFF1F5F9), width: 1.5),
+          top: BorderSide(color: Color(0xFFF1F5F9), width: 1.5.w),
         ),
         boxShadow: [
           BoxShadow(
@@ -423,43 +424,43 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
         children: [
           Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               decoration: BoxDecoration(
                 color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(24.r),
                 border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
               child: TextField(
                 controller: _messageController,
                 maxLines: null,
-                style: const TextStyle(color: Color(0xFF1E293B), fontSize: 14),
+                style: const TextStyle(color: Color(0xFF1E293B), fontSize: 14.sp),
                 decoration: const InputDecoration(
                   hintText: 'Type a message...',
                   hintStyle: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     color: Color(0xFF94A3B8),
                     fontWeight: FontWeight.w500,
                   ),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+                  contentPadding: EdgeInsets.symmetric(vertical: 12.h),
                 ),
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => _sendMessage(),
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           // Gradient send button
           GestureDetector(
             onTap: _isSending ? null : _sendMessage,
             child: Container(
-              width: 44,
-              height: 44,
+              width: 44.w,
+              height: 44.h,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
                 ),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
                 boxShadow: [
                   BoxShadow(
                     color: const Color(0xFF2563EB).withValues(alpha: 0.3),
@@ -471,9 +472,9 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
               child: Center(
                 child:
                     _isSending
-                        ? const SizedBox(
-                          width: 18,
-                          height: 18,
+                        ? SizedBox(
+                          width: 18.w,
+                          height: 18.h,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             color: Colors.white,

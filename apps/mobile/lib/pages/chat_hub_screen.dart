@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../components/profile_avatar.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Unified Chat Hub containing Chambers Group and DM conversations
 class ChatHubScreen extends ConsumerStatefulWidget {
@@ -184,19 +185,19 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                       Text(
                         'CaseFlow Messenger',
                         style: GoogleFonts.outfit(
-                          fontSize: 24,
+                          fontSize: 24.sp,
                           fontWeight: FontWeight.w800,
                           color: isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12.h),
                       Container(
-                        height: 46,
+                        height: 46.h,
                         decoration: BoxDecoration(
                           color: isDark
                               ? Colors.white.withValues(alpha: 0.06)
                               : const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(12.r),
                           border: Border.all(
                             color: isDark
                                 ? Colors.white.withValues(alpha: 0.08)
@@ -209,7 +210,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                             hintText: 'Search chats...',
                             hintStyle: GoogleFonts.inter(
                               color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
-                              fontSize: 14,
+                              fontSize: 14.sp,
                             ),
                             prefixIcon: const Icon(
                               Icons.search_rounded,
@@ -217,10 +218,10 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                               size: 20,
                             ),
                             border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                            contentPadding: EdgeInsets.symmetric(vertical: 12.h),
                           ),
                           style: GoogleFonts.inter(
-                            fontSize: 14,
+                            fontSize: 14.sp,
                             color: isDark ? Colors.white : const Color(0xFF0F172A),
                           ),
                         ),
@@ -245,19 +246,19 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                     // 1. Digital Chambers Pinned Group Chat
                     if (_chambersInfo != null && _searchQuery.isEmpty) ...[
                       _buildChambersTile(isDark),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24.h),
                       Row(
                         children: [
                           Text(
                             'DIRECT MESSAGES',
                             style: GoogleFonts.inter(
-                              fontSize: 11,
+                              fontSize: 11.sp,
                               fontWeight: FontWeight.w800,
                               color: isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8),
                               letterSpacing: 1.2,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8.w),
                           Expanded(
                             child: Divider(
                               color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
@@ -266,7 +267,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12.h),
                     ],
 
                     // 2. DM Conversations
@@ -327,7 +328,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
     return Container(
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF4F46E5).withValues(alpha: 0.08),
@@ -337,21 +338,21 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
         ],
         border: Border.all(
           color: isDark ? const Color(0xFF2D3748) : const Color(0xFFEEF2FF),
-          width: 1.5,
+          width: 1.5.w,
         ),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () => context.push('/chambers-chat'),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
           child: Padding(
-            padding: const EdgeInsets.all(18),
+            padding: EdgeInsets.all(18.r),
             child: Row(
               children: [
                 Container(
-                  width: 52,
-                  height: 52,
+                  width: 52.w,
+                  height: 52.h,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: LinearGradient(
@@ -366,7 +367,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                     size: 26,
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: 16.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -377,7 +378,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                           Text(
                             'Digital Chambers',
                             style: GoogleFonts.outfit(
-                              fontSize: 16,
+                              fontSize: 16.sp,
                               fontWeight: FontWeight.w800,
                               color: isDark ? Colors.white : const Color(0xFF0F172A),
                             ),
@@ -386,18 +387,18 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                             Text(
                               time,
                               style: GoogleFonts.inter(
-                                fontSize: 11,
+                                fontSize: 11.sp,
                                 fontWeight: FontWeight.w600,
                                 color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
                               ),
                             ),
                         ],
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: 6.h),
                       Text(
                         preview,
                         style: GoogleFonts.inter(
-                          fontSize: 13,
+                          fontSize: 13.sp,
                           fontWeight: FontWeight.w500,
                           color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                         ),
@@ -407,7 +408,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 const Icon(
                   Icons.chevron_right_rounded,
                   color: Color(0xFF4F46E5),
@@ -448,10 +449,10 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: EdgeInsets.only(bottom: 10.h),
       decoration: BoxDecoration(
         color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: isDark
               ? Colors.white.withValues(alpha: 0.04)
@@ -462,9 +463,9 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
         color: Colors.transparent,
         child: InkWell(
           onTap: () => context.push('/dm/${conv['id']}'),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             child: Row(
               children: [
                 ProfileAvatar(
@@ -472,7 +473,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                   name: name,
                   radius: 24,
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -483,7 +484,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                             child: Text(
                               name,
                               style: GoogleFonts.outfit(
-                                fontSize: 15,
+                                fontSize: 15.sp,
                                 fontWeight: unread > 0 ? FontWeight.w800 : FontWeight.w600,
                                 color: isDark ? Colors.white : const Color(0xFF0F172A),
                               ),
@@ -494,7 +495,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                             Text(
                               time,
                               style: GoogleFonts.inter(
-                                fontSize: 11,
+                                fontSize: 11.sp,
                                 fontWeight: unread > 0 ? FontWeight.w700 : FontWeight.w500,
                                 color: unread > 0
                                     ? const Color(0xFF4F46E5)
@@ -503,14 +504,14 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                             ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4.h),
                       Row(
                         children: [
                           Expanded(
                             child: Text(
                               preview,
                               style: GoogleFonts.inter(
-                                fontSize: 13,
+                                fontSize: 13.sp,
                                 fontWeight: unread > 0 ? FontWeight.w600 : FontWeight.w400,
                                 color: unread > 0
                                     ? (isDark ? Colors.white70 : const Color(0xFF1E293B))
@@ -521,7 +522,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                             ),
                           ),
                           if (unread > 0) ...[
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8.w),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -531,12 +532,12 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                                 gradient: const LinearGradient(
                                   colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
                                 ),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12.r),
                               ),
                               child: Text(
                                 '$unread',
                                 style: GoogleFonts.inter(
-                                  fontSize: 10,
+                                  fontSize: 10.sp,
                                   fontWeight: FontWeight.w800,
                                   color: Colors.white,
                                 ),
@@ -558,12 +559,12 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
 
   Widget _buildEmptyDmsState(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 60),
+      padding: EdgeInsets.symmetric(vertical: 60.h),
       child: Center(
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16.r),
               decoration: BoxDecoration(
                 color: const Color(0xFF4F46E5).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
@@ -574,20 +575,20 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                 color: Color(0xFF4F46E5),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Text(
               'No Direct Messages Yet',
               style: GoogleFonts.outfit(
-                fontSize: 16,
+                fontSize: 16.sp,
                 fontWeight: FontWeight.w700,
                 color: isDark ? Colors.white70 : const Color(0xFF475569),
               ),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6.h),
             Text(
               'Tap the chat icon to message advocates.',
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 12.sp,
                 color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
               ),
             ),
@@ -718,29 +719,29 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
       builder: (context, scrollController) => Container(
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF0F172A) : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28.r)),
         ),
         child: Column(
           children: [
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Container(
-              width: 40,
-              height: 4,
+              width: 40.w,
+              height: 4.h,
               decoration: BoxDecoration(
                 color: isDark ? Colors.white24 : const Color(0xFFE2E8F0),
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(2.r),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: EdgeInsets.all(8.r),
                     decoration: BoxDecoration(
                       color: const Color(0xFF4F46E5).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10.r),
                     ),
                     child: const Icon(
                       Icons.person_add_rounded,
@@ -748,11 +749,11 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
                       size: 18,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12.w),
                   Text(
                     'New Message',
                     style: GoogleFonts.outfit(
-                      fontSize: 20,
+                      fontSize: 20.sp,
                       fontWeight: FontWeight.w700,
                       color: isDark ? Colors.white : const Color(0xFF0F172A),
                     ),
@@ -760,16 +761,16 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             // Search bar
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: Container(
                 decoration: BoxDecoration(
                   color: isDark
                       ? Colors.white.withValues(alpha: 0.06)
                       : const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                   border: Border.all(
                     color: isDark
                         ? Colors.white.withValues(alpha: 0.08)
@@ -781,7 +782,7 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
                     hintText: 'Search advocate by name...',
                     hintStyle: GoogleFonts.inter(
                       color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
-                      fontSize: 14,
+                      fontSize: 14.sp,
                     ),
                     prefixIcon: const Icon(
                       Icons.search_rounded,
@@ -795,14 +796,14 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
                     ),
                   ),
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
                   onChanged: (v) => setState(() => _search = v),
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             // List
             Expanded(
               child: _loading
@@ -820,7 +821,7 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
                         )
                       : ListView.builder(
                           controller: scrollController,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
                           itemCount: _filtered.length,
                           itemBuilder: (context, i) {
                             final adv = _filtered[i];
@@ -842,14 +843,14 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
     ].where((s) => s != null).join(', ');
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: EdgeInsets.only(bottom: 4.h),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () => _startConversation(adv),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 10.h),
             child: Row(
               children: [
                 ProfileAvatar(
@@ -857,7 +858,7 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
                   name: name,
                   radius: 22,
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -865,17 +866,17 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
                       Text(
                         name,
                         style: GoogleFonts.outfit(
-                          fontSize: 15,
+                          fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : const Color(0xFF0F172A),
                         ),
                       ),
                       if (location.isNotEmpty) ...[
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2.h),
                         Text(
                           location,
                           style: GoogleFonts.inter(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
                           ),
                         ),
@@ -884,10 +885,10 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(8.r),
                   decoration: BoxDecoration(
                     color: const Color(0xFF4F46E5).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: const Icon(
                     Icons.chat_bubble_outline_rounded,

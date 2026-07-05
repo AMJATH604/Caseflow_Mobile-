@@ -5,6 +5,7 @@ import '../../services/supabase_service.dart';
 import '../../services/providers.dart';
 
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ScheduleHearingDialog extends ConsumerStatefulWidget {
   const ScheduleHearingDialog({super.key});
@@ -103,7 +104,7 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
                 loading: () => const CircularProgressIndicator(),
                 error: (e, s) => Text('Error loading cases: $e'),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               InkWell(
                 onTap: () async {
                   final picked = await showDatePicker(
@@ -119,13 +120,13 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
                   child: Text(DateFormat('dd MMM yyyy').format(_hearingDate!)),
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               TextFormField(
                 controller: _purposeController,
                 decoration: const InputDecoration(labelText: 'Purpose / Stage'),
                 validator: (v) => v!.isEmpty ? 'Required' : null,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               TextFormField(
                 controller: _notesController,
                 decoration: const InputDecoration(labelText: 'Notes'),
@@ -148,9 +149,9 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
           ),
           child:
               _isSaving
-                  ? const SizedBox(
-                    height: 20,
-                    width: 20,
+                  ? SizedBox(
+                    height: 20.h,
+                    width: 20.w,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       color: Colors.white,

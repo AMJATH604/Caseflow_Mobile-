@@ -11,6 +11,7 @@ import '../services/repositories/discussion_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../components/profile_avatar.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class FirmManagementScreen extends ConsumerStatefulWidget {
   const FirmManagementScreen({super.key});
@@ -221,23 +222,23 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder:
           (ctx) => SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(24.r),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     'Share',
                     style: GoogleFonts.outfit(
-                      fontSize: 18,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -285,23 +286,23 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
   ) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16.r),
       child: Column(
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: 56.w,
+            height: 56.h,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
             ),
             child: Icon(icon, color: color, size: 26),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               color: Colors.grey[600],
             ),
@@ -340,17 +341,17 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                           (_profile?.isFirmOwner ?? false)) ...[
                         _buildSectionHeader('Digital Chambers'),
                         _buildNoticeBoard(),
-                        const SizedBox(height: 32),
+                        SizedBox(height: 32.h),
                       ],
                       if (_invitations.isNotEmpty) ...[
                         _buildSectionHeader('Firm Invitations'),
                         ..._invitations.map((inv) => _buildInvitationCard(inv)),
-                        const SizedBox(height: 32),
+                        SizedBox(height: 32.h),
                       ],
                       if (_profile?.isFirmOwner ?? false) ...[
                         _buildSectionHeader('Recruit Associate'),
                         _buildInviteForm(),
-                        const SizedBox(height: 32),
+                        SizedBox(height: 32.h),
                         _buildSectionHeader('Legal Professional Hub'),
                         if (_members.isEmpty)
                           _buildEmptyTeamState()
@@ -359,13 +360,13 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                       ] else if (_profile?.firmId != null) ...[
                         _buildSectionHeader('Chambers Status'),
                         _buildStaffFirmCard(),
-                        const SizedBox(height: 32),
+                        SizedBox(height: 32.h),
                         _buildSectionHeader('The Team'),
                         ..._members.map((m) => _buildMemberCard(m)),
                       ] else ...[
                         _buildBusinessUpgradePrompt(),
                       ],
-                      const SizedBox(height: 100),
+                      SizedBox(height: 100.h),
                     ],
                   ),
                 ),
@@ -379,7 +380,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
 
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Row(
         children: [
           IconButton(
@@ -390,11 +391,11 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
             ),
             onPressed: () => context.go('/'),
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4.w),
           Text(
             'Firm Operating System',
             style: GoogleFonts.inter(
-              fontSize: 22,
+              fontSize: 22.sp,
               fontWeight: FontWeight.w900,
               color: const Color(0xFF1E293B),
               letterSpacing: -0.5,
@@ -407,22 +408,22 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16.h),
       child: Row(
         children: [
           Container(
-            width: 4,
-            height: 18,
+            width: 4.w,
+            height: 18.h,
             decoration: BoxDecoration(
               color: AppTheme.accent,
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(2.r),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Text(
             title.toUpperCase(),
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w900,
               color: Color(0xFF1E293B),
               letterSpacing: 2,
@@ -437,16 +438,16 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
   Widget _buildNoticeBoard() {
     return InkWell(
       onTap: () => context.push('/chambers-chat'),
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16.r),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.r),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [AppTheme.accent, AppTheme.accent.withValues(alpha: 0.85)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
               color: AppTheme.accent.withValues(alpha: 0.25),
@@ -458,11 +459,11 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
         child: Row(
           children: [
             Container(
-              width: 52,
-              height: 52,
+              width: 52.w,
+              height: 52.h,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
               ),
               child: const Icon(
                 Icons.forum_rounded,
@@ -470,7 +471,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                 size: 26,
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -478,17 +479,17 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                   const Text(
                     'Chambers Chat',
                     style: TextStyle(
-                      fontSize: 17,
+                      fontSize: 17.sp,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
                       letterSpacing: -0.3,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   Text(
                     'Tap to open full conversation',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: Colors.white.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w500,
                     ),
@@ -497,11 +498,11 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
               ),
             ),
             Container(
-              width: 36,
-              height: 36,
+              width: 36.w,
+              height: 36.h,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10.r),
               ),
               child: const Icon(
                 Icons.arrow_forward_ios_rounded,
@@ -521,21 +522,21 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.darkCard,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: AppTheme.darkBorder),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.r),
         child: Column(
           children: [
             Container(
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8.r),
               ),
               child: TextField(
                 controller: _emailController,
-                style: const TextStyle(color: Color(0xFF1E293B), fontSize: 13),
+                style: const TextStyle(color: Color(0xFF1E293B), fontSize: 13.sp),
                 decoration: const InputDecoration(
                   hintText: "Junior's Professional Email",
                   hintStyle: TextStyle(color: Color(0xFFCBD5E1)),
@@ -545,11 +546,11 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                     color: Color(0xFF94A3B8),
                   ),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.all(16),
+                  contentPadding: EdgeInsets.all(16.r),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -557,9 +558,9 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.accent,
                   foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                   elevation: 0,
                 ),
@@ -567,7 +568,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                   'INITIALIZE RECRUITMENT',
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     letterSpacing: 1,
                   ),
                 ),
@@ -582,14 +583,14 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
   Widget _buildMemberCard(FirmMember member) {
     final bool isMe = member.memberId == _profile?.id;
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: EdgeInsets.only(bottom: 8.h),
       decoration: BoxDecoration(
         color: AppTheme.darkCard,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: AppTheme.darkBorder),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
         leading: ProfileAvatar(
           name: member.memberName ?? member.memberEmail,
           radius: 20,
@@ -602,7 +603,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
           style: const TextStyle(
             fontWeight: FontWeight.w900,
             color: Color(0xFF1E293B),
-            fontSize: 14,
+            fontSize: 14.sp,
             letterSpacing: -0.5,
           ),
         ),
@@ -613,7 +614,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                 member.status == 'accepted'
                     ? AppTheme.success.withValues(alpha: 0.7)
                     : AppTheme.accent.withValues(alpha: 0.7),
-            fontSize: 9,
+            fontSize: 9.sp,
             fontWeight: FontWeight.w900,
             letterSpacing: 1,
           ),
@@ -635,16 +636,16 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
 
   Widget _buildStaffFirmCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: AppTheme.accent.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(24.r),
         border: Border.all(color: AppTheme.accent.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12.r),
             decoration: const BoxDecoration(
               color: AppTheme.accent,
               shape: BoxShape.circle,
@@ -655,7 +656,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
               size: 24,
             ),
           ),
-          const SizedBox(width: 20),
+          SizedBox(width: 20.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -665,14 +666,14 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF1E293B),
-                    fontSize: 16,
+                    fontSize: 16.sp,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Text(
                   'Full professional access to shared documents & cases',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: Colors.white.withValues(alpha: 0.5),
                   ),
                 ),
@@ -686,11 +687,11 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
 
   Widget _buildInvitationCard(FirmMember invitation) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: 16.h),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
         color: const Color(0xFFE2E8F0),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(24.r),
         border: Border.all(color: AppTheme.accent.withValues(alpha: 0.4)),
       ),
       child: ListTile(
@@ -709,7 +710,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
           'Join flow by ${invitation.ownerName ?? invitation.ownerId}',
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.5),
-            fontSize: 12,
+            fontSize: 12.sp,
           ),
         ),
         trailing: ElevatedButton(
@@ -718,7 +719,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
             backgroundColor: AppTheme.accent,
             foregroundColor: Colors.black,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
           ),
           child: const Text(
@@ -733,19 +734,19 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
   Widget _buildBusinessUpgradePrompt() {
     return Center(
       child: Container(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(32.r),
         decoration: BoxDecoration(
           color: AppTheme.darkCard,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(color: AppTheme.darkBorder),
         ),
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20.r),
               decoration: BoxDecoration(
                 color: AppTheme.accent.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
                   color: AppTheme.accent.withValues(alpha: 0.1),
                 ),
@@ -756,28 +757,28 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                 color: AppTheme.accent,
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             Text(
               'Professional Hub',
               style: GoogleFonts.inter(
-                fontSize: 24,
+                fontSize: 24.sp,
                 fontWeight: FontWeight.w900,
                 color: const Color(0xFF1E293B),
                 letterSpacing: -1,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             const Text(
               'Transform CaseFlow into a shared chambers workspace. Recruit juniors and synchronize your legal operations.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Color(0xFF94A3B8),
-                fontSize: 13,
-                height: 1.5,
+                fontSize: 13.sp,
+                height: 1.5.h,
                 fontWeight: FontWeight.w500,
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32.h),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -787,16 +788,16 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                   'ACTIVATE BUSINESS NODES',
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     letterSpacing: 0.5,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.accent,
                   foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  padding: EdgeInsets.symmetric(vertical: 18.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   elevation: 0,
                 ),
@@ -811,11 +812,11 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
   Widget _buildEmptyTeamState() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(40),
-      margin: const EdgeInsets.only(top: 8),
+      padding: EdgeInsets.all(40.r),
+      margin: EdgeInsets.only(top: 8.h),
       decoration: BoxDecoration(
         color: const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(24.r),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: const Column(
@@ -825,12 +826,12 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
             size: 48,
             color: Color(0xFFE2E8F0),
           ),
-          SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Text(
             'Recruit your first professional junior',
             style: TextStyle(
               color: Color(0xFFCBD5E1),
-              fontSize: 13,
+              fontSize: 13.sp,
               fontWeight: FontWeight.bold,
             ),
           ),

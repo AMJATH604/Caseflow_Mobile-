@@ -6,6 +6,7 @@ import 'dialogs/new_case_dialog.dart';
 import 'dialogs/add_client_dialog.dart';
 import 'dialogs/log_cc_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class QuickActionFAB extends ConsumerStatefulWidget {
   const QuickActionFAB({super.key});
@@ -64,7 +65,7 @@ class _QuickActionFABState extends ConsumerState<QuickActionFAB>
               );
             },
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           _buildActionItem(
             label: 'New Client',
             icon: Icons.person_add,
@@ -77,7 +78,7 @@ class _QuickActionFABState extends ConsumerState<QuickActionFAB>
               );
             },
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           _buildActionItem(
             label: 'New Hearing',
             icon: Icons.calendar_today,
@@ -90,7 +91,7 @@ class _QuickActionFABState extends ConsumerState<QuickActionFAB>
               );
             },
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           _buildActionItem(
             label: 'Log C.A',
             icon: Icons.note_add,
@@ -103,7 +104,7 @@ class _QuickActionFABState extends ConsumerState<QuickActionFAB>
               );
             },
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
         ],
         FloatingActionButton(
           onPressed: _toggle,
@@ -132,10 +133,10 @@ class _QuickActionFABState extends ConsumerState<QuickActionFAB>
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(8.r),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.1),
@@ -148,13 +149,13 @@ class _QuickActionFABState extends ConsumerState<QuickActionFAB>
           child: Text(
             label,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               color: Color(0xFF1E293B),
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12.w),
         FloatingActionButton.small(
           onPressed: onPressed,
           backgroundColor: color,

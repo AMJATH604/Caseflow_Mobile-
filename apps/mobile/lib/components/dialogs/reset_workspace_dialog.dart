@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/supabase_service.dart';
 import '../../services/providers.dart';
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ResetWorkspaceDialog extends StatefulWidget {
   const ResetWorkspaceDialog({super.key});
@@ -62,11 +63,11 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       child: Container(
         constraints: const BoxConstraints(maxWidth: 400),
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(32.r),
         child: Consumer(
           builder: (context, ref, child) {
             return Column(
@@ -74,7 +75,7 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(12.r),
                   decoration: BoxDecoration(
                     color: AppTheme.error.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
@@ -85,30 +86,30 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                     size: 32,
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24.h),
                 Text(
                   'Reset Workspace?',
                   style: GoogleFonts.outfit(
-                    fontSize: 24,
+                    fontSize: 24.sp,
                     fontWeight: FontWeight.w700,
                     color: Theme.of(context).textTheme.titleLarge?.color,
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 Text(
                   'This action will permanently delete all your Cases, Clients, Hearings, and Documents. This cannot be undone.',
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     color: Colors.grey[600],
-                    height: 1.5,
+                    height: 1.5.h,
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24.h),
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16.r),
                   decoration: BoxDecoration(
                     color: Colors.grey.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                     border: Border.all(
                       color: Colors.grey.withValues(alpha: 0.1),
                     ),
@@ -119,12 +120,12 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                       Text(
                         'Type RESET to confirm:',
                         style: GoogleFonts.inter(
-                          fontSize: 12,
+                          fontSize: 12.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.grey[800],
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8.h),
                       TextField(
                         controller: _confirmController,
                         autofocus: true,
@@ -137,7 +138,7 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                           errorText: _errorMessage,
                         ),
                         style: GoogleFonts.outfit(
-                          fontSize: 18,
+                          fontSize: 18.sp,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 2,
                         ),
@@ -150,7 +151,7 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: 32.h),
                 Row(
                   children: [
                     Expanded(
@@ -158,9 +159,9 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                         onPressed:
                             _isDeleting ? null : () => Navigator.pop(context),
                         style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          padding: EdgeInsets.symmetric(vertical: 16.h),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12.r),
                           ),
                         ),
                         child: Text(
@@ -172,24 +173,24 @@ class _ResetWorkspaceDialogState extends State<ResetWorkspaceDialog> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    SizedBox(width: 16.w),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: _isDeleting ? null : () => _handleReset(ref),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.error,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          padding: EdgeInsets.symmetric(vertical: 16.h),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12.r),
                           ),
                         ),
                         child:
                             _isDeleting
-                                ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
+                                ? SizedBox(
+                                  height: 20.h,
+                                  width: 20.w,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     color: Colors.white,

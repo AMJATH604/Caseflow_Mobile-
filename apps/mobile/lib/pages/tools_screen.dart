@@ -23,6 +23,7 @@ import 'tools/mact_calculator.dart';
 import 'tools/maintenance_calculator.dart';
 import 'tools/legal_dictionary.dart';
 import 'tools/english_dictionary.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ToolsScreen extends ConsumerStatefulWidget {
   const ToolsScreen({super.key});
@@ -343,9 +344,9 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
                   'Intelligence Hub',
                   style: Theme.of(
                     context,
-                  ).textTheme.displayLarge?.copyWith(fontSize: 28),
+                  ).textTheme.displayLarge?.copyWith(fontSize: 28.sp),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 Text(
                   'Specialized utilities for high-precision practice',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -367,7 +368,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
             }).toList(),
             isMobile,
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           if (!kIsWeb) ...[
             _buildToolSection(
               'Document Tools',
@@ -377,14 +378,14 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
               }).toList(),
               isMobile,
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
           ],
           // Separate Chambers sections for high visibility
           _buildToolSection('Digital Chambers', [_chambersTools[0]], isMobile),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           _buildToolSection('Recruit Associate', [_chambersTools[1]], isMobile),
 
-          const SizedBox(height: 100),
+          SizedBox(height: 100.h),
         ],
       ),
     );
@@ -399,18 +400,18 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
           child: Row(
             children: [
               Container(
-                width: 4,
-                height: 20,
+                width: 4.w,
+                height: 20.h,
                 decoration: BoxDecoration(
                   color: AppTheme.accent,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(2.r),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Text(
                 title.toUpperCase(),
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -426,7 +427,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
           ),
         ),
         GridView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -448,7 +449,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
   Widget _buildToolCard(Map<String, dynamic> tool) {
     return InkWell(
       onTap: () => _onToolTap(tool),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(12.r),
       child: Container(
         decoration: AppTheme.cardDecoration(
           isDark: Theme.of(context).brightness == Brightness.dark,
@@ -460,17 +461,17 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(12.r),
                     decoration: BoxDecoration(
                       color: tool['color'].withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(8.r),
                       border: Border.all(
                         color: tool['color'].withValues(alpha: 0.1),
                       ),
                     ),
                     child: Icon(tool['icon'], color: tool['color'], size: 22),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12.h),
                   Text(
                     tool['title'],
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -482,13 +483,13 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
                     child: Text(
                       tool['desc'].toString().toUpperCase(),
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        fontSize: 8,
+                        fontSize: 8.sp,
                         color:
                             Theme.of(context).brightness == Brightness.dark
                                 ? const Color(0xFFCBD5E1)
@@ -623,7 +624,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       children: [
         if (true) // Enable header for all tools including broadcast
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             child: Row(
               children: [
                 IconButton(
@@ -639,7 +640,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 Expanded(
                   child: Text(
                     title.toUpperCase(),
@@ -653,7 +654,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
               ],
             ),
           ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
 
         Expanded(child: toolWidget),
       ],

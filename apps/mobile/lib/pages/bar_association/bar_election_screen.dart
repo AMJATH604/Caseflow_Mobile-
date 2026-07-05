@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../models/bar_association_models.dart';
 import '../../services/providers.dart';
 import '../../services/repositories/bar_association_repository.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // Premium Color Palette
 class _C {
@@ -63,7 +64,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
           'Elections',
           style: GoogleFonts.inter(
             fontWeight: FontWeight.w800,
-            fontSize: 20,
+            fontSize: 20.sp,
             color: _C.textPrimary,
           ),
         ),
@@ -81,7 +82,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
             children: [
               Icon(Icons.error_outline_rounded, size: 48,
                   color: _C.danger.withValues(alpha: 0.5)),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               Text('Failed to load election',
                   style: GoogleFonts.inter(color: _C.textMuted)),
             ],
@@ -110,13 +111,13 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
   Widget _buildNoElection() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(32.r),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 100,
-              height: 100,
+              width: 100.w,
+              height: 100.h,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -124,7 +125,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                     _C.pink.withValues(alpha: 0.1),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(30.r),
               ),
               child: const Icon(
                 Icons.how_to_vote_rounded,
@@ -132,23 +133,23 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                 color: _C.violet,
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             Text(
               'No Active Election',
               style: GoogleFonts.inter(
-                fontSize: 22,
+                fontSize: 22.sp,
                 fontWeight: FontWeight.w800,
                 color: _C.textPrimary,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               'There are no ongoing elections at this time.\nYou will be notified when elections are announced.',
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
-                fontSize: 14,
+                fontSize: 14.sp,
                 color: _C.textSecondary,
-                height: 1.6,
+                height: 1.6.h,
               ),
             ),
           ],
@@ -165,12 +166,12 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
         _hasVoted = snapshot.data ?? false;
 
         return ListView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16.r),
           children: [
             _buildElectionHeader(election),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             _buildTimeline(election),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
 
             if (election.isVotingOpen && !_hasVoted)
               _buildVotingSection(election, member)
@@ -195,7 +196,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
             color: _C.violet.withValues(alpha: 0.4),
@@ -204,18 +205,18 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
           ),
         ],
       ),
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24.r),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 48.w,
+                height: 48.h,
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                 ),
                 child: const Icon(
                   Icons.how_to_vote_rounded,
@@ -223,7 +224,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,17 +232,17 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                     Text(
                       election.title,
                       style: GoogleFonts.inter(
-                        fontSize: 20,
+                        fontSize: 20.sp,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
                       ),
                     ),
                     if (election.description != null) ...[
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4.h),
                       Text(
                         election.description!,
                         style: GoogleFonts.inter(
-                          fontSize: 13,
+                          fontSize: 13.sp,
                           color: Colors.white.withValues(alpha: 0.8),
                         ),
                         maxLines: 2,
@@ -253,14 +254,14 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                   border: Border.all(
                     color: Colors.white.withValues(alpha: 0.3),
                   ),
@@ -268,7 +269,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                 child: Text(
                   election.statusLabel,
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
@@ -295,22 +296,22 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
       animation: _pulseController,
       builder: (context, child) {
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
           decoration: BoxDecoration(
             color: Colors.white.withValues(
               alpha: 0.15 + (_pulseController.value * 0.1),
             ),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10.r),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(Icons.timer_rounded, size: 14, color: Colors.white),
-              const SizedBox(width: 6),
+              SizedBox(width: 6.w),
               Text(
                 days > 0 ? '${days}d ${hours}h left' : '${hours}h left',
                 style: GoogleFonts.inter(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                 ),
@@ -346,10 +347,10 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
     ];
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: _C.card,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: _C.border),
       ),
       child: Row(
@@ -365,8 +366,8 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                 Column(
                   children: [
                     Container(
-                      width: 32,
-                      height: 32,
+                      width: 32.w,
+                      height: 32.h,
                       decoration: BoxDecoration(
                         gradient: (isDone || isActive)
                             ? LinearGradient(
@@ -399,11 +400,11 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                         size: 18,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6.h),
                     Text(
                       phase['label'] as String,
                       style: GoogleFonts.inter(
-                        fontSize: 11,
+                        fontSize: 11.sp,
                         fontWeight: (isDone || isActive)
                             ? FontWeight.w700
                             : FontWeight.w500,
@@ -415,7 +416,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                     Text(
                       DateFormat('dd MMM').format(phase['date'] as DateTime),
                       style: GoogleFonts.inter(
-                        fontSize: 10,
+                        fontSize: 10.sp,
                         color: _C.textMuted,
                       ),
                     ),
@@ -424,15 +425,15 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                 if (index < phases.length - 1)
                   Expanded(
                     child: Container(
-                      height: 2,
-                      margin: const EdgeInsets.only(bottom: 28),
+                      height: 2.h,
+                      margin: EdgeInsets.only(bottom: 28.h),
                       decoration: BoxDecoration(
                         gradient: isDone
                             ? const LinearGradient(
                                 colors: [_C.success, _C.success])
                             : null,
                         color: isDone ? null : _C.border,
-                        borderRadius: BorderRadius.circular(1),
+                        borderRadius: BorderRadius.circular(1.r),
                       ),
                     ),
                   ),
@@ -458,21 +459,21 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
 
         if (posts.isEmpty) {
           return Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24.r),
             decoration: BoxDecoration(
               color: _C.card,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               border: Border.all(color: _C.border),
             ),
             child: Column(
               children: [
                 Icon(Icons.hourglass_empty_rounded, size: 40,
                     color: _C.textMuted),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 Text(
                   'Voting posts are being set up',
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: _C.textSecondary,
                   ),
@@ -488,24 +489,24 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
             Text(
               'Cast Your Vote',
               style: GoogleFonts.inter(
-                fontSize: 18,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.w800,
                 color: _C.textPrimary,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             Text(
               'Select one candidate for each post',
-              style: GoogleFonts.inter(fontSize: 13, color: _C.textSecondary),
+              style: GoogleFonts.inter(fontSize: 13.sp, color: _C.textSecondary),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             ...posts.map((post) => _buildPostVoting(post)),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
 
             // Submit Button
             SizedBox(
               width: double.infinity,
-              height: 56,
+              height: 56.h,
               child: ElevatedButton(
                 onPressed:
                     (_selectedVotes.length == posts.length && !_submitting)
@@ -517,13 +518,13 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                   disabledBackgroundColor: const Color(0xFFCBD5E1),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16.r),
                   ),
                 ),
                 child: _submitting
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
+                    ? SizedBox(
+                        width: 24.w,
+                        height: 24.h,
                         child: CircularProgressIndicator(
                           strokeWidth: 2, color: Colors.white),
                       )
@@ -531,19 +532,19 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Icon(Icons.how_to_vote_rounded, size: 20),
-                          const SizedBox(width: 10),
+                          SizedBox(width: 10.w),
                           Text(
                             'Submit Vote (${_selectedVotes.length}/${posts.length})',
                             style: GoogleFonts.inter(
                               fontWeight: FontWeight.w700,
-                              fontSize: 16,
+                              fontSize: 16.sp,
                             ),
                           ),
                         ],
                       ),
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32.h),
           ],
         );
       },
@@ -556,7 +557,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
       builder: (context, nomSnapshot) {
         if (!nomSnapshot.hasData) {
           return const Padding(
-            padding: EdgeInsets.all(16),
+            padding: EdgeInsets.all(16.r),
             child: Center(
               child: CircularProgressIndicator(color: _C.violet),
             ),
@@ -565,10 +566,10 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
         final nominations = nomSnapshot.data!;
 
         return Container(
-          margin: const EdgeInsets.only(bottom: 16),
+          margin: EdgeInsets.only(bottom: 16.h),
           decoration: BoxDecoration(
             color: _C.card,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
             border: Border.all(color: _C.border),
             boxShadow: [
               BoxShadow(
@@ -584,7 +585,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
               // Post header
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16.r),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -593,18 +594,18 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                     ],
                   ),
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
+                    topLeft: Radius.circular(16.r),
+                    topRight: Radius.circular(16.r),
                   ),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      width: 32,
-                      height: 32,
+                      width: 32.w,
+                      height: 32.h,
                       decoration: BoxDecoration(
                         color: _C.violet.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: const Icon(
                         Icons.workspace_premium_rounded,
@@ -612,11 +613,11 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                         size: 18,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10.w),
                     Text(
                       post.postName,
                       style: GoogleFonts.inter(
-                        fontSize: 16,
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
                         color: _C.violet,
                       ),
@@ -624,8 +625,8 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                     const Spacer(),
                     if (_selectedVotes.containsKey(post.id))
                       Container(
-                        width: 24,
-                        height: 24,
+                        width: 24.w,
+                        height: 24.h,
                         decoration: const BoxDecoration(
                           color: _C.success,
                           shape: BoxShape.circle,
@@ -655,7 +656,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                       border: Border(
                         bottom: BorderSide(
                           color: _C.border.withValues(alpha: 0.5),
-                          width: 1,
+                          width: 1.w,
                         ),
                       ),
                     ),
@@ -664,13 +665,13 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                         // Animated Radio
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          width: 24,
-                          height: 24,
+                          width: 24.w,
+                          height: 24.h,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: isSelected ? _C.violet : _C.border,
-                              width: 2,
+                              width: 2.w,
                             ),
                             color: isSelected ? _C.violet : Colors.transparent,
                             boxShadow: isSelected
@@ -687,11 +688,11 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                                   color: Colors.white)
                               : null,
                         ),
-                        const SizedBox(width: 14),
+                        SizedBox(width: 14.w),
                         // Avatar
                         Container(
-                          width: 44,
-                          height: 44,
+                          width: 44.w,
+                          height: 44.h,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: isSelected
@@ -713,7 +714,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                                           color: isSelected
                                               ? Colors.white
                                               : _C.textSecondary,
-                                          fontSize: 16,
+                                          fontSize: 16.sp,
                                         ),
                                       ),
                                     ),
@@ -727,18 +728,18 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                                       color: isSelected
                                           ? Colors.white
                                           : _C.textSecondary,
-                                      fontSize: 16,
+                                      fontSize: 16.sp,
                                     ),
                                   ),
                                 ),
                         ),
-                        const SizedBox(width: 14),
+                        SizedBox(width: 14.w),
                         // Name
                         Expanded(
                           child: Text(
                             nom.nomineeName ?? 'Unknown',
                             style: GoogleFonts.inter(
-                              fontSize: 15,
+                              fontSize: 15.sp,
                               fontWeight: isSelected
                                   ? FontWeight.w700
                                   : FontWeight.w500,
@@ -753,11 +754,11 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
               }),
               if (nominations.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(20.r),
                   child: Text(
                     'No candidates yet',
                     style: GoogleFonts.inter(
-                      fontSize: 13,
+                      fontSize: 13.sp,
                       color: _C.textMuted,
                     ),
                   ),
@@ -774,17 +775,17 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
     return Container(
       decoration: BoxDecoration(
         color: _C.success.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
           color: _C.success.withValues(alpha: 0.15),
         ),
       ),
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(32.r),
       child: Column(
         children: [
           Container(
-            width: 72,
-            height: 72,
+            width: 72.w,
+            height: 72.h,
             decoration: BoxDecoration(
               color: _C.success.withValues(alpha: 0.1),
               shape: BoxShape.circle,
@@ -795,23 +796,23 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
               color: _C.success,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           Text(
             'Vote Cast Successfully',
             style: GoogleFonts.inter(
-              fontSize: 20,
+              fontSize: 20.sp,
               fontWeight: FontWeight.w800,
               color: _C.success,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             'Your vote has been recorded anonymously.\nResults will be published after voting ends.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
-              fontSize: 14,
+              fontSize: 14.sp,
               color: _C.textSecondary,
-              height: 1.6,
+              height: 1.6.h,
             ),
           ),
         ],
@@ -836,19 +837,19 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
           children: [
             Row(
               children: [
-                const Text('🏆', style: TextStyle(fontSize: 22)),
-                const SizedBox(width: 8),
+                const Text('🏆', style: TextStyle(fontSize: 22.sp)),
+                SizedBox(width: 8.w),
                 Text(
                   'Election Results',
                   style: GoogleFonts.inter(
-                    fontSize: 18,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.w800,
                     color: _C.textPrimary,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             ...posts.map((post) => _buildPostResult(post)),
           ],
         );
@@ -870,17 +871,17 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
           ..sort((a, b) => (b.voteCount ?? 0).compareTo(a.voteCount ?? 0));
 
         return Container(
-          margin: const EdgeInsets.only(bottom: 16),
+          margin: EdgeInsets.only(bottom: 16.h),
           decoration: BoxDecoration(
             color: _C.card,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
             border: Border.all(color: _C.border),
           ),
           child: Column(
             children: [
               // Header
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16.r),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -889,19 +890,19 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                     ],
                   ),
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
+                    topLeft: Radius.circular(16.r),
+                    topRight: Radius.circular(16.r),
                   ),
                 ),
                 child: Row(
                   children: [
                     Icon(Icons.workspace_premium_rounded, size: 20,
                         color: _C.violet),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8.w),
                     Text(
                       post.postName,
                       style: GoogleFonts.inter(
-                        fontSize: 15,
+                        fontSize: 15.sp,
                         fontWeight: FontWeight.w700,
                         color: _C.violet,
                       ),
@@ -910,7 +911,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                     Text(
                       '$totalVotes votes',
                       style: GoogleFonts.inter(
-                        fontSize: 12,
+                        fontSize: 12.sp,
                         color: _C.textMuted,
                       ),
                     ),
@@ -919,7 +920,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
               ),
               // Results
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16.r),
                 child: Column(
                   children: sorted.asMap().entries.map((entry) {
                     final index = entry.key;
@@ -931,27 +932,27 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                     final isWinner = index == 0 && totalVotes > 0;
 
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
+                      padding: EdgeInsets.only(bottom: 12.h),
                       child: Row(
                         children: [
                           if (isWinner)
-                            const Text('🏆', style: TextStyle(fontSize: 18))
+                            const Text('🏆', style: TextStyle(fontSize: 18.sp))
                           else
                             SizedBox(
-                              width: 18,
+                              width: 18.w,
                               child: Text(
                                 '#${index + 1}',
                                 style: GoogleFonts.inter(
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                   fontWeight: FontWeight.w600,
                                   color: _C.textMuted,
                                 ),
                               ),
                             ),
-                          const SizedBox(width: 10),
+                          SizedBox(width: 10.w),
                           Container(
-                            width: 36,
-                            height: 36,
+                            width: 36.w,
+                            height: 36.h,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: isWinner
@@ -968,12 +969,12 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                                   color: isWinner
                                       ? Colors.white
                                       : _C.textSecondary,
-                                  fontSize: 14,
+                                  fontSize: 14.sp,
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12.w),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -985,7 +986,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                                     Text(
                                       nom.nomineeName ?? 'Unknown',
                                       style: GoogleFonts.inter(
-                                        fontSize: 14,
+                                        fontSize: 14.sp,
                                         fontWeight: isWinner
                                             ? FontWeight.w700
                                             : FontWeight.w500,
@@ -995,7 +996,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                                     Text(
                                       '$votes (${pct.toStringAsFixed(0)}%)',
                                       style: GoogleFonts.inter(
-                                        fontSize: 13,
+                                        fontSize: 13.sp,
                                         fontWeight: isWinner
                                             ? FontWeight.w700
                                             : FontWeight.w500,
@@ -1006,13 +1007,13 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 6),
+                                SizedBox(height: 6.h),
                                 TweenAnimationBuilder<double>(
                                   tween: Tween(begin: 0, end: pct / 100),
                                   duration: const Duration(milliseconds: 800),
                                   curve: Curves.easeOutCubic,
                                   builder: (_, value, __) => ClipRRect(
-                                    borderRadius: BorderRadius.circular(4),
+                                    borderRadius: BorderRadius.circular(4.r),
                                     child: LinearProgressIndicator(
                                       value: value,
                                       minHeight: 6,
@@ -1044,15 +1045,15 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
     return Container(
       decoration: BoxDecoration(
         color: _C.card,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: _C.border),
       ),
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(32.r),
       child: Column(
         children: [
           Container(
-            width: 64,
-            height: 64,
+            width: 64.w,
+            height: 64.h,
             decoration: BoxDecoration(
               color: _C.primary.withValues(alpha: 0.08),
               shape: BoxShape.circle,
@@ -1063,23 +1064,23 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
               color: _C.primary.withValues(alpha: 0.6),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Text(
             'Voting Not Yet Open',
             style: GoogleFonts.inter(
-              fontSize: 16,
+              fontSize: 16.sp,
               fontWeight: FontWeight.w700,
               color: _C.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             'Voting will begin on ${DateFormat('dd MMM yyyy').format(election.votingStart)}',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
-              fontSize: 13,
+              fontSize: 13.sp,
               color: _C.textSecondary,
-              height: 1.5,
+              height: 1.5.h,
             ),
           ),
         ],
@@ -1093,7 +1094,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
         ),
         title: Text(
           'Confirm Your Vote',
@@ -1102,9 +1103,9 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
         content: Text(
           'Once submitted, your vote cannot be changed. Are you sure you want to proceed?',
           style: GoogleFonts.inter(
-            fontSize: 14,
+            fontSize: 14.sp,
             color: _C.textSecondary,
-            height: 1.5,
+            height: 1.5.h,
           ),
         ),
         actions: [
@@ -1124,7 +1125,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
               backgroundColor: _C.violet,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10.r),
               ),
             ),
             child: Text(
@@ -1157,7 +1158,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
           backgroundColor: _C.success,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10.r),
           ),
         ),
       );
@@ -1169,7 +1170,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
           backgroundColor: _C.danger,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10.r),
           ),
         ),
       );

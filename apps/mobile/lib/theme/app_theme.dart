@@ -161,7 +161,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           textStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
         ),
       ),
@@ -242,7 +242,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           textStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
         ),
       ),

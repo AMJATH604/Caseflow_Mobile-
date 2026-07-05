@@ -21,6 +21,7 @@ import '../components/error_state_widget.dart';
 import '../services/analytics_service.dart';
 import 'citizen_home_screen.dart';
 import '../utils/responsive.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -115,10 +116,10 @@ class DashboardScreen extends ConsumerWidget {
       children: [
         // Premium Header Card (Navy → Deep Indigo Gradient)
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0.r),
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24.r),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [
@@ -130,7 +131,7 @@ class DashboardScreen extends ConsumerWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(28.r),
               boxShadow: [
                 BoxShadow(
                   color: const Color(0xFF312E81).withValues(alpha: 0.3),
@@ -152,17 +153,17 @@ class DashboardScreen extends ConsumerWidget {
                             'Hello, $userName 👋',
                             style: GoogleFonts.outfit(
                               color: Colors.white,
-                              fontSize: 26,
+                              fontSize: 26.sp,
                               fontWeight: FontWeight.w700,
                               letterSpacing: -0.5,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4.h),
                           Text(
                             DateFormat('EEEE, d MMMM y').format(DateTime.now()),
                             style: GoogleFonts.inter(
                               color: Colors.white.withValues(alpha: 0.6),
-                              fontSize: 13,
+                              fontSize: 13.sp,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -177,7 +178,7 @@ class DashboardScreen extends ConsumerWidget {
                       ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(20.r),
                         border: Border.all(
                           color: const Color(0xFF10B981).withValues(alpha: 0.3),
                         ),
@@ -186,18 +187,18 @@ class DashboardScreen extends ConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            width: 6,
-                            height: 6,
+                            width: 6.w,
+                            height: 6.h,
                             decoration: const BoxDecoration(
                               color: Color(0xFF10B981),
                               shape: BoxShape.circle,
                             ),
                           ),
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6.w),
                           Text(
                             'ONLINE',
                             style: GoogleFonts.inter(
-                              fontSize: 8,
+                              fontSize: 8.sp,
                               fontWeight: FontWeight.w800,
                               color: const Color(0xFF10B981),
                               letterSpacing: 1,
@@ -220,7 +221,7 @@ class DashboardScreen extends ConsumerWidget {
 
         // ─── Hero KPI Cards (2x2 Grid) ────────────────────
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Column(
             children: [
               Row(
@@ -234,7 +235,7 @@ class DashboardScreen extends ConsumerWidget {
                       onTap: () => context.go('/cases'),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12.w),
                   Expanded(
                     child: KpiCard(
                       title: "Today's Hearings",
@@ -247,7 +248,7 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               Row(
                 children: [
                   Expanded(
@@ -259,7 +260,7 @@ class DashboardScreen extends ConsumerWidget {
                       onTap: () => context.go('/hearings'),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12.w),
                   Expanded(
                     child: KpiCard(
                       title: 'Total Clients',
@@ -288,7 +289,7 @@ class DashboardScreen extends ConsumerWidget {
                   icon: Icons.done_all_rounded,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               Expanded(
                 child: StatChip(
                   label: 'Dismissed',
@@ -297,7 +298,7 @@ class DashboardScreen extends ConsumerWidget {
                   icon: Icons.cancel_rounded,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               Expanded(
                 child: GestureDetector(
                   onTap: () => context.go('/payments'),
@@ -314,12 +315,12 @@ class DashboardScreen extends ConsumerWidget {
         ),
 
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const DailyBoardWidget(),
-              const SizedBox(height: 32),
+              SizedBox(height: 32.h),
               Text(
                 'Jump To',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -328,7 +329,7 @@ class DashboardScreen extends ConsumerWidget {
                   letterSpacing: 1.0,
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -370,7 +371,7 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32.h),
               Text(
                 'Quick Actions',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -379,7 +380,7 @@ class DashboardScreen extends ConsumerWidget {
                   letterSpacing: 1.0,
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -433,7 +434,7 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -448,11 +449,11 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32.h),
               const DashboardCourtDiary(),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               const TaskWidget(),
-              const SizedBox(height: 40),
+              SizedBox(height: 40.h),
             ],
           ),
         ),
@@ -470,14 +471,14 @@ class DashboardScreen extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.r),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [Color(0xFFF0F4FF), Color(0xFFEDE9FE)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
             color: const Color(0xFF2563EB).withValues(alpha: 0.15),
           ),
@@ -492,7 +493,7 @@ class DashboardScreen extends ConsumerWidget {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(10.r),
               decoration: BoxDecoration(
                 color: const Color(0xFF2563EB).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
@@ -503,7 +504,7 @@ class DashboardScreen extends ConsumerWidget {
                 size: 22,
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -511,29 +512,29 @@ class DashboardScreen extends ConsumerWidget {
                   Text(
                     'Complete Your Profile',
                     style: GoogleFonts.outfit(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFF0F172A),
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2.h),
                   Text(
                     'Add a photo to stand out in the directory',
                     style: GoogleFonts.inter(
-                      fontSize: 11,
+                      fontSize: 11.sp,
                       color: const Color(0xFF64748B),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8.w),
             Material(
               color: const Color(0xFF2563EB),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(10.r),
               child: InkWell(
                 onTap: () => _showDashboardPhotoPicker(context, ref, profile),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10.r),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
@@ -542,7 +543,7 @@ class DashboardScreen extends ConsumerWidget {
                   child: Text(
                     'Add Photo',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
@@ -565,32 +566,32 @@ class DashboardScreen extends ConsumerWidget {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.r),
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 40,
-              height: 4,
+              width: 40.w,
+              height: 4.h,
               decoration: BoxDecoration(
                 color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(2.r),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Text(
               'Add Profile Photo',
               style: GoogleFonts.outfit(
-                fontSize: 18,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
                 color: const Color(0xFF0F172A),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Row(
               children: [
                 Expanded(
@@ -609,7 +610,7 @@ class DashboardScreen extends ConsumerWidget {
                     },
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 Expanded(
                   child: _buildDashboardPhotoOption(
                     icon: Icons.photo_library_rounded,
@@ -628,7 +629,7 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
           ],
         ),
       ),
@@ -643,22 +644,22 @@ class DashboardScreen extends ConsumerWidget {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(14.r),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.symmetric(vertical: 16.h),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           border: Border.all(color: color.withValues(alpha: 0.15)),
         ),
         child: Column(
           children: [
             Icon(icon, color: color, size: 28),
-            const SizedBox(height: 6),
+            SizedBox(height: 6.h),
             Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),
@@ -693,18 +694,18 @@ class DashboardScreen extends ConsumerWidget {
           SnackBar(
             content: Row(
               children: [
-                const SizedBox(
-                  width: 16,
-                  height: 16,
+                SizedBox(
+                  width: 16.w,
+                  height: 16.h,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 Text(
                   'Uploading photo...',
-                  style: GoogleFonts.inter(fontSize: 13),
+                  style: GoogleFonts.inter(fontSize: 13.sp),
                 ),
               ],
             ),
@@ -712,7 +713,7 @@ class DashboardScreen extends ConsumerWidget {
             duration: const Duration(seconds: 10),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
           ),
         );
@@ -734,17 +735,17 @@ class DashboardScreen extends ConsumerWidget {
                   color: Colors.white,
                   size: 18,
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10.w),
                 Text(
                   'Profile photo updated!',
-                  style: GoogleFonts.inter(fontSize: 13),
+                  style: GoogleFonts.inter(fontSize: 13.sp),
                 ),
               ],
             ),
             backgroundColor: const Color(0xFF059669),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
           ),
         );
@@ -761,17 +762,17 @@ class DashboardScreen extends ConsumerWidget {
                   color: Colors.white,
                   size: 18,
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10.w),
                 Text(
                   'Failed to upload photo. Try again.',
-                  style: GoogleFonts.inter(fontSize: 13),
+                  style: GoogleFonts.inter(fontSize: 13.sp),
                 ),
               ],
             ),
             backgroundColor: const Color(0xFFDC2626),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
           ),
         );
@@ -782,7 +783,7 @@ class DashboardScreen extends ConsumerWidget {
 
   Widget _buildChatFab(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: EdgeInsets.only(bottom: 8.h),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: const LinearGradient(
@@ -849,7 +850,7 @@ class DashboardScreen extends ConsumerWidget {
                     child: Text(
                       'BETA UNLOCKED',
                       style: GoogleFonts.inter(
-                        fontSize: 11,
+                        fontSize: 11.sp,
                         fontWeight: FontWeight.w800,
                         color: AppTheme.accent,
                         letterSpacing: 1,
@@ -861,14 +862,14 @@ class DashboardScreen extends ConsumerWidget {
             ),
           ],
         ),
-        const SizedBox(height: 32),
+        SizedBox(height: 32.h),
 
         Wrap(
           spacing: 20,
           runSpacing: 20,
           children: [
             SizedBox(
-              width: 280,
+              width: 280.w,
               child: KpiCard(
                 title: 'Active Cases',
                 value: "${stats['activeCasesCount']}",
@@ -878,7 +879,7 @@ class DashboardScreen extends ConsumerWidget {
               ),
             ),
             SizedBox(
-              width: 280,
+              width: 280.w,
               child: KpiCard(
                 title: "Today's Hearings",
                 value: '${todayHearings.length}',
@@ -889,7 +890,7 @@ class DashboardScreen extends ConsumerWidget {
               ),
             ),
             SizedBox(
-              width: 280,
+              width: 280.w,
               child: KpiCard(
                 title: 'Upcoming Hearings',
                 value: "${stats['upcomingHearingsCount']}",
@@ -899,7 +900,7 @@ class DashboardScreen extends ConsumerWidget {
               ),
             ),
             SizedBox(
-              width: 280,
+              width: 280.w,
               child: KpiCard(
                 title: 'Total Clients',
                 value: "${stats['clientsCount']}",
@@ -910,7 +911,7 @@ class DashboardScreen extends ConsumerWidget {
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20.h),
         // Secondary stats row
         Row(
           children: [
@@ -922,7 +923,7 @@ class DashboardScreen extends ConsumerWidget {
                 icon: Icons.done_all_rounded,
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10.w),
             Expanded(
               child: StatChip(
                 label: 'Dismissed',
@@ -931,7 +932,7 @@ class DashboardScreen extends ConsumerWidget {
                 icon: Icons.cancel_rounded,
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10.w),
             Expanded(
               child: GestureDetector(
                 onTap: () => context.go('/payments'),
@@ -945,7 +946,7 @@ class DashboardScreen extends ConsumerWidget {
             ),
           ],
         ),
-        const SizedBox(height: 40),
+        SizedBox(height: 40.h),
 
         const Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -956,12 +957,12 @@ class DashboardScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   DailyBoardWidget(),
-                  SizedBox(height: 32),
+                  SizedBox(height: 32.h),
                   TaskWidget(),
                 ],
               ),
             ),
-            SizedBox(width: 32),
+            SizedBox(width: 32.w),
             Expanded(
               flex: 1,
               child: Column(children: [DashboardCourtDiary()]),
@@ -985,23 +986,23 @@ class DashboardScreen extends ConsumerWidget {
   ) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16.r),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: EdgeInsets.symmetric(horizontal: 12.w),
         decoration: BoxDecoration(
           color: accentColor.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: accentColor, size: 26),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               label,
               style: GoogleFonts.outfit(
                 fontWeight: FontWeight.w600,
-                fontSize: 13,
+                fontSize: 13.sp,
                 color: const Color(0xFF1E293B),
               ),
             ),
@@ -1020,14 +1021,14 @@ class DashboardScreen extends ConsumerWidget {
   ) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16.r),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16.r),
             decoration: BoxDecoration(
               color: color,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               boxShadow: [
                 BoxShadow(
                   color: color.withValues(alpha: 0.3),
@@ -1039,12 +1040,12 @@ class DashboardScreen extends ConsumerWidget {
             child: Icon(icon, color: const Color(0xFF1E293B), size: 24),
           ),
           if (label.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               label,
               style: GoogleFonts.inter(
                 color: const Color(0xFF64748B),
-                fontSize: 11,
+                fontSize: 11.sp,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -1057,7 +1058,7 @@ class DashboardScreen extends ConsumerWidget {
   Widget _buildLoadingState() {
     return const Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 200),
+        padding: EdgeInsets.symmetric(vertical: 200.h),
         child: CircularProgressIndicator(color: AppTheme.accent),
       ),
     );

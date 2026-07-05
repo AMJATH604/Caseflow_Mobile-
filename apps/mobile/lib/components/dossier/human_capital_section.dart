@@ -7,6 +7,7 @@ import '../../services/firm_service.dart';
 import '../../services/providers.dart';
 import '../../theme/app_theme.dart';
 import 'dossier_shared.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HumanCapitalSection extends ConsumerStatefulWidget {
   final String caseId;
@@ -145,13 +146,13 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
             const Text(
               'COLLABORATORS',
               style: TextStyle(
-                fontSize: 9,
+                fontSize: 9.sp,
                 fontWeight: FontWeight.w900,
                 color: Color(0xFF64748B),
                 letterSpacing: 1,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             ...snapshot.data!.map((c) {
               final collaboratorName =
                   c['profiles']?['full_name'] ?? c['collaborator_email'];
@@ -166,21 +167,21 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                       : '';
 
               return Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.all(10),
+                margin: EdgeInsets.only(bottom: 8.h),
+                padding: EdgeInsets.all(10.r),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                   border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      width: 32,
-                      height: 32,
+                      width: 32.w,
+                      height: 32.h,
                       decoration: BoxDecoration(
                         color: AppTheme.accent.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: const Icon(
                         Icons.person_outline_rounded,
@@ -188,7 +189,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                         color: AppTheme.accent,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10.w),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,16 +197,16 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                           Text(
                             collaboratorName,
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.w700,
                               color: Color(0xFF1E293B),
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2.h),
                           Text(
                             "Shared by $ownerName${dateStr.isNotEmpty ? ' · $dateStr' : ''}",
                             style: const TextStyle(
-                              fontSize: 9,
+                              fontSize: 9.sp,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF94A3B8),
                             ),
@@ -223,12 +224,12 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                                 ? Colors.green
                                 : Colors.orange)
                             .withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(4.r),
                       ),
                       child: Text(
                         (c['status'] ?? 'pending').toString().toUpperCase(),
                         style: TextStyle(
-                          fontSize: 8,
+                          fontSize: 8.sp,
                           fontWeight: FontWeight.w900,
                           color:
                               c['status'] == 'accepted'
@@ -238,7 +239,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                       ),
                     ),
                     if (isOwner) ...[
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4.w),
                       InkWell(
                         onTap: () async {
                           final confirm = await showDialog<bool>(
@@ -277,9 +278,9 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                             }
                           }
                         },
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(6.r),
                         child: Padding(
-                          padding: const EdgeInsets.all(4),
+                          padding: EdgeInsets.all(4.r),
                           child: Icon(
                             Icons.close_rounded,
                             size: 16,
@@ -321,7 +322,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
         if ((profile?.isFirmOwner ?? false) &&
             (profile?.id == caseData.firmId ||
                 profile?.id == caseData.createdBy)) ...[
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
@@ -330,7 +331,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
               label: const Text(
                 'TRANSFER OWNERSHIP',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.5,
                 ),
@@ -338,11 +339,11 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: AppTheme.accent.withValues(alpha: 0.3)),
                 foregroundColor: AppTheme.accent,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: EdgeInsets.symmetric(vertical: 12.h),
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           SizedBox(
             width: double.infinity,
             child: TextButton.icon(
@@ -351,7 +352,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
               label: const Text(
                 'SHARE WITH COLLEAGUE',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.5,
                 ),
@@ -360,7 +361,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
             ),
           ),
         ],
-        const SizedBox(height: 12),
+        SizedBox(height: 12.h),
         _buildCollaboratorsList(),
       ],
     );

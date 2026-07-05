@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../services/providers.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// A visual timeline showing the complete journey of a case:
 /// filing → hearings → adjournments → payments → e-filings → judgment.
@@ -37,12 +38,12 @@ class CaseTimelineTab extends ConsumerWidget {
                   size: 48,
                   color: Color(0xFFE2E8F0),
                 ),
-                SizedBox(height: 24),
+                SizedBox(height: 24.h),
                 Text(
                   'NO TEMPORAL DATA',
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     color: Color(0xFF94A3B8),
                     letterSpacing: 2,
                   ),
@@ -67,26 +68,26 @@ class CaseTimelineTab extends ConsumerWidget {
                 children: [
                   // ─── Timeline Line + Dot ───
                   SizedBox(
-                    width: 32,
+                    width: 32.w,
                     child: Column(
                       children: [
                         // Top connector line
                         if (!isFirst)
                           Container(
-                            width: 1,
-                            height: 8,
+                            width: 1.w,
+                            height: 8.h,
                             color: const Color(0xFFE2E8F0),
                           ),
                         // Dot
                         Container(
-                          width: 16,
-                          height: 16,
+                          width: 16.w,
+                          height: 16.h,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: isFuture ? Colors.transparent : event.color,
                             border: Border.all(
                               color: event.color.withValues(alpha: 0.5),
-                              width: 1,
+                              width: 1.w,
                             ),
                             boxShadow:
                                 isFuture
@@ -106,22 +107,22 @@ class CaseTimelineTab extends ConsumerWidget {
                         if (!isLast)
                           Expanded(
                             child: Container(
-                              width: 1,
+                              width: 1.w,
                               color: const Color(0xFFE2E8F0),
                             ),
                           ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12.w),
                   // ─── Event Card ───
                   Expanded(
                     child: Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(16),
+                      margin: EdgeInsets.only(bottom: 12.h),
+                      padding: EdgeInsets.all(16.r),
                       decoration: BoxDecoration(
                         color: AppTheme.darkCard,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                         border: Border.all(color: AppTheme.darkBorder),
                       ),
                       child: Column(
@@ -131,10 +132,10 @@ class CaseTimelineTab extends ConsumerWidget {
                           Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.all(8),
+                                padding: EdgeInsets.all(8.r),
                                 decoration: BoxDecoration(
                                   color: event.color.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(10.r),
                                 ),
                                 child: Icon(
                                   event.icon,
@@ -142,7 +143,7 @@ class CaseTimelineTab extends ConsumerWidget {
                                   color: event.color,
                                 ),
                               ),
-                              const SizedBox(width: 10),
+                              SizedBox(width: 10.w),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,18 +152,18 @@ class CaseTimelineTab extends ConsumerWidget {
                                       event.title,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w900,
-                                        fontSize: 14,
+                                        fontSize: 14.sp,
                                         color: Color(0xFF1E293B),
                                         letterSpacing: -0.5,
                                       ),
                                     ),
-                                    const SizedBox(height: 2),
+                                    SizedBox(height: 2.h),
                                     Text(
                                       DateFormat(
                                         'dd MMM yyyy, EEEE',
                                       ).format(event.date),
                                       style: const TextStyle(
-                                        fontSize: 10,
+                                        fontSize: 10.sp,
                                         color: Color(0xFF94A3B8),
                                         fontWeight: FontWeight.w700,
                                       ),
@@ -178,12 +179,12 @@ class CaseTimelineTab extends ConsumerWidget {
                                   ),
                                   decoration: BoxDecoration(
                                     color: event.color.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(8.r),
                                   ),
                                   child: Text(
                                     'UPCOMING',
                                     style: TextStyle(
-                                      fontSize: 9,
+                                      fontSize: 9.sp,
                                       fontWeight: FontWeight.bold,
                                       color: event.color,
                                       letterSpacing: 0.5,
@@ -198,12 +199,12 @@ class CaseTimelineTab extends ConsumerWidget {
                                   ),
                                   decoration: BoxDecoration(
                                     color: Colors.green.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(8.r),
                                   ),
                                   child: const Text(
                                     'STARTED',
                                     style: TextStyle(
-                                      fontSize: 9,
+                                      fontSize: 9.sp,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.green,
                                       letterSpacing: 0.5,
@@ -214,12 +215,12 @@ class CaseTimelineTab extends ConsumerWidget {
                           ),
                           // Subtitle / Details
                           if (event.subtitle != null) ...[
-                            const SizedBox(height: 10),
+                            SizedBox(height: 10.h),
                             Container(
-                              padding: const EdgeInsets.all(10),
+                              padding: EdgeInsets.all(10.r),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFF1F5F9),
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(8.r),
                               ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,12 +230,12 @@ class CaseTimelineTab extends ConsumerWidget {
                                     size: 12,
                                     color: Color(0xFFE2E8F0),
                                   ),
-                                  const SizedBox(width: 8),
+                                  SizedBox(width: 8.w),
                                   Expanded(
                                     child: Text(
                                       event.subtitle!,
                                       style: const TextStyle(
-                                        fontSize: 11,
+                                        fontSize: 11.sp,
                                         color: Color(0xFF64748B),
                                         fontWeight: FontWeight.w500,
                                       ),

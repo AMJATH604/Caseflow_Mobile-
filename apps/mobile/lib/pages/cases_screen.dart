@@ -9,6 +9,7 @@ import '../services/supabase_service.dart';
 import '../components/error_state_widget.dart';
 import '../theme/app_theme.dart';
 import '../utils/responsive.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CasesScreen extends ConsumerStatefulWidget {
   const CasesScreen({super.key});
@@ -34,17 +35,17 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(isMobile, isDark),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           casesAsync.when(
             data: (cases) => _buildStatusSummary(cases, isDark),
             loading: () => const SizedBox(),
             error: (_, __) => const SizedBox(),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           _buildSearchAndFilters(isMobile, isDark, casesAsync.value ?? []),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           _buildSortBar(isDark),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Expanded(
             child: casesAsync.when(
               data: (cases) => _buildCasesList(isMobile, isDark, cases),
@@ -73,11 +74,11 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
           Text(
             'Case Archive',
             style: Theme.of(context).textTheme.displayMedium?.copyWith(
-              fontSize: 32,
+              fontSize: 32.sp,
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4.h),
           Text(
             'CENTRALIZED LEGAL DATABASE',
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -99,26 +100,26 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
         cases.where((c) => ['closed', 'disposed', 'dismissed'].contains(c.status.name.toLowerCase())).length;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Row(
         children: [
           _summaryChip('$active Active', AppTheme.success, isDark),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           _summaryChip('$closed Closed', AppTheme.error, isDark),
           const Spacer(),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
             decoration: BoxDecoration(
               color:
                   isDark
                       ? AppTheme.surfaceLight
                       : Colors.black.withValues(alpha: 0.03),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(6.r),
             ),
             child: Text(
               '${cases.length} TOTAL',
               style: TextStyle(
-                fontSize: 10,
+                fontSize: 10.sp,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0.5,
                 color: isDark ? const Color(0xFFCBD5E1) : Colors.black38,
@@ -132,17 +133,17 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
 
   Widget _summaryChip(String text, Color color, bool isDark) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8.r),
         border: Border.all(color: color.withValues(alpha: 0.15)),
       ),
       child: Text(
         text,
         style: TextStyle(
           color: color,
-          fontSize: 11,
+          fontSize: 11.sp,
           fontWeight: FontWeight.w800,
         ),
       ),
@@ -155,12 +156,12 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
     List<CaseModel> cases,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 52,
+            height: 52.h,
             decoration: AppTheme.cardDecoration(
               isDark: isDark,
               color:
@@ -168,12 +169,12 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                       ? AppTheme.surfaceLight
                       : Colors.black.withValues(alpha: 0.03),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: TextField(
               onChanged: (v) => setState(() => _searchQuery = v),
               style: GoogleFonts.inter(
                 color: isDark ? Colors.white : Colors.black87,
-                fontSize: 14,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
               ),
               decoration: InputDecoration(
@@ -190,11 +191,11 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                contentPadding: EdgeInsets.symmetric(vertical: 14.h),
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -221,10 +222,10 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                     )
                                     .length;
                     return Padding(
-                      padding: const EdgeInsets.only(right: 8),
+                      padding: EdgeInsets.only(right: 8.w),
                       child: InkWell(
                         onTap: () => setState(() => _statusFilter = s),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10.r),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -237,7 +238,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                     : (isDark
                                         ? AppTheme.secondary
                                         : Colors.black.withValues(alpha: 0.03)),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(10.r),
                             border: Border.all(
                               color:
                                   isActive
@@ -254,7 +255,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                       ? Colors.white
                                       : const Color(0xFF9CA3AF),
                               fontWeight: FontWeight.w700,
-                              fontSize: 9,
+                              fontSize: 9.sp,
                               letterSpacing: 0.5,
                             ),
                           ),
@@ -272,7 +273,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
   // ─── SORT BAR ─────────────────────────────────────────
   Widget _buildSortBar(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Row(
         children: [
           Text(
@@ -294,13 +295,13 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                   _sortMenuItem('title', 'Alphabetical'),
                 ],
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
               decoration: BoxDecoration(
                 color:
                     isDark
                         ? AppTheme.surfaceLight
                         : Colors.black.withValues(alpha: 0.03),
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(6.r),
                 border: Border.all(
                   color: isDark ? AppTheme.darkBorder : const Color(0xFFE2E8F0),
                 ),
@@ -313,16 +314,16 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                     size: 14,
                     color: isDark ? const Color(0xFFCBD5E1) : Colors.black38,
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4.w),
                   Text(
                     _sortLabel(),
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 10.sp,
                       fontWeight: FontWeight.w700,
                       color: isDark ? const Color(0xFFCBD5E1) : Colors.black38,
                     ),
                   ),
-                  const SizedBox(width: 2),
+                  SizedBox(width: 2.w),
                   Icon(
                     Icons.expand_more_rounded,
                     size: 14,
@@ -344,11 +345,11 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
         children: [
           if (_sortBy == value)
             const Icon(Icons.check_rounded, size: 16, color: AppTheme.accent),
-          if (_sortBy == value) const SizedBox(width: 8),
+          if (_sortBy == value) SizedBox(width: 8.w),
           Text(
             label,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 13.sp,
               fontWeight: _sortBy == value ? FontWeight.w700 : FontWeight.w500,
             ),
           ),
@@ -427,20 +428,20 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
               size: 48,
               color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Text(
               'ARCHIVE EMPTY',
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.w700,
-                fontSize: 12,
+                fontSize: 12.sp,
                 color: const Color(0xFF4B5563),
                 letterSpacing: 1,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             const Text(
               'No cases match your filters',
-              style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+              style: TextStyle(fontSize: 12.sp, color: Color(0xFF94A3B8)),
             ),
           ],
         ),
@@ -448,7 +449,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
       itemCount: filtered.length,
       itemBuilder: (context, index) {
         final c = filtered[index];
@@ -459,10 +460,10 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
         return GestureDetector(
           onLongPress: isOwner ? () => _showCaseOptions(c) : null,
           child: Container(
-            margin: const EdgeInsets.only(bottom: 12),
+            margin: EdgeInsets.only(bottom: 12.h),
             decoration: BoxDecoration(
               color: isDark ? AppTheme.darkCard : Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               border: Border.all(
                 color: isDark ? AppTheme.darkBorder : const Color(0xFFE2E8F0),
               ),
@@ -476,33 +477,33 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
             ),
             child: InkWell(
               onTap: () => context.push('/cases/${c.id}'),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               child: IntrinsicHeight(
                 child: Row(
                   children: [
                     // ── Color-coded left border ──
                     Container(
-                      width: 4,
+                      width: 4.w,
                       decoration: BoxDecoration(
                         color: statColor,
                         borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(16),
-                          bottomLeft: Radius.circular(16),
+                          topLeft: Radius.circular(16.r),
+                          bottomLeft: Radius.circular(16.r),
                         ),
                       ),
                     ),
                     // ── Content ──
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.all(14),
+                        padding: EdgeInsets.all(14.r),
                         child: Row(
                           children: [
                             Container(
-                              width: 44,
-                              height: 44,
+                              width: 44.w,
+                              height: 44.h,
                               decoration: BoxDecoration(
                                 color: statColor.withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12.r),
                                 border: Border.all(
                                   color: statColor.withValues(alpha: 0.1),
                                 ),
@@ -515,7 +516,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 14),
+                            SizedBox(width: 14.w),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -541,7 +542,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                         ),
                                       ),
                                       if (isSharedCase) ...[
-                                        const SizedBox(width: 6),
+                                        SizedBox(width: 6.w),
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 5,
@@ -568,11 +569,11 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                                 size: 10,
                                                 color: Colors.blue,
                                               ),
-                                              SizedBox(width: 3),
+                                              SizedBox(width: 3.w),
                                               Text(
                                                 'SHARED',
                                                 style: TextStyle(
-                                                  fontSize: 7,
+                                                  fontSize: 7.sp,
                                                   fontWeight: FontWeight.w900,
                                                   color: Colors.blue,
                                                   letterSpacing: 0.5,
@@ -584,7 +585,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                       ],
                                       if (c.firmId != null &&
                                           c.firmId != currentUserId) ...[
-                                        const SizedBox(width: 6),
+                                        SizedBox(width: 6.w),
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 5,
@@ -611,11 +612,11 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                                 size: 10,
                                                 color: Colors.indigo,
                                               ),
-                                              SizedBox(width: 3),
+                                              SizedBox(width: 3.w),
                                               Text(
                                                 'TEAM',
                                                 style: TextStyle(
-                                                  fontSize: 7,
+                                                  fontSize: 7.sp,
                                                   fontWeight: FontWeight.w900,
                                                   color: Colors.indigo,
                                                   letterSpacing: 0.5,
@@ -627,7 +628,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                       ],
                                     ],
                                   ),
-                                  const SizedBox(height: 4),
+                                  SizedBox(height: 4.h),
                                   // ── Case Number · Client ──
                                   Row(
                                     children: [
@@ -643,10 +644,10 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                           fontWeight: FontWeight.w800,
                                         ),
                                       ),
-                                      const SizedBox(width: 8),
+                                      SizedBox(width: 8.w),
                                       Container(
-                                        width: 3,
-                                        height: 3,
+                                        width: 3.w,
+                                        height: 3.h,
                                         decoration: BoxDecoration(
                                           color:
                                               Theme.of(
@@ -655,7 +656,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                           shape: BoxShape.circle,
                                         ),
                                       ),
-                                      const SizedBox(width: 8),
+                                      SizedBox(width: 8.w),
                                       Expanded(
                                         child: Text(
                                           c.clientName ??
@@ -679,7 +680,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                   ),
                                   // ── Next Hearing Date ──
                                   if (c.nextHearingDate != null) ...[
-                                    const SizedBox(height: 6),
+                                    SizedBox(height: 6.h),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 8,
@@ -689,7 +690,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                         color: _hearingDateColor(
                                           c.nextHearingDate!,
                                         ).withValues(alpha: 0.06),
-                                        borderRadius: BorderRadius.circular(4),
+                                        borderRadius: BorderRadius.circular(4.r),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
@@ -701,13 +702,13 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                               c.nextHearingDate!,
                                             ),
                                           ),
-                                          const SizedBox(width: 4),
+                                          SizedBox(width: 4.w),
                                           Text(
                                             _formatHearingDate(
                                               c.nextHearingDate!,
                                             ),
                                             style: TextStyle(
-                                              fontSize: 10,
+                                              fontSize: 10.sp,
                                               fontWeight: FontWeight.w700,
                                               color: _hearingDateColor(
                                                 c.nextHearingDate!,
@@ -721,7 +722,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 4),
+                            SizedBox(width: 4.w),
                             Icon(
                               Icons.chevron_right_rounded,
                               size: 20,
@@ -795,26 +796,26 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
               ? AppTheme.darkCard
               : Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder:
           (ctx) => SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: EdgeInsets.symmetric(vertical: 16.h),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 36,
-                    height: 4,
+                    width: 36.w,
+                    height: 4.h,
                     decoration: BoxDecoration(
                       color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: BorderRadius.circular(2.r),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
                     child: Row(
                       children: [
                         Expanded(
@@ -822,7 +823,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                             c.caseTitle,
                             style: GoogleFonts.inter(
                               fontWeight: FontWeight.w800,
-                              fontSize: 16,
+                              fontSize: 16.sp,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -831,7 +832,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   ListTile(
                     leading: const Icon(
                       Icons.open_in_new_rounded,
@@ -846,7 +847,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                       context.push('/cases/${c.id}');
                     },
                   ),
-                  const Divider(height: 1),
+                  const Divider(height: 1.h),
                   ListTile(
                     leading: const Icon(
                       Icons.delete_outline_rounded,
@@ -861,7 +862,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                     ),
                     subtitle: const Text(
                       'Permanently remove this case and all records',
-                      style: TextStyle(fontSize: 11),
+                      style: TextStyle(fontSize: 11.sp),
                     ),
                     onTap: () async {
                       Navigator.pop(ctx);
@@ -888,7 +889,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                     ? AppTheme.secondary
                     : Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
             ),
             title: const Text('Delete Case?'),
             content: Text(

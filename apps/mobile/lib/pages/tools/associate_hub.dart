@@ -6,6 +6,7 @@ import '../../services/supabase_service.dart';
 import '../../models/models.dart';
 import '../../services/providers.dart';
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AssociateHub extends ConsumerStatefulWidget {
   const AssociateHub({super.key});
@@ -58,25 +59,25 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
         children: [
           if (_invitations.isNotEmpty) ...[
             _buildSectionHeader('FIRM INVITATIONS'),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             ..._invitations.map((inv) => _buildInvitationCard(inv)),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
           ],
 
           if (_profile!.isFirmOwner) ...[
             _buildSectionHeader('RECRUIT NEW ASSOCIATE'),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             _buildInviteForm(),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             _buildSectionHeader('THE PROFESSIONAL TEAM'),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             if (_members.isEmpty)
               _buildEmptyTeamState()
             else
               ..._members.map((m) => _buildMemberCard(m)),
           ] else if (_profile!.isFirmMember) ...[
             _buildSectionHeader('TEAM DIRECTORY'),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             ..._members.map((m) => _buildMemberCard(m)),
           ] else ...[
             _buildNoFirmState(),
@@ -89,12 +90,12 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
   Widget _buildSectionHeader(String title) {
     return Row(
       children: [
-        Container(width: 4, height: 16, color: AppTheme.accent),
-        const SizedBox(width: 12),
+        Container(width: 4.w, height: 16.h, color: AppTheme.accent),
+        SizedBox(width: 12.w),
         Text(
           title,
           style: GoogleFonts.inter(
-            fontSize: 11,
+            fontSize: 11.sp,
             fontWeight: FontWeight.w800,
             color: const Color(0xFF6B7280),
             letterSpacing: 1.5,
@@ -106,7 +107,7 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
 
   Widget _buildInviteForm() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       decoration: AppTheme.cardDecoration(
         isDark: Theme.of(context).brightness == Brightness.dark,
       ),
@@ -119,7 +120,7 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
               prefixIcon: Icon(Icons.mail_outline_rounded),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -158,7 +159,7 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
 
   Widget _buildMemberCard(FirmMember member) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: EdgeInsets.only(bottom: 8.h),
       decoration: AppTheme.cardDecoration(
         isDark: Theme.of(context).brightness == Brightness.dark,
       ),
@@ -169,12 +170,12 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
         ),
         title: Text(
           member.memberName ?? member.memberEmail,
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.sp),
         ),
         subtitle: Text(
           member.status.toUpperCase(),
           style: const TextStyle(
-            fontSize: 9,
+            fontSize: 9.sp,
             fontWeight: FontWeight.w800,
             color: AppTheme.accent,
             letterSpacing: 1,
@@ -204,20 +205,20 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
 
   Widget _buildInvitationCard(FirmMember invitation) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
         color: AppTheme.accent.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: AppTheme.accent.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [
           const Icon(Icons.business_center_rounded, color: AppTheme.accent),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Text(
               "Invite from ${invitation.ownerName ?? 'Firm'}",
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.sp),
             ),
           ),
           TextButton(
@@ -268,7 +269,7 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
   Widget _buildNoFirmState() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40),
+        padding: EdgeInsets.symmetric(vertical: 40.h),
         child: Column(
           children: [
             Icon(
@@ -276,15 +277,15 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
               size: 48,
               color: AppTheme.accent.withValues(alpha: 0.2),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             const Text(
               'Firm Hub Inactive',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w800),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             Text(
               'Create or join a legal firm to manage associates.',
-              style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              style: TextStyle(color: Colors.grey[600], fontSize: 12.sp),
             ),
           ],
         ),
@@ -294,7 +295,7 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
 
   Widget _buildEmptyTeamState() => const Center(
     child: Padding(
-      padding: EdgeInsets.all(32),
+      padding: EdgeInsets.all(32.r),
       child: Text('No members yet.', style: TextStyle(color: Colors.grey)),
     ),
   );

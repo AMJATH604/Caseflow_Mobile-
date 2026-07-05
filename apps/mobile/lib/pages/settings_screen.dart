@@ -10,6 +10,7 @@ import '../services/fcm_service.dart';
 import '../components/profile_avatar.dart';
 import '../components/profile_detail_sheet.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Premium Settings Screen — Silicon-level design.
 ///
@@ -361,7 +362,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                       Text(
                         'CaseFlow',
                         style: GoogleFonts.playfairDisplay(
-                          fontSize: 18,
+                          fontSize: 18.sp,
                           fontWeight: FontWeight.w700,
                           color: isDark
                               ? Colors.white24
@@ -369,11 +370,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                           letterSpacing: 2,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4.h),
                       Text(
                         'Your Practice, Perfected',
                         style: GoogleFonts.inter(
-                          fontSize: 11,
+                          fontSize: 11.sp,
                           color: isDark
                               ? Colors.white12
                               : const Color(0xFFE2E8F0),
@@ -402,7 +403,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   ) {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24.r),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
@@ -414,7 +415,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(28.r),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF312E81).withValues(alpha: 0.3),
@@ -427,7 +428,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
         children: [
           // Avatar
           Container(
-            padding: const EdgeInsets.all(3),
+            padding: EdgeInsets.all(3.r),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: const LinearGradient(
@@ -450,7 +451,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               showBorder: false,
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16.w),
           // Name & email
           Expanded(
             child: Column(
@@ -459,7 +460,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 Text(
                   profile?.fullName ?? 'User',
                   style: GoogleFonts.outfit(
-                    fontSize: 20,
+                    fontSize: 20.sp,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                     letterSpacing: -0.3,
@@ -467,25 +468,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Text(
                   profile?.email ?? '',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: Colors.white.withValues(alpha: 0.5),
                     fontWeight: FontWeight.w500,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 // Subscription badge
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                     border: Border.all(
                       color: Colors.white.withValues(alpha: 0.15),
                     ),
@@ -502,11 +503,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                             : const Color(0xFFFBBF24),
                         size: 12,
                       ),
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6.w),
                       Text(
                         (profile?.subscriptionTier ?? 'Free').toUpperCase(),
                         style: GoogleFonts.inter(
-                          fontSize: 9,
+                          fontSize: 9.sp,
                           fontWeight: FontWeight.w800,
                           color: Colors.white.withValues(alpha: 0.7),
                           letterSpacing: 1,
@@ -522,10 +523,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
           GestureDetector(
             onTap: () => ProfileDetailSheet.show(context),
             child: Container(
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(10.r),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
                 border: Border.all(
                   color: Colors.white.withValues(alpha: 0.1),
                 ),
@@ -553,18 +554,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: EdgeInsets.all(6.r),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.r),
             ),
             child: Icon(icon, color: color, size: 14),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10.w),
           Text(
             title.toUpperCase(),
             style: GoogleFonts.inter(
-              fontSize: 11,
+              fontSize: 11.sp,
               fontWeight: FontWeight.w800,
               color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
               letterSpacing: 1.5,
@@ -577,10 +578,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
   Widget _buildSettingsCard(bool isDark, {required List<Widget> children}) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+      margin: EdgeInsets.symmetric(horizontal: 20.w),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
           color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
         ),
@@ -606,19 +607,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
     required ValueChanged<bool> onChanged,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 40.w,
+            height: 40.h,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(icon, color: color, size: 18),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -626,16 +627,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 Text(
                   title,
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : const Color(0xFF1E293B),
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2.h),
                 Text(
                   subtitle,
                   style: GoogleFonts.inter(
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     color: isDark
                         ? const Color(0xFF64748B)
                         : const Color(0xFF94A3B8),
@@ -644,7 +645,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           _buildPremiumSwitch(value, color, onChanged),
         ],
       ),
@@ -661,11 +662,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOutCubic,
-        width: 48,
-        height: 28,
-        padding: const EdgeInsets.all(3),
+        width: 48.w,
+        height: 28.h,
+        padding: EdgeInsets.all(3.r),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           gradient: value
               ? LinearGradient(
                   colors: [activeColor, activeColor.withValues(alpha: 0.7)],
@@ -689,8 +690,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
           curve: Curves.easeInOutCubic,
           alignment: value ? Alignment.centerRight : Alignment.centerLeft,
           child: Container(
-            width: 22,
-            height: 22,
+            width: 22.w,
+            height: 22.h,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white,
@@ -710,12 +711,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
   Widget _buildDarkModeToggle(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 40.w,
+            height: 40.h,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: isDark
@@ -724,7 +725,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(
               isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
@@ -732,7 +733,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               size: 18,
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -740,18 +741,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 Text(
                   isDark ? 'Dark Mode' : 'Light Mode',
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : const Color(0xFF1E293B),
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2.h),
                 Text(
                   isDark
                       ? 'Switch to light theme'
                       : 'Switch to dark theme',
                   style: GoogleFonts.inter(
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     color: isDark
                         ? const Color(0xFF64748B)
                         : const Color(0xFF94A3B8),
@@ -760,7 +761,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           _buildPremiumSwitch(
             _isDarkMode,
             const Color(0xFF6366F1),
@@ -791,19 +792,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
           child: Row(
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: 40.w,
+                height: 40.h,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Icon(icon, color: color, size: 18),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -811,17 +812,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                     Text(
                       title,
                       style: GoogleFonts.inter(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
                         color:
                             isDark ? Colors.white : const Color(0xFF1E293B),
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2.h),
                     Text(
                       subtitle,
                       style: GoogleFonts.inter(
-                        fontSize: 11,
+                        fontSize: 11.sp,
                         color: isDark
                             ? const Color(0xFF64748B)
                             : const Color(0xFF94A3B8),
@@ -850,39 +851,39 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
     required Color color,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 40.w,
+            height: 40.h,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(icon, color: color, size: 18),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14.w),
           Expanded(
             child: Text(
               title,
               style: GoogleFonts.inter(
-                fontSize: 14,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
                 color: isDark ? Colors.white : const Color(0xFF1E293B),
               ),
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.r),
             ),
             child: Text(
               trailing,
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
                 color: isDark
                     ? const Color(0xFF94A3B8)
@@ -897,9 +898,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
   Widget _buildDivider(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Divider(
-        height: 1,
+        height: 1.h,
         color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
       ),
     );
@@ -916,7 +917,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               backgroundColor:
                   isDark ? const Color(0xFF1E293B) : Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(20.r),
               ),
               title: Text(
                 'Sign Out',
@@ -928,7 +929,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               content: Text(
                 'Are you sure you want to sign out of CaseFlow?',
                 style: GoogleFonts.inter(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   color: isDark
                       ? const Color(0xFF94A3B8)
                       : const Color(0xFF64748B),
@@ -962,12 +963,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             await SupabaseService.signOut();
           }
         },
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: EdgeInsets.symmetric(vertical: 16.h),
           decoration: BoxDecoration(
             color: const Color(0xFFEF4444).withValues(alpha: isDark ? 0.1 : 0.06),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color: const Color(0xFFEF4444).withValues(alpha: 0.15),
             ),
@@ -976,10 +977,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEF4444).withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: const Icon(
                   Icons.logout_rounded,
@@ -987,11 +988,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   size: 18,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               Text(
                 'Sign Out',
                 style: GoogleFonts.inter(
-                  fontSize: 15,
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFFEF4444),
                 ),
@@ -1009,13 +1010,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
         content: Row(
           children: [
             const Icon(Icons.check_circle_rounded, color: Colors.white, size: 16),
-            const SizedBox(width: 8),
-            Text(message, style: GoogleFonts.inter(fontSize: 13)),
+            SizedBox(width: 8.w),
+            Text(message, style: GoogleFonts.inter(fontSize: 13.sp)),
           ],
         ),
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
         backgroundColor: const Color(0xFF334155),
       ),
     );

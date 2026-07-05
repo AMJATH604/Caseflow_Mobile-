@@ -12,6 +12,7 @@ import 'dossier/ia_section.dart';
 import 'dossier/case_history_section.dart';
 import 'dossier/interim_orders_section.dart';
 import 'dossier/human_capital_section.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// eCourt-style unified Case File Dossier tab.
 /// Shows all case intelligence in collapsible sections on a single scrollable page.
@@ -76,7 +77,7 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
             ],
           ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
 
           // ─── 2. OPERATIONAL STATUS ───────────────────
           DossierSection(
@@ -115,12 +116,12 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
             ],
           ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
 
           // ─── 3. PARTY INTELLIGENCE ───────────────────
           PartyIntelligenceSection(caseData: caseData),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
 
           // ─── 4. CLIENT INTELLIGENCE ──────────────────
           DossierSection(
@@ -135,17 +136,17 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
             ],
           ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
 
           // ─── 5. ACTS & SECTIONS ──────────────────────
           ActsSection(caseId: widget.caseId),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
 
           // ─── 6. IA STATUS ────────────────────────────
           IASection(caseId: widget.caseId),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
 
           // ─── 7. CASE HISTORY ─────────────────────────
           CaseHistorySection(
@@ -153,12 +154,12 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
             caseTitle: caseData.caseTitle,
           ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
 
           // ─── 8. INTERIM ORDERS ───────────────────────
           InterimOrdersSection(caseId: widget.caseId),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
 
           // ─── 9. QUICK STATS BAR ──────────────────────
           Row(
@@ -175,7 +176,7 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
                   AppTheme.accent,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               Expanded(
                 child: DossierHelper.statMini(
                   'RECORDS',
@@ -188,7 +189,7 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
                   AppTheme.info,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               Expanded(
                 child: DossierHelper.statMini(
                   'FINANCE',
@@ -204,7 +205,7 @@ class _CaseDossierTabState extends ConsumerState<CaseDossierTab> {
             ],
           ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
 
           // ─── 10. HUMAN CAPITAL ASSIGNMENT ────────────
           HumanCapitalSection(caseId: widget.caseId, caseData: caseData),

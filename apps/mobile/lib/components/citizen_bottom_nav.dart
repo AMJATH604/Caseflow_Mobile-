@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CitizenBottomNav extends ConsumerWidget {
   const CitizenBottomNav({super.key});
@@ -27,7 +28,7 @@ class CitizenBottomNav extends ConsumerWidget {
       ),
       child: SafeArea(
         child: SizedBox(
-          height: 60,
+          height: 60.h,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -90,19 +91,19 @@ class CitizenBottomNav extends ConsumerWidget {
         }
       },
       child: SizedBox(
-        width: 72,
+        width: 72.w,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             // Active indicator line
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              height: 2,
+              height: 2.h,
               width: isActive ? 24 : 0,
-              margin: const EdgeInsets.only(bottom: 8),
+              margin: EdgeInsets.only(bottom: 8.h),
               decoration: BoxDecoration(
                 color: const Color(0xFF10B981),
-                borderRadius: BorderRadius.circular(1),
+                borderRadius: BorderRadius.circular(1.r),
               ),
             ),
             Icon(
@@ -111,11 +112,11 @@ class CitizenBottomNav extends ConsumerWidget {
                   isActive ? const Color(0xFF10B981) : const Color(0xFF4B5563),
               size: 22,
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 10,
+                fontSize: 10.sp,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                 color:
                     isActive
@@ -135,7 +136,7 @@ class CitizenBottomNav extends ConsumerWidget {
       builder:
           (context) => AlertDialog(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20.r),
             ),
             backgroundColor:
                 Theme.of(context).brightness == Brightness.dark
@@ -154,8 +155,8 @@ class CitizenBottomNav extends ConsumerWidget {
             content: Text(
               'You need to sign in or create an account to use $featureName.\n\nIt takes less than a minute and unlocks personalized legal tools, saved cases, and AI legal help.',
               style: GoogleFonts.inter(
-                fontSize: 14,
-                height: 1.5,
+                fontSize: 14.sp,
+                height: 1.5.h,
                 color:
                     Theme.of(context).brightness == Brightness.dark
                         ? const Color(0xFF94A3B8)
@@ -181,7 +182,7 @@ class CitizenBottomNav extends ConsumerWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF10B981),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   elevation: 0,
                 ),

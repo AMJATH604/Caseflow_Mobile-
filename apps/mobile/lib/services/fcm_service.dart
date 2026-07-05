@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart'; // For rootNavigatorKey
 import 'package:go_router/go_router.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Handles Firebase Cloud Messaging (FCM) for server-side push notifications.
 /// Includes WhatsApp-style rich notifications with Reply, Mark as Read actions.
@@ -665,9 +666,9 @@ class _NotificationBannerState extends State<_NotificationBanner>
     final topPadding = MediaQuery.of(context).padding.top;
 
     return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
+      top: 0.h,
+      left: 0.w,
+      right: 0.w,
       child: SlideTransition(
         position: _slideAnimation,
         child: GestureDetector(
@@ -679,11 +680,11 @@ class _NotificationBannerState extends State<_NotificationBanner>
             }
           },
           child: Container(
-            margin: EdgeInsets.only(top: topPadding, left: 8, right: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            margin: EdgeInsets.only(top: topPadding, left: 8.w, right: 8.w),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF1E293B) : Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.12),
@@ -701,13 +702,13 @@ class _NotificationBannerState extends State<_NotificationBanner>
               children: [
                 // Avatar icon
                 Container(
-                  width: 44,
-                  height: 44,
+                  width: 44.w,
+                  height: 44.h,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: const Icon(
                     Icons.chat_bubble_rounded,
@@ -715,7 +716,7 @@ class _NotificationBannerState extends State<_NotificationBanner>
                     size: 20,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 // Text content
                 Expanded(
                   child: Column(
@@ -729,7 +730,7 @@ class _NotificationBannerState extends State<_NotificationBanner>
                               widget.title,
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
-                                fontSize: 14,
+                                fontSize: 14.sp,
                                 color: isDark
                                     ? Colors.white
                                     : const Color(0xFF0F172A),
@@ -738,11 +739,11 @@ class _NotificationBannerState extends State<_NotificationBanner>
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8.w),
                           Text(
                             'now',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 11.sp,
                               color: isDark
                                   ? const Color(0xFF64748B)
                                   : const Color(0xFF94A3B8),
@@ -750,11 +751,11 @@ class _NotificationBannerState extends State<_NotificationBanner>
                           ),
                         ],
                       ),
-                      const SizedBox(height: 3),
+                      SizedBox(height: 3.h),
                       Text(
                         widget.body,
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 13.sp,
                           color: isDark
                               ? const Color(0xFF94A3B8)
                               : const Color(0xFF64748B),

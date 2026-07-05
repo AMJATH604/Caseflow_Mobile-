@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/collaborator_service.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CollaboratorInvitationsScreen extends StatefulWidget {
   const CollaboratorInvitationsScreen({super.key});
@@ -73,7 +74,7 @@ class _CollaboratorInvitationsScreenState
       appBar: AppBar(
         title: Text(
           'Case Invitations',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w900, fontSize: 18),
+          style: GoogleFonts.inter(fontWeight: FontWeight.w900, fontSize: 18.sp),
         ),
         backgroundColor: AppTheme.darkCard,
         elevation: 0,
@@ -87,7 +88,7 @@ class _CollaboratorInvitationsScreenState
               : _invitations.isEmpty
               ? _buildEmptyState()
               : ListView.builder(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16.r),
                 itemCount: _invitations.length,
                 itemBuilder: (context, index) {
                   final invite = _invitations[index];
@@ -98,11 +99,11 @@ class _CollaboratorInvitationsScreenState
                           : 'A Colleague';
 
                   return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(16),
+                    margin: EdgeInsets.only(bottom: 12.h),
+                    padding: EdgeInsets.all(16.r),
                     decoration: BoxDecoration(
                       color: AppTheme.darkCard,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(color: AppTheme.darkBorder),
                     ),
                     child: Column(
@@ -111,10 +112,10 @@ class _CollaboratorInvitationsScreenState
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: EdgeInsets.all(8.r),
                               decoration: BoxDecoration(
                                 color: AppTheme.accent.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(8.r),
                               ),
                               child: const Icon(
                                 Icons.folder_shared_rounded,
@@ -122,7 +123,7 @@ class _CollaboratorInvitationsScreenState
                                 size: 20,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12.w),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,14 +132,14 @@ class _CollaboratorInvitationsScreenState
                                     caseInfo?['case_title'] ?? 'Untitled Case',
                                     style: GoogleFonts.inter(
                                       fontWeight: FontWeight.w900,
-                                      fontSize: 16,
+                                      fontSize: 16.sp,
                                       color: const Color(0xFF1E293B),
                                     ),
                                   ),
                                   Text(
                                     'Invited by $inviter',
                                     style: const TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 12.sp,
                                       color: Color(0xFF64748B),
                                     ),
                                   ),
@@ -147,7 +148,7 @@ class _CollaboratorInvitationsScreenState
                             ),
                           ],
                         ),
-                        const Divider(height: 24),
+                        const Divider(height: 24.h),
                         Row(
                           children: [
                             Expanded(
@@ -164,12 +165,12 @@ class _CollaboratorInvitationsScreenState
                                   'REJECT',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w900,
-                                    fontSize: 12,
+                                    fontSize: 12.sp,
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12.w),
                             Expanded(
                               child: ElevatedButton(
                                 onPressed:
@@ -183,7 +184,7 @@ class _CollaboratorInvitationsScreenState
                                   'ACCEPT',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w900,
-                                    fontSize: 12,
+                                    fontSize: 12.sp,
                                   ),
                                 ),
                               ),
@@ -208,19 +209,19 @@ class _CollaboratorInvitationsScreenState
             size: 64,
             color: Color(0xFFE2E8F0),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Text(
             'No Pending Invitations',
             style: GoogleFonts.inter(
-              fontSize: 18,
+              fontSize: 18.sp,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF94A3B8),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           const Text(
             'When someone shares a case with you, it will appear here.',
-            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13.sp),
           ),
         ],
       ),

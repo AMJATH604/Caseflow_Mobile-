@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../services/legal_news_service.dart';
 import '../components/error_state_widget.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // ─── Providers ─────────────────────────────────────────
 final legalNewsProvider = FutureProvider.family<List<LegalNewsArticle>, String>(
@@ -109,14 +110,14 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
   Widget _buildHeader() {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFFDC2626), Color(0xFFEF4444), Color(0xFFF87171)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFFEF4444).withValues(alpha: 0.3),
@@ -128,10 +129,10 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(10.r),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
             ),
             child: const Icon(
               Icons.newspaper_rounded,
@@ -139,7 +140,7 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
               size: 26,
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,7 +148,7 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
                 Text(
                   'Legal Pulse',
                   style: GoogleFonts.outfit(
-                    fontSize: 24,
+                    fontSize: 24.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     letterSpacing: -0.5,
@@ -156,7 +157,7 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
                 Text(
                   'Live legal news from across India',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
@@ -166,17 +167,17 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
           // Refresh button
           Material(
             color: Colors.white.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12.r),
             child: InkWell(
               onTap: _isRefreshing ? null : _refreshNews,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               child: Padding(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(10.r),
                 child:
                     _isRefreshing
-                        ? const SizedBox(
-                          width: 20,
-                          height: 20,
+                        ? SizedBox(
+                          width: 20.w,
+                          height: 20.h,
                           child: CircularProgressIndicator(
                             color: Colors.white,
                             strokeWidth: 2,
@@ -198,39 +199,39 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
   Widget _buildCategoryTabs() {
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 16, 0, 8),
-      height: 40,
+      height: 40.h,
       child: TabBar(
         controller: _tabController,
         isScrollable: true,
         tabAlignment: TabAlignment.start,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
         indicator: BoxDecoration(
           color: const Color(0xFFDC2626),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
         ),
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,
         labelColor: Colors.white,
         unselectedLabelColor: Colors.grey[600],
         labelStyle: GoogleFonts.inter(
-          fontSize: 12,
+          fontSize: 12.sp,
           fontWeight: FontWeight.w700,
         ),
         unselectedLabelStyle: GoogleFonts.inter(
-          fontSize: 12,
+          fontSize: 12.sp,
           fontWeight: FontWeight.w600,
         ),
-        labelPadding: const EdgeInsets.symmetric(horizontal: 6),
+        labelPadding: EdgeInsets.symmetric(horizontal: 6.w),
         tabs:
             _categories.map((cat) {
               return Tab(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  padding: EdgeInsets.symmetric(horizontal: 14.w),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(cat['icon'] as IconData, size: 14),
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6.w),
                       Text(cat['label'] as String),
                     ],
                   ),
@@ -290,7 +291,7 @@ class _NewsFeedTab extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24.r),
             decoration: BoxDecoration(
               color: const Color(0xFFDC2626).withValues(alpha: 0.08),
               shape: BoxShape.circle,
@@ -301,19 +302,19 @@ class _NewsFeedTab extends StatelessWidget {
               color: const Color(0xFFDC2626).withValues(alpha: 0.4),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           Text(
             'No articles yet',
             style: GoogleFonts.outfit(
-              fontSize: 20,
+              fontSize: 20.sp,
               fontWeight: FontWeight.bold,
               color: AppTheme.primary,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             'Pull down to refresh and fetch latest news',
-            style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[500]),
+            style: GoogleFonts.inter(fontSize: 13.sp, color: Colors.grey[500]),
           ),
         ],
       ),
@@ -322,15 +323,15 @@ class _NewsFeedTab extends StatelessWidget {
 
   Widget _buildLoadingShimmer() {
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       itemCount: 6,
       itemBuilder: (context, index) {
         return Container(
-          margin: const EdgeInsets.only(bottom: 16),
+          margin: EdgeInsets.only(bottom: 16.h),
           height: index == 0 ? 220 : 120,
           decoration: BoxDecoration(
             color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(20.r),
           ),
         );
       },
@@ -356,7 +357,7 @@ class _BookmarksTab extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(24.r),
                   decoration: BoxDecoration(
                     color: AppTheme.accent.withValues(alpha: 0.08),
                     shape: BoxShape.circle,
@@ -367,20 +368,20 @@ class _BookmarksTab extends StatelessWidget {
                     color: AppTheme.accent.withValues(alpha: 0.4),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20.h),
                 Text(
                   'No saved articles',
                   style: GoogleFonts.outfit(
-                    fontSize: 20,
+                    fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primary,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 Text(
                   'Tap the bookmark icon on any article to save it',
                   style: GoogleFonts.inter(
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     color: Colors.grey[500],
                   ),
                 ),
@@ -420,10 +421,10 @@ class _HeroNewsCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => _openArticle(article.link),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: EdgeInsets.only(bottom: 16.h),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(24.r),
           border: Border.all(color: AppTheme.border.withValues(alpha: 0.6)),
           boxShadow: [
             BoxShadow(
@@ -440,16 +441,16 @@ class _HeroNewsCard extends StatelessWidget {
             if (article.imageUrl != null)
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(24),
+                  top: Radius.circular(24.r),
                 ),
                 child: Image.network(
                   article.imageUrl!,
-                  height: 180,
+                  height: 180.h,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   errorBuilder:
                       (_, __, ___) => Container(
-                        height: 120,
+                        height: 120.h,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -458,7 +459,7 @@ class _HeroNewsCard extends StatelessWidget {
                             ],
                           ),
                           borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(24),
+                            top: Radius.circular(24.r),
                           ),
                         ),
                         child: const Center(
@@ -473,7 +474,7 @@ class _HeroNewsCard extends StatelessWidget {
               ),
 
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20.r),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -485,35 +486,35 @@ class _HeroNewsCard extends StatelessWidget {
                       _TimeAgo(date: article.publishedAt),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12.h),
 
                   // Title
                   Text(
                     article.title,
                     style: GoogleFonts.outfit(
-                      fontSize: 18,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.primary,
-                      height: 1.3,
+                      height: 1.3.h,
                     ),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10.h),
 
                   // Summary
                   if (article.summary != null && article.summary!.isNotEmpty)
                     Text(
                       article.summary!,
                       style: GoogleFonts.inter(
-                        fontSize: 13,
+                        fontSize: 13.sp,
                         color: Colors.grey[600],
-                        height: 1.5,
+                        height: 1.5.h,
                       ),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14.h),
 
                   // Actions row
                   Row(
@@ -521,7 +522,7 @@ class _HeroNewsCard extends StatelessWidget {
                       _ReadMoreButton(),
                       const Spacer(),
                       _BookmarkButton(article: article, ref: ref),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8.w),
                       _ShareButton(article: article),
                     ],
                   ),
@@ -547,11 +548,11 @@ class _NewsCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => _openArticle(article.link),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
+        margin: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.all(16.r),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(18.r),
           border: Border.all(color: AppTheme.border.withValues(alpha: 0.5)),
           boxShadow: [
             BoxShadow(
@@ -566,13 +567,13 @@ class _NewsCard extends StatelessWidget {
           children: [
             // Thumbnail
             ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               child:
                   article.imageUrl != null
                       ? Image.network(
                         article.imageUrl!,
-                        width: 80,
-                        height: 80,
+                        width: 80.w,
+                        height: 80.h,
                         fit: BoxFit.cover,
                         errorBuilder:
                             (_, __, ___) =>
@@ -580,7 +581,7 @@ class _NewsCard extends StatelessWidget {
                       )
                       : _PlaceholderThumb(category: article.category),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14.w),
 
             // Content
             Expanded(
@@ -594,19 +595,19 @@ class _NewsCard extends StatelessWidget {
                       _TimeAgo(date: article.publishedAt, small: true),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6.h),
                   Text(
                     article.title,
                     style: GoogleFonts.inter(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.primary,
-                      height: 1.3,
+                      height: 1.3.h,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   Row(
                     children: [
                       Icon(
@@ -614,11 +615,11 @@ class _NewsCard extends StatelessWidget {
                         size: 12,
                         color: Colors.grey[400],
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4.w),
                       Text(
                         'Read on LiveLaw',
                         style: GoogleFonts.inter(
-                          fontSize: 10,
+                          fontSize: 10.sp,
                           color: Colors.grey[400],
                           fontWeight: FontWeight.w600,
                         ),
@@ -655,7 +656,7 @@ class _CategoryChip extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: info.color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8.r),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -712,10 +713,10 @@ class _ReadMoreButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
       decoration: BoxDecoration(
         color: const Color(0xFFDC2626).withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -723,12 +724,12 @@ class _ReadMoreButton extends StatelessWidget {
           Text(
             'Read Full Article',
             style: GoogleFonts.inter(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w700,
               color: const Color(0xFFDC2626),
             ),
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4.w),
           const Icon(
             Icons.arrow_forward_rounded,
             size: 14,
@@ -763,7 +764,7 @@ class _BookmarkButtonState extends State<_BookmarkButton> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: _toggleBookmark,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(8.r),
       child: Padding(
         padding: EdgeInsets.all(widget.small ? 4 : 8),
         child:
@@ -814,9 +815,9 @@ class _ShareButton extends StatelessWidget {
         // Simple share via clipboard
         _openArticle(article.link);
       },
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(8.r),
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: EdgeInsets.all(8.r),
         child: Icon(Icons.share_rounded, size: 18, color: Colors.grey[400]),
       ),
     );
@@ -832,11 +833,11 @@ class _PlaceholderThumb extends StatelessWidget {
   Widget build(BuildContext context) {
     final info = _getCategoryInfo(category);
     return Container(
-      width: 80,
-      height: 80,
+      width: 80.w,
+      height: 80.h,
       decoration: BoxDecoration(
         color: info.color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
       ),
       child: Center(
         child: Icon(

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/providers.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CitizenHomeScreen extends ConsumerStatefulWidget {
   const CitizenHomeScreen({super.key});
@@ -377,21 +378,21 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
             children: [
               // Header
               _buildHeader(),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
 
               // Carousel
               _buildCarousel(activeSlides),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
 
               // Quick Actions
               _buildSectionTitle('Quick Actions'),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               _buildQuickActions(),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
 
               // All Tools Grid
               _buildSectionTitle('Legal Resources'),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               _buildFeaturesGrid(isMobile),
             ],
           ),
@@ -407,7 +408,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
         Text(
           'Legal Knowledge Hub',
           style: GoogleFonts.playfairDisplay(
-            fontSize: 28,
+            fontSize: 28.sp,
             fontWeight: FontWeight.w700,
             color:
                 Theme.of(context).brightness == Brightness.dark
@@ -415,11 +416,11 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                     : const Color(0xFF0F172A),
           ),
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: 6.h),
         Text(
           'Know Your Rights. Protect Your Future.',
           style: GoogleFonts.inter(
-            fontSize: 13,
+            fontSize: 13.sp,
             fontWeight: FontWeight.w500,
             color:
                 Theme.of(context).brightness == Brightness.dark
@@ -458,10 +459,10 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                 final slide = activeSlides[index];
 
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  padding: EdgeInsets.symmetric(horizontal: 2.w),
                   child: InkWell(
                     onTap: () => _showSlideDetailBottomSheet(context, slide),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(20.r),
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -469,10 +470,10 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(20.r),
                         border: Border.all(
                           color: Colors.white.withValues(alpha: 0.15),
-                          width: 1,
+                          width: 1.w,
                         ),
                         boxShadow: [
                           BoxShadow(
@@ -484,7 +485,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                           ),
                         ],
                       ),
-                      padding: const EdgeInsets.all(20),
+                      padding: EdgeInsets.all(20.r),
                       child: Row(
                         children: [
                           Expanded(
@@ -499,12 +500,12 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                                   ),
                                   decoration: BoxDecoration(
                                     color: Colors.white.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(6),
+                                    borderRadius: BorderRadius.circular(6.r),
                                   ),
                                   child: Text(
                                     slide.type,
                                     style: GoogleFonts.inter(
-                                      fontSize: 9,
+                                      fontSize: 9.sp,
                                       fontWeight: FontWeight.w800,
                                       color: Colors.white.withValues(
                                         alpha: 0.95,
@@ -513,37 +514,37 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 10),
+                                SizedBox(height: 10.h),
                                 // Title
                                 Text(
                                   slide.title,
                                   style: GoogleFonts.outfit(
-                                    fontSize: 17,
+                                    fontSize: 17.sp,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white,
-                                    height: 1.25,
+                                    height: 1.25.h,
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                const SizedBox(height: 6),
+                                SizedBox(height: 6.h),
                                 // Body
                                 Expanded(
                                   child: Text(
                                     slide.body,
                                     style: GoogleFonts.inter(
-                                      fontSize: 12,
+                                      fontSize: 12.sp,
                                       fontWeight: FontWeight.w400,
                                       color: Colors.white.withValues(
                                         alpha: 0.85,
                                       ),
-                                      height: 1.4,
+                                      height: 1.4.h,
                                     ),
                                     maxLines: 3,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
+                                SizedBox(height: 8.h),
                                 // Action button
                                 Container(
                                   padding: const EdgeInsets.symmetric(
@@ -552,7 +553,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                                   ),
                                   decoration: BoxDecoration(
                                     color: Colors.white.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(20.r),
                                     border: Border.all(
                                       color: Colors.white.withValues(
                                         alpha: 0.2,
@@ -562,7 +563,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                                   child: Text(
                                     '${slide.action} \u2192',
                                     style: GoogleFonts.inter(
-                                      fontSize: 10,
+                                      fontSize: 10.sp,
                                       fontWeight: FontWeight.w700,
                                       color: Colors.white,
                                     ),
@@ -571,12 +572,12 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                               ],
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12.w),
                           Container(
-                            padding: const EdgeInsets.all(14),
+                            padding: EdgeInsets.all(14.r),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(16.r),
                               border: Border.all(
                                 color: Colors.white.withValues(alpha: 0.1),
                               ),
@@ -597,7 +598,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
           ),
         ),
 
-        const SizedBox(height: 12),
+        SizedBox(height: 12.h),
 
         // Page indicator dots
         Row(
@@ -606,11 +607,11 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
             final isActive = index == _currentCarouselPage;
             return AnimatedContainer(
               duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.symmetric(horizontal: 3),
+              margin: EdgeInsets.symmetric(horizontal: 3.w),
               width: isActive ? 20 : 6,
-              height: 6,
+              height: 6.h,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(3),
+                borderRadius: BorderRadius.circular(3.r),
                 color:
                     isActive
                         ? const Color(0xFF2563EB)
@@ -629,18 +630,18 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
     return Row(
       children: [
         Container(
-          width: 4,
-          height: 20,
+          width: 4.w,
+          height: 20.h,
           decoration: BoxDecoration(
             color: const Color(0xFF10B981),
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: BorderRadius.circular(2.r),
           ),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10.w),
         Text(
           title.toUpperCase(),
           style: GoogleFonts.inter(
-            fontSize: 12,
+            fontSize: 12.sp,
             fontWeight: FontWeight.w800,
             color:
                 Theme.of(context).brightness == Brightness.dark
@@ -663,7 +664,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
         isGuest ? '/guest-know-your-rights' : '/know-your-rights';
 
     return SizedBox(
-      height: 100,
+      height: 100.h,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
@@ -719,16 +720,16 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
     VoidCallback onTap,
   ) {
     return Padding(
-      padding: const EdgeInsets.only(right: 12),
+      padding: EdgeInsets.only(right: 12.w),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         child: Container(
-          width: 110,
-          padding: const EdgeInsets.all(14),
+          width: 110.w,
+          padding: EdgeInsets.all(14.r),
           decoration: BoxDecoration(
             gradient: LinearGradient(colors: gradient),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
             boxShadow: [
               BoxShadow(
                 color: gradient[0].withValues(alpha: 0.3),
@@ -745,10 +746,10 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
               Text(
                 label,
                 style: GoogleFonts.inter(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
-                  height: 1.3,
+                  height: 1.3.h,
                 ),
               ),
             ],
@@ -826,15 +827,15 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
             }
           }
         },
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16.r),
           decoration: BoxDecoration(
             color:
                 Theme.of(context).brightness == Brightness.dark
                     ? const Color(0xFF1E293B)
                     : Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color:
                   Theme.of(context).brightness == Brightness.dark
@@ -853,7 +854,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12.r),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -861,18 +862,18 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                       feature.gradient[1].withValues(alpha: 0.05),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                   border: Border.all(
                     color: feature.gradient[0].withValues(alpha: 0.2),
                   ),
                 ),
                 child: Icon(feature.icon, color: feature.gradient[0], size: 24),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
               Text(
                 feature.title,
                 style: GoogleFonts.inter(
-                  fontSize: 13,
+                  fontSize: 13.sp,
                   fontWeight: FontWeight.w700,
                   color:
                       Theme.of(context).brightness == Brightness.dark
@@ -883,11 +884,11 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 3),
+              SizedBox(height: 3.h),
               Text(
                 feature.subtitle.toUpperCase(),
                 style: GoogleFonts.inter(
-                  fontSize: 8,
+                  fontSize: 8.sp,
                   fontWeight: FontWeight.w700,
                   color:
                       Theme.of(context).brightness == Brightness.dark
@@ -912,7 +913,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
       builder:
           (context) => AlertDialog(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20.r),
             ),
             backgroundColor:
                 Theme.of(context).brightness == Brightness.dark
@@ -931,8 +932,8 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
             content: Text(
               'You need to sign in or create an account to use $featureName.\n\nIt takes less than a minute and unlocks personalized legal tools, saved cases, and AI legal help.',
               style: GoogleFonts.inter(
-                fontSize: 14,
-                height: 1.5,
+                fontSize: 14.sp,
+                height: 1.5.h,
                 color:
                     Theme.of(context).brightness == Brightness.dark
                         ? const Color(0xFF94A3B8)
@@ -958,7 +959,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF10B981),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   elevation: 0,
                 ),
@@ -990,7 +991,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
         return Container(
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF0F172A) : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28.r)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.3),
@@ -1012,7 +1013,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(28),
+                    top: Radius.circular(28.r),
                   ),
                 ),
                 padding: const EdgeInsets.symmetric(
@@ -1023,25 +1024,25 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                   children: [
                     // Handle
                     Container(
-                      width: 40,
-                      height: 5,
+                      width: 40.w,
+                      height: 5.h,
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(2.5),
+                        borderRadius: BorderRadius.circular(2.5.r),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20.h),
                     // Header Row with Icon & Label
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(10),
+                          padding: EdgeInsets.all(10.r),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: Colors.white.withValues(alpha: 0.2),
-                              width: 1,
+                              width: 1.w,
                             ),
                           ),
                           child: Icon(
@@ -1050,7 +1051,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                             size: 24,
                           ),
                         ),
-                        const SizedBox(width: 14),
+                        SizedBox(width: 14.w),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1062,23 +1063,23 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                                 ),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(6),
+                                  borderRadius: BorderRadius.circular(6.r),
                                 ),
                                 child: Text(
                                   slide.type,
                                   style: GoogleFonts.inter(
-                                    fontSize: 9,
+                                    fontSize: 9.sp,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
                                     letterSpacing: 1.2,
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              SizedBox(height: 4.h),
                               Text(
                                 slide.title,
                                 style: GoogleFonts.outfit(
-                                  fontSize: 18,
+                                  fontSize: 18.sp,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white,
                                 ),
@@ -1103,35 +1104,35 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                     Text(
                       slide.detailTitle,
                       style: GoogleFonts.playfairDisplay(
-                        fontSize: 22,
+                        fontSize: 22.sp,
                         fontWeight: FontWeight.w700,
                         color: isDark ? Colors.white : const Color(0xFF0F172A),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12.h),
                     // Elegant divider line
                     Container(
-                      width: 60,
-                      height: 3,
+                      width: 60.w,
+                      height: 3.h,
                       decoration: BoxDecoration(
                         color: slide.gradientColors[0],
-                        borderRadius: BorderRadius.circular(1.5),
+                        borderRadius: BorderRadius.circular(1.5.r),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20.h),
                     // Detail Text
                     Text(
                       slide.detailBody,
                       style: GoogleFonts.inter(
-                        fontSize: 14,
-                        height: 1.6,
+                        fontSize: 14.sp,
+                        height: 1.6.h,
                         color:
                             isDark
                                 ? const Color(0xFFCBD5E1)
                                 : const Color(0xFF334155),
                       ),
                     ),
-                    const SizedBox(height: 28),
+                    SizedBox(height: 28.h),
                     // Action Button
                     InkWell(
                       onTap: () {
@@ -1153,16 +1154,16 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                           context.push(targetRoute);
                         }
                       },
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16.r),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: EdgeInsets.symmetric(vertical: 16.h),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: slide.gradientColors,
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
                           ),
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(16.r),
                           boxShadow: [
                             BoxShadow(
                               color: slide.gradientColors[0].withValues(
@@ -1179,13 +1180,13 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                             Text(
                               slide.action,
                               style: GoogleFonts.inter(
-                                fontSize: 14,
+                                fontSize: 14.sp,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
                                 letterSpacing: 0.5,
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8.w),
                             const Icon(
                               Icons.arrow_forward_rounded,
                               color: Colors.white,

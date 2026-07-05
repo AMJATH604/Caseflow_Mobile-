@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import '../../models/bar_association_models.dart';
 import '../../services/providers.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BarMembershipCardScreen extends ConsumerStatefulWidget {
   final String associationId;
@@ -39,7 +40,7 @@ class _BarMembershipCardScreenState
           'Membership Card',
           style: GoogleFonts.inter(
             fontWeight: FontWeight.w700,
-            fontSize: 20,
+            fontSize: 20.sp,
             color: Colors.white,
           ),
         ),
@@ -83,16 +84,16 @@ class _BarMembershipCardScreenState
               final avatarUrl = profileAsync.valueOrNull?.avatarUrl;
               return Center(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(24.r),
                   child: Column(
                     children: [
                       RepaintBoundary(
                         key: _cardKey,
                         child: _buildCard(assoc, member, avatarUrl),
                       ),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32.h),
                       _buildInfoSection(member),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24.h),
                       _buildActions(),
                     ],
                   ),
@@ -124,7 +125,7 @@ class _BarMembershipCardScreenState
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF6366F1).withValues(alpha: 0.3),
@@ -134,7 +135,7 @@ class _BarMembershipCardScreenState
         ],
         border: Border.all(
           color: const Color(0xFF6366F1).withValues(alpha: 0.3),
-          width: 1,
+          width: 1.w,
         ),
       ),
       child: Stack(
@@ -144,8 +145,8 @@ class _BarMembershipCardScreenState
             right: -40,
             top: -40,
             child: Container(
-              width: 160,
-              height: 160,
+              width: 160.w,
+              height: 160.h,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: const Color(0xFF6366F1).withValues(alpha: 0.06),
@@ -156,8 +157,8 @@ class _BarMembershipCardScreenState
             left: -30,
             bottom: -30,
             child: Container(
-              width: 120,
-              height: 120,
+              width: 120.w,
+              height: 120.h,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: const Color(0xFF22D3EE).withValues(alpha: 0.05),
@@ -167,7 +168,7 @@ class _BarMembershipCardScreenState
 
           // ── Card Content ──
           Padding(
-            padding: const EdgeInsets.all(28),
+            padding: EdgeInsets.all(28.r),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -175,15 +176,15 @@ class _BarMembershipCardScreenState
                 Row(
                   children: [
                     Container(
-                      width: 44,
-                      height: 44,
+                      width: 44.w,
+                      height: 44.h,
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: assoc.logoUrl != null
                           ? ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                               child: Image.network(
                                 assoc.logoUrl!,
                                 fit: BoxFit.cover,
@@ -200,7 +201,7 @@ class _BarMembershipCardScreenState
                               size: 24,
                             ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,7 +209,7 @@ class _BarMembershipCardScreenState
                           Text(
                             assoc.name,
                             style: GoogleFonts.inter(
-                              fontSize: 13,
+                              fontSize: 13.sp,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
                             ),
@@ -216,7 +217,7 @@ class _BarMembershipCardScreenState
                           Text(
                             assoc.court,
                             style: GoogleFonts.inter(
-                              fontSize: 11,
+                              fontSize: 11.sp,
                               color: Colors.white.withValues(alpha: 0.6),
                             ),
                           ),
@@ -226,20 +227,20 @@ class _BarMembershipCardScreenState
                   ],
                 ),
 
-                const SizedBox(height: 28),
+                SizedBox(height: 28.h),
 
                 // Avatar + Name
                 Center(
                   child: Column(
                     children: [
                       Container(
-                        width: 88,
-                        height: 88,
+                        width: 88.w,
+                        height: 88.h,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: const Color(0xFF22D3EE),
-                            width: 3,
+                            width: 3.w,
                           ),
                           boxShadow: [
                             BoxShadow(
@@ -259,7 +260,7 @@ class _BarMembershipCardScreenState
                               ? Text(
                                   member.name[0].toUpperCase(),
                                   style: GoogleFonts.inter(
-                                    fontSize: 32,
+                                    fontSize: 32.sp,
                                     fontWeight: FontWeight.w700,
                                     color: const Color(0xFF22D3EE),
                                   ),
@@ -267,22 +268,22 @@ class _BarMembershipCardScreenState
                               : null,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16.h),
                       Text(
                         member.name,
                         style: GoogleFonts.inter(
-                          fontSize: 22,
+                          fontSize: 22.sp,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
                           letterSpacing: 0.5,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4.h),
                       Text(
                         member.membershipTypeLabel.toUpperCase(),
                         style: GoogleFonts.inter(
-                          fontSize: 11,
+                          fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
                           color: const Color(0xFF22D3EE),
                           letterSpacing: 2,
@@ -292,14 +293,14 @@ class _BarMembershipCardScreenState
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24.h),
 
                 // Details Grid
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16.r),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                     border: Border.all(
                       color: Colors.white.withValues(alpha: 0.08),
                     ),
@@ -310,12 +311,12 @@ class _BarMembershipCardScreenState
                         'Enrollment No.',
                         member.enrollmentNumber ?? 'N/A',
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12.h),
                       _buildDetailRow(
                         'Member Since',
                         member.joinedYear?.toString() ?? 'N/A',
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12.h),
                       _buildDetailRow(
                         'Mobile',
                         member.mobile,
@@ -324,7 +325,7 @@ class _BarMembershipCardScreenState
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(height: 20.h),
 
                 // Validity stamp
                 Center(
@@ -337,7 +338,7 @@ class _BarMembershipCardScreenState
                       gradient: const LinearGradient(
                         colors: [Color(0xFF059669), Color(0xFF10B981)],
                       ),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                       boxShadow: [
                         BoxShadow(
                           color: const Color(0xFF10B981)
@@ -355,11 +356,11 @@ class _BarMembershipCardScreenState
                           color: Colors.white,
                           size: 18,
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8.w),
                         Text(
                           'VALID $currentYear — ${currentYear + 1}',
                           style: GoogleFonts.inter(
-                            fontSize: 13,
+                            fontSize: 13.sp,
                             fontWeight: FontWeight.w800,
                             color: Colors.white,
                             letterSpacing: 1,
@@ -370,14 +371,14 @@ class _BarMembershipCardScreenState
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(height: 20.h),
 
                 // CaseFlow branding
                 Center(
                   child: Text(
                     'Powered by CaseFlow',
                     style: GoogleFonts.inter(
-                      fontSize: 10,
+                      fontSize: 10.sp,
                       color: Colors.white.withValues(alpha: 0.3),
                       letterSpacing: 1,
                     ),
@@ -398,14 +399,14 @@ class _BarMembershipCardScreenState
         Text(
           label,
           style: GoogleFonts.inter(
-            fontSize: 12,
+            fontSize: 12.sp,
             color: Colors.white.withValues(alpha: 0.5),
           ),
         ),
         Text(
           value,
           style: GoogleFonts.inter(
-            fontSize: 14,
+            fontSize: 14.sp,
             fontWeight: FontWeight.w600,
             color: Colors.white,
           ),
@@ -418,12 +419,12 @@ class _BarMembershipCardScreenState
     return Container(
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.1),
         ),
       ),
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       child: Column(
         children: [
           Row(
@@ -433,14 +434,14 @@ class _BarMembershipCardScreenState
                 color: Color(0xFF22D3EE),
                 size: 20,
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Expanded(
                 child: Text(
                   'This digital membership card can be shared or shown at court premises for verification.',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: Colors.white.withValues(alpha: 0.6),
-                    height: 1.5,
+                    height: 1.5.h,
                   ),
                 ),
               ),
@@ -465,21 +466,21 @@ class _BarMembershipCardScreenState
             style: OutlinedButton.styleFrom(
               foregroundColor: const Color(0xFF22D3EE),
               side: const BorderSide(color: Color(0xFF22D3EE)),
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: 14.h),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
               ),
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12.w),
         Expanded(
           child: ElevatedButton.icon(
             onPressed: _saving ? null : () => _saveCard(),
             icon: _saving
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
+                ? SizedBox(
+                    width: 18.w,
+                    height: 18.h,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       color: Colors.white,
@@ -493,9 +494,9 @@ class _BarMembershipCardScreenState
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF6366F1),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: 14.h),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
               ),
             ),
           ),

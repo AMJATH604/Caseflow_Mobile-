@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/app_theme.dart';
 import '../../services/supabase_service.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class StampValueScreen extends ConsumerStatefulWidget {
   const StampValueScreen({super.key});
@@ -111,12 +112,12 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
       children: [
         // Search Bar
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           child: TextField(
             onChanged: (val) => setState(() => _searchQuery = val),
             decoration: InputDecoration(
               hintText: 'Search petition type...',
-              hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+              hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14.sp),
               prefixIcon: const Icon(Icons.search, color: Colors.grey),
               filled: true,
               fillColor:
@@ -124,17 +125,17 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
                       ? Colors.grey[900]
                       : const Color(0xFFF1F5F9),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(16.r),
                 borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 14),
+              contentPadding: EdgeInsets.symmetric(vertical: 14.h),
               suffixIcon:
                   _isLoading
                       ? const Padding(
-                        padding: EdgeInsets.all(12.0),
+                        padding: EdgeInsets.all(12.0.r),
                         child: SizedBox(
-                          width: 14,
-                          height: 14,
+                          width: 14.w,
+                          height: 14.h,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                       )
@@ -145,10 +146,10 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
 
         // Category Chips
         SizedBox(
-          height: 40,
+          height: 40.h,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
             itemCount: _categories.length,
             itemBuilder: (context, index) {
               final cat = _categories[index];
@@ -156,14 +157,14 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
               final color = _categoryColors[cat] ?? AppTheme.accent;
 
               return Padding(
-                padding: const EdgeInsets.only(right: 8),
+                padding: EdgeInsets.only(right: 8.w),
                 child: FilterChip(
                   label: Text(
                     cat,
                     style: TextStyle(
                       color: isSelected ? Colors.white : color,
                       fontWeight: FontWeight.w700,
-                      fontSize: 12,
+                      fontSize: 12.sp,
                     ),
                   ),
                   selected: isSelected,
@@ -172,27 +173,27 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
                   selectedColor: color,
                   checkmarkColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(20.r),
                     side: BorderSide(color: color.withValues(alpha: 0.3)),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w),
                 ),
               );
             },
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
 
         // Results Count & Refresh
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: EdgeInsets.symmetric(horizontal: 20.w),
           child: Row(
             children: [
               Text(
                 '${filtered.length} items',
                 style: TextStyle(
                   color: Colors.grey[500],
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -204,19 +205,19 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               Text(
                 'Tamil Nadu Courts',
                 style: TextStyle(
                   color: Colors.grey[400],
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
 
         // Stamp Value List
         Expanded(
@@ -233,12 +234,12 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
                           size: 64,
                           color: Colors.grey[300],
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         Text(
                           'No petitions found',
                           style: TextStyle(
                             color: Colors.grey[400],
-                            fontSize: 16,
+                            fontSize: 16.sp,
                           ),
                         ),
                       ],
@@ -261,13 +262,13 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
                         final icon = _iconMap[iconKey] ?? Icons.description;
 
                         return Container(
-                          margin: const EdgeInsets.only(bottom: 8),
+                          margin: EdgeInsets.only(bottom: 8.h),
                           decoration: BoxDecoration(
                             color:
                                 Theme.of(context).brightness == Brightness.dark
                                     ? const Color(0xFF1E293B)
                                     : Colors.white,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14.r),
                             border: Border.all(
                               color:
                                   Theme.of(context).brightness ==
@@ -289,11 +290,11 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
                               vertical: 4,
                             ),
                             leading: Container(
-                              width: 42,
-                              height: 42,
+                              width: 42.w,
+                              height: 42.h,
                               decoration: BoxDecoration(
                                 color: color.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12.r),
                               ),
                               child: Icon(icon, color: color, size: 20),
                             ),
@@ -301,7 +302,7 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
                               item['name'],
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                                fontSize: 14.sp,
                                 color:
                                     Theme.of(context).brightness ==
                                             Brightness.dark
@@ -313,7 +314,7 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
                               item['category'],
                               style: TextStyle(
                                 color: color,
-                                fontSize: 11,
+                                fontSize: 11.sp,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -329,7 +330,7 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
                                     color.withValues(alpha: 0.05),
                                   ],
                                 ),
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(10.r),
                                 border: Border.all(
                                   color: color.withValues(alpha: 0.2),
                                 ),
@@ -339,7 +340,7 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
                                 style: TextStyle(
                                   color: color,
                                   fontWeight: FontWeight.w800,
-                                  fontSize: 14,
+                                  fontSize: 14.sp,
                                 ),
                               ),
                             ),
@@ -355,18 +356,18 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
 
   Widget _buildSkeletonList() {
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       itemCount: 8,
       itemBuilder:
           (context, index) => Container(
-            height: 70,
-            margin: const EdgeInsets.only(bottom: 8),
+            height: 70.h,
+            margin: EdgeInsets.only(bottom: 8.h),
             decoration: BoxDecoration(
               color:
                   Theme.of(context).brightness == Brightness.dark
                       ? Colors.grey[900]
                       : Colors.grey[100],
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
             ),
           ),
     );

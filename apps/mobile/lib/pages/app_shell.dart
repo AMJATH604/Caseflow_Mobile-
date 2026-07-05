@@ -12,6 +12,7 @@ import '../components/profile_avatar.dart';
 import '../components/profile_detail_sheet.dart';
 import '../services/providers.dart';
 import '../services/supabase_service.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppShell extends ConsumerStatefulWidget {
   final Widget child;
@@ -76,14 +77,14 @@ class _AppShellState extends ConsumerState<AppShell> {
                     color: Colors.white,
                     size: 16,
                   ),
-                  SizedBox(width: 8),
+                  SizedBox(width: 8.w),
                   Text('Press back again to exit CaseFlow'),
                 ],
               ),
               duration: const Duration(seconds: 2),
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10.r),
               ),
               backgroundColor: const Color(0xFF334155),
             ),
@@ -117,7 +118,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                       style: Theme.of(
                         context,
                       ).appBarTheme.titleTextStyle?.copyWith(
-                        fontSize: 22,
+                        fontSize: 22.sp,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.5,
                       ),
@@ -151,7 +152,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                         ),
                         // Profile avatar in AppBar
                         Padding(
-                          padding: const EdgeInsets.only(right: 8),
+                          padding: EdgeInsets.only(right: 8.w),
                           child: Builder(
                             builder: (context) {
                               final profileAsync = ref.watch(userProfileProvider);
@@ -167,7 +168,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                           ),
                         ),
                       ],
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4.w),
                     ] else ...[
                       TextButton.icon(
                         onPressed: () => context.go('/role-selection'),
@@ -179,19 +180,19 @@ class _AppShellState extends ConsumerState<AppShell> {
                         label: Text(
                           'Sign Up',
                           style: GoogleFonts.inter(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             fontWeight: FontWeight.w700,
                             color: const Color(0xFF10B981),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4.w),
                     ],
                   ],
                   bottom: PreferredSize(
                     preferredSize: const Size.fromHeight(1),
                     child: Container(
-                      height: 1,
+                      height: 1.h,
                       color: Theme.of(context).dividerTheme.color,
                     ),
                   ),
@@ -205,7 +206,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                 children: [
                   if (!isMobile)
                     Container(
-                      height: 64,
+                      height: 64.h,
                       decoration: BoxDecoration(
                         color: Theme.of(context).scaffoldBackgroundColor,
                         border: Border(
@@ -216,7 +217,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                           ),
                         ),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      padding: EdgeInsets.symmetric(horizontal: 24.w),
                       child: Row(
                         children: [
                           Text(
@@ -255,7 +256,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                                   delegate: GlobalSearchDelegate(),
                                 );
                               },
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -268,7 +269,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                                             ? const Color(0xFFCBD5E1)
                                             : Colors.black38,
                                   ),
-                                  const SizedBox(width: 10),
+                                  SizedBox(width: 10.w),
                                   Text(
                                     'Search cases, clients...',
                                     style: GoogleFonts.inter(
@@ -277,7 +278,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                                                   Brightness.dark
                                               ? const Color(0xFFCBD5E1)
                                               : Colors.black38,
-                                      fontSize: 13,
+                                      fontSize: 13.sp,
                                     ),
                                   ),
                                 ],

@@ -8,6 +8,7 @@ import '../services/supabase_service.dart';
 import '../components/error_state_widget.dart';
 import '../theme/app_theme.dart';
 import '../components/dialogs/log_payment_dialog.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PaymentsScreen extends ConsumerWidget {
   const PaymentsScreen({super.key});
@@ -46,7 +47,7 @@ class PaymentsScreen extends ConsumerWidget {
             letterSpacing: 0.3,
           ),
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
       ),
     );
   }
@@ -79,22 +80,22 @@ class PaymentsScreen extends ConsumerWidget {
           ),
 
         // Bottom padding for FAB
-        const SliverToBoxAdapter(child: SizedBox(height: 100)),
+        const SliverToBoxAdapter(child: SizedBox(height: 100.h)),
       ],
     );
   }
 
   Widget _buildHeader(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      padding: const EdgeInsets.all(24),
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      padding: EdgeInsets.all(24.r),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFF059669), Color(0xFF10B981), Color(0xFF34D399)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF10B981).withValues(alpha: 0.3),
@@ -106,10 +107,10 @@ class PaymentsScreen extends ConsumerWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(10.r),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
             child: const Icon(
               Icons.account_balance_wallet_rounded,
@@ -117,7 +118,7 @@ class PaymentsScreen extends ConsumerWidget {
               size: 24,
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +126,7 @@ class PaymentsScreen extends ConsumerWidget {
                 Text(
                   'Financial Ledger',
                   style: GoogleFonts.outfit(
-                    fontSize: 26,
+                    fontSize: 26.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     letterSpacing: -0.5,
@@ -134,7 +135,7 @@ class PaymentsScreen extends ConsumerWidget {
                 Text(
                   'Per-client fee tracking & receivables',
                   style: GoogleFonts.inter(
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     color: Colors.white.withValues(alpha: 0.75),
                   ),
                 ),
@@ -144,12 +145,12 @@ class PaymentsScreen extends ConsumerWidget {
           // How it works button
           Material(
             color: Colors.white.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12.r),
             child: InkWell(
               onTap: () => _showHowItWorks(context),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               child: Padding(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(10.r),
                 child: Icon(
                   Icons.help_outline_rounded,
                   color: Colors.white.withValues(alpha: 0.9),
@@ -206,10 +207,10 @@ class PaymentsScreen extends ConsumerWidget {
       final fmt = NumberFormat('#,##,###');
 
       return Container(
-        margin: const EdgeInsets.only(bottom: 20),
+        margin: EdgeInsets.only(bottom: 20.h),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
           border: Border.all(color: AppTheme.border.withValues(alpha: 0.6)),
           boxShadow: [
             BoxShadow(
@@ -224,11 +225,11 @@ class PaymentsScreen extends ConsumerWidget {
           children: [
             // ─── Client/Case Header ───
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20.r),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: EdgeInsets.all(10.r),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -236,7 +237,7 @@ class PaymentsScreen extends ConsumerWidget {
                           AppTheme.accentViolet.withValues(alpha: 0.05),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: const Icon(
                       Icons.person_rounded,
@@ -244,7 +245,7 @@ class PaymentsScreen extends ConsumerWidget {
                       color: AppTheme.accent,
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: 14.w),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,16 +253,16 @@ class PaymentsScreen extends ConsumerWidget {
                         Text(
                           caseTitle,
                           style: GoogleFonts.outfit(
-                            fontSize: 17,
+                            fontSize: 17.sp,
                             fontWeight: FontWeight.bold,
                             color: AppTheme.primary,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2.h),
                         Text(
                           'Agreed Fee: ₹${fmt.format(agreedFee)}',
                           style: GoogleFonts.inter(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             color: Colors.grey[500],
                             fontWeight: FontWeight.w500,
                           ),
@@ -276,11 +277,11 @@ class PaymentsScreen extends ConsumerWidget {
 
             // ─── Per-Client Financial Summary ───
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              padding: const EdgeInsets.all(16),
+              margin: EdgeInsets.symmetric(horizontal: 20.w),
+              padding: EdgeInsets.all(16.r),
               decoration: BoxDecoration(
                 color: AppTheme.background.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(16.r),
               ),
               child: Column(
                 children: [
@@ -293,8 +294,8 @@ class PaymentsScreen extends ConsumerWidget {
                         AppTheme.success,
                       ),
                       Container(
-                        width: 1,
-                        height: 32,
+                        width: 1.w,
+                        height: 32.h,
                         color: AppTheme.border.withValues(alpha: 0.5),
                       ),
                       _buildMiniStat(
@@ -304,7 +305,7 @@ class PaymentsScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12.h),
                   // Row 2: Yet to Receive (prominent)
                   Container(
                     width: double.infinity,
@@ -317,7 +318,7 @@ class PaymentsScreen extends ConsumerWidget {
                           isSettled
                               ? AppTheme.success.withValues(alpha: 0.08)
                               : AppTheme.warning.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(
                         color:
                             isSettled
@@ -331,7 +332,7 @@ class PaymentsScreen extends ConsumerWidget {
                         Text(
                           isSettled ? '🎉 Fully Settled' : '⏳ Yet to Receive',
                           style: GoogleFonts.inter(
-                            fontSize: 13,
+                            fontSize: 13.sp,
                             fontWeight: FontWeight.w700,
                             color:
                                 isSettled ? AppTheme.success : AppTheme.warning,
@@ -340,7 +341,7 @@ class PaymentsScreen extends ConsumerWidget {
                         Text(
                           isSettled ? '₹0' : '₹${fmt.format(yetToReceive)}',
                           style: GoogleFonts.outfit(
-                            fontSize: 20,
+                            fontSize: 20.sp,
                             fontWeight: FontWeight.bold,
                             color:
                                 isSettled ? AppTheme.success : AppTheme.warning,
@@ -353,22 +354,22 @@ class PaymentsScreen extends ConsumerWidget {
               ),
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
 
             // ─── Payment Timeline Header ───
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: Text(
                 'PAYMENT TIMELINE',
                 style: GoogleFonts.inter(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w800,
                   color: Colors.grey[400],
                   letterSpacing: 1,
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
 
             // ─── Timeline Entries ───
             ...casePayments.asMap().entries.map((entry) {
@@ -395,7 +396,7 @@ class PaymentsScreen extends ConsumerWidget {
               );
             }),
 
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
           ],
         ),
       );
@@ -415,18 +416,18 @@ class PaymentsScreen extends ConsumerWidget {
     final date = p.paidDate ?? DateTime.now();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: IntrinsicHeight(
         child: Row(
           children: [
             // ─── Timeline Line + Dot ───
             SizedBox(
-              width: 32,
+              width: 32.w,
               child: Column(
                 children: [
                   Container(
-                    width: 12,
-                    height: 12,
+                    width: 12.w,
+                    height: 12.h,
                     decoration: BoxDecoration(
                       color: color,
                       shape: BoxShape.circle,
@@ -441,22 +442,22 @@ class PaymentsScreen extends ConsumerWidget {
                   if (!isLast)
                     Expanded(
                       child: Container(
-                        width: 2,
+                        width: 2.w,
                         color: AppTheme.border.withValues(alpha: 0.4),
                       ),
                     ),
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8.w),
             // ─── Entry Content ───
             Expanded(
               child: Container(
                 margin: EdgeInsets.only(bottom: isLast ? 0 : 4),
-                padding: const EdgeInsets.all(14),
+                padding: EdgeInsets.all(14.r),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.03),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                   border: Border.all(color: color.withValues(alpha: 0.1)),
                 ),
                 child: Column(
@@ -470,12 +471,12 @@ class PaymentsScreen extends ConsumerWidget {
                           size: 12,
                           color: Colors.grey[400],
                         ),
-                        const SizedBox(width: 6),
+                        SizedBox(width: 6.w),
                         Expanded(
                           child: Text(
                             DateFormat('dd MMM yyyy, EEEE').format(date),
                             style: GoogleFonts.inter(
-                              fontSize: 11,
+                              fontSize: 11.sp,
                               color: Colors.grey[500],
                               fontWeight: FontWeight.w600,
                             ),
@@ -483,19 +484,19 @@ class PaymentsScreen extends ConsumerWidget {
                         ),
                         if (p.paymentMode != null)
                           Container(
-                            margin: const EdgeInsets.only(right: 8),
+                            margin: EdgeInsets.only(right: 8.w),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
                               color: AppTheme.background,
-                              borderRadius: BorderRadius.circular(6),
+                              borderRadius: BorderRadius.circular(6.r),
                             ),
                             child: Text(
                               p.paymentMode!.toUpperCase(),
                               style: GoogleFonts.inter(
-                                fontSize: 9,
+                                fontSize: 9.sp,
                                 fontWeight: FontWeight.w800,
                                 color: Colors.grey[500],
                                 letterSpacing: 0.5,
@@ -505,9 +506,9 @@ class PaymentsScreen extends ConsumerWidget {
                         // Delete button
                         InkWell(
                           onTap: () => _confirmDeletePayment(context, ref, p),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(8.r),
                           child: Padding(
-                            padding: const EdgeInsets.all(4),
+                            padding: EdgeInsets.all(4.r),
                             child: Icon(
                               Icons.delete_outline_rounded,
                               size: 16,
@@ -517,16 +518,16 @@ class PaymentsScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10.h),
 
                     // Amount & Type Row
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(6),
+                          padding: EdgeInsets.all(6.r),
                           decoration: BoxDecoration(
                             color: color.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(8.r),
                           ),
                           child: Icon(
                             isRevenue
@@ -536,7 +537,7 @@ class PaymentsScreen extends ConsumerWidget {
                             size: 14,
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10.w),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -548,7 +549,7 @@ class PaymentsScreen extends ConsumerWidget {
                                         ? 'Payment Received'
                                         : 'Office Expense'),
                                 style: GoogleFonts.inter(
-                                  fontSize: 14,
+                                  fontSize: 14.sp,
                                   fontWeight: FontWeight.w600,
                                   color: AppTheme.primary,
                                 ),
@@ -558,7 +559,7 @@ class PaymentsScreen extends ConsumerWidget {
                                 Text(
                                   'Balance after: ₹${fmt.format(runningBalance > 0 ? runningBalance : 0)}',
                                   style: GoogleFonts.inter(
-                                    fontSize: 11,
+                                    fontSize: 11.sp,
                                     color: Colors.grey[400],
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -569,7 +570,7 @@ class PaymentsScreen extends ConsumerWidget {
                         Text(
                           "${isRevenue ? '+' : '-'} ₹${fmt.format(p.paidAmount)}",
                           style: GoogleFonts.outfit(
-                            fontSize: 18,
+                            fontSize: 18.sp,
                             fontWeight: FontWeight.bold,
                             color: color,
                           ),
@@ -593,7 +594,7 @@ class PaymentsScreen extends ConsumerWidget {
       builder:
           (ctx) => AlertDialog(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(24.r),
             ),
             title: Text(
               'Delete Entry?',
@@ -607,15 +608,15 @@ class PaymentsScreen extends ConsumerWidget {
                   'Are you sure you want to delete this entry?',
                   style: GoogleFonts.inter(
                     color: Colors.grey[600],
-                    height: 1.5,
+                    height: 1.5.h,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 Container(
-                  padding: const EdgeInsets.all(14),
+                  padding: EdgeInsets.all(14.r),
                   decoration: BoxDecoration(
                     color: AppTheme.background,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
                   child: Row(
                     children: [
@@ -629,7 +630,7 @@ class PaymentsScreen extends ConsumerWidget {
                                 : AppTheme.error,
                         size: 18,
                       ),
-                      const SizedBox(width: 10),
+                      SizedBox(width: 10.w),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -642,7 +643,7 @@ class PaymentsScreen extends ConsumerWidget {
                                       : 'Expense'),
                               style: GoogleFonts.inter(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 13,
+                                fontSize: 13.sp,
                               ),
                             ),
                             Text(
@@ -650,7 +651,7 @@ class PaymentsScreen extends ConsumerWidget {
                                 'dd MMM yyyy',
                               ).format(p.paidDate ?? DateTime.now()),
                               style: GoogleFonts.inter(
-                                fontSize: 11,
+                                fontSize: 11.sp,
                                 color: Colors.grey[400],
                               ),
                             ),
@@ -660,7 +661,7 @@ class PaymentsScreen extends ConsumerWidget {
                       Text(
                         '₹${fmt.format(p.paidAmount)}',
                         style: GoogleFonts.outfit(
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                           color:
                               p.transactionType == 'revenue'
@@ -671,11 +672,11 @@ class PaymentsScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 Text(
                   "⚠️ This will affect the client's balance calculation.",
                   style: GoogleFonts.inter(
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     color: AppTheme.warning,
                     fontWeight: FontWeight.w600,
                   ),
@@ -703,7 +704,7 @@ class PaymentsScreen extends ConsumerWidget {
                   backgroundColor: AppTheme.error,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
                   elevation: 0,
                 ),
@@ -724,16 +725,16 @@ class PaymentsScreen extends ConsumerWidget {
   ) {
     final color = isSettled ? AppTheme.success : AppTheme.warning;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
         isSettled ? '✓ SETTLED' : '₹${fmt.format(yetToReceive)} DUE',
         style: GoogleFonts.inter(
-          fontSize: 10,
+          fontSize: 10.sp,
           fontWeight: FontWeight.w800,
           color: color,
           letterSpacing: 0.3,
@@ -749,18 +750,18 @@ class PaymentsScreen extends ConsumerWidget {
           Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 11,
+              fontSize: 11.sp,
               fontWeight: FontWeight.w600,
               color: Colors.grey[500],
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4.h),
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
               value,
               style: GoogleFonts.outfit(
-                fontSize: 17,
+                fontSize: 17.sp,
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
@@ -777,12 +778,12 @@ class PaymentsScreen extends ConsumerWidget {
 
   Widget _buildEmptyStateWithGuide(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
       child: Column(
         children: [
-          const SizedBox(height: 32),
+          SizedBox(height: 32.h),
           Container(
-            padding: const EdgeInsets.all(28),
+            padding: EdgeInsets.all(28.r),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -800,26 +801,26 @@ class PaymentsScreen extends ConsumerWidget {
               color: AppTheme.success.withValues(alpha: 0.5),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           Text(
             'No Transactions Yet',
             style: GoogleFonts.outfit(
-              fontSize: 22,
+              fontSize: 22.sp,
               fontWeight: FontWeight.bold,
               color: AppTheme.primary,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             "Track finances per client. Here's how it works:",
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
-              fontSize: 14,
+              fontSize: 14.sp,
               color: Colors.grey[500],
-              height: 1.5,
+              height: 1.5.h,
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32.h),
           _buildGuideStep(
             '1',
             'Set Agreed Fee',
@@ -848,7 +849,7 @@ class PaymentsScreen extends ConsumerWidget {
             Icons.north_east_rounded,
             AppTheme.error,
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32.h),
         ],
       ),
     );
@@ -862,11 +863,11 @@ class PaymentsScreen extends ConsumerWidget {
     Color color,
   ) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
+      margin: EdgeInsets.only(bottom: 16.h),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: AppTheme.border.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
@@ -879,24 +880,24 @@ class PaymentsScreen extends ConsumerWidget {
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 44.w,
+            height: 44.h,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
             ),
             child: Center(
               child: Text(
                 number,
                 style: GoogleFonts.outfit(
-                  fontSize: 20,
+                  fontSize: 20.sp,
                   fontWeight: FontWeight.bold,
                   color: color,
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -904,18 +905,18 @@ class PaymentsScreen extends ConsumerWidget {
                 Text(
                   title,
                   style: GoogleFonts.outfit(
-                    fontSize: 15,
+                    fontSize: 15.sp,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primary,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Text(
                   description,
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: Colors.grey[500],
-                    height: 1.5,
+                    height: 1.5.h,
                   ),
                 ),
               ],
@@ -935,7 +936,7 @@ class PaymentsScreen extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
       ),
       backgroundColor: Colors.white,
       builder:
@@ -947,31 +948,31 @@ class PaymentsScreen extends ConsumerWidget {
             builder:
                 (context, scrollController) => SingleChildScrollView(
                   controller: scrollController,
-                  padding: const EdgeInsets.all(28),
+                  padding: EdgeInsets.all(28.r),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Drag handle
                       Center(
                         child: Container(
-                          width: 40,
-                          height: 4,
+                          width: 40.w,
+                          height: 4.h,
                           decoration: BoxDecoration(
                             color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(2),
+                            borderRadius: BorderRadius.circular(2.r),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24.h),
 
                       // Title
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(10),
+                            padding: EdgeInsets.all(10.r),
                             decoration: BoxDecoration(
                               color: AppTheme.accent.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(14.r),
                             ),
                             child: const Icon(
                               Icons.lightbulb_rounded,
@@ -979,7 +980,7 @@ class PaymentsScreen extends ConsumerWidget {
                               size: 24,
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: 16.w),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -987,7 +988,7 @@ class PaymentsScreen extends ConsumerWidget {
                                 Text(
                                   'How the Ledger Works',
                                   style: GoogleFonts.outfit(
-                                    fontSize: 22,
+                                    fontSize: 22.sp,
                                     fontWeight: FontWeight.bold,
                                     color: AppTheme.primary,
                                   ),
@@ -995,7 +996,7 @@ class PaymentsScreen extends ConsumerWidget {
                                 Text(
                                   'Per-client financial tracking',
                                   style: GoogleFonts.inter(
-                                    fontSize: 12,
+                                    fontSize: 12.sp,
                                     color: Colors.grey[500],
                                   ),
                                 ),
@@ -1004,12 +1005,12 @@ class PaymentsScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 28),
+                      SizedBox(height: 28.h),
 
                       // Example walkthrough
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(20),
+                        padding: EdgeInsets.all(20.r),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -1017,7 +1018,7 @@ class PaymentsScreen extends ConsumerWidget {
                               AppTheme.accentViolet.withValues(alpha: 0.03),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(20.r),
                           border: Border.all(
                             color: AppTheme.accent.withValues(alpha: 0.15),
                           ),
@@ -1028,12 +1029,12 @@ class PaymentsScreen extends ConsumerWidget {
                             Text(
                               '📋 Example: Client X',
                               style: GoogleFonts.outfit(
-                                fontSize: 18,
+                                fontSize: 18.sp,
                                 fontWeight: FontWeight.bold,
                                 color: AppTheme.primary,
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16.h),
                             _buildExampleRow(
                               '01 Jan',
                               'Agreed Fee set',
@@ -1071,15 +1072,15 @@ class PaymentsScreen extends ConsumerWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24.h),
 
                       // Formula
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(20),
+                        padding: EdgeInsets.all(20.r),
                         decoration: BoxDecoration(
                           color: AppTheme.background,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(20.r),
                           border: Border.all(color: AppTheme.border),
                         ),
                         child: Column(
@@ -1087,25 +1088,25 @@ class PaymentsScreen extends ConsumerWidget {
                             Text(
                               '💡 Formula',
                               style: GoogleFonts.outfit(
-                                fontSize: 16,
+                                fontSize: 16.sp,
                                 fontWeight: FontWeight.bold,
                                 color: AppTheme.primary,
                               ),
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: 12.h),
                             Container(
                               width: double.infinity,
-                              padding: const EdgeInsets.all(16),
+                              padding: EdgeInsets.all(16.r),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(14.r),
                               ),
                               child: Text(
                                 "Yet to Receive = Agreed Fee − Total Received\n\nExpenses are tracked separately\n(Court fees, travel, xerox etc.)\nThey don't affect the client balance.",
                                 style: GoogleFonts.jetBrainsMono(
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                   color: AppTheme.primary,
-                                  height: 1.7,
+                                  height: 1.7.h,
                                 ),
                               ),
                             ),
@@ -1113,7 +1114,7 @@ class PaymentsScreen extends ConsumerWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24.h),
 
                       // Key points
                       _buildGuideStep(
@@ -1145,7 +1146,7 @@ class PaymentsScreen extends ConsumerWidget {
                         const Color(0xFF6366F1),
                       ),
 
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24.h),
                     ],
                   ),
                 ),
@@ -1160,15 +1161,15 @@ class PaymentsScreen extends ConsumerWidget {
     Color color,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: EdgeInsets.symmetric(vertical: 6.h),
       child: Row(
         children: [
           SizedBox(
-            width: 60,
+            width: 60.w,
             child: Text(
               date,
               style: GoogleFonts.inter(
-                fontSize: 11,
+                fontSize: 11.sp,
                 color: Colors.grey[500],
                 fontWeight: FontWeight.w600,
               ),
@@ -1178,7 +1179,7 @@ class PaymentsScreen extends ConsumerWidget {
             child: Text(
               description,
               style: GoogleFonts.inter(
-                fontSize: 13,
+                fontSize: 13.sp,
                 fontWeight: FontWeight.w500,
                 color: AppTheme.primary,
               ),
@@ -1187,7 +1188,7 @@ class PaymentsScreen extends ConsumerWidget {
           Text(
             amount,
             style: GoogleFonts.outfit(
-              fontSize: 14,
+              fontSize: 14.sp,
               fontWeight: FontWeight.bold,
               color: color,
             ),
@@ -1200,18 +1201,18 @@ class PaymentsScreen extends ConsumerWidget {
   Widget _buildExampleDivider(String label) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      margin: EdgeInsets.symmetric(vertical: 8.h),
+      padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
       decoration: BoxDecoration(
         color: AppTheme.warning.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8.r),
         border: Border.all(color: AppTheme.warning.withValues(alpha: 0.15)),
       ),
       child: Text(
         label,
         textAlign: TextAlign.center,
         style: GoogleFonts.inter(
-          fontSize: 12,
+          fontSize: 12.sp,
           fontWeight: FontWeight.w700,
           color: AppTheme.warning,
         ),

@@ -4,6 +4,7 @@ import '../../services/providers.dart';
 import '../../services/supabase_service.dart';
 import '../../theme/app_theme.dart';
 import 'dossier_shared.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ActsSection extends ConsumerWidget {
   final String caseId;
@@ -58,14 +59,14 @@ class ActsSection extends ConsumerWidget {
       builder:
           (ctx) => Container(
             padding: EdgeInsets.only(
-              left: 24,
-              right: 24,
-              top: 24,
+              left: 24.w,
+              right: 24.w,
+              top: 24.h,
               bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
             ),
             decoration: const BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -73,29 +74,29 @@ class ActsSection extends ConsumerWidget {
               children: [
                 Center(
                   child: Container(
-                    width: 40,
-                    height: 4,
+                    width: 40.w,
+                    height: 4.h,
                     decoration: BoxDecoration(
                       color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: BorderRadius.circular(2.r),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20.h),
                 const Text(
                   'Add Applicable Act',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.w900,
                     color: Color(0xFF1E293B),
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Text(
                   'e.g., Code of Civil Procedure — Or.7.R.1',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                  style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20.h),
                 TextField(
                   controller: actCtrl,
                   autofocus: true,
@@ -104,11 +105,11 @@ class ActsSection extends ConsumerWidget {
                     hintText: 'Code of Civil Procedure',
                     prefixIcon: const Icon(Icons.menu_book_outlined),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 TextField(
                   controller: sectionCtrl,
                   decoration: InputDecoration(
@@ -116,14 +117,14 @@ class ActsSection extends ConsumerWidget {
                     hintText: 'Or.7.R.1',
                     prefixIcon: const Icon(Icons.tag_rounded),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20.h),
                 SizedBox(
                   width: double.infinity,
-                  height: 48,
+                  height: 48.h,
                   child: ElevatedButton.icon(
                     onPressed: () async {
                       if (actCtrl.text.trim().isEmpty) return;
@@ -155,7 +156,7 @@ class ActsSection extends ConsumerWidget {
                       backgroundColor: AppTheme.accent,
                       foregroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(14.r),
                       ),
                     ),
                   ),
@@ -189,7 +190,7 @@ class ActsSection extends ConsumerWidget {
                             acts
                                 .map(
                                   (act) => Container(
-                                    margin: const EdgeInsets.only(bottom: 8),
+                                    margin: EdgeInsets.only(bottom: 8.h),
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 16,
                                       vertical: 12,
@@ -198,7 +199,7 @@ class ActsSection extends ConsumerWidget {
                                       color: const Color(
                                         0xFF6366F1,
                                       ).withValues(alpha: 0.04),
-                                      borderRadius: BorderRadius.circular(10),
+                                      borderRadius: BorderRadius.circular(10.r),
                                       border: Border.all(
                                         color: const Color(
                                           0xFF6366F1,
@@ -215,7 +216,7 @@ class ActsSection extends ConsumerWidget {
                                               Text(
                                                 act.actName,
                                                 style: const TextStyle(
-                                                  fontSize: 13,
+                                                  fontSize: 13.sp,
                                                   fontWeight: FontWeight.w800,
                                                   color: Color(0xFF1E293B),
                                                 ),
@@ -223,13 +224,13 @@ class ActsSection extends ConsumerWidget {
                                               if (act.sectionNumber != null)
                                                 Padding(
                                                   padding:
-                                                      const EdgeInsets.only(
-                                                        top: 2,
+                                                      EdgeInsets.only(
+                                                        top: 2.h,
                                                       ),
                                                   child: Text(
                                                     'SECTION ${act.sectionNumber}',
                                                     style: const TextStyle(
-                                                      fontSize: 10,
+                                                      fontSize: 10.sp,
                                                       fontWeight:
                                                           FontWeight.w900,
                                                       color: Color(0xFF6366F1),
@@ -248,13 +249,13 @@ class ActsSection extends ConsumerWidget {
                                                 act.id,
                                               ),
                                           child: Container(
-                                            padding: const EdgeInsets.all(6),
+                                            padding: EdgeInsets.all(6.r),
                                             decoration: BoxDecoration(
                                               color: Colors.red.withValues(
                                                 alpha: 0.05,
                                               ),
                                               borderRadius:
-                                                  BorderRadius.circular(6),
+                                                  BorderRadius.circular(6.r),
                                             ),
                                             child: const Icon(
                                               Icons.delete_outline_rounded,
@@ -271,7 +272,7 @@ class ActsSection extends ConsumerWidget {
                       ),
           loading:
               () => const Padding(
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.all(16.r),
                 child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),
           error: (e, _) => DossierHelper.emptyHint('Error loading acts'),

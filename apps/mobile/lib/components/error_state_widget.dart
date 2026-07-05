@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ErrorStateWidget extends StatelessWidget {
   final Object error;
@@ -25,46 +26,46 @@ class ErrorStateWidget extends StatelessWidget {
 
         return Center(
           child: Padding(
-            padding: const EdgeInsets.all(32.0),
+            padding: EdgeInsets.all(32.0.r),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildIcon(isOffline),
-                const SizedBox(height: 24),
+                SizedBox(height: 24.h),
                 Text(
                   isOffline ? 'No Internet Connection' : 'Something went wrong',
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primary,
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 Text(
                   isOffline
                       ? 'Please check your network settings and try again.'
                       : (message ?? error.toString()),
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14.sp),
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: 32.h),
                 SizedBox(
-                  width: 200,
-                  height: 48,
+                  width: 200.w,
+                  height: 48.h,
                   child: ElevatedButton(
                     onPressed: onRetry,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.refresh_rounded, size: 18),
-                        SizedBox(width: 8),
+                        SizedBox(width: 8.w),
                         Text(
                           'Try Again',
                           style: TextStyle(fontWeight: FontWeight.bold),
@@ -74,14 +75,14 @@ class ErrorStateWidget extends StatelessWidget {
                   ),
                 ),
                 if (isOffline) ...[
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   TextButton(
                     onPressed: () {
                       // Optional: Open system settings or show more details
                     },
                     child: Text(
                       'Network Troubleshooting',
-                      style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                      style: TextStyle(color: Colors.grey[500], fontSize: 12.sp),
                     ),
                   ),
                 ],
@@ -95,7 +96,7 @@ class ErrorStateWidget extends StatelessWidget {
 
   Widget _buildIcon(bool isOffline) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24.r),
       decoration: BoxDecoration(
         color: (isOffline ? Colors.orange : AppTheme.error).withValues(
           alpha: 0.1,

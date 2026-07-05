@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../models/bar_association_models.dart';
 import '../../services/providers.dart';
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // Premium Color Palette
 class _C {
@@ -53,7 +54,7 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
           'Notices',
           style: GoogleFonts.inter(
             fontWeight: FontWeight.w800,
-            fontSize: 20,
+            fontSize: 20.sp,
             color: _C.textPrimary,
           ),
         ),
@@ -70,7 +71,7 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error_outline_rounded, size: 48, color: _C.danger.withValues(alpha: 0.5)),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               Text('Failed to load notices', style: GoogleFonts.inter(color: _C.textMuted)),
             ],
           ),
@@ -97,8 +98,8 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
         children: [
           // Category Filter Chips
           Container(
-            height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            height: 48.h,
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
@@ -111,7 +112,7 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
 
           Expanded(
             child: filtered.isEmpty
@@ -120,11 +121,11 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          width: 80,
-                          height: 80,
+                          width: 80.w,
+                          height: 80.h,
                           decoration: BoxDecoration(
                             color: _C.primary.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(24.r),
                           ),
                           child: Icon(
                             Icons.campaign_rounded,
@@ -132,11 +133,11 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
                             color: _C.primary.withValues(alpha: 0.4),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                         Text(
                           'No notices yet',
                           style: GoogleFonts.inter(
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.w600,
                             color: _C.textMuted,
                           ),
@@ -145,13 +146,13 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
                     ),
                   )
                 : ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
                     children: [
                       // Pinned Section
                       if (pinned.isNotEmpty) ...[
                         _buildSectionHeader('📌 Pinned', pinned.length),
                         ...pinned.map(_buildNoticeCard),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                       ],
                       // All / Unpinned
                       if (unpinned.isNotEmpty) ...[
@@ -159,7 +160,7 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
                           _buildSectionHeader('All Notices', unpinned.length),
                         ...unpinned.map(_buildNoticeCard),
                       ],
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32.h),
                     ],
                   ),
           ),
@@ -171,13 +172,13 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
   Widget _buildChip(String key, String label, Color? color) {
     final isSelected = _selectedCategory == key;
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: EdgeInsets.only(right: 8.w),
       child: FilterChip(
         selected: isSelected,
         label: Text(
           label,
           style: GoogleFonts.inter(
-            fontSize: 12,
+            fontSize: 12.sp,
             fontWeight: FontWeight.w600,
             color: isSelected ? Colors.white : _C.textSecondary,
           ),
@@ -188,7 +189,7 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
           color: isSelected ? (color ?? _C.primary) : _C.border,
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
         ),
         showCheckmark: false,
         onSelected: (_) => setState(() => _selectedCategory = key),
@@ -198,28 +199,28 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
 
   Widget _buildSectionHeader(String title, int count) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10, top: 4),
+      padding: EdgeInsets.only(bottom: 10.h, top: 4.h),
       child: Row(
         children: [
           Text(
             title,
             style: GoogleFonts.inter(
-              fontSize: 14,
+              fontSize: 14.sp,
               fontWeight: FontWeight.w700,
               color: _C.textPrimary,
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
             decoration: BoxDecoration(
               color: _C.primary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.r),
             ),
             child: Text(
               '$count',
               style: GoogleFonts.inter(
-                fontSize: 11,
+                fontSize: 11.sp,
                 fontWeight: FontWeight.w700,
                 color: _C.primary,
               ),
@@ -237,10 +238,10 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
     return GestureDetector(
       onTap: () => _showNoticeDetail(notice),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
+        margin: EdgeInsets.only(bottom: 8.h),
         decoration: BoxDecoration(
           color: _C.card,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(color: _C.border),
           boxShadow: [
             BoxShadow(
@@ -254,19 +255,19 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
           children: [
             // Color strip
             Container(
-              width: 4,
-              height: 72,
+              width: 4.w,
+              height: 72.h,
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
+                  topLeft: Radius.circular(16.r),
+                  bottomLeft: Radius.circular(16.r),
                 ),
               ),
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -275,9 +276,9 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
                         // Unread dot
                         if (!notice.isRead)
                           Container(
-                            width: 8,
-                            height: 8,
-                            margin: const EdgeInsets.only(right: 8),
+                            width: 8.w,
+                            height: 8.h,
+                            margin: EdgeInsets.only(right: 8.w),
                             decoration: BoxDecoration(
                               color: _C.primary,
                               shape: BoxShape.circle,
@@ -293,7 +294,7 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
                           child: Text(
                             notice.title,
                             style: GoogleFonts.inter(
-                              fontSize: 14,
+                              fontSize: 14.sp,
                               fontWeight: notice.isRead
                                   ? FontWeight.w500
                                   : FontWeight.w700,
@@ -305,7 +306,7 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6.h),
                     Row(
                       children: [
                         Container(
@@ -315,28 +316,28 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
                           ),
                           decoration: BoxDecoration(
                             color: color.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(5),
+                            borderRadius: BorderRadius.circular(5.r),
                           ),
                           child: Text(
                             notice.categoryLabel,
                             style: GoogleFonts.inter(
-                              fontSize: 10,
+                              fontSize: 10.sp,
                               fontWeight: FontWeight.w600,
                               color: color,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10.w),
                         Icon(
                           Icons.schedule_rounded,
                           size: 12,
                           color: _C.textMuted,
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4.w),
                         Text(
                           timeAgo,
                           style: GoogleFonts.inter(
-                            fontSize: 11,
+                            fontSize: 11.sp,
                             color: _C.textMuted,
                           ),
                         ),
@@ -355,7 +356,7 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(right: 12),
+              padding: EdgeInsets.only(right: 12.w),
               child: Icon(
                 Icons.chevron_right_rounded,
                 size: 20,
@@ -383,39 +384,39 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
+              topLeft: Radius.circular(24.r),
+              topRight: Radius.circular(24.r),
             ),
           ),
           child: ListView(
             controller: scrollController,
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24.r),
             children: [
               Center(
                 child: Container(
-                  width: 40,
-                  height: 4,
+                  width: 40.w,
+                  height: 4.h,
                   decoration: BoxDecoration(
                     color: _C.border,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(2.r),
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
 
               // Category + Date
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: Text(
                       notice.categoryLabel,
                       style: GoogleFonts.inter(
-                        fontSize: 12,
+                        fontSize: 12.sp,
                         fontWeight: FontWeight.w700,
                         color: color,
                       ),
@@ -425,36 +426,36 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
                   Text(
                     DateFormat('dd MMM yyyy, hh:mm a').format(notice.publishedAt),
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: _C.textMuted,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
 
               // Title
               Text(
                 notice.title,
                 style: GoogleFonts.inter(
-                  fontSize: 22,
+                  fontSize: 22.sp,
                   fontWeight: FontWeight.w800,
                   color: _C.textPrimary,
-                  height: 1.3,
+                  height: 1.3.h,
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
 
               // Body
               Text(
                 notice.body,
                 style: GoogleFonts.inter(
-                  fontSize: 15,
+                  fontSize: 15.sp,
                   color: _C.textSecondary,
-                  height: 1.8,
+                  height: 1.8.h,
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
             ],
           ),
         ),

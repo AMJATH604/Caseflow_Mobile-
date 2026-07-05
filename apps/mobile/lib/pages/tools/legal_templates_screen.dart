@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../theme/app_theme.dart';
 import '../../services/supabase_service.dart';
 import '../../models/models.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LegalTemplatesScreen extends StatefulWidget {
   const LegalTemplatesScreen({super.key});
@@ -127,10 +128,10 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircularProgressIndicator(color: AppTheme.primary),
-              SizedBox(height: 16),
+              SizedBox(height: 16.h),
               Text(
                 'Syncing Template Library...',
-                style: TextStyle(color: Colors.grey, fontSize: 14),
+                style: TextStyle(color: Colors.grey, fontSize: 14.sp),
               ),
             ],
           ),
@@ -164,18 +165,18 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                 child: Row(
                   children: [
                     Container(
-                      width: 4,
-                      height: 20,
+                      width: 4.w,
+                      height: 20.h,
                       decoration: BoxDecoration(
                         color: AppTheme.primary,
-                        borderRadius: BorderRadius.circular(2),
+                        borderRadius: BorderRadius.circular(2.r),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8.w),
                     const Text(
                       'Template Categories',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.3,
                       ),
@@ -212,15 +213,15 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
 
   Widget _buildHeroHeader() {
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(24),
+      margin: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(24.r),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.2),
@@ -235,10 +236,10 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(10.r),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: const Icon(
                   Icons.description_rounded,
@@ -246,7 +247,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12.w),
               const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,28 +256,28 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                       'Template Library',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 22,
+                        fontSize: 22.sp,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.5,
                       ),
                     ),
                     Text(
                       'Professional Drafting Resources',
-                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                      style: TextStyle(color: Colors.white70, fontSize: 13.sp),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           GestureDetector(
             onTap: () => setState(() => _showGlobalSearch = true),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
                 border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
               ),
               child: Row(
@@ -286,12 +287,12 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                     color: Colors.white.withValues(alpha: 0.7),
                     size: 20,
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12.w),
                   Text(
                     'Search templates by name...',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.6),
-                      fontSize: 14,
+                      fontSize: 14.sp,
                     ),
                   ),
                 ],
@@ -316,7 +317,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
               color: gradient[0].withValues(alpha: 0.3),
@@ -326,7 +327,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16.r),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -341,7 +342,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                 category,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -349,7 +350,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                 '$count templates',
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.6),
-                  fontSize: 11,
+                  fontSize: 11.sp,
                 ),
               ),
             ],
@@ -369,7 +370,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
         title: Text(
           _selectedCategory!.toUpperCase(),
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 16.sp,
             fontWeight: FontWeight.w900,
             letterSpacing: 1.2,
           ),
@@ -380,7 +381,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
         ),
       ),
       body: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.r),
         itemCount: _filteredTemplates.length,
         itemBuilder:
             (context, index) => _buildTemplateCard(_filteredTemplates[index]),
@@ -406,13 +407,13 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
         ),
         title: const Text(
           'Search Templates',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 17),
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 17.sp),
         ),
       ),
       body: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16.r),
             color: const Color(0xFF1E293B),
             child: TextField(
               controller: _globalSearchController,
@@ -426,11 +427,11 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                 filled: true,
                 fillColor: Colors.white.withValues(alpha: 0.12),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                   borderSide: BorderSide.none,
                 ),
                 prefixIcon: const Icon(Icons.search, color: Colors.white70),
-                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                contentPadding: EdgeInsets.symmetric(vertical: 14.h),
               ),
               onChanged: _globalSearch,
             ),
@@ -442,7 +443,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                     : _globalSearchResults.isEmpty
                     ? const Center(child: Text('No templates found'))
                     : ListView.builder(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(16.r),
                       itemCount: _globalSearchResults.length,
                       itemBuilder:
                           (context, index) =>
@@ -456,10 +457,10 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
 
   Widget _buildTemplateCard(LegalTemplate template) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 12.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -469,7 +470,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -480,26 +481,26 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                   color: Colors.blueGrey,
                   size: 20,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
                 Expanded(
                   child: Text(
                     template.title,
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
-                      fontSize: 15,
+                      fontSize: 15.sp,
                     ),
                   ),
                 ),
               ],
             ),
             if (template.description != null) ...[
-              const SizedBox(height: 6),
+              SizedBox(height: 6.h),
               Text(
                 template.description!,
-                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                style: TextStyle(color: Colors.grey[600], fontSize: 12.sp),
               ),
             ],
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Row(
               children: [
                 if (template.pdfUrl != null)
@@ -509,7 +510,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                     Colors.red[700]!,
                     () => _openFile(template.pdfUrl),
                   ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
                 if (template.docxUrl != null)
                   _fileButton(
                     'WORD',
@@ -535,23 +536,23 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
       child: InkWell(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: EdgeInsets.symmetric(vertical: 10.h),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(8.r),
             border: Border.all(color: color.withValues(alpha: 0.2)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, size: 14, color: color),
-              const SizedBox(width: 6),
+              SizedBox(width: 6.w),
               Text(
                 label,
                 style: TextStyle(
                   color: color,
                   fontWeight: FontWeight.bold,
-                  fontSize: 12,
+                  fontSize: 12.sp,
                 ),
               ),
             ],
@@ -564,11 +565,11 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 60),
+        padding: EdgeInsets.symmetric(vertical: 60.h),
         child: Column(
           children: [
             Icon(Icons.cloud_off_rounded, size: 48, color: Colors.grey[300]),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Text(
               'No templates found in library.',
               style: TextStyle(color: Colors.grey[500]),

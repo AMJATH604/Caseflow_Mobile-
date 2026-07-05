@@ -4,6 +4,7 @@ import '../models/models.dart';
 import '../services/supabase_service.dart';
 import '../services/providers.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TaskWidget extends ConsumerWidget {
   const TaskWidget({super.key});
@@ -13,10 +14,10 @@ class TaskWidget extends ConsumerWidget {
     final tasksAsync = ref.watch(tasksProvider);
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: AppTheme.border),
       ),
       child: Column(
@@ -40,13 +41,13 @@ class TaskWidget extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           tasksAsync.when(
             data: (tasks) {
               if (tasks.isEmpty) {
                 return const Center(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
+                    padding: EdgeInsets.symmetric(vertical: 20.h),
                     child: Text(
                       'No tasks for today',
                       style: TextStyle(color: Colors.grey),
@@ -68,16 +69,16 @@ class TaskWidget extends ConsumerWidget {
                       color: Colors.grey,
                       size: 32,
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8.h),
                     const Text(
                       'Unable to load tasks',
                       style: TextStyle(
                         color: Colors.grey,
-                        fontSize: 13,
+                        fontSize: 13.sp,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                     TextButton.icon(
                       onPressed: () => ref.invalidate(tasksProvider),
                       icon: const Icon(Icons.refresh, size: 16),
@@ -93,14 +94,14 @@ class TaskWidget extends ConsumerWidget {
 
   Widget _buildTaskItem(TaskModel task, WidgetRef ref) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(bottom: 8.h),
       child: Row(
         children: [
           Checkbox(
             value: task.isCompleted,
             activeColor: AppTheme.success,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(4.r),
             ),
             onChanged: (val) async {
               await SupabaseService.updateTask(task.id, {'is_completed': val});
@@ -114,7 +115,7 @@ class TaskWidget extends ConsumerWidget {
                 decoration:
                     task.isCompleted ? TextDecoration.lineThrough : null,
                 color: task.isCompleted ? Colors.grey : AppTheme.primary,
-                fontSize: 14,
+                fontSize: 14.sp,
               ),
             ),
           ),

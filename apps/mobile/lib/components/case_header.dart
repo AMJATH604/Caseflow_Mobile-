@@ -4,6 +4,7 @@ import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../components/status_badge.dart';
 import '../components/epay_court_fee_sheet.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CaseHeader extends StatelessWidget {
   final CaseModel caseData;
@@ -14,7 +15,7 @@ class CaseHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24.r),
       decoration: const BoxDecoration(
         color: AppTheme.darkCard,
         border: Border(bottom: BorderSide(color: AppTheme.darkBorder)),
@@ -29,10 +30,10 @@ class CaseHeader extends StatelessWidget {
                 InkWell(
                   onTap: onBack,
                   child: Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: EdgeInsets.all(10.r),
                     decoration: BoxDecoration(
                       color: const Color(0xFFE2E8F0),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10.r),
                       border: Border.all(color: const Color(0xFFE2E8F0)),
                     ),
                     child: const Icon(
@@ -42,7 +43,7 @@ class CaseHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: 16.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,16 +52,16 @@ class CaseHeader extends StatelessWidget {
                         'CASE FILE DOSSIER',
                         style: TextStyle(
                           color: AppTheme.accent.withValues(alpha: 0.7),
-                          fontSize: 9,
+                          fontSize: 9.sp,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 2,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4.h),
                       Text(
                         caseData.caseTitle,
                         style: GoogleFonts.inter(
-                          fontSize: 22,
+                          fontSize: 22.sp,
                           fontWeight: FontWeight.w900,
                           color: const Color(0xFF1E293B),
                           letterSpacing: -0.5,
@@ -71,11 +72,11 @@ class CaseHeader extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
                 StatusBadge(status: caseData.status.name),
               ],
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -109,9 +110,9 @@ class CaseHeader extends StatelessWidget {
               caseTitle: caseData.caseTitle,
               courtName: caseData.courtName,
             ),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(6.r),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -119,7 +120,7 @@ class CaseHeader extends StatelessWidget {
                 const Color(0xFF3B82F6).withValues(alpha: 0.05),
               ],
             ),
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(6.r),
             border: Border.all(
               color: const Color(0xFF2563EB).withValues(alpha: 0.25),
             ),
@@ -132,17 +133,17 @@ class CaseHeader extends StatelessWidget {
                 size: 12,
                 color: const Color(0xFF2563EB).withValues(alpha: 0.8),
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: 6.w),
               const Text(
                 'PAY COURT FEE',
                 style: TextStyle(
                   color: Color(0xFF2563EB),
-                  fontSize: 10,
+                  fontSize: 10.sp,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.5,
                 ),
               ),
-              const SizedBox(width: 4),
+              SizedBox(width: 4.w),
               Icon(
                 Icons.open_in_new_rounded,
                 size: 10,
@@ -161,23 +162,23 @@ class CaseHeader extends StatelessWidget {
         maxWidth: MediaQuery.of(context).size.width * 0.6,
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
         decoration: BoxDecoration(
           color: const Color(0xFFF1F5F9),
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(6.r),
           border: Border.all(color: const Color(0xFFE2E8F0)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 12, color: AppTheme.accent.withValues(alpha: 0.7)),
-            const SizedBox(width: 8),
+            SizedBox(width: 8.w),
             Flexible(
               child: Text(
                 text.toUpperCase(),
                 style: const TextStyle(
                   color: Color(0xFF64748B),
-                  fontSize: 10,
+                  fontSize: 10.sp,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.5,
                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CourtHolidayList extends StatelessWidget {
   const CourtHolidayList({super.key});
@@ -78,7 +79,7 @@ class CourtHolidayList extends StatelessWidget {
     ];
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: ListView.builder(
         itemCount: holidays.length,
         itemBuilder: (context, index) {
@@ -97,7 +98,7 @@ class CourtHolidayList extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,
                     color: AppTheme.primary,
-                    fontSize: 12,
+                    fontSize: 12.sp,
                   ),
                 ),
               ),
@@ -113,12 +114,12 @@ class CourtHolidayList extends StatelessWidget {
     final isVacation = day['type'] == 'vacation';
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 8.h),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         color:
             isVacation ? Colors.orange.withValues(alpha: 0.05) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color:
               isVacation
@@ -129,7 +130,7 @@ class CourtHolidayList extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(10.r),
             decoration: BoxDecoration(
               color:
                   isVacation
@@ -145,7 +146,7 @@ class CourtHolidayList extends StatelessWidget {
               size: 20,
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,12 +155,12 @@ class CourtHolidayList extends StatelessWidget {
                   day['name'],
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                    fontSize: 14.sp,
                   ),
                 ),
                 Text(
                   isVacation ? 'Court Vacation' : 'Public Holiday',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 11),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 11.sp),
                 ),
               ],
             ),
@@ -168,7 +169,7 @@ class CourtHolidayList extends StatelessWidget {
             day['date'],
             style: const TextStyle(
               fontWeight: FontWeight.w800,
-              fontSize: 13,
+              fontSize: 13.sp,
               color: AppTheme.primary,
             ),
           ),

@@ -5,6 +5,7 @@ import '../services/providers.dart';
 import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
 import 'dialogs/reset_workspace_dialog.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppSidebar extends ConsumerWidget {
   const AppSidebar({super.key});
@@ -12,7 +13,7 @@ class AppSidebar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      width: 260,
+      width: 260.w,
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         border: Border(
@@ -24,9 +25,9 @@ class AppSidebar extends ConsumerWidget {
       child: Column(
         children: [
           _buildHeader(context),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -44,7 +45,7 @@ class AppSidebar extends ConsumerWidget {
           ),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               children: [
                 _buildMenuItem(
                   context,
@@ -165,10 +166,10 @@ class AppSidebar extends ConsumerWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(10.r),
             decoration: BoxDecoration(
               color: AppTheme.accent.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(10.r),
               border: Border.all(color: AppTheme.accent.withValues(alpha: 0.1)),
             ),
             child: const Icon(
@@ -177,7 +178,7 @@ class AppSidebar extends ConsumerWidget {
               size: 22,
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14.w),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -195,7 +196,7 @@ class AppSidebar extends ConsumerWidget {
                       Theme.of(context).brightness == Brightness.dark
                           ? const Color(0xFFCBD5E1)
                           : Colors.black38,
-                  fontSize: 9,
+                  fontSize: 9.sp,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.5,
                 ),
@@ -219,12 +220,12 @@ class AppSidebar extends ConsumerWidget {
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      margin: const EdgeInsets.symmetric(vertical: 2),
+      margin: EdgeInsets.symmetric(vertical: 2.h),
       decoration:
           isActive
               ? BoxDecoration(
                 color: AppTheme.accent.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
               )
               : null,
       child: ListTile(
@@ -254,19 +255,19 @@ class AppSidebar extends ConsumerWidget {
                     : (Theme.of(context).brightness == Brightness.dark
                         ? const Color(0xFFCBD5E1)
                         : Colors.black38),
-            fontSize: 13,
+            fontSize: 13.sp,
             fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
           ),
         ),
         minLeadingWidth: 20,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       ),
     );
   }
 
   Widget _buildFooter(BuildContext context, WidgetRef ref) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(
@@ -281,8 +282,8 @@ class AppSidebar extends ConsumerWidget {
               .when(
                 data:
                     (profile) => Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(12),
+                      margin: EdgeInsets.only(bottom: 12.h),
+                      padding: EdgeInsets.all(12.r),
                       decoration: AppTheme.cardDecoration(
                         isDark: Theme.of(context).brightness == Brightness.dark,
                         color:
@@ -297,7 +298,7 @@ class AppSidebar extends ConsumerWidget {
                             color: AppTheme.accent,
                             size: 18,
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12.w),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -325,7 +326,7 @@ class AppSidebar extends ConsumerWidget {
                                                 Brightness.dark
                                             ? const Color(0xFFCBD5E1)
                                             : Colors.black38,
-                                    fontSize: 8,
+                                    fontSize: 8.sp,
                                   ),
                                 ),
                               ],
@@ -334,7 +335,7 @@ class AppSidebar extends ConsumerWidget {
                         ],
                       ),
                     ),
-                loading: () => const SizedBox(height: 40),
+                loading: () => SizedBox(height: 40.h),
                 error: (_, __) => const SizedBox(),
               ),
           Row(

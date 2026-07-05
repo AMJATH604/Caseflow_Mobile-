@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../services/providers.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DailyBoardWidget extends ConsumerWidget {
   const DailyBoardWidget({super.key});
@@ -32,15 +33,15 @@ class DailyBoardWidget extends ConsumerWidget {
           children: [
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 24.w),
               decoration: const BoxDecoration(
                 color: AppTheme.secondary,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
                 border: Border(
                   top: BorderSide(color: AppTheme.border),
                   left: BorderSide(color: AppTheme.border),
                   right: BorderSide(color: AppTheme.border),
-                  bottom: BorderSide(color: AppTheme.border, width: 0.5),
+                  bottom: BorderSide(color: AppTheme.border, width: 0.5.w),
                 ),
               ),
               child: Column(
@@ -53,12 +54,12 @@ class DailyBoardWidget extends ConsumerWidget {
                         color: AppTheme.accent,
                         size: 18,
                       ),
-                      const SizedBox(width: 10),
+                      SizedBox(width: 10.w),
                       Text(
                         "TODAY'S SCHEDULE",
                         style: GoogleFonts.inter(
                           color: const Color(0xFF1E293B),
-                          fontSize: 13,
+                          fontSize: 13.sp,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 1,
                         ),
@@ -68,7 +69,7 @@ class DailyBoardWidget extends ConsumerWidget {
                         '${todayHearings.length} HEARINGS',
                         style: GoogleFonts.inter(
                           color: AppTheme.accent,
-                          fontSize: 10,
+                          fontSize: 10.sp,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -103,21 +104,21 @@ class DailyBoardWidget extends ConsumerWidget {
                     borderRadius:
                         isLast
                             ? const BorderRadius.vertical(
-                              bottom: Radius.circular(16),
+                              bottom: Radius.circular(16.r),
                             )
                             : null,
                   ),
                   child: Row(
                     children: [
                       Container(
-                        width: 3,
-                        height: 32,
+                        width: 3.w,
+                        height: 32.h,
                         decoration: BoxDecoration(
                           color: color,
-                          borderRadius: BorderRadius.circular(2),
+                          borderRadius: BorderRadius.circular(2.r),
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: 16.w),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,17 +128,17 @@ class DailyBoardWidget extends ConsumerWidget {
                               style: GoogleFonts.inter(
                                 color: const Color(0xFF1E293B),
                                 fontWeight: FontWeight.w600,
-                                fontSize: 14,
+                                fontSize: 14.sp,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: 4.h),
                             Text(
                               (h.purpose ?? h.stage ?? 'Hearing').toUpperCase(),
                               style: GoogleFonts.inter(
                                 color: const Color(0xFF6B7280),
-                                fontSize: 9,
+                                fontSize: 9.sp,
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: 0.5,
                               ),
@@ -166,7 +167,7 @@ class DailyBoardWidget extends ConsumerWidget {
   Widget _buildEmptyBoard(DateTime today) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: 40.h, horizontal: 24.w),
       decoration: AppTheme.cardDecoration(),
       child: Column(
         children: [
@@ -175,22 +176,22 @@ class DailyBoardWidget extends ConsumerWidget {
             size: 32,
             color: Color(0xFF94A3B8),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Text(
             'NO HEARINGS TODAY',
             style: GoogleFonts.inter(
               color: const Color(0xFF6B7280),
               fontWeight: FontWeight.w700,
-              fontSize: 12,
+              fontSize: 12.sp,
               letterSpacing: 1,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4.h),
           Text(
             DateFormat('EEEE, MMMM dd').format(today),
             style: GoogleFonts.inter(
               color: const Color(0xFF4B5563),
-              fontSize: 11,
+              fontSize: 11.sp,
               fontWeight: FontWeight.w500,
             ),
           ),

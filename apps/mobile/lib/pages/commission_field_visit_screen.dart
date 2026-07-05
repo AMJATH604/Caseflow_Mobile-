@@ -11,6 +11,7 @@ import '../services/commission_service.dart';
 import '../theme/app_theme.dart';
 import 'commission_witness_screen.dart';
 import 'commission_sketch_screen.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CommissionFieldVisitScreen extends ConsumerStatefulWidget {
   final String commissionId;
@@ -207,8 +208,8 @@ class _CommissionFieldVisitScreenState
                               Row(
                                 children: [
                                   Container(
-                                    width: 8,
-                                    height: 8,
+                                    width: 8.w,
+                                    height: 8.h,
                                     decoration: BoxDecoration(
                                       color:
                                           _lat != null
@@ -226,22 +227,22 @@ class _CommissionFieldVisitScreenState
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
+                                  SizedBox(width: 8.w),
                                   Text(
                                     'GPS: $_gpsStatus',
                                     style: GoogleFonts.jetBrainsMono(
-                                      fontSize: 11,
+                                      fontSize: 11.sp,
                                       color: Colors.white70,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 4),
+                              SizedBox(height: 4.h),
                               Text(
                                 _commission?.commissionType.label ??
                                     'Field Visit',
                                 style: GoogleFonts.outfit(
-                                  fontSize: 16,
+                                  fontSize: 16.sp,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white,
                                 ),
@@ -257,7 +258,7 @@ class _CommissionFieldVisitScreenState
                           ),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14.r),
                             border: Border.all(
                               color: Colors.white.withValues(alpha: 0.15),
                             ),
@@ -269,11 +270,11 @@ class _CommissionFieldVisitScreenState
                                 color: AppTheme.success,
                                 size: 20,
                               ),
-                              const SizedBox(height: 2),
+                              SizedBox(height: 2.h),
                               Text(
                                 _formatDuration(_elapsed),
                                 style: GoogleFonts.jetBrainsMono(
-                                  fontSize: 18,
+                                  fontSize: 18.sp,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white,
                                 ),
@@ -304,7 +305,7 @@ class _CommissionFieldVisitScreenState
           // Quick Action Grid
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(12.r),
               child: Column(
                 children: [
                   Row(
@@ -316,7 +317,7 @@ class _CommissionFieldVisitScreenState
                         AppTheme.info,
                         _capturePhoto,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8.w),
                       _actionCard(
                         dk,
                         Icons.mic,
@@ -324,7 +325,7 @@ class _CommissionFieldVisitScreenState
                         _isListening ? AppTheme.error : AppTheme.accentViolet,
                         _speechAvailable ? _toggleDictation : () {},
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8.w),
                       _actionCard(
                         dk,
                         Icons.note_add,
@@ -334,7 +335,7 @@ class _CommissionFieldVisitScreenState
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   Row(
                     children: [
                       _actionCard(
@@ -344,7 +345,7 @@ class _CommissionFieldVisitScreenState
                         AppTheme.warning,
                         _addWitness,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8.w),
                       _actionCard(
                         dk,
                         Icons.draw,
@@ -352,7 +353,7 @@ class _CommissionFieldVisitScreenState
                         const Color(0xFF8B5CF6),
                         _openSketchPad,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8.w),
                       _actionCard(
                         dk,
                         Icons.warning_amber,
@@ -362,11 +363,11 @@ class _CommissionFieldVisitScreenState
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   // Check Out button
                   SizedBox(
                     width: double.infinity,
-                    height: 48,
+                    height: 48.h,
                     child: ElevatedButton.icon(
                       onPressed: _checkOut,
                       icon: const Icon(Icons.gps_not_fixed, size: 20),
@@ -378,7 +379,7 @@ class _CommissionFieldVisitScreenState
                         backgroundColor: const Color(0xFF64748B),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(14.r),
                         ),
                       ),
                     ),
@@ -392,11 +393,11 @@ class _CommissionFieldVisitScreenState
           if (_isListening)
             SliverToBoxAdapter(
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 12),
-                padding: const EdgeInsets.all(12),
+                margin: EdgeInsets.symmetric(horizontal: 12.w),
+                padding: EdgeInsets.all(12.r),
                 decoration: BoxDecoration(
                   color: AppTheme.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                   border: Border.all(
                     color: AppTheme.error.withValues(alpha: 0.2),
                   ),
@@ -404,8 +405,8 @@ class _CommissionFieldVisitScreenState
                 child: Row(
                   children: [
                     Container(
-                      width: 12,
-                      height: 12,
+                      width: 12.w,
+                      height: 12.h,
                       decoration: BoxDecoration(
                         color: AppTheme.error,
                         shape: BoxShape.circle,
@@ -417,11 +418,11 @@ class _CommissionFieldVisitScreenState
                         ],
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10.w),
                     Text(
                       '🎤 Listening... Speak your observation clearly',
                       style: GoogleFonts.inter(
-                        fontSize: 13,
+                        fontSize: 13.sp,
                         fontWeight: FontWeight.w600,
                         color: AppTheme.error,
                       ),
@@ -440,7 +441,7 @@ class _CommissionFieldVisitScreenState
                   Text(
                     'Activity Feed',
                     style: GoogleFonts.outfit(
-                      fontSize: 16,
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.w700,
                       color: dk ? Colors.white : const Color(0xFF1E293B),
                     ),
@@ -449,7 +450,7 @@ class _CommissionFieldVisitScreenState
                   Text(
                     '${_feed.length} events',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: dk ? Colors.white38 : Colors.black38,
                     ),
                   ),
@@ -462,7 +463,7 @@ class _CommissionFieldVisitScreenState
           _feed.isEmpty
               ? SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(40),
+                  padding: EdgeInsets.all(40.r),
                   child: Center(
                     child: Column(
                       children: [
@@ -471,11 +472,11 @@ class _CommissionFieldVisitScreenState
                           size: 48,
                           color: dk ? Colors.white12 : Colors.black12,
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8.h),
                         Text(
                           'Start capturing evidence, notes, and witnesses',
                           style: GoogleFonts.inter(
-                            fontSize: 13,
+                            fontSize: 13.sp,
                             color: dk ? Colors.white38 : Colors.black38,
                           ),
                           textAlign: TextAlign.center,
@@ -493,7 +494,7 @@ class _CommissionFieldVisitScreenState
                 ),
               ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 80)),
+          const SliverToBoxAdapter(child: SizedBox(height: 80.h)),
         ],
       ),
     );
@@ -508,21 +509,21 @@ class _CommissionFieldVisitScreenState
   ) => Expanded(
     child: Material(
       color: color.withValues(alpha: 0.08),
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(14.r),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: EdgeInsets.symmetric(vertical: 16.h),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icon, color: color, size: 24),
-              const SizedBox(height: 6),
+              SizedBox(height: 6.h),
               Text(
                 label,
                 style: GoogleFonts.inter(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w700,
                   color: color,
                 ),
@@ -535,7 +536,7 @@ class _CommissionFieldVisitScreenState
   );
 
   Widget _buildFeedItem(bool dk, _ActivityItem item, bool isLast) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16),
+    padding: EdgeInsets.symmetric(horizontal: 16.w),
     child: IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -544,8 +545,8 @@ class _CommissionFieldVisitScreenState
           Column(
             children: [
               Container(
-                width: 10,
-                height: 10,
+                width: 10.w,
+                height: 10.h,
                 decoration: BoxDecoration(
                   color: item.color,
                   shape: BoxShape.circle,
@@ -560,21 +561,21 @@ class _CommissionFieldVisitScreenState
               if (!isLast)
                 Expanded(
                   child: Container(
-                    width: 2,
+                    width: 2.w,
                     color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
                   ),
                 ),
             ],
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           // Content
           Expanded(
             child: Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(12),
+              margin: EdgeInsets.only(bottom: 12.h),
+              padding: EdgeInsets.all(12.r),
               decoration: BoxDecoration(
                 color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
                   color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
                 ),
@@ -585,23 +586,23 @@ class _CommissionFieldVisitScreenState
                   Row(
                     children: [
                       Icon(item.icon, size: 14, color: item.color),
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6.w),
                       Text(
                         DateFormat('hh:mm a').format(item.time),
                         style: GoogleFonts.jetBrainsMono(
-                          fontSize: 10,
+                          fontSize: 10.sp,
                           color: dk ? Colors.white38 : Colors.black38,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   Text(
                     item.text,
                     style: GoogleFonts.inter(
-                      fontSize: 13,
+                      fontSize: 13.sp,
                       color: dk ? Colors.white70 : const Color(0xFF1E293B),
-                      height: 1.4,
+                      height: 1.4.h,
                     ),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
@@ -773,11 +774,11 @@ class _CommissionFieldVisitScreenState
                     bottom: MediaQuery.of(ctx).viewInsets.bottom,
                   ),
                   child: Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: EdgeInsets.all(20.r),
                     decoration: BoxDecoration(
                       color: dk ? const Color(0xFF1E1E2E) : Colors.white,
                       borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(24),
+                        top: Radius.circular(24.r),
                       ),
                     ),
                     child: Column(
@@ -787,12 +788,12 @@ class _CommissionFieldVisitScreenState
                         Text(
                           'Quick Note',
                           style: GoogleFonts.outfit(
-                            fontSize: 20,
+                            fontSize: 20.sp,
                             fontWeight: FontWeight.w700,
                             color: dk ? Colors.white : const Color(0xFF1E293B),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         Wrap(
                           spacing: 6,
                           runSpacing: 6,
@@ -802,7 +803,7 @@ class _CommissionFieldVisitScreenState
                                     (t) => ChoiceChip(
                                       label: Text(
                                         t,
-                                        style: GoogleFonts.inter(fontSize: 11),
+                                        style: GoogleFonts.inter(fontSize: 11.sp),
                                       ),
                                       selected: selType == t,
                                       onSelected: (v) => ss(() => selType = t),
@@ -812,26 +813,26 @@ class _CommissionFieldVisitScreenState
                                   )
                                   .toList(),
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         TextField(
                           controller: ctrl,
                           maxLines: 4,
                           autofocus: true,
                           style: GoogleFonts.inter(
-                            fontSize: 14,
+                            fontSize: 14.sp,
                             color: dk ? Colors.white : const Color(0xFF1E293B),
                           ),
                           decoration: InputDecoration(
                             hintText: 'Write observation...',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         SizedBox(
                           width: double.infinity,
-                          height: 48,
+                          height: 48.h,
                           child: ElevatedButton(
                             onPressed: () async {
                               if (ctrl.text.isEmpty) return;
@@ -847,7 +848,7 @@ class _CommissionFieldVisitScreenState
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.accent,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(14.r),
                               ),
                             ),
                             child: Text(
@@ -908,11 +909,11 @@ class _CommissionFieldVisitScreenState
               bottom: MediaQuery.of(ctx).viewInsets.bottom,
             ),
             child: Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20.r),
               decoration: BoxDecoration(
                 color: dk ? const Color(0xFF1E1E2E) : Colors.white,
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(24),
+                  top: Radius.circular(24.r),
                 ),
               ),
               child: Column(
@@ -921,35 +922,35 @@ class _CommissionFieldVisitScreenState
                   Row(
                     children: [
                       const Icon(Icons.warning_amber, color: AppTheme.error),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8.w),
                       Text(
                         'Report Obstruction',
                         style: GoogleFonts.outfit(
-                          fontSize: 20,
+                          fontSize: 20.sp,
                           fontWeight: FontWeight.w700,
                           color: AppTheme.error,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   TextField(
                     controller: ctrl,
                     maxLines: 4,
                     autofocus: true,
-                    style: GoogleFonts.inter(fontSize: 14),
+                    style: GoogleFonts.inter(fontSize: 14.sp),
                     decoration: InputDecoration(
                       hintText:
                           'Describe the obstruction...\ne.g., "Respondent\'s men blocked entry to the property"',
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   SizedBox(
                     width: double.infinity,
-                    height: 48,
+                    height: 48.h,
                     child: ElevatedButton(
                       onPressed: () async {
                         if (ctrl.text.isEmpty) return;
@@ -980,7 +981,7 @@ class _CommissionFieldVisitScreenState
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.error,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(14.r),
                         ),
                       ),
                       child: Text(

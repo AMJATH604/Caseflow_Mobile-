@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_theme.dart';
 import 'legal_dictionary_data.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LegalDictionary extends StatefulWidget {
   const LegalDictionary({super.key});
@@ -75,7 +76,7 @@ class _LegalDictionaryState extends State<LegalDictionary> {
         content: Text('"${t.term}" copied!'),
         backgroundColor: Colors.green[700],
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
       ),
     );
   }
@@ -111,32 +112,32 @@ class _LegalDictionaryState extends State<LegalDictionary> {
                       ? Colors.white.withValues(alpha: 0.05)
                       : Colors.grey[100],
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
                 borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 14),
+              contentPadding: EdgeInsets.symmetric(vertical: 14.h),
             ),
           ),
         ),
 
         // Category chips
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(vertical: 12.h),
           child: SizedBox(
-            height: 38,
+            height: 38.h,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               itemCount: _categories.length,
               itemBuilder: (ctx, i) {
                 final bool selected = _selectedCategory == _categories[i];
                 return Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: EdgeInsets.only(right: 8.w),
                   child: ChoiceChip(
                     label: Text(
                       _categories[i],
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
                         color: selected ? Colors.white : null,
                       ),
@@ -157,9 +158,9 @@ class _LegalDictionaryState extends State<LegalDictionary> {
 
         // A-Z quick index
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: SizedBox(
-            height: 30,
+            height: 30.h,
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
@@ -184,7 +185,7 @@ class _LegalDictionaryState extends State<LegalDictionary> {
               Text(
                 '${_filteredTerms.length} terms',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
                   color: Colors.grey[500],
                 ),
@@ -192,7 +193,7 @@ class _LegalDictionaryState extends State<LegalDictionary> {
               const Spacer(),
               Text(
                 'Tap a term to expand',
-                style: TextStyle(fontSize: 11, color: Colors.grey[400]),
+                style: TextStyle(fontSize: 11.sp, color: Colors.grey[400]),
               ),
             ],
           ),
@@ -211,7 +212,7 @@ class _LegalDictionaryState extends State<LegalDictionary> {
                           size: 48,
                           color: Colors.grey[400],
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8.h),
                         Text(
                           'No terms found',
                           style: TextStyle(color: Colors.grey[500]),
@@ -239,16 +240,16 @@ class _LegalDictionaryState extends State<LegalDictionary> {
         _applyFilters();
       },
       child: Container(
-        margin: const EdgeInsets.only(right: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        margin: EdgeInsets.only(right: 4.w),
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
         decoration: BoxDecoration(
           color: selected ? AppTheme.accent : Colors.transparent,
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(6.r),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 12.sp,
             fontWeight: FontWeight.w700,
             color: selected ? Colors.white : Colors.grey[500],
           ),
@@ -265,8 +266,8 @@ class _LegalDictionaryState extends State<LegalDictionary> {
       onTap: () => setState(() => _expandedIndex = expanded ? null : index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.all(14),
+        margin: EdgeInsets.only(bottom: 8.h),
+        padding: EdgeInsets.all(14.r),
         decoration: BoxDecoration(
           color:
               expanded
@@ -276,7 +277,7 @@ class _LegalDictionaryState extends State<LegalDictionary> {
                   : (isDark
                       ? Colors.white.withValues(alpha: 0.03)
                       : Colors.white),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color:
                 expanded
@@ -307,24 +308,24 @@ class _LegalDictionaryState extends State<LegalDictionary> {
                   ),
                   decoration: BoxDecoration(
                     color: catColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Text(
                     term.category,
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 10.sp,
                       fontWeight: FontWeight.w700,
                       color: catColor,
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10.w),
                 Expanded(
                   child: Text(
                     term.term,
                     style: const TextStyle(
                       fontWeight: FontWeight.w800,
-                      fontSize: 15,
+                      fontSize: 15.sp,
                     ),
                   ),
                 ),
@@ -340,15 +341,15 @@ class _LegalDictionaryState extends State<LegalDictionary> {
 
             // Brief meaning (always visible)
             Padding(
-              padding: const EdgeInsets.only(top: 6),
+              padding: EdgeInsets.only(top: 6.h),
               child: Text(
                 term.meaning,
                 maxLines: expanded ? 10 : 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 13.sp,
                   color: isDark ? Colors.grey[300] : Colors.grey[700],
-                  height: 1.4,
+                  height: 1.4.h,
                 ),
               ),
             ),
@@ -356,16 +357,16 @@ class _LegalDictionaryState extends State<LegalDictionary> {
             // Expanded content
             if (expanded) ...[
               if (term.usage.isNotEmpty) ...[
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(12.r),
                   decoration: BoxDecoration(
                     color:
                         isDark
                             ? const Color(0xFF0F172A)
                             : const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                     border: Border.all(
                       color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
                     ),
@@ -376,19 +377,19 @@ class _LegalDictionaryState extends State<LegalDictionary> {
                       Text(
                         'Usage in Court:',
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
                           color: catColor,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4.h),
                       Text(
                         term.usage,
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 13.sp,
                           fontStyle: FontStyle.italic,
                           color: isDark ? Colors.grey[300] : Colors.grey[700],
-                          height: 1.4,
+                          height: 1.4.h,
                         ),
                       ),
                     ],
@@ -396,15 +397,15 @@ class _LegalDictionaryState extends State<LegalDictionary> {
                 ),
               ],
               if (term.section.isNotEmpty) ...[
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 Row(
                   children: [
                     Icon(Icons.bookmark_outline, size: 14, color: catColor),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4.w),
                     Text(
                       'Ref: ${term.section}',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
                         color: catColor,
                       ),
@@ -412,13 +413,13 @@ class _LegalDictionaryState extends State<LegalDictionary> {
                   ],
                 ),
               ],
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton.icon(
                   onPressed: () => _copyTerm(term),
                   icon: const Icon(Icons.copy_rounded, size: 14),
-                  label: const Text('Copy', style: TextStyle(fontSize: 12)),
+                  label: const Text('Copy', style: TextStyle(fontSize: 12.sp)),
                   style: TextButton.styleFrom(
                     visualDensity: VisualDensity.compact,
                   ),

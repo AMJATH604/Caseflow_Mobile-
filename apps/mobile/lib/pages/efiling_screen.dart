@@ -7,6 +7,7 @@ import '../models/models.dart';
 import '../components/status_badge.dart';
 import '../components/empty_state_widget.dart';
 import 'package:caseflow/components/dialogs/new_case_dialog.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EFilingScreen extends ConsumerWidget {
   const EFilingScreen({super.key});
@@ -19,12 +20,12 @@ class EFilingScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(context, isMobile),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             Expanded(
               child: recordsAsync.when(
                 data:
@@ -73,7 +74,7 @@ class EFilingScreen extends ConsumerWidget {
             ),
             const Text(
               'Track filing progress',
-              style: TextStyle(color: Colors.grey, fontSize: 14),
+              style: TextStyle(color: Colors.grey, fontSize: 14.sp),
             ),
           ],
         ),
@@ -124,12 +125,12 @@ class EFilingScreen extends ConsumerWidget {
           final r = records[index];
           final double progress = _getProgress(r.status.name);
           return Card(
-            margin: const EdgeInsets.only(bottom: 12),
+            margin: EdgeInsets.only(bottom: 12.h),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(16.0.r),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -145,16 +146,16 @@ class EFilingScreen extends ConsumerWidget {
                       StatusBadge(status: r.status.name),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12.h),
                   Text(
                     r.documentType.toUpperCase(),
                     style: const TextStyle(
-                      fontSize: 10,
+                      fontSize: 10.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.grey,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   LinearProgressIndicator(
                     value: progress,
                     backgroundColor: Colors.grey[200],
@@ -163,15 +164,15 @@ class EFilingScreen extends ConsumerWidget {
                             ? Colors.red
                             : AppTheme.primary,
                     minHeight: 6,
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(4.r),
                   ),
                   if (r.defectNotes != null)
                     Padding(
-                      padding: const EdgeInsets.only(top: 8),
+                      padding: EdgeInsets.only(top: 8.h),
                       child: Text(
                         'DEFECT: ${r.defectNotes}',
                         style: const TextStyle(
-                          fontSize: 11,
+                          fontSize: 11.sp,
                           color: Colors.red,
                           fontWeight: FontWeight.w500,
                         ),

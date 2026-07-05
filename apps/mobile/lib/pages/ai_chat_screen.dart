@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
 import '../services/gemini_service.dart';
 import '../services/analytics_service.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AiChatScreen extends StatefulWidget {
   final String? initialSessionId;
@@ -145,35 +146,35 @@ class _AiChatScreenState extends State<AiChatScreen>
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder: (ctx) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24.r),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'Attach File',
                   style: GoogleFonts.outfit(
-                    fontSize: 18,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 Text(
                   'Send images or documents for AI analysis',
                   style: GoogleFonts.inter(
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     color:
                         isDark
                             ? const Color(0xFF94A3B8)
                             : const Color(0xFF64748B),
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -222,23 +223,23 @@ class _AiChatScreenState extends State<AiChatScreen>
   ) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16.r),
       child: Column(
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: 56.w,
+            height: 56.h,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
             ),
             child: Icon(icon, color: color, size: 26),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               color: Colors.grey[600],
             ),
@@ -272,7 +273,7 @@ class _AiChatScreenState extends State<AiChatScreen>
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
         ),
         title: const Text('Delete Chat?'),
         content: Text('Delete "${session.title}"? This cannot be undone.'),
@@ -351,7 +352,7 @@ class _AiChatScreenState extends State<AiChatScreen>
     return Drawer(
       backgroundColor: isDark ? const Color(0xFF0F0F18) : Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.horizontal(right: Radius.circular(20)),
+        borderRadius: BorderRadius.horizontal(right: Radius.circular(20.r)),
       ),
       child: SafeArea(
         child: Column(
@@ -362,13 +363,13 @@ class _AiChatScreenState extends State<AiChatScreen>
               child: Row(
                 children: [
                   Container(
-                    width: 34,
-                    height: 34,
+                    width: 34.w,
+                    height: 34.h,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [Color(0xFF6366F1), Color(0xFF22D3EE)],
                       ),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10.r),
                     ),
                     child: const Icon(
                       Icons.auto_awesome,
@@ -376,11 +377,11 @@ class _AiChatScreenState extends State<AiChatScreen>
                       size: 18,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10.w),
                   Text(
                     'Chat History',
                     style: GoogleFonts.outfit(
-                      fontSize: 18,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.w700,
                       color: isDark ? Colors.white : const Color(0xFF0F172A),
                     ),
@@ -402,20 +403,20 @@ class _AiChatScreenState extends State<AiChatScreen>
 
             // ── New Chat Button ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
               child: InkWell(
                 onTap: _onNewChat,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: EdgeInsets.symmetric(vertical: 14.h),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [Color(0xFF6366F1), Color(0xFF818CF8)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                     boxShadow: [
                       BoxShadow(
                         color: const Color(0xFF6366F1).withValues(alpha: 0.3),
@@ -432,11 +433,11 @@ class _AiChatScreenState extends State<AiChatScreen>
                         color: Colors.white,
                         size: 20,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8.w),
                       Text(
                         'New Chat',
                         style: GoogleFonts.inter(
-                          fontSize: 14,
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
                         ),
@@ -447,18 +448,18 @@ class _AiChatScreenState extends State<AiChatScreen>
               ),
             ),
 
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
 
             // ── Section header ──
             if (sessions.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 4.h),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'RECENTS',
                     style: GoogleFonts.inter(
-                      fontSize: 11,
+                      fontSize: 11.sp,
                       fontWeight: FontWeight.w800,
                       color: isDark
                           ? const Color(0xFF475569)
@@ -483,11 +484,11 @@ class _AiChatScreenState extends State<AiChatScreen>
                                 ? const Color(0xFF232330)
                                 : const Color(0xFFE2E8F0),
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12.h),
                           Text(
                             'No conversations yet',
                             style: GoogleFonts.inter(
-                              fontSize: 13,
+                              fontSize: 13.sp,
                               color: isDark
                                   ? const Color(0xFF475569)
                                   : const Color(0xFF94A3B8),
@@ -525,16 +526,16 @@ class _AiChatScreenState extends State<AiChatScreen>
     bool isDark,
   ) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: EdgeInsets.only(bottom: 4.h),
       child: Dismissible(
         key: Key(session.id),
         direction: DismissDirection.endToStart,
         background: Container(
           alignment: Alignment.centerRight,
-          padding: const EdgeInsets.only(right: 20),
+          padding: EdgeInsets.only(right: 20.w),
           decoration: BoxDecoration(
             color: Colors.red.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12.r),
           ),
           child: const Icon(
             Icons.delete_outline_rounded,
@@ -547,7 +548,7 @@ class _AiChatScreenState extends State<AiChatScreen>
             context: context,
             builder: (ctx) => AlertDialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(20.r),
               ),
               title: const Text('Delete Chat?'),
               content: Text(
@@ -576,17 +577,17 @@ class _AiChatScreenState extends State<AiChatScreen>
         child: InkWell(
           onTap: () => _onSelectSession(session),
           onLongPress: () => _onDeleteSession(session),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
             decoration: BoxDecoration(
               color: isActive
                   ? (isDark
                       ? const Color(0xFF1E1E2E)
                       : const Color(0xFFEEF2FF))
                   : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               border: isActive
                   ? Border.all(
                       color: isDark
@@ -608,7 +609,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                           ? const Color(0xFF64748B)
                           : const Color(0xFF94A3B8)),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -618,7 +619,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.inter(
-                          fontSize: 13,
+                          fontSize: 13.sp,
                           fontWeight:
                               isActive ? FontWeight.w700 : FontWeight.w500,
                           color: isActive
@@ -630,11 +631,11 @@ class _AiChatScreenState extends State<AiChatScreen>
                                   : const Color(0xFF475569)),
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2.h),
                       Text(
                         _formatTimeAgo(session.updatedAt),
                         style: GoogleFonts.inter(
-                          fontSize: 11,
+                          fontSize: 11.sp,
                           color: isDark
                               ? const Color(0xFF475569)
                               : const Color(0xFF94A3B8),
@@ -657,7 +658,7 @@ class _AiChatScreenState extends State<AiChatScreen>
     final sessionTitle = _gemini.currentSessionTitle;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161620) : Colors.white,
         border: Border(
@@ -679,15 +680,15 @@ class _AiChatScreenState extends State<AiChatScreen>
             tooltip: 'Chat History',
           ),
           Container(
-            width: 34,
-            height: 34,
+            width: 34.w,
+            height: 34.h,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFF6366F1), Color(0xFF22D3EE)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(10.r),
             ),
             child: const Icon(
               Icons.auto_awesome,
@@ -695,7 +696,7 @@ class _AiChatScreenState extends State<AiChatScreen>
               size: 18,
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -705,27 +706,27 @@ class _AiChatScreenState extends State<AiChatScreen>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.outfit(
-                    fontSize: 15,
+                    fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
                     color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
                 ),
-                const SizedBox(height: 1),
+                SizedBox(height: 1.h),
                 Row(
                   children: [
                     Container(
-                      width: 6,
-                      height: 6,
+                      width: 6.w,
+                      height: 6.h,
                       decoration: const BoxDecoration(
                         color: Color(0xFF10B981),
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 5),
+                    SizedBox(width: 5.w),
                     Text(
                       'Powered by Gemini • Vision enabled',
                       style: GoogleFonts.inter(
-                        fontSize: 10,
+                        fontSize: 10.sp,
                         color:
                             isDark
                                 ? const Color(0xFF94A3B8)
@@ -759,7 +760,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                   builder:
                       (ctx) => AlertDialog(
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(20.r),
                         ),
                         title: const Text('Delete Chat?'),
                         content: const Text(
@@ -800,13 +801,13 @@ class _AiChatScreenState extends State<AiChatScreen>
 
   Widget _buildWelcomeView(bool isDark) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24.r),
       child: Column(
         children: [
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           Container(
-            width: 80,
-            height: 80,
+            width: 80.w,
+            height: 80.h,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [
@@ -817,7 +818,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(24.r),
               boxShadow: [
                 BoxShadow(
                   color: const Color(0xFF6366F1).withValues(alpha: 0.3),
@@ -832,32 +833,32 @@ class _AiChatScreenState extends State<AiChatScreen>
               size: 36,
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           Text(
             'CaseFlow AI',
             style: GoogleFonts.outfit(
-              fontSize: 28,
+              fontSize: 28.sp,
               fontWeight: FontWeight.w800,
               color: isDark ? Colors.white : const Color(0xFF0F172A),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             'Your expert Indian legal assistant.\nAsk questions or share images of legal documents.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
-              fontSize: 14,
+              fontSize: 14.sp,
               color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-              height: 1.5,
+              height: 1.5.h,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           // Image analysis hint
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
             decoration: BoxDecoration(
               color: const Color(0xFF6366F1).withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
                 color: const Color(0xFF6366F1).withValues(alpha: 0.15),
               ),
@@ -870,11 +871,11 @@ class _AiChatScreenState extends State<AiChatScreen>
                   size: 18,
                   color: Color(0xFF6366F1),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
                 Text(
                   '📸 Send photos of court orders, FIRs, or legal docs!',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF6366F1),
                   ),
@@ -882,17 +883,17 @@ class _AiChatScreenState extends State<AiChatScreen>
               ],
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32.h),
           Text(
             'TRY ASKING',
             style: GoogleFonts.inter(
-              fontSize: 11,
+              fontSize: 11.sp,
               fontWeight: FontWeight.w800,
               color: isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8),
               letterSpacing: 2,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           ...GeminiService.suggestedPrompts.map(
             (prompt) => _buildSuggestionCard(prompt, isDark),
           ),
@@ -903,24 +904,24 @@ class _AiChatScreenState extends State<AiChatScreen>
 
   Widget _buildSuggestionCard(Map<String, String> prompt, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: 10.h),
       child: InkWell(
         onTap: () => _sendMessage(prompt['prompt']!),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16.r),
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF161620) : Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color: isDark ? const Color(0xFF232330) : const Color(0xFFE2E8F0),
             ),
           ),
           child: Row(
             children: [
-              Text(prompt['icon']!, style: const TextStyle(fontSize: 22)),
-              const SizedBox(width: 14),
+              Text(prompt['icon']!, style: const TextStyle(fontSize: 22.sp)),
+              SizedBox(width: 14.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -928,18 +929,18 @@ class _AiChatScreenState extends State<AiChatScreen>
                     Text(
                       prompt['title']!,
                       style: GoogleFonts.inter(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.w700,
                         color: isDark ? Colors.white : const Color(0xFF0F172A),
                       ),
                     ),
-                    const SizedBox(height: 3),
+                    SizedBox(height: 3.h),
                     Text(
                       prompt['prompt']!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.inter(
-                        fontSize: 12,
+                        fontSize: 12.sp,
                         color:
                             isDark
                                 ? const Color(0xFF64748B)
@@ -965,7 +966,7 @@ class _AiChatScreenState extends State<AiChatScreen>
   Widget _buildChatList(bool isDark, List<ChatMessage> messages) {
     return ListView.builder(
       controller: _scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       itemCount: messages.length,
       itemBuilder: (context, index) {
         final msg = messages[index];
@@ -977,7 +978,7 @@ class _AiChatScreenState extends State<AiChatScreen>
 
   Widget _buildMessageBubble(ChatMessage msg, bool isUser, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16.h),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment:
@@ -985,13 +986,13 @@ class _AiChatScreenState extends State<AiChatScreen>
         children: [
           if (!isUser) ...[
             Container(
-              width: 32,
-              height: 32,
+              width: 32.w,
+              height: 32.h,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Color(0xFF6366F1), Color(0xFF22D3EE)],
                 ),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10.r),
               ),
               child: const Icon(
                 Icons.auto_awesome,
@@ -999,11 +1000,11 @@ class _AiChatScreenState extends State<AiChatScreen>
                 size: 16,
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10.w),
           ],
           Flexible(
             child: Container(
-              padding: const EdgeInsets.all(14),
+              padding: EdgeInsets.all(14.r),
               decoration: BoxDecoration(
                 color:
                     isUser
@@ -1012,8 +1013,8 @@ class _AiChatScreenState extends State<AiChatScreen>
                         ? const Color(0xFF1E1E2E)
                         : Colors.white,
                 borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(18),
-                  topRight: const Radius.circular(18),
+                  topLeft: Radius.circular(18.r),
+                  topRight: Radius.circular(18.r),
                   bottomLeft: Radius.circular(isUser ? 18 : 4),
                   bottomRight: Radius.circular(isUser ? 4 : 18),
                 ),
@@ -1043,18 +1044,18 @@ class _AiChatScreenState extends State<AiChatScreen>
                           // Show attached image in user bubble
                           if (isUser && msg.hasImage) ...[
                             ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(10.r),
                               child:
                                   msg.imagePath != null
                                       ? Image.file(
                                         File(msg.imagePath!),
-                                        width: 200,
-                                        height: 150,
+                                        width: 200.w,
+                                        height: 150.h,
                                         fit: BoxFit.cover,
                                         errorBuilder:
                                             (_, __, ___) => Container(
-                                              width: 200,
-                                              height: 60,
+                                              width: 200.w,
+                                              height: 60.h,
                                               color: Colors.grey[300],
                                               child: const Center(
                                                 child: Icon(Icons.broken_image),
@@ -1063,11 +1064,11 @@ class _AiChatScreenState extends State<AiChatScreen>
                                       )
                                       : const SizedBox.shrink(),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8.h),
                           ],
                           _buildMessageContent(msg, isUser, isDark),
                           if (!isUser) ...[
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8.h),
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -1105,14 +1106,14 @@ class _AiChatScreenState extends State<AiChatScreen>
             ),
           ),
           if (isUser) ...[
-            const SizedBox(width: 10),
+            SizedBox(width: 10.w),
             Container(
-              width: 32,
-              height: 32,
+              width: 32.w,
+              height: 32.h,
               decoration: BoxDecoration(
                 color:
                     isDark ? const Color(0xFF232330) : const Color(0xFFE2E8F0),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10.r),
               ),
               child: Icon(
                 Icons.person_rounded,
@@ -1134,12 +1135,12 @@ class _AiChatScreenState extends State<AiChatScreen>
   ) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(8.r),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF232330) : const Color(0xFFF1F5F9),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -1149,11 +1150,11 @@ class _AiChatScreenState extends State<AiChatScreen>
               size: 13,
               color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
             ),
-            const SizedBox(width: 5),
+            SizedBox(width: 5.w),
             Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 11,
+                fontSize: 11.sp,
                 fontWeight: FontWeight.w600,
                 color:
                     isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
@@ -1170,8 +1171,8 @@ class _AiChatScreenState extends State<AiChatScreen>
       return SelectableText(
         msg.text,
         style: GoogleFonts.inter(
-          fontSize: 14,
-          height: 1.6,
+          fontSize: 14.sp,
+          height: 1.6.h,
           color: Colors.white,
         ),
       );
@@ -1185,8 +1186,8 @@ class _AiChatScreenState extends State<AiChatScreen>
       return SelectableText(
         msg.text,
         style: GoogleFonts.inter(
-          fontSize: 14,
-          height: 1.6,
+          fontSize: 14.sp,
+          height: 1.6.h,
           color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
         ),
       );
@@ -1203,14 +1204,14 @@ class _AiChatScreenState extends State<AiChatScreen>
             SelectableText(
               textBefore,
               style: GoogleFonts.inter(
-                fontSize: 14,
-                height: 1.6,
+                fontSize: 14.sp,
+                height: 1.6.h,
                 color:
                     isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
               ),
             ),
           );
-          children.add(const SizedBox(height: 12));
+          children.add(SizedBox(height: 12.h));
         }
       }
 
@@ -1240,7 +1241,7 @@ class _AiChatScreenState extends State<AiChatScreen>
           );
       }
 
-      children.add(const SizedBox(height: 12));
+      children.add(SizedBox(height: 12.h));
       lastEnd = match.end;
     }
 
@@ -1251,8 +1252,8 @@ class _AiChatScreenState extends State<AiChatScreen>
           SelectableText(
             textAfter,
             style: GoogleFonts.inter(
-              fontSize: 14,
-              height: 1.6,
+              fontSize: 14.sp,
+              height: 1.6.h,
               color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
             ),
           ),
@@ -1284,10 +1285,10 @@ class _AiChatScreenState extends State<AiChatScreen>
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161620) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
           color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
         ),
@@ -1305,10 +1306,10 @@ class _AiChatScreenState extends State<AiChatScreen>
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: EdgeInsets.all(6.r),
                 decoration: BoxDecoration(
                   color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: const Icon(
                   Icons.gavel_rounded,
@@ -1316,12 +1317,12 @@ class _AiChatScreenState extends State<AiChatScreen>
                   color: Color(0xFF3B82F6),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Expanded(
                 child: Text(
                   title,
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
                     color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
@@ -1329,24 +1330,24 @@ class _AiChatScreenState extends State<AiChatScreen>
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Text(
             'CNR: $cnr',
             style: GoogleFonts.inter(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4.h),
           Text(
             'Court: $court',
             style: GoogleFonts.inter(
-              fontSize: 12,
+              fontSize: 12.sp,
               color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -1362,7 +1363,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
               ),
             ),
@@ -1380,10 +1381,10 @@ class _AiChatScreenState extends State<AiChatScreen>
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161620) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
           color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
         ),
@@ -1401,10 +1402,10 @@ class _AiChatScreenState extends State<AiChatScreen>
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: EdgeInsets.all(6.r),
                 decoration: BoxDecoration(
                   color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: const Icon(
                   Icons.currency_rupee_rounded,
@@ -1412,12 +1413,12 @@ class _AiChatScreenState extends State<AiChatScreen>
                   color: Color(0xFF10B981),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Expanded(
                 child: Text(
                   title,
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
                     color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
@@ -1425,7 +1426,7 @@ class _AiChatScreenState extends State<AiChatScreen>
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1435,14 +1436,14 @@ class _AiChatScreenState extends State<AiChatScreen>
                   Text(
                     'Paid',
                     style: GoogleFonts.inter(
-                      fontSize: 11,
+                      fontSize: 11.sp,
                       color: const Color(0xFF10B981),
                     ),
                   ),
                   Text(
                     '₹$paid',
                     style: GoogleFonts.inter(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: isDark ? Colors.white : const Color(0xFF0F172A),
                     ),
@@ -1455,14 +1456,14 @@ class _AiChatScreenState extends State<AiChatScreen>
                   Text(
                     'Balance',
                     style: GoogleFonts.inter(
-                      fontSize: 11,
+                      fontSize: 11.sp,
                       color: const Color(0xFFEF4444),
                     ),
                   ),
                   Text(
                     '₹$balance',
                     style: GoogleFonts.inter(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: isDark ? Colors.white : const Color(0xFF0F172A),
                     ),
@@ -1478,10 +1479,10 @@ class _AiChatScreenState extends State<AiChatScreen>
 
   Widget _buildGenUiCalculatorsCard(bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161620) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
           color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
         ),
@@ -1492,12 +1493,12 @@ class _AiChatScreenState extends State<AiChatScreen>
           Text(
             'Popular Calculators',
             style: GoogleFonts.inter(
-              fontSize: 13,
+              fontSize: 13.sp,
               fontWeight: FontWeight.w700,
               color: isDark ? Colors.white : const Color(0xFF0F172A),
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -1537,12 +1538,12 @@ class _AiChatScreenState extends State<AiChatScreen>
       onTap: () {
         context.go('/citizen-tools?tool=$toolId');
       },
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(20.r),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
           border: Border.all(
             color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
           ),
@@ -1551,11 +1552,11 @@ class _AiChatScreenState extends State<AiChatScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 14, color: const Color(0xFF6366F1)),
-            const SizedBox(width: 6),
+            SizedBox(width: 6.w),
             Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
                 color:
                     isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
@@ -1577,7 +1578,7 @@ class _AiChatScreenState extends State<AiChatScreen>
       width: double.infinity,
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
           color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
         ),
@@ -1586,11 +1587,11 @@ class _AiChatScreenState extends State<AiChatScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0),
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(12),
+                top: Radius.circular(12.r),
               ),
             ),
             child: Row(
@@ -1600,12 +1601,12 @@ class _AiChatScreenState extends State<AiChatScreen>
                   size: 14,
                   color: Color(0xFFD4AF37),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
                 Expanded(
                   child: Text(
                     '$act - Section $section',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       fontWeight: FontWeight.w700,
                       color: isDark ? Colors.white : const Color(0xFF0F172A),
                     ),
@@ -1615,7 +1616,7 @@ class _AiChatScreenState extends State<AiChatScreen>
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(14),
+            padding: EdgeInsets.all(14.r),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1623,18 +1624,18 @@ class _AiChatScreenState extends State<AiChatScreen>
                   Text(
                     title,
                     style: GoogleFonts.inter(
-                      fontSize: 13,
+                      fontSize: 13.sp,
                       fontWeight: FontWeight.w700,
                       color: isDark ? Colors.white : const Color(0xFF0F172A),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                 ],
                 Text(
                   content,
                   style: GoogleFonts.inter(
-                    fontSize: 13,
-                    height: 1.5,
+                    fontSize: 13.sp,
+                    height: 1.5.h,
                     color:
                         isDark
                             ? const Color(0xFF94A3B8)
@@ -1654,15 +1655,15 @@ class _AiChatScreenState extends State<AiChatScreen>
       mainAxisSize: MainAxisSize.min,
       children: [
         _buildDot(0),
-        const SizedBox(width: 4),
+        SizedBox(width: 4.w),
         _buildDot(1),
-        const SizedBox(width: 4),
+        SizedBox(width: 4.w),
         _buildDot(2),
-        const SizedBox(width: 8),
+        SizedBox(width: 8.w),
         Text(
           'Thinking...',
           style: GoogleFonts.inter(
-            fontSize: 12,
+            fontSize: 12.sp,
             color: const Color(0xFF94A3B8),
             fontStyle: FontStyle.italic,
           ),
@@ -1677,8 +1678,8 @@ class _AiChatScreenState extends State<AiChatScreen>
       duration: Duration(milliseconds: 600 + (index * 200)),
       builder: (context, value, child) {
         return Container(
-          width: 8,
-          height: 8,
+          width: 8.w,
+          height: 8.h,
           decoration: BoxDecoration(
             color: AppTheme.accent.withValues(alpha: 0.4 + (value * 0.6)),
             shape: BoxShape.circle,
@@ -1693,7 +1694,7 @@ class _AiChatScreenState extends State<AiChatScreen>
     final isImage = _isImageFile(_pendingFile!.path);
     final fileName = p.basename(_pendingFile!.path);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF161620) : Colors.white,
         border: Border(
@@ -1708,21 +1709,21 @@ class _AiChatScreenState extends State<AiChatScreen>
             children: [
               if (isImage)
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                   child: Image.file(
                     _pendingFile!,
-                    width: 60,
-                    height: 60,
+                    width: 60.w,
+                    height: 60.h,
                     fit: BoxFit.cover,
                   ),
                 )
               else
                 Container(
-                  width: 60,
-                  height: 60,
+                  width: 60.w,
+                  height: 60.h,
                   decoration: BoxDecoration(
                     color: const Color(0xFF6366F1).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                     border: Border.all(
                       color: const Color(0xFF6366F1).withValues(alpha: 0.2),
                     ),
@@ -1735,11 +1736,11 @@ class _AiChatScreenState extends State<AiChatScreen>
                         color: const Color(0xFF6366F1),
                         size: 24,
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2.h),
                       Text(
                         p.extension(fileName).toUpperCase().replaceAll('.', ''),
                         style: GoogleFonts.inter(
-                          fontSize: 8,
+                          fontSize: 8.sp,
                           fontWeight: FontWeight.w800,
                           color: const Color(0xFF6366F1),
                         ),
@@ -1753,8 +1754,8 @@ class _AiChatScreenState extends State<AiChatScreen>
                 child: InkWell(
                   onTap: () => setState(() => _pendingFile = null),
                   child: Container(
-                    width: 22,
-                    height: 22,
+                    width: 22.w,
+                    height: 22.h,
                     decoration: const BoxDecoration(
                       color: Colors.red,
                       shape: BoxShape.circle,
@@ -1769,7 +1770,7 @@ class _AiChatScreenState extends State<AiChatScreen>
               ),
             ],
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1780,18 +1781,18 @@ class _AiChatScreenState extends State<AiChatScreen>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.inter(
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2.h),
                 Text(
                   isImage
                       ? 'Add a message or tap send'
                       : 'Document ready — add a message or tap send',
                   style: GoogleFonts.inter(
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     color:
                         isDark
                             ? const Color(0xFF94A3B8)
@@ -1831,9 +1832,9 @@ class _AiChatScreenState extends State<AiChatScreen>
   Widget _buildInputBar(bool isDark) {
     return Container(
       padding: EdgeInsets.only(
-        left: 8,
-        right: 8,
-        top: 12,
+        left: 8.w,
+        right: 8.w,
+        top: 12.h,
         bottom: MediaQuery.of(context).padding.bottom + 12,
       ),
       decoration: BoxDecoration(
@@ -1873,7 +1874,7 @@ class _AiChatScreenState extends State<AiChatScreen>
               decoration: BoxDecoration(
                 color:
                     isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(24.r),
                 border: Border.all(
                   color:
                       isDark
@@ -1889,7 +1890,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                 textInputAction: TextInputAction.send,
                 onSubmitted: (text) => _sendMessage(text),
                 style: GoogleFonts.inter(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
                 decoration: InputDecoration(
@@ -1898,7 +1899,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                           ? 'Describe what to analyze...'
                           : 'Ask about any Indian law...',
                   hintStyle: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     color:
                         isDark
                             ? const Color(0xFF475569)
@@ -1913,12 +1914,12 @@ class _AiChatScreenState extends State<AiChatScreen>
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           // Send button
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            width: 44,
-            height: 44,
+            width: 44.w,
+            height: 44.h,
             decoration: BoxDecoration(
               gradient:
                   _isSending
@@ -1932,7 +1933,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                           ? const Color(0xFF232330)
                           : const Color(0xFFE2E8F0))
                       : null,
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: BorderRadius.circular(22.r),
             ),
             child: IconButton(
               onPressed:
@@ -1940,8 +1941,8 @@ class _AiChatScreenState extends State<AiChatScreen>
               icon:
                   _isSending
                       ? SizedBox(
-                        width: 18,
-                        height: 18,
+                        width: 18.w,
+                        height: 18.h,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           color: isDark ? Colors.white54 : Colors.black26,

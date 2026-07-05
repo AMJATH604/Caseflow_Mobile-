@@ -10,6 +10,7 @@ import '../../services/repositories/discussion_repository.dart';
 import '../../services/providers.dart';
 import '../../models/models.dart';
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BroadcastNode extends ConsumerStatefulWidget {
   const BroadcastNode({super.key});
@@ -117,23 +118,23 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder:
           (ctx) => SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(24.r),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     'Share',
                     style: GoogleFonts.outfit(
-                      fontSize: 18,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -181,23 +182,23 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
   ) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16.r),
       child: Column(
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: 56.w,
+            height: 56.h,
             decoration: BoxDecoration(
               color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
             ),
             child: Icon(icon, color: color, size: 26),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               color: Colors.grey[600],
             ),
@@ -223,7 +224,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: Theme.of(context).dividerTheme.color ?? Colors.grey,
         ),
@@ -261,7 +262,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                   return const Center(
                     child: Text(
                       'No broadcasts found.',
-                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                      style: TextStyle(color: Colors.grey, fontSize: 12.sp),
                     ),
                   );
                 }
@@ -277,7 +278,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                 return ListView.builder(
                   controller: _scrollController,
                   reverse: false,
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16.r),
                   itemCount: allNotices.length,
                   itemBuilder: (context, index) {
                     final msg = allNotices[index];
@@ -307,8 +308,8 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
           }
         },
         child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          margin: EdgeInsets.only(bottom: 12.h),
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
           constraints: const BoxConstraints(maxWidth: 260),
           decoration: BoxDecoration(
             color:
@@ -317,7 +318,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                     : (isDark
                         ? const Color(0xFFE2E8F0)
                         : Colors.black.withOpacity(0.03)),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12.r),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,7 +327,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                 Text(
                   msg.senderName ?? 'Team Member',
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.w800,
                     color: AppTheme.accent.withOpacity(0.8),
                   ),
@@ -336,20 +337,20 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
               if (msg.hasAttachment) ...[
                 if (msg.isImage)
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                     child: Image.network(
                       msg.attachmentUrl!,
-                      width: 220,
-                      height: 160,
+                      width: 220.w,
+                      height: 160.h,
                       fit: BoxFit.cover,
                       loadingBuilder: (_, child, progress) {
                         if (progress == null) return child;
                         return Container(
-                          width: 220,
-                          height: 160,
+                          width: 220.w,
+                          height: 160.h,
                           decoration: BoxDecoration(
                             color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(8.r),
                           ),
                           child: const Center(
                             child: CircularProgressIndicator(strokeWidth: 2),
@@ -358,11 +359,11 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                       },
                       errorBuilder:
                           (_, __, ___) => Container(
-                            width: 220,
-                            height: 60,
+                            width: 220.w,
+                            height: 60.h,
                             decoration: BoxDecoration(
                               color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: const Center(
                               child: Icon(
@@ -375,12 +376,12 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                   )
                 else
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: EdgeInsets.all(8.r),
                     decoration: BoxDecoration(
                       color: (isMe ? Colors.black : Colors.white).withOpacity(
                         0.1,
                       ),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -390,12 +391,12 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                           size: 20,
                           color: isMe ? Colors.black87 : AppTheme.accent,
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8.w),
                         Flexible(
                           child: Text(
                             msg.message,
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.w600,
                               color:
                                   isMe
@@ -407,7 +408,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                       ],
                     ),
                   ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6.h),
               ],
 
               if (!msg.hasAttachment)
@@ -418,19 +419,19 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                         isMe
                             ? Colors.white
                             : (isDark ? Colors.white : Colors.black),
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     fontWeight: isMe ? FontWeight.w600 : FontWeight.w400,
                   ),
                 ),
 
-              const SizedBox(height: 4),
+              SizedBox(height: 4.h),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     DateFormat('HH:mm').format(msg.createdAt.toIST()),
                     style: TextStyle(
-                      fontSize: 8,
+                      fontSize: 8.sp,
                       color: (isMe
                               ? Colors.white
                               : (isDark ? Colors.white : Colors.black))
@@ -439,7 +440,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                   ),
                   if (msg.id.startsWith('temp'))
                     Padding(
-                      padding: const EdgeInsets.only(left: 4),
+                      padding: EdgeInsets.only(left: 4.w),
                       child: Icon(
                         Icons.access_time_rounded,
                         size: 8,
@@ -504,13 +505,13 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
 
   Widget _buildInputArea(String firmId) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
       decoration: BoxDecoration(
         color:
             Theme.of(context).brightness == Brightness.dark
                 ? Colors.black.withOpacity(0.2)
                 : Colors.black.withOpacity(0.02),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16.r)),
       ),
       child: Row(
         children: [
@@ -525,7 +526,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
           Expanded(
             child: TextField(
               controller: _noticeController,
-              style: const TextStyle(fontSize: 14),
+              style: const TextStyle(fontSize: 14.sp),
               decoration: InputDecoration(
                 hintText:
                     _isUploading ? 'Uploading...' : 'Broadcast to firm...',
@@ -537,9 +538,9 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
           IconButton(
             icon:
                 _isUploading
-                    ? const SizedBox(
-                      width: 18,
-                      height: 18,
+                    ? SizedBox(
+                      width: 18.w,
+                      height: 18.h,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         color: AppTheme.accent,

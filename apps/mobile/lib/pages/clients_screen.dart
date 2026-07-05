@@ -8,6 +8,7 @@ import '../components/dialogs/add_client_dialog.dart';
 import '../components/dialogs/client_detail_sheet.dart';
 import '../theme/app_theme.dart';
 import '../models/models.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ClientsScreen extends ConsumerStatefulWidget {
   const ClientsScreen({super.key});
@@ -47,9 +48,9 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildCustomHeader(isMobile, isDark),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             _buildSearch(isDark),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Expanded(
               child: clientsAsync.when(
                 data: (clients) => _buildClientsList(isMobile, isDark, clients),
@@ -60,7 +61,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                 error:
                     (err, stack) => Center(
                       child: Padding(
-                        padding: const EdgeInsets.all(24.0),
+                        padding: EdgeInsets.all(24.0.r),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -69,15 +70,15 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                               color: Colors.red,
                               size: 48,
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16.h),
                             Text(
                               'Connection Error',
                               style: GoogleFonts.outfit(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                                fontSize: 18.sp,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8.h),
                             Text(
                               '$err',
                               textAlign: TextAlign.center,
@@ -85,7 +86,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                                 color: const Color(0xFF64748B),
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16.h),
                             ElevatedButton(
                               onPressed: () => ref.invalidate(clientsProvider),
                               child: const Text('Retry Connection'),
@@ -124,12 +125,12 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: EdgeInsets.all(10.r),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
                       ),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: const Icon(
                       Icons.people_alt_rounded,
@@ -137,26 +138,26 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                       size: 20,
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: 14.w),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Client Directory',
                         style: GoogleFonts.outfit(
-                          fontSize: 24,
+                          fontSize: 24.sp,
                           fontWeight: FontWeight.w800,
                           color:
                               isDark ? Colors.white : const Color(0xFF0F172A),
                           letterSpacing: -0.5,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2.h),
                       Text(
                         'Manage your professional relationships',
                         style: GoogleFonts.inter(
                           color: const Color(0xFF94A3B8),
-                          fontSize: 12,
+                          fontSize: 12.sp,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -174,7 +175,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                 'Add Client',
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w700,
-                  fontSize: 13,
+                  fontSize: 13.sp,
                 ),
               ),
               style: ElevatedButton.styleFrom(
@@ -185,7 +186,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                   vertical: 14,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
               ),
             ),
@@ -196,12 +197,12 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
 
   Widget _buildSearch(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Container(
-        height: 50,
+        height: 50.h,
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E2030) : Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           border: Border.all(
             color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0),
           ),
@@ -217,13 +218,13 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
           onChanged: (v) => setState(() => _searchQuery = v),
           style: GoogleFonts.inter(
             color: isDark ? Colors.white : const Color(0xFF0F172A),
-            fontSize: 14,
+            fontSize: 14.sp,
           ),
           decoration: InputDecoration(
             hintText: 'Search clients by name, phone, or email...',
             hintStyle: GoogleFonts.inter(
               color: const Color(0xFFCBD5E1),
-              fontSize: 13,
+              fontSize: 13.sp,
             ),
             prefixIcon: const Icon(
               Icons.search_rounded,
@@ -231,7 +232,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
               color: Color(0xFF94A3B8),
             ),
             border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(vertical: 14),
+            contentPadding: EdgeInsets.symmetric(vertical: 14.h),
           ),
         ),
       ),
@@ -261,22 +262,22 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
               size: 48,
               color: Color(0xFFCBD5E1),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Text(
               _searchQuery.isEmpty ? 'No clients yet' : 'No clients found',
               style: GoogleFonts.outfit(
-                fontSize: 18,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFF64748B),
               ),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6.h),
             Text(
               _searchQuery.isEmpty
                   ? 'Add your first client to get started'
                   : 'Try a different search term',
               style: GoogleFonts.inter(
-                fontSize: 13,
+                fontSize: 13.sp,
                 color: const Color(0xFF94A3B8),
               ),
             ),
@@ -292,7 +293,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
       children: [
         // Stats Row
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Row(
             children: [
               _buildQuickStat(
@@ -300,9 +301,9 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                 filtered.length,
                 const Color(0xFF6366F1),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               _buildQuickStat('Active', activeCount, const Color(0xFF10B981)),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               _buildQuickStat(
                 'Inactive',
                 filtered.length - activeCount,
@@ -311,11 +312,11 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         // Client Cards List
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 0.h),
             itemCount: filtered.length,
             itemBuilder: (context, index) {
               final c = filtered[index];
@@ -330,10 +331,10 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
   Widget _buildQuickStat(String label, int value, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: EdgeInsets.symmetric(vertical: 10.h),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
           border: Border.all(color: color.withValues(alpha: 0.12)),
         ),
         child: Column(
@@ -341,7 +342,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
             Text(
               '$value',
               style: GoogleFonts.outfit(
-                fontSize: 18,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
                 color: color,
               ),
@@ -349,7 +350,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
             Text(
               label.toUpperCase(),
               style: GoogleFonts.inter(
-                fontSize: 8,
+                fontSize: 8.sp,
                 fontWeight: FontWeight.w800,
                 color: color.withValues(alpha: 0.7),
                 letterSpacing: 1,
@@ -365,15 +366,15 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     final color = _avatarColor(c.name);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: 10.h),
       child: InkWell(
         onTap: () => ClientDetailSheet.show(context, c),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16.r),
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1E2030) : Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0),
             ),
@@ -389,15 +390,15 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
             children: [
               // Gradient Avatar
               Container(
-                width: 48,
-                height: 48,
+                width: 48.w,
+                height: 48.h,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [color, color.withValues(alpha: 0.6)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                   boxShadow: [
                     BoxShadow(
                       color: color.withValues(alpha: 0.25),
@@ -412,12 +413,12 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
-                      fontSize: 18,
+                      fontSize: 18.sp,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14.w),
               // Client Info
               Expanded(
                 child: Column(
@@ -434,7 +435,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                                   isDark
                                       ? Colors.white
                                       : const Color(0xFF0F172A),
-                              fontSize: 15,
+                              fontSize: 15.sp,
                               letterSpacing: -0.3,
                             ),
                             maxLines: 1,
@@ -443,9 +444,9 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                         ),
                         // Status dot
                         Container(
-                          width: 7,
-                          height: 7,
-                          margin: const EdgeInsets.only(left: 6),
+                          width: 7.w,
+                          height: 7.h,
+                          margin: EdgeInsets.only(left: 6.w),
                           decoration: BoxDecoration(
                             color:
                                 c.hasActiveCases
@@ -456,7 +457,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                     Row(
                       children: [
                         if (c.phone != null && c.phone!.isNotEmpty)
@@ -465,7 +466,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                               c.phone!,
                               style: GoogleFonts.inter(
                                 color: const Color(0xFF64748B),
-                                fontSize: 12,
+                                fontSize: 12.sp,
                                 fontWeight: FontWeight.w500,
                               ),
                               maxLines: 1,
@@ -478,7 +479,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                               c.email!,
                               style: GoogleFonts.inter(
                                 color: const Color(0xFF64748B),
-                                fontSize: 12,
+                                fontSize: 12.sp,
                                 fontWeight: FontWeight.w500,
                               ),
                               maxLines: 1,
@@ -491,7 +492,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                               'No contact info',
                               style: GoogleFonts.inter(
                                 color: const Color(0xFFCBD5E1),
-                                fontSize: 12,
+                                fontSize: 12.sp,
                                 fontStyle: FontStyle.italic,
                               ),
                             ),
@@ -507,12 +508,12 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                               color: const Color(
                                 0xFF6366F1,
                               ).withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: Text(
                               "${c.caseCount} ${c.caseCount == 1 ? 'Case' : 'Cases'}",
                               style: GoogleFonts.inter(
-                                fontSize: 10,
+                                fontSize: 10.sp,
                                 fontWeight: FontWeight.w700,
                                 color: const Color(0xFF6366F1),
                               ),
@@ -520,11 +521,11 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                           ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                     Text(
                       "Since ${DateFormat('MMM yyyy').format(c.createdAt)}",
                       style: GoogleFonts.inter(
-                        fontSize: 10,
+                        fontSize: 10.sp,
                         color: const Color(0xFFCBD5E1),
                         fontWeight: FontWeight.w600,
                       ),
@@ -532,7 +533,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               // Actions
               Column(
                 children: [
@@ -543,7 +544,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                       ClientDetailSheet.show(context, c);
                     },
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6.h),
                   _buildActionIcon(
                     Icons.delete_outline_rounded,
                     Colors.redAccent.withValues(alpha: 0.5),
@@ -561,12 +562,12 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
   Widget _buildActionIcon(IconData icon, Color color, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(10.r),
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: EdgeInsets.all(8.r),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
         ),
         child: Icon(icon, color: color, size: 16),
       ),
@@ -583,15 +584,15 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
       builder:
           (context) => AlertDialog(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20.r),
             ),
             title: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(8.r),
                   decoration: BoxDecoration(
                     color: Colors.red.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: const Icon(
                     Icons.warning_rounded,
@@ -599,7 +600,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                     size: 20,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 const Text('Delete Client?'),
               ],
             ),
@@ -607,7 +608,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
               'This will permanently remove ${client.name} and unlink all associated cases.',
               style: GoogleFonts.inter(
                 color: const Color(0xFF64748B),
-                fontSize: 14,
+                fontSize: 14.sp,
               ),
             ),
             actions: [
@@ -624,7 +625,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                 ),
                 child: Text(

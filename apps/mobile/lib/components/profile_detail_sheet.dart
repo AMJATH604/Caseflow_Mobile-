@@ -10,6 +10,7 @@ import '../services/providers.dart';
 import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
 import 'profile_avatar.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Premium profile detail bottom sheet — Silicon-level design.
 ///
@@ -73,7 +74,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
       builder: (context, scrollController) => Container(
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF0F172A) : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32.r)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.15),
@@ -95,18 +96,18 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                     child: Column(
                       children: [
                         // ─── Drag Handle ──────────────────
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         Container(
-                          width: 40,
-                          height: 4,
+                          width: 40.w,
+                          height: 4.h,
                           decoration: BoxDecoration(
                             color: isDark
                                 ? Colors.white24
                                 : const Color(0xFFE2E8F0),
-                            borderRadius: BorderRadius.circular(2),
+                            borderRadius: BorderRadius.circular(2.r),
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8.h),
 
                         // ─── Hero Header ──────────────────
                         _buildHeroHeader(context, profile, isDark),
@@ -156,11 +157,11 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                                 profile.practiceDistrict == null &&
                                 profile.officeAddress == null)
                               Padding(
-                                padding: const EdgeInsets.all(16),
+                                padding: EdgeInsets.all(16.r),
                                 child: Text(
                                   'No professional details added yet',
                                   style: GoogleFonts.inter(
-                                    fontSize: 13,
+                                    fontSize: 13.sp,
                                     color: isDark
                                         ? Colors.white38
                                         : const Color(0xFF94A3B8),
@@ -205,7 +206,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                         // ─── Actions ──────────────────────
                         _buildActionsSection(context, isDark),
 
-                        const SizedBox(height: 40),
+                        SizedBox(height: 40.h),
                       ],
                     ),
                   ),
@@ -224,7 +225,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
   ) {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24.r),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
@@ -236,7 +237,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(28.r),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF312E81).withValues(alpha: 0.3),
@@ -252,7 +253,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
             alignment: Alignment.bottomRight,
             children: [
               Container(
-                padding: const EdgeInsets.all(4),
+                padding: EdgeInsets.all(4.r),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: const LinearGradient(
@@ -279,13 +280,13 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
               GestureDetector(
                 onTap: () => _showPhotoPicker(context, profile),
                 child: Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(8.r),
                   decoration: BoxDecoration(
                     color: AppTheme.accent,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: const Color(0xFF0F172A),
-                      width: 3,
+                      width: 3.w,
                     ),
                     boxShadow: [
                       BoxShadow(
@@ -296,9 +297,9 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                     ],
                   ),
                   child: _isUploadingPhoto
-                      ? const SizedBox(
-                          width: 14,
-                          height: 14,
+                      ? SizedBox(
+                          width: 14.w,
+                          height: 14.h,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             color: Colors.white,
@@ -313,33 +314,33 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
 
           // Name
           Text(
             profile.fullName ?? 'Advocate',
             style: GoogleFonts.outfit(
-              fontSize: 24,
+              fontSize: 24.sp,
               fontWeight: FontWeight.w700,
               color: Colors.white,
               letterSpacing: -0.3,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6.h),
 
           // Email
           if (profile.email != null)
             Text(
               profile.email!,
               style: GoogleFonts.inter(
-                fontSize: 13,
+                fontSize: 13.sp,
                 color: Colors.white.withValues(alpha: 0.6),
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
             ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
 
           // Role + Status badges
           Row(
@@ -354,7 +355,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                     ? [const Color(0xFF6366F1), const Color(0xFF818CF8)]
                     : [const Color(0xFF10B981), const Color(0xFF34D399)],
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               _buildBadge(
                 icon: Icons.circle,
                 iconSize: 6,
@@ -362,7 +363,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                 colors: [const Color(0xFF10B981), const Color(0xFF34D399)],
               ),
               if (profile.firmId != null) ...[
-                const SizedBox(width: 10),
+                SizedBox(width: 10.w),
                 _buildBadge(
                   icon: Icons.business_center_rounded,
                   label: 'FIRM MEMBER',
@@ -383,21 +384,21 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
     double iconSize = 12,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: colors[0].withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: colors[0].withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: colors[0], size: iconSize),
-          const SizedBox(width: 6),
+          SizedBox(width: 6.w),
           Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 9,
+              fontSize: 9.sp,
               fontWeight: FontWeight.w800,
               color: colors[0],
               letterSpacing: 0.8,
@@ -422,7 +423,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
       margin: const EdgeInsets.fromLTRB(20, 12, 20, 0),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
           color: isDark
               ? const Color(0xFF334155)
@@ -445,18 +446,18 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(8.r),
                   decoration: BoxDecoration(
                     color: iconColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: Icon(icon, color: iconColor, size: 16),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 Text(
                   title.toUpperCase(),
                   style: GoogleFonts.inter(
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     fontWeight: FontWeight.w800,
                     color: isDark
                         ? const Color(0xFF94A3B8)
@@ -467,9 +468,9 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
               ],
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4.h),
           ...children,
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
         ],
       ),
     );
@@ -484,19 +485,19 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
     bool copyable = false,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
       child: Row(
         children: [
           Container(
-            width: 36,
-            height: 36,
+            width: 36.w,
+            height: 36.h,
             decoration: BoxDecoration(
               color: accentColor.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(10.r),
             ),
             child: Icon(icon, color: accentColor, size: 16),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -504,7 +505,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                 Text(
                   label,
                   style: GoogleFonts.inter(
-                    fontSize: 10,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.w700,
                     color: isDark
                         ? const Color(0xFF64748B)
@@ -512,11 +513,11 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                     letterSpacing: 0.5,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2.h),
                 Text(
                   value,
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : const Color(0xFF1E293B),
                   ),
@@ -534,19 +535,19 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                     duration: const Duration(seconds: 1),
                     behavior: SnackBarBehavior.floating,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10.r),
                     ),
                     backgroundColor: const Color(0xFF334155),
                   ),
                 );
               },
               child: Container(
-                padding: const EdgeInsets.all(6),
+                padding: EdgeInsets.all(6.r),
                 decoration: BoxDecoration(
                   color: isDark
                       ? const Color(0xFF334155)
                       : const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Icon(
                   Icons.copy_rounded,
@@ -599,7 +600,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
 
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -609,20 +610,20 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: tierColor.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12.r),
             decoration: BoxDecoration(
               color: tierColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
             ),
             child: Icon(tierIcon, color: tierColor, size: 22),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -630,17 +631,17 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                 Text(
                   '$tier PLAN',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w900,
                     color: tierColor,
                     letterSpacing: 1.5,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2.h),
                 Text(
                   statusText,
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: isDark
                         ? const Color(0xFF94A3B8)
                         : const Color(0xFF64748B),
@@ -659,7 +660,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                 gradient: const LinearGradient(
                   colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
                 ),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
                 boxShadow: [
                   BoxShadow(
                     color: const Color(0xFF6366F1).withValues(alpha: 0.3),
@@ -671,7 +672,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
               child: Text(
                 'Upgrade',
                 style: GoogleFonts.inter(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                 ),
@@ -699,7 +700,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
               GoRouter.of(context).go('/settings');
             },
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           _buildActionButton(
             isDark,
             icon: Icons.logout_rounded,
@@ -726,29 +727,29 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
           decoration: BoxDecoration(
             color: color.withValues(alpha: isDark ? 0.1 : 0.06),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
             border: Border.all(color: color.withValues(alpha: 0.15)),
           ),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Icon(icon, color: color, size: 18),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14.w),
               Text(
                 label,
                 style: GoogleFonts.inter(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
                   color: color,
                 ),
@@ -774,32 +775,32 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.r),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E293B) : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24.r)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 40,
-              height: 4,
+              width: 40.w,
+              height: 4.h,
               decoration: BoxDecoration(
                 color: isDark ? Colors.white24 : Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(2.r),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Text(
               'Update Profile Photo',
               style: GoogleFonts.outfit(
-                fontSize: 18,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
                 color: isDark ? Colors.white : const Color(0xFF0F172A),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             Row(
               children: [
                 Expanded(
@@ -814,7 +815,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                     },
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 Expanded(
                   child: _buildPhotoOption(
                     isDark: isDark,
@@ -829,7 +830,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
           ],
         ),
       ),
@@ -845,22 +846,22 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(14.r),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.symmetric(vertical: 16.h),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           border: Border.all(color: color.withValues(alpha: 0.15)),
         ),
         child: Column(
           children: [
             Icon(icon, color: color, size: 28),
-            const SizedBox(height: 6),
+            SizedBox(height: 6.h),
             Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),
@@ -899,15 +900,15 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
               children: [
                 const Icon(Icons.check_circle_rounded,
                     color: Colors.white, size: 18),
-                const SizedBox(width: 10),
+                SizedBox(width: 10.w),
                 Text('Photo updated!',
-                    style: GoogleFonts.inter(fontSize: 13)),
+                    style: GoogleFonts.inter(fontSize: 13.sp)),
               ],
             ),
             backgroundColor: const Color(0xFF059669),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
           ),
         );

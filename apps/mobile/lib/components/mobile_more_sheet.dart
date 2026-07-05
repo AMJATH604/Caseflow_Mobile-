@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
 import 'dialogs/reset_workspace_dialog.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MobileMoreSheet extends ConsumerWidget {
   const MobileMoreSheet({super.key});
@@ -14,25 +15,25 @@ class MobileMoreSheet extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
+          topLeft: Radius.circular(24.r),
+          topRight: Radius.circular(24.r),
         ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Container(
-            width: 40,
-            height: 4,
+            width: 40.w,
+            height: 4.h,
             decoration: BoxDecoration(
               color: const Color(0xFFE2E8F0),
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(2.r),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -40,7 +41,7 @@ class MobileMoreSheet extends ConsumerWidget {
                   'More Hub',
                   style: Theme.of(
                     context,
-                  ).textTheme.displayLarge?.copyWith(fontSize: 22),
+                  ).textTheme.displayLarge?.copyWith(fontSize: 22.sp),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
@@ -49,11 +50,11 @@ class MobileMoreSheet extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           GridView.count(
             shrinkWrap: true,
             crossAxisCount: 3,
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
             children: [
@@ -143,7 +144,7 @@ class MobileMoreSheet extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           const Divider(),
           // Sign Out
           ListTile(
@@ -172,7 +173,7 @@ class MobileMoreSheet extends ConsumerWidget {
             ),
             subtitle: const Text(
               'Delete all cases and data',
-              style: TextStyle(fontSize: 10),
+              style: TextStyle(fontSize: 10.sp),
             ),
             onTap: () {
               Navigator.pop(context);
@@ -182,7 +183,7 @@ class MobileMoreSheet extends ConsumerWidget {
               );
             },
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: 40.h),
         ],
       ),
     );
@@ -204,11 +205,11 @@ class MobileMoreSheet extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: 56.w,
+            height: 56.h,
             decoration: BoxDecoration(
               color: color,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               boxShadow: [
                 BoxShadow(
                   color: color.withValues(alpha: 0.3),
@@ -219,12 +220,12 @@ class MobileMoreSheet extends ConsumerWidget {
             ),
             child: Icon(icon, color: const Color(0xFF1E293B), size: 24),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             label,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               color: Color(0xFF1E293B),
             ),

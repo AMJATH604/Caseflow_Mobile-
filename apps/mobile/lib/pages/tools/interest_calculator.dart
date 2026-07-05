@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class InterestCalculator extends StatefulWidget {
   const InterestCalculator({super.key});
@@ -156,7 +157,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -172,33 +173,33 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                 controller: _principalController,
                 keyboardType: TextInputType.number,
                 style: GoogleFonts.inter(
-                  fontSize: 18,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.w700,
                 ),
                 decoration: InputDecoration(
                   labelText: 'Principal Amount (₹)',
                   prefixText: '₹ ',
                   prefixStyle: GoogleFonts.inter(
-                    fontSize: 18,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
                     color: AppTheme.accent,
                   ),
                   border: const OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
 
               // Rate Chips
               Text(
                 'INTEREST RATE (% P.A.)',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w700,
                   color: Colors.grey[500],
                   letterSpacing: 0.5,
                 ),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10.h),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -210,7 +211,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                           setState(() => _rate = rp['value']);
                           _calculate();
                         },
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10.r),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           padding: const EdgeInsets.symmetric(
@@ -226,7 +227,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                                     : (isDark
                                         ? Colors.white.withValues(alpha: 0.04)
                                         : Colors.grey[50]),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(10.r),
                             border: Border.all(
                               color:
                                   isSelected
@@ -244,7 +245,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                               Text(
                                 rp['label'],
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 14.sp,
                                   fontWeight: FontWeight.w800,
                                   color:
                                       isSelected
@@ -257,7 +258,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                               Text(
                                 rp['desc'],
                                 style: TextStyle(
-                                  fontSize: 9,
+                                  fontSize: 9.sp,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.grey[500],
                                 ),
@@ -270,7 +271,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
               ),
 
               if (_rate == 'custom') ...[
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 TextField(
                   controller: _customRateController,
                   keyboardType: TextInputType.number,
@@ -281,27 +282,27 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                 ),
               ],
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
 
               // Interest Phase Toggle (NEW)
               Text(
                 'INTEREST PHASE',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w700,
                   color: Colors.grey[500],
                   letterSpacing: 0.5,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               Container(
-                padding: const EdgeInsets.all(4),
+                padding: EdgeInsets.all(4.r),
                 decoration: BoxDecoration(
                   color:
                       isDark
                           ? Colors.white.withValues(alpha: 0.05)
                           : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Row(
                   children: [
@@ -312,7 +313,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
 
               // Date Range
               Row(
@@ -328,7 +329,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                       }),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12.w),
                   Expanded(
                     child: _buildDatePicker(
                       'To Date',
@@ -343,17 +344,17 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                 ],
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
 
               // Interest Type Toggle
               Container(
-                padding: const EdgeInsets.all(4),
+                padding: EdgeInsets.all(4.r),
                 decoration: BoxDecoration(
                   color:
                       isDark
                           ? Colors.white.withValues(alpha: 0.05)
                           : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Row(
                   children: [
@@ -367,7 +368,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
 
           // ─── Result Card ──
           if (_result != null) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             _buildCard(
               isDark,
               icon: Icons.pie_chart_rounded,
@@ -381,7 +382,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                   );
                 },
                 icon: const Icon(Icons.copy_rounded, size: 14),
-                label: const Text('Copy', style: TextStyle(fontSize: 12)),
+                label: const Text('Copy', style: TextStyle(fontSize: 12.sp)),
               ),
               children: [
                 // Stats Row
@@ -397,7 +398,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                         AppTheme.primary.withValues(alpha: 0.04),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -407,13 +408,13 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                         _result!['days'].toString(),
                         Colors.blue,
                       ),
-                      Container(width: 1, height: 40, color: Colors.grey[300]),
+                      Container(width: 1.w, height: 40.h, color: Colors.grey[300]),
                       _buildStatItem(
                         'Interest',
                         formatCurrency.format(_result!['interest']),
                         Colors.orange,
                       ),
-                      Container(width: 1, height: 40, color: Colors.grey[300]),
+                      Container(width: 1.w, height: 40.h, color: Colors.grey[300]),
                       _buildStatItem(
                         'Total',
                         formatCurrency.format(_result!['total']),
@@ -423,28 +424,28 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
 
                 // Plaint Text
                 Container(
-                  padding: const EdgeInsets.all(4),
+                  padding: EdgeInsets.all(4.r),
                   decoration: BoxDecoration(
                     color: AppTheme.accent.withValues(alpha: 0.06),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Row(
                     children: [
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8.w),
                       const Icon(
                         Icons.label_important_rounded,
                         size: 14,
                         color: AppTheme.accent,
                       ),
-                      const SizedBox(width: 6),
+                      SizedBox(width: 6.w),
                       Text(
                         _result!['phaseLabel'],
                         style: const TextStyle(
-                          fontSize: 11,
+                          fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
                           color: AppTheme.accent,
                         ),
@@ -452,16 +453,16 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10.h),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16.r),
                   decoration: BoxDecoration(
                     color:
                         isDark
                             ? const Color(0xFF0F172A)
                             : const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                     border: Border.all(
                       color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
                     ),
@@ -469,9 +470,9 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                   child: Text(
                     _result!['text'],
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 13.sp,
                       fontStyle: FontStyle.italic,
-                      height: 1.6,
+                      height: 1.6.h,
                       color: isDark ? Colors.grey[300] : Colors.grey[700],
                     ),
                   ),
@@ -479,7 +480,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
               ],
             ),
           ],
-          const SizedBox(height: 100),
+          SizedBox(height: 100.h),
         ],
       ),
     );
@@ -495,10 +496,10 @@ class _InterestCalculatorState extends State<InterestCalculator> {
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: EdgeInsets.symmetric(vertical: 8.h),
           decoration: BoxDecoration(
             color: isActive ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(8.r),
             boxShadow:
                 isActive
                     ? [
@@ -514,7 +515,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 11.sp,
               fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
               color: isActive ? AppTheme.accent : Colors.grey[500],
             ),
@@ -534,10 +535,10 @@ class _InterestCalculatorState extends State<InterestCalculator> {
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: EdgeInsets.symmetric(vertical: 10.h),
           decoration: BoxDecoration(
             color: isSelected ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(8.r),
             boxShadow:
                 isSelected
                     ? [
@@ -553,7 +554,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               color: isSelected ? AppTheme.primary : Colors.grey[500],
             ),
@@ -575,13 +576,13 @@ class _InterestCalculatorState extends State<InterestCalculator> {
         Text(
           label,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 11.sp,
             fontWeight: FontWeight.w700,
             color: Colors.grey[500],
             letterSpacing: 0.5,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         InkWell(
           onTap: () async {
             final picked = await showDatePicker(
@@ -592,14 +593,14 @@ class _InterestCalculatorState extends State<InterestCalculator> {
             );
             onChanged(picked);
           },
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
             decoration: BoxDecoration(
               border: Border.all(
                 color: isDark ? Colors.white12 : Colors.grey[300]!,
               ),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(10.r),
             ),
             child: Row(
               children: [
@@ -608,13 +609,13 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                   size: 16,
                   color: AppTheme.accent,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
                 Text(
                   value == null
                       ? 'Select'
                       : DateFormat('dd MMM yyyy').format(value),
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     fontWeight:
                         value != null ? FontWeight.w600 : FontWeight.w400,
                     color: value != null ? null : Colors.grey[400],
@@ -634,17 +635,17 @@ class _InterestCalculatorState extends State<InterestCalculator> {
         Text(
           label.toUpperCase(),
           style: TextStyle(
-            fontSize: 9,
+            fontSize: 9.sp,
             fontWeight: FontWeight.w700,
             color: Colors.grey[500],
             letterSpacing: 0.5,
           ),
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: 6.h),
         Text(
           value,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 16.sp,
             fontWeight: FontWeight.w900,
             color: color,
           ),
@@ -662,7 +663,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
     required List<Widget> children,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       decoration: AppTheme.cardDecoration(isDark: isDark),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -670,14 +671,14 @@ class _InterestCalculatorState extends State<InterestCalculator> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Icon(icon, color: iconColor, size: 18),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Expanded(
                 child: Text(
                   title,
@@ -689,7 +690,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
               if (trailing != null) trailing,
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           ...children,
         ],
       ),

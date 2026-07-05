@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CourtFeeCalculator extends StatefulWidget {
   const CourtFeeCalculator({super.key});
@@ -257,13 +258,13 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
         content: const Row(
           children: [
             Icon(Icons.check_circle, color: Colors.white, size: 18),
-            SizedBox(width: 8),
+            SizedBox(width: 8.w),
             Text('Court fee memo copied to clipboard!'),
           ],
         ),
         backgroundColor: Colors.green[700],
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
       ),
     );
   }
@@ -277,7 +278,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -290,9 +291,9 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
             children: [
               Text(
                 'Select the type of case to calculate court fee as per TN Court Fees & Suits Valuation Act',
-                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
               ),
-              const Divider(height: 20),
+              const Divider(height: 20.h),
 
               // Category selector chips
               Wrap(
@@ -306,7 +307,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                           setState(() => _category = cat['id']);
                           _calculateFee();
                         },
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10.r),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           padding: const EdgeInsets.symmetric(
@@ -320,7 +321,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                                     : (isDark
                                         ? Colors.white.withValues(alpha: 0.04)
                                         : Colors.grey[50]),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(10.r),
                             border: Border.all(
                               color:
                                   isSelected
@@ -342,11 +343,11 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                                         ? AppTheme.accent
                                         : Colors.grey[400],
                               ),
-                              const SizedBox(width: 6),
+                              SizedBox(width: 6.w),
                               Text(
                                 cat['label'],
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                   fontWeight:
                                       isSelected
                                           ? FontWeight.w700
@@ -360,7 +361,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                                 ),
                               ),
                               if (isSelected) ...[
-                                const SizedBox(width: 4),
+                                SizedBox(width: 4.w),
                                 const Icon(
                                   Icons.check_circle_rounded,
                                   size: 14,
@@ -376,7 +377,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
 
               // ─── Sub-options ──
               if (_category == 'partition') ...[
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 _buildSegmentedToggle(
                   label: 'Possession Status (§37)',
                   options: {
@@ -390,7 +391,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                   },
                 ),
                 if (_partitionType == 'joint_possession') ...[
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12.h),
                   _buildSegmentedToggle(
                     label: 'Court Type',
                     options: {
@@ -407,7 +408,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
               ],
 
               if (_category == 'appeal') ...[
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 _buildSegmentedToggle(
                   label: 'Appeal Type',
                   options: {
@@ -421,7 +422,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                   },
                 ),
                 if (_appealType == 'order') ...[
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12.h),
                   _buildSegmentedToggle(
                     label: 'Court',
                     options: {
@@ -439,12 +440,12 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
 
               // ─── Amount Input ──
               if (_needsAmountInput) ...[
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 TextField(
                   controller: _amountController,
                   keyboardType: TextInputType.number,
                   style: GoogleFonts.inter(
-                    fontSize: 18,
+                    fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
                   ),
                   decoration: InputDecoration(
@@ -454,7 +455,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                             : 'Subject Matter Value / Claim Amount (₹)',
                     prefixText: '₹ ',
                     prefixStyle: GoogleFonts.inter(
-                      fontSize: 18,
+                      fontSize: 18.sp,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.accent,
                     ),
@@ -465,7 +466,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
             ],
           ),
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
 
           // ─── Result Card ──
           if (_fee2017 != null && (_fee2017! > 0 || !_needsAmountInput))
@@ -477,7 +478,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
               trailing: TextButton.icon(
                 onPressed: _copyMemo,
                 icon: const Icon(Icons.copy_rounded, size: 14),
-                label: const Text('Copy Memo', style: TextStyle(fontSize: 12)),
+                label: const Text('Copy Memo', style: TextStyle(fontSize: 12.sp)),
               ),
               children: [
                 // Fee comparison
@@ -491,7 +492,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                         isDark,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Expanded(
                       child: _buildFeeCard(
                         '1955 Act (Old)',
@@ -505,16 +506,16 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
 
                 // Legal basis
                 if (_legalBasis.isNotEmpty) ...[
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(14),
+                    padding: EdgeInsets.all(14.r),
                     decoration: BoxDecoration(
                       color:
                           isDark
                               ? const Color(0xFF0F172A)
                               : const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10.r),
                       border: Border.all(
                         color:
                             isDark ? Colors.white10 : const Color(0xFFE2E8F0),
@@ -530,11 +531,11 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                               size: 14,
                               color: AppTheme.accent,
                             ),
-                            SizedBox(width: 6),
+                            SizedBox(width: 6.w),
                             Text(
                               'Legal Basis',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 11.sp,
                                 fontWeight: FontWeight.w800,
                                 color: AppTheme.accent,
                                 letterSpacing: 0.5,
@@ -542,18 +543,18 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8.h),
                         Text(
                           _legalBasis,
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 13.sp,
                             fontWeight: FontWeight.w600,
                             color: isDark ? Colors.white : Colors.black87,
-                            height: 1.5,
+                            height: 1.5.h,
                           ),
                         ),
                         for (var note in _notes) ...[
-                          const SizedBox(height: 6),
+                          SizedBox(height: 6.h),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -562,12 +563,12 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                                 size: 14,
                                 color: Colors.orange[400],
                               ),
-                              const SizedBox(width: 6),
+                              SizedBox(width: 6.w),
                               Expanded(
                                 child: Text(
                                   note,
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 12.sp,
                                     color: Colors.orange[700],
                                     fontStyle: FontStyle.italic,
                                   ),
@@ -583,7 +584,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
               ],
             ),
 
-          const SizedBox(height: 100),
+          SizedBox(height: 100.h),
         ],
       ),
     );
@@ -597,7 +598,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
     bool isDark,
   ) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(18.r),
       decoration: BoxDecoration(
         gradient:
             isPrimary
@@ -614,7 +615,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                 : (isDark
                     ? Colors.white.withValues(alpha: 0.04)
                     : Colors.grey[50]),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
         border: Border.all(
           color:
               isPrimary
@@ -628,17 +629,17 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
           Text(
             label.toUpperCase(),
             style: TextStyle(
-              fontSize: 9,
+              fontSize: 9.sp,
               fontWeight: FontWeight.w800,
               color: isPrimary ? AppTheme.accent : Colors.grey[500],
               letterSpacing: 0.8,
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
           Text(
             value,
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 22.sp,
               fontWeight: FontWeight.w900,
               color:
                   isPrimary
@@ -664,21 +665,21 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
         Text(
           label,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 11.sp,
             fontWeight: FontWeight.w700,
             color: Colors.grey[500],
             letterSpacing: 0.5,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         Container(
-          padding: const EdgeInsets.all(4),
+          padding: EdgeInsets.all(4.r),
           decoration: BoxDecoration(
             color:
                 Theme.of(context).brightness == Brightness.dark
                     ? Colors.white.withValues(alpha: 0.05)
                     : Colors.grey[100],
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10.r),
           ),
           child: Row(
             children:
@@ -689,10 +690,10 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                       onTap: () => onChanged(e.key),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        padding: EdgeInsets.symmetric(vertical: 10.h),
                         decoration: BoxDecoration(
                           color: isActive ? Colors.white : Colors.transparent,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(8.r),
                           boxShadow:
                               isActive
                                   ? [
@@ -710,7 +711,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                           e.value,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 11.sp,
                             fontWeight:
                                 isActive ? FontWeight.w700 : FontWeight.w500,
                             color:
@@ -737,7 +738,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
     required List<Widget> children,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       decoration: AppTheme.cardDecoration(isDark: isDark),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -745,14 +746,14 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Icon(icon, color: iconColor, size: 18),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10.w),
               Expanded(
                 child: Text(
                   title,
@@ -764,7 +765,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
               if (trailing != null) trailing,
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           ...children,
         ],
       ),

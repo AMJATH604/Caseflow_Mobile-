@@ -7,6 +7,7 @@ import '../services/providers.dart';
 
 import '../theme/app_theme.dart';
 import 'dialogs/caveat_form_sheet.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CaveatsScreen extends ConsumerStatefulWidget {
   const CaveatsScreen({super.key});
@@ -52,7 +53,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
         child: Column(
           children: [
             _buildHeader(isDark, asyncCaveats),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             TabBar(
               controller: _tabController,
               isScrollable: true,
@@ -62,13 +63,13 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
               labelColor: AppTheme.accent,
               unselectedLabelColor: isDark ? Colors.white38 : Colors.black38,
               labelStyle: GoogleFonts.inter(
-                fontSize: 13,
+                fontSize: 13.sp,
                 fontWeight: FontWeight.w600,
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: EdgeInsets.symmetric(horizontal: 8.w),
               tabs: _filters.map((f) => Tab(text: f)).toList(),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Expanded(
               child: asyncCaveats.when(
                 data: (caveats) {
@@ -85,7 +86,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                       return RefreshIndicator(
                         onRefresh: () async => ref.invalidate(caveatsProvider),
                         child: ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
                           itemCount: filteredList.length,
                           itemBuilder:
                               (context, index) =>
@@ -106,7 +107,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                             color: AppTheme.error,
                             size: 48,
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12.h),
                           const Text('Failed to load caveats.'),
                           TextButton(
                             onPressed: () => ref.invalidate(caveatsProvider),
@@ -133,7 +134,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
   Widget _buildHeader(bool isDark, AsyncValue<List<Caveat>> asyncCaveats) {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
@@ -143,7 +144,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFFF97316).withValues(alpha: 0.3),
@@ -158,10 +159,10 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(10.r),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: const Icon(
                   Icons.gavel_rounded,
@@ -169,7 +170,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,7 +178,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                     Text(
                       'Caveat Tracker',
                       style: GoogleFonts.outfit(
-                        fontSize: 20,
+                        fontSize: 20.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                       ),
@@ -185,7 +186,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                     Text(
                       'Track expirations & prevent ex-parte orders',
                       style: GoogleFonts.inter(
-                        fontSize: 12,
+                        fontSize: 12.sp,
                         color: Colors.white70,
                       ),
                     ),
@@ -194,7 +195,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           asyncCaveats.when(
             data: (list) {
               final active = list.where((c) => !c.isExpired).length;
@@ -207,14 +208,14 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
               return Row(
                 children: [
                   _statBadge('Active', '$active', Colors.white),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8.w),
                   if (expiring > 0)
                     _statBadge(
                       'Exp. Soon',
                       '$expiring',
                       const Color(0xFFFDE047),
                     ), // Yellow
-                  if (expiring > 0) const SizedBox(width: 8),
+                  if (expiring > 0) SizedBox(width: 8.w),
                   _statBadge(
                     'Expired',
                     '$expired',
@@ -223,8 +224,8 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                 ],
               );
             },
-            loading: () => const SizedBox(height: 24),
-            error: (_, __) => const SizedBox(height: 24),
+            loading: () => SizedBox(height: 24.h),
+            error: (_, __) => SizedBox(height: 24.h),
           ),
         ],
       ),
@@ -233,10 +234,10 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
 
   Widget _statBadge(String label, String value, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -244,15 +245,15 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
           Text(
             value,
             style: GoogleFonts.outfit(
-              fontSize: 16,
+              fontSize: 16.sp,
               fontWeight: FontWeight.w700,
               color: color,
             ),
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4.w),
           Text(
             label,
-            style: GoogleFonts.inter(fontSize: 10, color: Colors.white70),
+            style: GoogleFonts.inter(fontSize: 10.sp, color: Colors.white70),
           ),
         ],
       ),
@@ -265,7 +266,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24.r),
             decoration: BoxDecoration(
               color: AppTheme.accent.withValues(alpha: 0.08),
               shape: BoxShape.circle,
@@ -276,20 +277,20 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
               color: AppTheme.accent.withValues(alpha: 0.5),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           Text(
             'No caveats found',
             style: GoogleFonts.outfit(
-              fontSize: 20,
+              fontSize: 20.sp,
               fontWeight: FontWeight.w600,
               color: isDark ? Colors.white70 : Colors.black54,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             'Tap + to file a new caveat',
             style: GoogleFonts.inter(
-              fontSize: 13,
+              fontSize: 13.sp,
               color: isDark ? Colors.white38 : Colors.black38,
             ),
           ),
@@ -325,10 +326,10 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 12.h),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color:
               days <= 7 && !isExpired
@@ -357,9 +358,9 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
         color: Colors.transparent,
         child: InkWell(
           onTap: () => _showCaveatForm(context, caveat: caveat),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16.r),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -371,7 +372,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                         caveat.courtName,
                         style: GoogleFonts.outfit(
                           fontWeight: FontWeight.w600,
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           color:
                               isDark ? Colors.white : const Color(0xFF1E293B),
                         ),
@@ -386,12 +387,12 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                       ),
                       decoration: BoxDecoration(
                         color: badgeColor,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Text(
                         badgeLabel,
                         style: GoogleFonts.inter(
-                          fontSize: 10,
+                          fontSize: 10.sp,
                           fontWeight: FontWeight.w800,
                           color: badgeText,
                           letterSpacing: 0.5,
@@ -400,7 +401,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
                 Row(
                   children: [
                     const Icon(
@@ -408,7 +409,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                       size: 14,
                       color: AppTheme.accent,
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6.w),
                     Expanded(
                       child: RichText(
                         text: TextSpan(
@@ -416,14 +417,14 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                             TextSpan(
                               text: 'Caveator: ',
                               style: GoogleFonts.inter(
-                                fontSize: 12,
+                                fontSize: 12.sp,
                                 color: isDark ? Colors.white54 : Colors.black54,
                               ),
                             ),
                             TextSpan(
                               text: caveat.caveatorName,
                               style: GoogleFonts.inter(
-                                fontSize: 12,
+                                fontSize: 12.sp,
                                 fontWeight: FontWeight.w600,
                                 color: isDark ? Colors.white : Colors.black87,
                               ),
@@ -434,7 +435,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Row(
                   children: [
                     Icon(
@@ -442,7 +443,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                       size: 14,
                       color: AppTheme.error.withValues(alpha: 0.8),
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6.w),
                     Expanded(
                       child: RichText(
                         text: TextSpan(
@@ -450,14 +451,14 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                             TextSpan(
                               text: 'Opponent: ',
                               style: GoogleFonts.inter(
-                                fontSize: 12,
+                                fontSize: 12.sp,
                                 color: isDark ? Colors.white54 : Colors.black54,
                               ),
                             ),
                             TextSpan(
                               text: caveat.opponentName,
                               style: GoogleFonts.inter(
-                                fontSize: 12,
+                                fontSize: 12.sp,
                                 fontWeight: FontWeight.w600,
                                 color: isDark ? Colors.white : Colors.black87,
                               ),
@@ -468,7 +469,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                SizedBox(height: 14.h),
                 Row(
                   children: [
                     _dateChip(
@@ -477,7 +478,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                       isDark,
                       icon: Icons.calendar_today_outlined,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8.w),
                     _dateChip(
                       'Expiry',
                       caveat.expiryDate,
@@ -503,7 +504,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
     required IconData icon,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
       decoration: BoxDecoration(
         color:
             isCritical
@@ -511,7 +512,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                 : (isDark
                     ? Colors.white.withValues(alpha: 0.05)
                     : Colors.black.withValues(alpha: 0.04)),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8.r),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -524,11 +525,11 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                     ? AppTheme.error
                     : (isDark ? Colors.white54 : Colors.black45),
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4.w),
           Text(
             '$label: ${DateFormat('dd MMM').format(date)}',
             style: GoogleFonts.inter(
-              fontSize: 11,
+              fontSize: 11.sp,
               fontWeight: isCritical ? FontWeight.w600 : FontWeight.w500,
               color:
                   isCritical

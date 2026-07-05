@@ -8,6 +8,7 @@ import '../../models/bar_association_models.dart';
 import '../../services/providers.dart';
 import '../../services/repositories/bar_association_repository.dart';
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // ── Premium Color Palette ────────────────────────────────
 class _BarColors {
@@ -93,7 +94,7 @@ class _BarAssociationHomeScreenState
     return SafeArea(
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(40),
+          padding: EdgeInsets.all(40.r),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -105,15 +106,15 @@ class _BarAssociationHomeScreenState
                 builder: (_, scale, child) =>
                     Transform.scale(scale: scale, child: child),
                 child: Container(
-                  width: 120,
-                  height: 120,
+                  width: 120.w,
+                  height: 120.h,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [_BarColors.gradient1, _BarColors.gradient2],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.circular(36),
+                    borderRadius: BorderRadius.circular(36.r),
                     boxShadow: [
                       BoxShadow(
                         color: _BarColors.primary.withValues(alpha: 0.3),
@@ -129,29 +130,29 @@ class _BarAssociationHomeScreenState
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32.h),
               Text(
                 'Join Your Bar Association',
                 style: GoogleFonts.inter(
-                  fontSize: 24,
+                  fontSize: 24.sp,
                   fontWeight: FontWeight.w800,
                   color: _BarColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               Text(
                 'Connect with your local bar to receive\nnotices, pay fees, and participate in elections.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
-                  fontSize: 15,
+                  fontSize: 15.sp,
                   color: _BarColors.textSecondary,
-                  height: 1.6,
+                  height: 1.6.h,
                 ),
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: 40.h),
               SizedBox(
                 width: double.infinity,
-                height: 56,
+                height: 56.h,
                 child: ElevatedButton(
                   onPressed: () => _showJoinSheet(context),
                   style: ElevatedButton.styleFrom(
@@ -159,19 +160,19 @@ class _BarAssociationHomeScreenState
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16.r),
                     ),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(Icons.vpn_key_rounded, size: 20),
-                      const SizedBox(width: 10),
+                      SizedBox(width: 10.w),
                       Text(
                         'Enter Invite Code',
                         style: GoogleFonts.inter(
                           fontWeight: FontWeight.w700,
-                          fontSize: 16,
+                          fontSize: 16.sp,
                         ),
                       ),
                     ],
@@ -236,18 +237,18 @@ class _BarAssociationHomeScreenState
                         Row(
                           children: [
                             Container(
-                              width: 48,
-                              height: 48,
+                              width: 48.w,
+                              height: 48.h,
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(14.r),
                                 border: Border.all(
                                   color: Colors.white.withValues(alpha: 0.3),
                                 ),
                               ),
                               child: assoc.logoUrl != null
                                   ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(14),
+                                      borderRadius: BorderRadius.circular(14.r),
                                       child: Image.network(
                                         assoc.logoUrl!,
                                         fit: BoxFit.cover,
@@ -265,7 +266,7 @@ class _BarAssociationHomeScreenState
                                       size: 24,
                                     ),
                             ),
-                            const SizedBox(width: 14),
+                            SizedBox(width: 14.w),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,18 +274,18 @@ class _BarAssociationHomeScreenState
                                   Text(
                                     assoc.name,
                                     style: GoogleFonts.inter(
-                                      fontSize: 18,
+                                      fontSize: 18.sp,
                                       fontWeight: FontWeight.w800,
                                       color: Colors.white,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: 4),
+                                  SizedBox(height: 4.h),
                                   Text(
                                     '${assoc.court} • ${assoc.district}',
                                     style: GoogleFonts.inter(
-                                      fontSize: 13,
+                                      fontSize: 13.sp,
                                       color: Colors.white.withValues(alpha: 0.85),
                                     ),
                                   ),
@@ -293,7 +294,7 @@ class _BarAssociationHomeScreenState
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                         // Stats Row
                         Row(
                           children: [
@@ -301,7 +302,7 @@ class _BarAssociationHomeScreenState
                               Icons.people_rounded,
                               '${assoc.memberCount ?? 0} Members',
                             ),
-                            const SizedBox(width: 10),
+                            SizedBox(width: 10.w),
                             _buildStatChip(
                               Icons.calendar_today_rounded,
                               'Est. ${assoc.createdAt.year}',
@@ -326,13 +327,13 @@ class _BarAssociationHomeScreenState
 
           // ── Content ──
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16.r),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Multi-association switcher
                 if (allAssociations.length > 1) ...[
                   _buildAssociationSwitcher(allAssociations, assoc),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                 ],
 
                 // Membership + Fee
@@ -350,9 +351,9 @@ class _BarAssociationHomeScreenState
                     return Column(
                       children: [
                         _buildMembershipCard(assoc, member),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         _buildFeeCard(assoc, member),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                       ],
                     );
                   },
@@ -369,7 +370,7 @@ class _BarAssociationHomeScreenState
                     return Column(
                       children: [
                         _buildElectionBanner(election),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16.h),
                       ],
                     );
                   },
@@ -377,7 +378,7 @@ class _BarAssociationHomeScreenState
 
                 // Quick Actions
                 _buildQuickActions(context),
-                const SizedBox(height: 20),
+                SizedBox(height: 20.h),
 
                 // Notices
                 noticesAsync.when(
@@ -388,7 +389,7 @@ class _BarAssociationHomeScreenState
                     return _buildNoticesSection(notices.take(3).toList());
                   },
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
 
                 // Events
                 eventsAsync.when(
@@ -405,7 +406,7 @@ class _BarAssociationHomeScreenState
                     return _buildEventsSection(upcoming);
                   },
                 ),
-                const SizedBox(height: 40),
+                SizedBox(height: 40.h),
               ]),
             ),
           ),
@@ -417,10 +418,10 @@ class _BarAssociationHomeScreenState
   // ── Stat Chip (header) ────────────────────────────────
   Widget _buildStatChip(IconData icon, String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.2),
         ),
@@ -429,11 +430,11 @@ class _BarAssociationHomeScreenState
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: Colors.white, size: 14),
-          const SizedBox(width: 6),
+          SizedBox(width: 6.w),
           Text(
             text,
             style: GoogleFonts.inter(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               color: Colors.white,
             ),
@@ -446,11 +447,11 @@ class _BarAssociationHomeScreenState
   // ── Suspended Banner ──────────────────────────────────
   Widget _buildSuspendedBanner() {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
+      margin: EdgeInsets.only(bottom: 16.h),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: _BarColors.danger.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
           color: _BarColors.danger.withValues(alpha: 0.2),
         ),
@@ -458,11 +459,11 @@ class _BarAssociationHomeScreenState
       child: Row(
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 48.w,
+            height: 48.h,
             decoration: BoxDecoration(
               color: _BarColors.danger.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
             ),
             child: const Icon(
               Icons.block_rounded,
@@ -470,7 +471,7 @@ class _BarAssociationHomeScreenState
               size: 24,
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -478,18 +479,18 @@ class _BarAssociationHomeScreenState
                 Text(
                   'Membership Suspended',
                   style: GoogleFonts.inter(
-                    fontSize: 15,
+                    fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
                     color: _BarColors.danger,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Text(
                   'Your membership has been suspended. Please contact your bar association secretary.',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: _BarColors.textSecondary,
-                    height: 1.4,
+                    height: 1.4.h,
                   ),
                 ),
               ],
@@ -506,10 +507,10 @@ class _BarAssociationHomeScreenState
     BarAssociation current,
   ) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
       decoration: BoxDecoration(
         color: _BarColors.card,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: _BarColors.border),
       ),
       child: DropdownButtonHideUnderline(
@@ -525,7 +526,7 @@ class _BarAssociationHomeScreenState
                 a.name,
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w600,
-                  fontSize: 14,
+                  fontSize: 14.sp,
                 ),
               ),
             );
@@ -549,7 +550,7 @@ class _BarAssociationHomeScreenState
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
               color: const Color(0xFF0F172A).withValues(alpha: 0.4),
@@ -558,7 +559,7 @@ class _BarAssociationHomeScreenState
             ),
           ],
         ),
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -568,7 +569,7 @@ class _BarAssociationHomeScreenState
                 Text(
                   'MEMBERSHIP CARD',
                   style: GoogleFonts.inter(
-                    fontSize: 10,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.w700,
                     color: Colors.white.withValues(alpha: 0.5),
                     letterSpacing: 2,
@@ -581,7 +582,7 @@ class _BarAssociationHomeScreenState
                   ),
                   decoration: BoxDecoration(
                     color: _BarColors.success.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                     border: Border.all(
                       color: _BarColors.success.withValues(alpha: 0.3),
                     ),
@@ -589,7 +590,7 @@ class _BarAssociationHomeScreenState
                   child: Text(
                     'VALID ${DateTime.now().year}',
                     style: GoogleFonts.inter(
-                      fontSize: 10,
+                      fontSize: 10.sp,
                       fontWeight: FontWeight.w700,
                       color: _BarColors.success,
                     ),
@@ -597,34 +598,34 @@ class _BarAssociationHomeScreenState
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Text(
               member.name,
               style: GoogleFonts.inter(
-                fontSize: 18,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
               ),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6.h),
             Row(
               children: [
                 _buildCardDetail(
                   'Enrollment',
                   member.enrollmentNumber ?? 'N/A',
                 ),
-                const SizedBox(width: 24),
+                SizedBox(width: 24.w),
                 _buildCardDetail('Type', member.membershipTypeLabel),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   assoc.name,
                   style: GoogleFonts.inter(
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     color: Colors.white.withValues(alpha: 0.4),
                   ),
                 ),
@@ -648,17 +649,17 @@ class _BarAssociationHomeScreenState
         Text(
           label.toUpperCase(),
           style: GoogleFonts.inter(
-            fontSize: 9,
+            fontSize: 9.sp,
             fontWeight: FontWeight.w600,
             color: Colors.white.withValues(alpha: 0.4),
             letterSpacing: 1,
           ),
         ),
-        const SizedBox(height: 2),
+        SizedBox(height: 2.h),
         Text(
           value,
           style: GoogleFonts.inter(
-            fontSize: 13,
+            fontSize: 13.sp,
             fontWeight: FontWeight.w600,
             color: Colors.white.withValues(alpha: 0.9),
           ),
@@ -675,20 +676,20 @@ class _BarAssociationHomeScreenState
     return Container(
       decoration: BoxDecoration(
         color: _BarColors.card,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: _BarColors.border),
       ),
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 44.w,
+            height: 44.h,
             decoration: BoxDecoration(
               color: isPaid
                   ? _BarColors.success.withValues(alpha: 0.1)
                   : _BarColors.warning.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(
               isPaid
@@ -698,7 +699,7 @@ class _BarAssociationHomeScreenState
               size: 22,
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -706,7 +707,7 @@ class _BarAssociationHomeScreenState
                 Text(
                   isPaid ? 'Fee Paid ✅' : 'Fee Due',
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
                     color: _BarColors.textPrimary,
                   ),
@@ -716,7 +717,7 @@ class _BarAssociationHomeScreenState
                       ? 'Paid for $currentYear-${currentYear + 1}'
                       : '₹${assoc.annualFee.toStringAsFixed(0)} due for $currentYear-${currentYear + 1}',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: _BarColors.textSecondary,
                   ),
                 ),
@@ -734,14 +735,14 @@ class _BarAssociationHomeScreenState
                   vertical: 8,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
               ),
               child: Text(
                 'Pay Now',
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w600,
-                  fontSize: 13,
+                  fontSize: 13.sp,
                 ),
               ),
             ),
@@ -775,7 +776,7 @@ class _BarAssociationHomeScreenState
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20.r),
               boxShadow: [
                 BoxShadow(
                   color: const Color(0xFF7C3AED).withValues(alpha: 0.4),
@@ -784,15 +785,15 @@ class _BarAssociationHomeScreenState
                 ),
               ],
             ),
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(20.r),
             child: Row(
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 48.w,
+                  height: 48.h,
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
                   child: const Icon(
                     Icons.how_to_vote_rounded,
@@ -800,7 +801,7 @@ class _BarAssociationHomeScreenState
                     size: 24,
                   ),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -808,26 +809,26 @@ class _BarAssociationHomeScreenState
                       Text(
                         'VOTE NOW',
                         style: GoogleFonts.inter(
-                          fontSize: 10,
+                          fontSize: 10.sp,
                           fontWeight: FontWeight.w800,
                           color: Colors.white.withValues(alpha: 0.7),
                           letterSpacing: 2,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4.h),
                       Text(
                         election.title,
                         style: GoogleFonts.inter(
-                          fontSize: 15,
+                          fontSize: 15.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4.h),
                       Text(
                         'Ends ${DateFormat('dd MMM yyyy').format(election.votingEnd)}',
                         style: GoogleFonts.inter(
-                          fontSize: 12,
+                          fontSize: 12.sp,
                           color: Colors.white.withValues(alpha: 0.8),
                         ),
                       ),
@@ -885,12 +886,12 @@ class _BarAssociationHomeScreenState
         Text(
           'Quick Actions',
           style: GoogleFonts.inter(
-            fontSize: 17,
+            fontSize: 17.sp,
             fontWeight: FontWeight.w800,
             color: _BarColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12.h),
         Row(
           children: actions.map((action) {
             return Expanded(
@@ -901,10 +902,10 @@ class _BarAssociationHomeScreenState
                 child: GestureDetector(
                   onTap: () => context.push(action.route),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    padding: EdgeInsets.symmetric(vertical: 18.h),
                     decoration: BoxDecoration(
                       color: _BarColors.card,
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(18.r),
                       border: Border.all(color: _BarColors.border),
                       boxShadow: [
                         BoxShadow(
@@ -917,15 +918,15 @@ class _BarAssociationHomeScreenState
                     child: Column(
                       children: [
                         Container(
-                          width: 44,
-                          height: 44,
+                          width: 44.w,
+                          height: 44.h,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: action.gradient,
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14.r),
                           ),
                           child: Icon(
                             action.icon,
@@ -933,11 +934,11 @@ class _BarAssociationHomeScreenState
                             size: 22,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8.h),
                         Text(
                           action.label,
                           style: GoogleFonts.inter(
-                            fontSize: 11,
+                            fontSize: 11.sp,
                             fontWeight: FontWeight.w600,
                             color: _BarColors.textSecondary,
                           ),
@@ -965,7 +966,7 @@ class _BarAssociationHomeScreenState
             Text(
               'Latest Notices',
               style: GoogleFonts.inter(
-                fontSize: 17,
+                fontSize: 17.sp,
                 fontWeight: FontWeight.w800,
                 color: _BarColors.textPrimary,
               ),
@@ -981,7 +982,7 @@ class _BarAssociationHomeScreenState
               child: Text(
                 'View All →',
                 style: GoogleFonts.inter(
-                  fontSize: 13,
+                  fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
                   color: _BarColors.primary,
                 ),
@@ -989,7 +990,7 @@ class _BarAssociationHomeScreenState
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         ...notices.map((notice) => _buildNoticeCard(notice)),
       ],
     );
@@ -1006,28 +1007,28 @@ class _BarAssociationHomeScreenState
     final color = categoryColors[notice.category] ?? _BarColors.primary;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: EdgeInsets.only(bottom: 8.h),
       decoration: BoxDecoration(
         color: _BarColors.card,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: _BarColors.border),
       ),
       child: Row(
         children: [
           Container(
-            width: 4,
-            height: 64,
+            width: 4.w,
+            height: 64.h,
             decoration: BoxDecoration(
               color: color,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                bottomLeft: Radius.circular(16),
+                topLeft: Radius.circular(16.r),
+                bottomLeft: Radius.circular(16.r),
               ),
             ),
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
               child: Row(
                 children: [
                   Expanded(
@@ -1038,9 +1039,9 @@ class _BarAssociationHomeScreenState
                           children: [
                             if (!notice.isRead)
                               Container(
-                                width: 7,
-                                height: 7,
-                                margin: const EdgeInsets.only(right: 8),
+                                width: 7.w,
+                                height: 7.h,
+                                margin: EdgeInsets.only(right: 8.w),
                                 decoration: const BoxDecoration(
                                   color: _BarColors.primary,
                                   shape: BoxShape.circle,
@@ -1048,7 +1049,7 @@ class _BarAssociationHomeScreenState
                               ),
                             if (notice.isPinned)
                               Padding(
-                                padding: const EdgeInsets.only(right: 6),
+                                padding: EdgeInsets.only(right: 6.w),
                                 child: Icon(
                                   Icons.push_pin_rounded,
                                   size: 13,
@@ -1059,7 +1060,7 @@ class _BarAssociationHomeScreenState
                               child: Text(
                                 notice.title,
                                 style: GoogleFonts.inter(
-                                  fontSize: 14,
+                                  fontSize: 14.sp,
                                   fontWeight: notice.isRead
                                       ? FontWeight.w500
                                       : FontWeight.w700,
@@ -1071,11 +1072,11 @@ class _BarAssociationHomeScreenState
                             ),
                           ],
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4.h),
                         Text(
                           DateFormat('dd MMM yyyy').format(notice.publishedAt),
                           style: GoogleFonts.inter(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             color: _BarColors.textMuted,
                           ),
                         ),
@@ -1089,12 +1090,12 @@ class _BarAssociationHomeScreenState
                     ),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(6.r),
                     ),
                     child: Text(
                       notice.category,
                       style: GoogleFonts.inter(
-                        fontSize: 10,
+                        fontSize: 10.sp,
                         fontWeight: FontWeight.w600,
                         color: color,
                       ),
@@ -1117,12 +1118,12 @@ class _BarAssociationHomeScreenState
         Text(
           'Upcoming Events',
           style: GoogleFonts.inter(
-            fontSize: 17,
+            fontSize: 17.sp,
             fontWeight: FontWeight.w800,
             color: _BarColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12.h),
         ...events.asMap().entries.map((entry) {
           final event = entry.value;
           final isLast = entry.key == events.length - 1;
@@ -1148,12 +1149,12 @@ class _BarAssociationHomeScreenState
         children: [
           // Timeline dot + line
           SizedBox(
-            width: 24,
+            width: 24.w,
             child: Column(
               children: [
                 Container(
-                  width: 12,
-                  height: 12,
+                  width: 12.w,
+                  height: 12.h,
                   decoration: BoxDecoration(
                     color: color,
                     shape: BoxShape.circle,
@@ -1168,22 +1169,22 @@ class _BarAssociationHomeScreenState
                 if (!isLast)
                   Expanded(
                     child: Container(
-                      width: 2,
+                      width: 2.w,
                       color: _BarColors.border,
                     ),
                   ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           // Event card
           Expanded(
             child: Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(14),
+              margin: EdgeInsets.only(bottom: 12.h),
+              padding: EdgeInsets.all(14.r),
               decoration: BoxDecoration(
                 color: _BarColors.card,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
                 border: Border.all(color: _BarColors.border),
               ),
               child: Column(
@@ -1194,17 +1195,17 @@ class _BarAssociationHomeScreenState
                       Text(
                         DateFormat('dd MMM').format(event.eventDate),
                         style: GoogleFonts.inter(
-                          fontSize: 12,
+                          fontSize: 12.sp,
                           fontWeight: FontWeight.w700,
                           color: color,
                         ),
                       ),
                       if (event.startTime != null) ...[
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8.w),
                         Text(
                           event.startTime!,
                           style: GoogleFonts.inter(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             color: _BarColors.textMuted,
                           ),
                         ),
@@ -1217,12 +1218,12 @@ class _BarAssociationHomeScreenState
                         ),
                         decoration: BoxDecoration(
                           color: color.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(6.r),
                         ),
                         child: Text(
                           event.categoryLabel,
                           style: GoogleFonts.inter(
-                            fontSize: 10,
+                            fontSize: 10.sp,
                             fontWeight: FontWeight.w600,
                             color: color,
                           ),
@@ -1230,17 +1231,17 @@ class _BarAssociationHomeScreenState
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6.h),
                   Text(
                     event.title,
                     style: GoogleFonts.inter(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: _BarColors.textPrimary,
                     ),
                   ),
                   if (event.location != null) ...[
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                     Row(
                       children: [
                         Icon(
@@ -1248,11 +1249,11 @@ class _BarAssociationHomeScreenState
                           size: 13,
                           color: _BarColors.textMuted,
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4.w),
                         Text(
                           event.location!,
                           style: GoogleFonts.inter(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             color: _BarColors.textMuted,
                           ),
                         ),
@@ -1279,36 +1280,36 @@ class _BarAssociationHomeScreenState
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
+              topLeft: Radius.circular(24.r),
+              topRight: Radius.circular(24.r),
             ),
           ),
           padding: EdgeInsets.only(
-            left: 24,
-            right: 24,
-            top: 24,
+            left: 24.w,
+            right: 24.w,
+            top: 24.h,
             bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 40,
-                height: 4,
+                width: 40.w,
+                height: 4.h,
                 decoration: BoxDecoration(
                   color: const Color(0xFFE2E8F0),
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(2.r),
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               Container(
-                width: 64,
-                height: 64,
+                width: 64.w,
+                height: 64.h,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [_BarColors.gradient1, _BarColors.gradient2],
                   ),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(20.r),
                 ),
                 child: const Icon(
                   Icons.vpn_key_rounded,
@@ -1316,26 +1317,26 @@ class _BarAssociationHomeScreenState
                   size: 28,
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               Text(
                 'Join Bar Association',
                 style: GoogleFonts.inter(
-                  fontSize: 22,
+                  fontSize: 22.sp,
                   fontWeight: FontWeight.w800,
                   color: _BarColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               Text(
                 'Enter the 6-character invite code from\nyour Bar Association Secretary.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   color: _BarColors.textSecondary,
-                  height: 1.5,
+                  height: 1.5.h,
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               TextField(
                 controller: _inviteCodeController,
                 textCapitalization: TextCapitalization.characters,
@@ -1345,7 +1346,7 @@ class _BarAssociationHomeScreenState
                   UpperCaseTextFormatter(),
                 ],
                 style: GoogleFonts.inter(
-                  fontSize: 28,
+                  fontSize: 28.sp,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 10,
                   color: _BarColors.primary,
@@ -1354,7 +1355,7 @@ class _BarAssociationHomeScreenState
                 decoration: InputDecoration(
                   hintText: '• • • • • •',
                   hintStyle: GoogleFonts.inter(
-                    fontSize: 28,
+                    fontSize: 28.sp,
                     fontWeight: FontWeight.w300,
                     letterSpacing: 10,
                     color: const Color(0xFFCBD5E1),
@@ -1363,14 +1364,14 @@ class _BarAssociationHomeScreenState
                   filled: true,
                   fillColor: const Color(0xFFF8FAFC),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16.r),
                     borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16.r),
                     borderSide: const BorderSide(
                       color: _BarColors.primary,
-                      width: 2,
+                      width: 2.w,
                     ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
@@ -1379,10 +1380,10 @@ class _BarAssociationHomeScreenState
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               SizedBox(
                 width: double.infinity,
-                height: 56,
+                height: 56.h,
                 child: ElevatedButton(
                   onPressed: _joining
                       ? null
@@ -1431,13 +1432,13 @@ class _BarAssociationHomeScreenState
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16.r),
                     ),
                   ),
                   child: _joining
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
+                      ? SizedBox(
+                          width: 24.w,
+                          height: 24.h,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             color: Colors.white,
@@ -1446,7 +1447,7 @@ class _BarAssociationHomeScreenState
                       : Text(
                           'Join Association',
                           style: GoogleFonts.inter(
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.w700,
                           ),
                         ),

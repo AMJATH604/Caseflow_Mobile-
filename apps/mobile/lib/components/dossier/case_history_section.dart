@@ -8,6 +8,7 @@ import '../../theme/app_theme.dart';
 import '../hearing_notes_dialog.dart';
 import '../status_badge.dart';
 import 'dossier_shared.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CaseHistorySection extends ConsumerStatefulWidget {
   final String caseId;
@@ -35,7 +36,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
             builder: (context, setDialogState) {
               return AlertDialog(
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(20.r),
                 ),
                 title: const Text('Schedule Hearing'),
                 content: SingleChildScrollView(
@@ -66,7 +67,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                           }
                         },
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8.h),
                       TextField(
                         decoration: const InputDecoration(
                           labelText: 'Purpose / Stage',
@@ -114,17 +115,17 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
     final df = DateFormat('dd-MM-yyyy');
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8.r),
         border: Border.all(color: AppTheme.darkBorder),
       ),
       child: Column(
         children: [
           // Header
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
             decoration: const BoxDecoration(
               color: Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(7)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(7.r)),
             ),
             child: const Row(
               children: [
@@ -133,7 +134,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                   child: Text(
                     'HEARING DATE',
                     style: TextStyle(
-                      fontSize: 9,
+                      fontSize: 9.sp,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF64748B),
                       letterSpacing: 0.5,
@@ -145,7 +146,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                   child: Text(
                     'PURPOSE OF HEARING',
                     style: TextStyle(
-                      fontSize: 9,
+                      fontSize: 9.sp,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF64748B),
                       letterSpacing: 0.5,
@@ -157,14 +158,14 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                   child: Text(
                     'STATUS',
                     style: TextStyle(
-                      fontSize: 9,
+                      fontSize: 9.sp,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF64748B),
                       letterSpacing: 0.5,
                     ),
                   ),
                 ),
-                SizedBox(width: 30),
+                SizedBox(width: 30.w),
               ],
             ),
           ),
@@ -214,7 +215,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                           Text(
                             df.format(h.hearingDate),
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.w800,
                               color:
                                   isFuture
@@ -226,7 +227,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                             const Text(
                               'UPCOMING',
                               style: TextStyle(
-                                fontSize: 8,
+                                fontSize: 8.sp,
                                 fontWeight: FontWeight.w900,
                                 color: Color(0xFFF59E0B),
                                 letterSpacing: 0.5,
@@ -243,7 +244,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                           Text(
                             h.purpose ?? h.stage ?? 'Standard Hearing',
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF1E293B),
                             ),
@@ -254,7 +255,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                             Text(
                               h.notes!,
                               style: const TextStyle(
-                                fontSize: 10,
+                                fontSize: 10.sp,
                                 color: Color(0xFF94A3B8),
                               ),
                               maxLines: 1,
@@ -303,7 +304,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
           },
           loading:
               () => const Padding(
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.all(16.r),
                 child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),
           error: (e, _) => DossierHelper.emptyHint('Error loading history'),

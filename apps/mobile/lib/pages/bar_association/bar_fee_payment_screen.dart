@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../models/bar_association_models.dart';
 import '../../services/providers.dart';
 import '../../services/repositories/bar_association_repository.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BarFeePaymentScreen extends ConsumerStatefulWidget {
   final String associationId;
@@ -30,7 +31,7 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
       appBar: AppBar(
         title: Text(
           'Membership Fees',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 20, color: const Color(0xFF0F172A)),
+          style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 20.sp, color: const Color(0xFF0F172A)),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -43,7 +44,7 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.error_outline_rounded, size: 48, color: Color(0xFFEF4444)),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
               Text('Failed to load data', style: GoogleFonts.inter()),
             ],
           ),
@@ -79,7 +80,7 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
         ref.invalidate(barFeeHistoryProvider(member.id));
       },
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.r),
         children: [
           // ── Fee Status Card ──
           Container(
@@ -95,7 +96,7 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(20.r),
               boxShadow: [
                 BoxShadow(
                   color: (isPaid
@@ -107,7 +108,7 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
                 ),
               ],
             ),
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24.r),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -120,23 +121,23 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
                       color: Colors.white,
                       size: 28,
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Text(
                       isPaid ? 'Fee Paid ✅' : 'Payment Due',
                       style: GoogleFonts.inter(
-                        fontSize: 20,
+                        fontSize: 20.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16.r),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14.r),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -147,15 +148,15 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
                           Text(
                             'Annual Fee',
                             style: GoogleFonts.inter(
-                              fontSize: 12,
+                              fontSize: 12.sp,
                               color: Colors.white.withValues(alpha: 0.8),
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4.h),
                           Text(
                             '₹${assoc.annualFee.toStringAsFixed(0)}',
                             style: GoogleFonts.inter(
-                              fontSize: 28,
+                              fontSize: 28.sp,
                               fontWeight: FontWeight.w800,
                               color: Colors.white,
                             ),
@@ -168,15 +169,15 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
                           Text(
                             'Period',
                             style: GoogleFonts.inter(
-                              fontSize: 12,
+                              fontSize: 12.sp,
                               color: Colors.white.withValues(alpha: 0.8),
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4.h),
                           Text(
                             '$currentYear — ${currentYear + 1}',
                             style: GoogleFonts.inter(
-                              fontSize: 16,
+                              fontSize: 16.sp,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
                             ),
@@ -187,18 +188,18 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
                   ),
                 ),
                 if (!isPaid) ...[
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20.h),
                   SizedBox(
                     width: double.infinity,
-                    height: 52,
+                    height: 52.h,
                     child: ElevatedButton.icon(
                       onPressed: _processing
                           ? null
                           : () => _initiatePayment(assoc, member),
                       icon: _processing
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
+                          ? SizedBox(
+                              width: 20.w,
+                              height: 20.h,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 color: Color(0xFFF59E0B),
@@ -209,21 +210,21 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
                         _processing ? 'Processing...' : 'Pay Now via Razorpay',
                         style: GoogleFonts.inter(
                           fontWeight: FontWeight.w600,
-                          fontSize: 15,
+                          fontSize: 15.sp,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: const Color(0xFFD97706),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(14.r),
                         ),
                       ),
                     ),
                   ),
                 ],
                 if (isPaid) ...[
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 14,
@@ -231,7 +232,7 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10.r),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -241,11 +242,11 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
                           color: Colors.white,
                           size: 18,
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8.w),
                         Text(
                           'Valid until ${currentYear + 1}',
                           style: GoogleFonts.inter(
-                            fontSize: 13,
+                            fontSize: 13.sp,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
@@ -257,18 +258,18 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
 
           // ── Payment History ──
           Text(
             'Payment History',
             style: GoogleFonts.inter(
-              fontSize: 18,
+              fontSize: 18.sp,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF1E293B),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
 
           feeHistoryAsync.when(
             loading: () =>
@@ -284,10 +285,10 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
                 return Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(16.r),
                 border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
-                  padding: const EdgeInsets.all(32),
+                  padding: EdgeInsets.all(32.r),
                   child: Center(
                     child: Column(
                       children: [
@@ -296,11 +297,11 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
                           size: 40,
                           color: Color(0xFFCBD5E1),
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         Text(
                           'No payment history',
                           style: GoogleFonts.inter(
-                            fontSize: 14,
+                            fontSize: 14.sp,
                             color: const Color(0xFF94A3B8),
                           ),
                         ),
@@ -314,7 +315,7 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
               );
             },
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32.h),
         ],
       ),
     );
@@ -322,23 +323,23 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
 
   Widget _buildPaymentItem(BarFeePayment payment) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: EdgeInsets.only(bottom: 10.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 44.w,
+            height: 44.h,
             decoration: BoxDecoration(
               color: payment.isPaid
                   ? const Color(0xFF10B981).withValues(alpha: 0.1)
                   : const Color(0xFFEF4444).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
             child: Icon(
               payment.isPaid
@@ -350,7 +351,7 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
               size: 22,
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -358,17 +359,17 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
                 Text(
                   'Annual Fee ${payment.feeYear}-${payment.feeYear + 1}',
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF1E293B),
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2.h),
                 if (payment.receiptNumber != null)
                   Text(
                     'Receipt: ${payment.receiptNumber}',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: const Color(0xFF64748B),
                     ),
                   ),
@@ -376,7 +377,7 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
                   Text(
                     'Paid on ${DateFormat('dd/MM/yyyy').format(payment.paidAt!)}',
                     style: GoogleFonts.inter(
-                      fontSize: 11,
+                      fontSize: 11.sp,
                       color: const Color(0xFF94A3B8),
                     ),
                   ),
@@ -389,12 +390,12 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
               Text(
                 '₹${payment.amount.toStringAsFixed(0)}',
                 style: GoogleFonts.inter(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF1E293B),
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4.h),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 8,
@@ -404,12 +405,12 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
                   color: payment.isPaid
                       ? const Color(0xFF10B981).withValues(alpha: 0.1)
                       : const Color(0xFFEF4444).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(6.r),
                 ),
                 child: Text(
                   payment.isPaid ? 'Paid' : payment.status.toUpperCase(),
                   style: GoogleFonts.inter(
-                    fontSize: 10,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.w700,
                     color: payment.isPaid
                         ? const Color(0xFF10B981)

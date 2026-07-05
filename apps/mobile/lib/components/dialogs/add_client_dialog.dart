@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../services/supabase_service.dart';
 import '../../services/providers.dart';
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AddClientDialog extends ConsumerStatefulWidget {
   const AddClientDialog({super.key});
@@ -74,14 +75,14 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                   color: Colors.white,
                   size: 18,
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10.w),
                 Text('${_nameController.text.trim()} added successfully'),
               ],
             ),
             backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
           ),
         );
@@ -103,12 +104,12 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
 
     return Dialog(
       backgroundColor: isDark ? const Color(0xFF1E2030) : Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      insetPadding: const EdgeInsets.all(20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
+      insetPadding: EdgeInsets.all(20.r),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 480),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24.r),
           child: Form(
             key: _formKey,
             child: Column(
@@ -119,12 +120,12 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: EdgeInsets.all(10.r),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Color(0xFF10B981), Color(0xFF34D399)],
                         ),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: const Icon(
                         Icons.person_add_rounded,
@@ -132,7 +133,7 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                         size: 22,
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    SizedBox(width: 14.w),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,7 +141,7 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                           Text(
                             'Add New Client',
                             style: GoogleFonts.outfit(
-                              fontSize: 20,
+                              fontSize: 20.sp,
                               fontWeight: FontWeight.w700,
                               color:
                                   isDark
@@ -148,11 +149,11 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                                       : const Color(0xFF0F172A),
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2.h),
                           Text(
                             'Enter client details below',
                             style: GoogleFonts.inter(
-                              fontSize: 12,
+                              fontSize: 12.sp,
                               color: const Color(0xFF94A3B8),
                             ),
                           ),
@@ -168,13 +169,13 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                                 ? const Color(0xFF2D3748)
                                 : const Color(0xFFF1F5F9),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(10.r),
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24.h),
 
                 _buildField(
                   controller: _nameController,
@@ -210,7 +211,7 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                         icon: Icons.map_rounded,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Expanded(
                       child: _buildField(
                         controller: _districtController,
@@ -221,12 +222,12 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                   ],
                 ),
 
-                const SizedBox(height: 8),
+                SizedBox(height: 8.h),
 
                 // Save Button
                 SizedBox(
                   width: double.infinity,
-                  height: 50,
+                  height: 50.h,
                   child: ElevatedButton(
                     onPressed: _isSaving ? null : _save,
                     style: ElevatedButton.styleFrom(
@@ -234,14 +235,14 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(14.r),
                       ),
                     ),
                     child:
                         _isSaving
-                            ? const SizedBox(
-                              height: 20,
-                              width: 20,
+                            ? SizedBox(
+                              height: 20.h,
+                              width: 20.w,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 color: Colors.white,
@@ -251,12 +252,12 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const Icon(Icons.add_rounded, size: 18),
-                                const SizedBox(width: 8),
+                                SizedBox(width: 8.w),
                                 Text(
                                   'Add Client',
                                   style: GoogleFonts.inter(
                                     fontWeight: FontWeight.w700,
-                                    fontSize: 14,
+                                    fontSize: 14.sp,
                                   ),
                                 ),
                               ],
@@ -281,21 +282,21 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.only(bottom: 16.h),
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
         validator: validator,
         maxLines: maxLines,
         style: GoogleFonts.inter(
-          fontSize: 14,
+          fontSize: 14.sp,
           fontWeight: FontWeight.w500,
           color: isDark ? Colors.white : const Color(0xFF0F172A),
         ),
         decoration: InputDecoration(
           labelText: label,
           labelStyle: GoogleFonts.inter(
-            fontSize: 13,
+            fontSize: 13.sp,
             fontWeight: FontWeight.w500,
             color: const Color(0xFF94A3B8),
           ),
@@ -303,20 +304,20 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
           filled: true,
           fillColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(14.r),
             borderSide: BorderSide(
               color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0),
             ),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(14.r),
             borderSide: BorderSide(
               color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0),
             ),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: AppTheme.accent, width: 1.5),
+            borderRadius: BorderRadius.circular(14.r),
+            borderSide: const BorderSide(color: AppTheme.accent, width: 1.5.w),
           ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,

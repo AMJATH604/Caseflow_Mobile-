@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
 import 'english_dictionary_data.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EnglishDictionary extends StatefulWidget {
   const EnglishDictionary({super.key});
@@ -54,7 +55,7 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
         content: Text('"${w.word}" copied!'),
         backgroundColor: AppTheme.success,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
       ),
     );
   }
@@ -73,7 +74,7 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
             child: TextField(
               controller: _searchCtrl,
               onChanged: (_) => _applyFilters(),
-              style: GoogleFonts.inter(fontSize: 14),
+              style: GoogleFonts.inter(fontSize: 14.sp),
               decoration: InputDecoration(
                 hintText: 'Search English words...',
                 prefixIcon: const Icon(Icons.search, size: 20),
@@ -93,18 +94,18 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                         ? Colors.white.withValues(alpha: 0.05)
                         : Colors.black.withValues(alpha: 0.03),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                contentPadding: EdgeInsets.symmetric(vertical: 0.h),
               ),
             ),
           ),
 
           // Alphabet Filter
           Container(
-            height: 40,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            height: 40.h,
+            padding: EdgeInsets.symmetric(horizontal: 8.w),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: 27,
@@ -113,12 +114,12 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                     index == 0 ? '' : String.fromCharCode(64 + index);
                 final bool isSelected = _selectedLetter == letter;
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: EdgeInsets.symmetric(horizontal: 4.w),
                   child: ChoiceChip(
                     label: Text(
                       index == 0 ? 'All' : letter,
                       style: GoogleFonts.inter(
-                        fontSize: 12,
+                        fontSize: 12.sp,
                         fontWeight:
                             isSelected ? FontWeight.bold : FontWeight.normal,
                         color:
@@ -140,9 +141,9 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                             ? Colors.white10
                             : Colors.black.withValues(alpha: 0.05),
                     showCheckmark: false,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 8.w),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(20.r),
                     ),
                   ),
                 );
@@ -150,17 +151,17 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
             ),
           ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
 
           // Results count
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: Row(
               children: [
                 Text(
                   '${_filteredWords.length} words found',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: isDark ? Colors.white38 : Colors.black38,
                     fontWeight: FontWeight.w500,
                   ),
@@ -169,7 +170,7 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
             ),
           ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
 
           // Words List
           Expanded(
@@ -184,7 +185,7 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                             size: 48,
                             color: isDark ? Colors.white10 : Colors.black12,
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16.h),
                           Text(
                             'No words match your search',
                             style: GoogleFonts.inter(
@@ -203,11 +204,11 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
 
                         return AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          margin: const EdgeInsets.only(bottom: 8),
+                          margin: EdgeInsets.only(bottom: 8.h),
                           decoration: BoxDecoration(
                             color:
                                 isDark ? const Color(0xFF1E1E2E) : Colors.white,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12.r),
                             border: Border.all(
                               color:
                                   isExpanded
@@ -215,7 +216,7 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                                       : (isDark
                                           ? Colors.white.withValues(alpha: 0.05)
                                           : AppTheme.borderLight),
-                              width: 1,
+                              width: 1.w,
                             ),
                             boxShadow:
                                 isExpanded
@@ -246,7 +247,7 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                               title: Text(
                                 w.word,
                                 style: GoogleFonts.outfit(
-                                  fontSize: 16,
+                                  fontSize: 16.sp,
                                   fontWeight: FontWeight.w600,
                                   color:
                                       isDark
@@ -257,7 +258,7 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                               subtitle: Text(
                                 w.partOfSpeech,
                                 style: GoogleFonts.inter(
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                   fontStyle: FontStyle.italic,
                                   color: AppTheme.accent.withValues(alpha: 0.8),
                                 ),
@@ -280,12 +281,12 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Divider(height: 1),
-                                      const SizedBox(height: 12),
+                                      const Divider(height: 1.h),
+                                      SizedBox(height: 12.h),
                                       Text(
                                         'Definition',
                                         style: GoogleFonts.inter(
-                                          fontSize: 10,
+                                          fontSize: 10.sp,
                                           fontWeight: FontWeight.bold,
                                           letterSpacing: 0.5,
                                           color:
@@ -298,12 +299,12 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
+                                      SizedBox(height: 4.h),
                                       Text(
                                         w.definition,
                                         style: GoogleFonts.inter(
-                                          fontSize: 14,
-                                          height: 1.4,
+                                          fontSize: 14.sp,
+                                          height: 1.4.h,
                                           color:
                                               isDark
                                                   ? Colors.white70
@@ -311,11 +312,11 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                                         ),
                                       ),
                                       if (w.example.isNotEmpty) ...[
-                                        const SizedBox(height: 12),
+                                        SizedBox(height: 12.h),
                                         Text(
                                           'In Context',
                                           style: GoogleFonts.inter(
-                                            fontSize: 10,
+                                            fontSize: 10.sp,
                                             fontWeight: FontWeight.bold,
                                             letterSpacing: 0.5,
                                             color:
@@ -324,9 +325,9 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                                                     : Colors.black38,
                                           ),
                                         ),
-                                        const SizedBox(height: 4),
+                                        SizedBox(height: 4.h),
                                         Container(
-                                          padding: const EdgeInsets.all(10),
+                                          padding: EdgeInsets.all(10.r),
                                           decoration: BoxDecoration(
                                             color:
                                                 isDark
@@ -343,14 +344,14 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                                             border: const Border(
                                               left: BorderSide(
                                                 color: AppTheme.accent,
-                                                width: 3,
+                                                width: 3.w,
                                               ),
                                             ),
                                           ),
                                           child: Text(
                                             w.example,
                                             style: GoogleFonts.inter(
-                                              fontSize: 13,
+                                              fontSize: 13.sp,
                                               fontStyle: FontStyle.italic,
                                               color:
                                                   isDark
@@ -361,11 +362,11 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                                         ),
                                       ],
                                       if (w.synonyms.isNotEmpty) ...[
-                                        const SizedBox(height: 12),
+                                        SizedBox(height: 12.h),
                                         Text(
                                           'Synonyms',
                                           style: GoogleFonts.inter(
-                                            fontSize: 10,
+                                            fontSize: 10.sp,
                                             fontWeight: FontWeight.bold,
                                             letterSpacing: 0.5,
                                             color:
@@ -374,7 +375,7 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                                                     : Colors.black38,
                                           ),
                                         ),
-                                        const SizedBox(height: 4),
+                                        SizedBox(height: 4.h),
                                         Wrap(
                                           spacing: 6,
                                           runSpacing: 6,
@@ -401,7 +402,7 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                                                         s,
                                                         style:
                                                             GoogleFonts.inter(
-                                                              fontSize: 11,
+                                                              fontSize: 11.sp,
                                                               color:
                                                                   AppTheme
                                                                       .accent,

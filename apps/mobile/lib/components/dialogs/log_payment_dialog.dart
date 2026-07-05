@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../services/supabase_service.dart';
 import '../../services/providers.dart';
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LogPaymentDialog extends ConsumerStatefulWidget {
   const LogPaymentDialog({super.key});
@@ -132,7 +133,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
     final themeColor = isExpense ? AppTheme.error : AppTheme.success;
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28.r)),
       backgroundColor: Colors.white,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 450),
@@ -141,11 +142,11 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
           children: [
             // ─── Header ───
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(24.r),
               decoration: BoxDecoration(
                 color: themeColor.withValues(alpha: 0.05),
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(28),
+                  top: Radius.circular(28.r),
                 ),
               ),
               child: Row(
@@ -159,7 +160,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                       color: themeColor,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16.w),
                   Text(
                     isExpense
                         ? 'Log Office Expense'
@@ -167,7 +168,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                             ? 'Add Payment'
                             : 'New Financial Record'),
                     style: GoogleFonts.outfit(
-                      fontSize: 20,
+                      fontSize: 20.sp,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.primary,
                     ),
@@ -178,7 +179,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
 
             Flexible(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(24.r),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -189,12 +190,12 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                         Text(
                           'Transaction Type',
                           style: GoogleFonts.inter(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             fontWeight: FontWeight.bold,
                             color: Colors.grey,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8.h),
                         Row(
                           children: [
                             _buildTypeOption(
@@ -203,7 +204,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                               Icons.call_received_rounded,
                               AppTheme.success,
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12.w),
                             _buildTypeOption(
                               'expense',
                               'Expense Incurred',
@@ -212,7 +213,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24.h),
                       ],
 
                       // ─── Case Selector ───
@@ -222,7 +223,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                               initialValue: _selectedCaseId,
                               style: GoogleFonts.inter(
                                 color: AppTheme.primary,
-                                fontSize: 15,
+                                fontSize: 15.sp,
                               ),
                               decoration: InputDecoration(
                                 labelText: 'Select Case',
@@ -254,7 +255,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                         loading: () => const LinearProgressIndicator(),
                         error: (e, s) => Text('Error: $e'),
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20.h),
 
                       // ─── Summary Snapshot ───
                       if (_hasExistingPayments && !_isLoadingSummary)
@@ -277,14 +278,14 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                           validator:
                               (v) => v!.isEmpty ? 'Total fee required' : null,
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20.h),
                       ],
 
                       if (_selectedCaseId != null && !_isLoadingSummary)
                         TextFormField(
                           controller: _amountController,
                           style: GoogleFonts.outfit(
-                            fontSize: 24,
+                            fontSize: 24.sp,
                             fontWeight: FontWeight.bold,
                             color: themeColor,
                           ),
@@ -308,7 +309,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                                       : null,
                         ),
 
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20.h),
 
                       // ─── Notes ───
                       if (_selectedCaseId != null && !_isLoadingSummary)
@@ -322,7 +323,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                           ),
                         ),
 
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20.h),
 
                       // ─── Mode & Date ───
                       if (_selectedCaseId != null && !_isLoadingSummary)
@@ -348,7 +349,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                                     (v) => setState(() => _paymentMode = v!),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12.w),
                             Expanded(
                               flex: 4,
                               child: InkWell(
@@ -383,39 +384,39 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
 
             // ─── Actions ───
             Padding(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(24.r),
               child: Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: EdgeInsets.symmetric(vertical: 16.h),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(12.r),
                         ),
                       ),
                       child: const Text('Cancel'),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16.w),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _isSaving ? null : _save,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: themeColor,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: EdgeInsets.symmetric(vertical: 16.h),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(12.r),
                         ),
                         elevation: 0,
                       ),
                       child:
                           _isSaving
-                              ? const SizedBox(
-                                height: 20,
-                                width: 20,
+                              ? SizedBox(
+                                height: 20.h,
+                                width: 20.w,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                   color: Colors.white,
@@ -448,13 +449,13 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
     return Expanded(
       child: InkWell(
         onTap: () => setState(() => _transactionType = type),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(vertical: 12.h),
           decoration: BoxDecoration(
             color: isSelected ? color : Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12.r),
             border: Border.all(color: isSelected ? color : AppTheme.border),
             boxShadow:
                 isSelected
@@ -470,11 +471,11 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
           child: Column(
             children: [
               Icon(icon, color: isSelected ? Colors.white : color, size: 20),
-              const SizedBox(height: 4),
+              SizedBox(height: 4.h),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 10.sp,
                   fontWeight: FontWeight.bold,
                   color: isSelected ? Colors.white : AppTheme.primary,
                 ),
@@ -488,11 +489,11 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
 
   Widget _buildSummarySnapshot(NumberFormat fmt) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 24.h),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         color: AppTheme.background,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(color: AppTheme.border),
       ),
       child: Column(
@@ -502,19 +503,19 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
             '₹${fmt.format(_existingTotalFee)}',
             AppTheme.primary,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           _summaryLine(
             'Total Paid',
             '₹${fmt.format(_existingTotalPaid)}',
             AppTheme.success,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           _summaryLine(
             'Total Expenses',
             '₹${fmt.format(_existingTotalExpenses)}',
             AppTheme.error,
           ),
-          const Divider(height: 20),
+          const Divider(height: 20.h),
           _summaryLine(
             'Current Owed',
             '₹${fmt.format(_existingBalance)}',
@@ -538,7 +539,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
         Text(
           label,
           style: GoogleFonts.inter(
-            fontSize: 12,
+            fontSize: 12.sp,
             fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
             color: Colors.grey[600],
           ),
@@ -546,7 +547,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
         Text(
           value,
           style: GoogleFonts.inter(
-            fontSize: 13,
+            fontSize: 13.sp,
             fontWeight: FontWeight.bold,
             color: color,
           ),

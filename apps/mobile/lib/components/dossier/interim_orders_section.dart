@@ -7,6 +7,7 @@ import '../../services/providers.dart';
 import '../../services/supabase_service.dart';
 import '../../theme/app_theme.dart';
 import 'dossier_shared.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class InterimOrdersSection extends ConsumerStatefulWidget {
   final String caseId;
@@ -70,15 +71,15 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
             builder:
                 (ctx, setSheetState) => Container(
                   padding: EdgeInsets.only(
-                    left: 24,
-                    right: 24,
-                    top: 24,
+                    left: 24.w,
+                    right: 24.w,
+                    top: 24.h,
                     bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
                   ),
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(24),
+                      top: Radius.circular(24.r),
                     ),
                   ),
                   child: SingleChildScrollView(
@@ -88,24 +89,24 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                       children: [
                         Center(
                           child: Container(
-                            width: 40,
-                            height: 4,
+                            width: 40.w,
+                            height: 4.h,
                             decoration: BoxDecoration(
                               color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(2),
+                              borderRadius: BorderRadius.circular(2.r),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20.h),
                         const Text(
                           'Add Interim Order',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 18.sp,
                             fontWeight: FontWeight.w900,
                             color: Color(0xFF1E293B),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20.h),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           title: const Text('Order Date'),
@@ -128,13 +129,13 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                             if (d != null) setSheetState(() => orderDate = d);
                           },
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         DropdownButtonFormField<String>(
                           initialValue: orderType,
                           decoration: InputDecoration(
                             labelText: 'Order Type',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                             ),
                           ),
                           items:
@@ -153,21 +154,21 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                               }).toList(),
                           onChanged: (v) => orderType = v ?? 'deposition',
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12.h),
                         TextField(
                           controller: summaryCtrl,
                           maxLines: 3,
                           decoration: InputDecoration(
                             labelText: 'Order Summary / Notes',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(12.r),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20.h),
                         SizedBox(
                           width: double.infinity,
-                          height: 48,
+                          height: 48.h,
                           child: ElevatedButton.icon(
                             onPressed: () async {
                               Navigator.pop(ctx);
@@ -212,7 +213,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                               backgroundColor: AppTheme.accent,
                               foregroundColor: Colors.black,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(14.r),
                               ),
                             ),
                           ),
@@ -229,16 +230,16 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
     final df = DateFormat('dd-MM-yyyy');
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8.r),
         border: Border.all(color: AppTheme.darkBorder),
       ),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
             decoration: const BoxDecoration(
               color: Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(7)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(7.r)),
             ),
             child: const Row(
               children: [
@@ -247,7 +248,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                   child: Text(
                     'ORDER #',
                     style: TextStyle(
-                      fontSize: 9,
+                      fontSize: 9.sp,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF64748B),
                       letterSpacing: 0.5,
@@ -259,7 +260,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                   child: Text(
                     'ORDER DATE',
                     style: TextStyle(
-                      fontSize: 9,
+                      fontSize: 9.sp,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF64748B),
                       letterSpacing: 0.5,
@@ -271,14 +272,14 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                   child: Text(
                     'DETAILS',
                     style: TextStyle(
-                      fontSize: 9,
+                      fontSize: 9.sp,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF64748B),
                       letterSpacing: 0.5,
                     ),
                   ),
                 ),
-                SizedBox(width: 24),
+                SizedBox(width: 24.w),
               ],
             ),
           ),
@@ -286,7 +287,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
             final idx = entry.key;
             final order = entry.value;
             return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               decoration: const BoxDecoration(
                 border: Border(top: BorderSide(color: AppTheme.darkBorder)),
               ),
@@ -297,7 +298,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                     child: Text(
                       '${order.orderNumber ?? idx + 1}',
                       style: const TextStyle(
-                        fontSize: 13,
+                        fontSize: 13.sp,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF1E293B),
                       ),
@@ -308,7 +309,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                     child: Text(
                       df.format(order.orderDate),
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF64748B),
                       ),
@@ -332,7 +333,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                                 order.orderSummary ??
                                     "Copy Of ${order.orderType == 'deposition' ? 'Deposition' : 'Order'}",
                                 style: const TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 12.sp,
                                   fontWeight: FontWeight.w700,
                                   color: Color(0xFF059669),
                                   decoration: TextDecoration.underline,
@@ -343,7 +344,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                               order.orderSummary ??
                                   "Copy Of ${order.orderType == 'deposition' ? 'Deposition' : 'Order'}",
                               style: const TextStyle(
-                                fontSize: 12,
+                                fontSize: 12.sp,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF64748B),
                               ),
@@ -386,7 +387,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                       : _buildInterimOrdersTable(orders),
           loading:
               () => const Padding(
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.all(16.r),
                 child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),
           error: (e, _) => DossierHelper.emptyHint('Error loading orders'),

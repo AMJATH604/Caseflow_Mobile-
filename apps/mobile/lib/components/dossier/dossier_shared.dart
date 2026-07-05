@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // ─── REUSABLE COLLAPSIBLE SECTION WIDGET ──────────────
 
@@ -30,21 +31,21 @@ class DossierSection extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.darkCard,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: AppTheme.darkBorder),
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           initiallyExpanded: initiallyExpanded,
-          tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+          tilePadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 4.h),
           childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
           leading: Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(10.r),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(10.r),
             ),
             child: Icon(icon, size: 18, color: color),
           ),
@@ -54,7 +55,7 @@ class DossierSection extends StatelessWidget {
                 child: Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w900,
                     color: Color(0xFF1E293B),
                     letterSpacing: -0.3,
@@ -69,19 +70,19 @@ class DossierSection extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: (badgeColor ?? color).withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Text(
                     badgeText!,
                     style: TextStyle(
-                      fontSize: 9,
+                      fontSize: 9.sp,
                       fontWeight: FontWeight.w900,
                       color: badgeColor ?? color,
                       letterSpacing: 0.5,
                     ),
                   ),
                 ),
-              if (trailing != null) ...[const SizedBox(width: 8), trailing!],
+              if (trailing != null) ...[SizedBox(width: 8.w), trailing!],
             ],
           ),
           children: children,
@@ -98,10 +99,10 @@ class DossierHelper {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(6),
+        padding: EdgeInsets.all(6.r),
         decoration: BoxDecoration(
           color: AppTheme.accent.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
         ),
         child: const Icon(Icons.add_rounded, size: 18, color: AppTheme.accent),
       ),
@@ -110,7 +111,7 @@ class DossierHelper {
 
   static Widget emptyHint(String text) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      padding: EdgeInsets.symmetric(vertical: 16.0.h),
       child: Row(
         children: [
           const Icon(
@@ -118,12 +119,12 @@ class DossierHelper {
             size: 16,
             color: Color(0xFFCBD5E1),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10.w),
           Expanded(
             child: Text(
               text,
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 12.sp,
                 color: Color(0xFF94A3B8),
                 fontStyle: FontStyle.italic,
               ),
@@ -136,7 +137,7 @@ class DossierHelper {
 
   static Widget dossierRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: 10.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,17 +146,17 @@ class DossierHelper {
             label,
             style: const TextStyle(
               color: Color(0xFF94A3B8),
-              fontSize: 11,
+              fontSize: 11.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Flexible(
             child: Text(
               value,
               style: const TextStyle(
                 fontWeight: FontWeight.w900,
-                fontSize: 13,
+                fontSize: 13.sp,
                 color: Color(0xFF1E293B),
                 letterSpacing: -0.3,
               ),
@@ -169,20 +170,20 @@ class DossierHelper {
 
   static Widget statMini(String label, int count, IconData icon, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+      padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 12.w),
       decoration: BoxDecoration(
         color: AppTheme.darkCard,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: AppTheme.darkBorder),
       ),
       child: Column(
         children: [
           Icon(icon, color: const Color(0xFFCBD5E1), size: 16),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Text(
             '$count',
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: 24.sp,
               fontWeight: FontWeight.w900,
               color: Color(0xFF1E293B),
               letterSpacing: -1,
@@ -191,7 +192,7 @@ class DossierHelper {
           Text(
             label,
             style: const TextStyle(
-              fontSize: 9,
+              fontSize: 9.sp,
               color: Color(0xFF94A3B8),
               fontWeight: FontWeight.w900,
               letterSpacing: 1,

@@ -7,6 +7,7 @@ import '../services/providers.dart';
 import '../services/supabase_service.dart';
 import '../components/error_state_widget.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HearingsScreen extends ConsumerStatefulWidget {
   const HearingsScreen({super.key});
@@ -30,13 +31,13 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: EdgeInsets.symmetric(horizontal: 20.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               _buildHeader(isMobile, isDark),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               Expanded(
                 child: hearingsAsync.when(
                   data:
@@ -74,16 +75,16 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
             Text(
               'Court Schedule',
               style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                fontSize: 32,
+                fontSize: 32.sp,
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             Text(
               'TEMPORAL CASE MANAGEMENT',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: isDark ? const Color(0xFFCBD5E1) : Colors.black38,
-                fontSize: 10,
+                fontSize: 10.sp,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 1.5,
               ),
@@ -91,7 +92,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
           ],
         ),
         Container(
-          padding: const EdgeInsets.all(4),
+          padding: EdgeInsets.all(4.r),
           decoration: AppTheme.cardDecoration(isDark: isDark),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -115,10 +116,10 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
       onTap: () => setState(() => _view = value),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.accent : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
         ),
         child: Icon(
           icon,
@@ -141,17 +142,17 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
     return Column(
       children: [
         _buildCalendarGrid(isDark, hearings),
-        const SizedBox(height: 24),
+        SizedBox(height: 24.h),
         // Hearings for the selected date
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+          padding: EdgeInsets.symmetric(horizontal: 4.w),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(10.r),
                 decoration: BoxDecoration(
                   color: AppTheme.accent.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                   border: Border.all(
                     color: AppTheme.accent.withValues(alpha: 0.1),
                   ),
@@ -162,7 +163,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                   color: AppTheme.accent,
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16.w),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -178,7 +179,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                     DateFormat('dd MMMM yyyy').format(_selectedDate),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
-                      fontSize: 18,
+                      fontSize: 18.sp,
                     ),
                   ),
                 ],
@@ -186,7 +187,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         Expanded(child: _buildDayHearings(isDark, hearings)),
       ],
     );
@@ -209,12 +210,12 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
     final rows = ((totalCells) / 7).ceil();
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12.r),
       decoration: AppTheme.cardDecoration(isDark: isDark),
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -249,7 +250,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           Row(
             children:
                 ['S', 'M', 'T', 'W', 'T', 'F', 'S']
@@ -261,7 +262,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                             style: Theme.of(
                               context,
                             ).textTheme.labelSmall?.copyWith(
-                              fontSize: 9,
+                              fontSize: 9.sp,
                               fontWeight: FontWeight.w800,
                               color:
                                   isDark
@@ -274,7 +275,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                     )
                     .toList(),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           ...List.generate(rows, (row) {
             return Row(
               children: List.generate(7, (col) {
@@ -282,7 +283,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                 final day = cellIndex - startWeekday + 1;
 
                 if (day < 1 || day > lastDay.day) {
-                  return const Expanded(child: SizedBox(height: 44));
+                  return const Expanded(child: SizedBox(height: 44.h));
                 }
 
                 final cellDate = DateTime(
@@ -298,8 +299,8 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                   child: GestureDetector(
                     onTap: () => setState(() => _selectedDate = cellDate),
                     child: Container(
-                      height: 44,
-                      margin: const EdgeInsets.all(2),
+                      height: 44.h,
+                      margin: EdgeInsets.all(2.r),
                       decoration: BoxDecoration(
                         color:
                             isSelected
@@ -307,7 +308,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                                 : isToday
                                 ? AppTheme.accent.withValues(alpha: 0.1)
                                 : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(8.r),
                         border: Border.all(
                           color:
                               isSelected
@@ -322,11 +323,11 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                         children: [
                           if (count > 0 && !isSelected)
                             Positioned(
-                              top: 6,
-                              right: 6,
+                              top: 6.h,
+                              right: 6.w,
                               child: Container(
-                                width: 4,
-                                height: 4,
+                                width: 4.w,
+                                height: 4.h,
                                 decoration: const BoxDecoration(
                                   color: AppTheme.accentViolet,
                                   shape: BoxShape.circle,
@@ -336,7 +337,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                           Text(
                             '$day',
                             style: GoogleFonts.inter(
-                              fontSize: 13,
+                              fontSize: 13.sp,
                               fontWeight:
                                   isToday || isSelected
                                       ? FontWeight.w700
@@ -369,15 +370,15 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
   Widget _circularNavBtn(IconData icon, bool isDark, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(10.r),
       child: Container(
-        padding: const EdgeInsets.all(6),
+        padding: EdgeInsets.all(6.r),
         decoration: BoxDecoration(
           color:
               isDark
                   ? AppTheme.surfaceLight
                   : Colors.black.withValues(alpha: 0.03),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
           border: Border.all(
             color: Theme.of(context).dividerTheme.color ?? Colors.grey,
           ),
@@ -404,14 +405,14 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
               size: 40,
               color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Text(
               'NO SCHEDULED HEARINGS',
               style: GoogleFonts.inter(
                 color: const Color(0xFF4B5563),
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1,
-                fontSize: 11,
+                fontSize: 11.sp,
               ),
             ),
           ],
@@ -420,7 +421,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: EdgeInsets.only(bottom: 24.h),
       itemCount: dayHearings.length,
       itemBuilder: (context, index) {
         final h = dayHearings[index];
@@ -436,10 +437,10 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
     return GestureDetector(
       onLongPress: () => _showDeleteOption(h),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: EdgeInsets.only(bottom: 12.h),
         decoration: BoxDecoration(
           color: isDark ? AppTheme.darkCard : Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           border: Border.all(
             color: isDark ? AppTheme.darkBorder : const Color(0xFFE2E8F0),
           ),
@@ -453,25 +454,25 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
         ),
         child: InkWell(
           onTap: () => context.push('/cases/${h.caseId}'),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           child: IntrinsicHeight(
             child: Row(
               children: [
                 // ── Left color strip ──
                 Container(
-                  width: 4,
+                  width: 4.w,
                   decoration: BoxDecoration(
                     color: statusColor,
                     borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(14),
-                      bottomLeft: Radius.circular(14),
+                      topLeft: Radius.circular(14.r),
+                      bottomLeft: Radius.circular(14.r),
                     ),
                   ),
                 ),
                 // ── Content ──
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(14),
+                    padding: EdgeInsets.all(14.r),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -479,11 +480,11 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                         Row(
                           children: [
                             Container(
-                              width: 40,
-                              height: 40,
+                              width: 40.w,
+                              height: 40.h,
                               decoration: BoxDecoration(
                                 color: statusColor.withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(10.r),
                               ),
                               child: Center(
                                 child: Icon(
@@ -493,7 +494,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12.w),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -512,7 +513,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: 2),
+                                  SizedBox(height: 2.h),
                                   _buildStatusChip(h.status, statusColor),
                                 ],
                               ),
@@ -530,7 +531,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
 
                         // ── Case No + Court (prominent container) ──
                         if (h.caseNumber != null || h.courtName != null) ...[
-                          const SizedBox(height: 10),
+                          SizedBox(height: 10.h),
                           Container(
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(
@@ -542,7 +543,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                                   isDark
                                       ? Colors.white.withValues(alpha: 0.04)
                                       : const Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8.r),
                               border: Border.all(
                                 color:
                                     isDark
@@ -564,7 +565,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                                                 ? const Color(0xFF94A3B8)
                                                 : const Color(0xFF64748B),
                                       ),
-                                      const SizedBox(width: 6),
+                                      SizedBox(width: 6.w),
                                       Expanded(
                                         child: Text(
                                           h.caseNumber!,
@@ -573,7 +574,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                                                 isDark
                                                     ? const Color(0xFFE2E8F0)
                                                     : const Color(0xFF334155),
-                                            fontSize: 13,
+                                            fontSize: 13.sp,
                                             fontWeight: FontWeight.w700,
                                           ),
                                           maxLines: 1,
@@ -583,7 +584,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                                     ],
                                   ),
                                 if (h.caseNumber != null && h.courtName != null)
-                                  const SizedBox(height: 4),
+                                  SizedBox(height: 4.h),
                                 if (h.courtName != null)
                                   Row(
                                     children: [
@@ -595,7 +596,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                                                 ? const Color(0xFF94A3B8)
                                                 : const Color(0xFF64748B),
                                       ),
-                                      const SizedBox(width: 6),
+                                      SizedBox(width: 6.w),
                                       Expanded(
                                         child: Text(
                                           h.courtName!,
@@ -604,7 +605,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                                                 isDark
                                                     ? const Color(0xFFCBD5E1)
                                                     : const Color(0xFF475569),
-                                            fontSize: 12,
+                                            fontSize: 12.sp,
                                             fontWeight: FontWeight.w600,
                                           ),
                                           maxLines: 1,
@@ -619,7 +620,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                         ],
 
                         // ── Purpose + Stage chips ──
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8.h),
                         Wrap(
                           spacing: 6,
                           runSpacing: 4,
@@ -649,15 +650,15 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
 
   Widget _buildStatusChip(String status, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(4.r),
       ),
       child: Text(
         status.toUpperCase(),
         style: TextStyle(
-          fontSize: 8,
+          fontSize: 8.sp,
           fontWeight: FontWeight.w900,
           color: color,
           letterSpacing: 0.5,
@@ -668,15 +669,15 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
 
   Widget _chipWidget(String label, Color color, bool isDark) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(6.r),
       ),
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 10,
+          fontSize: 10.sp,
           fontWeight: FontWeight.w700,
           color: color,
           letterSpacing: 0.3,
@@ -712,20 +713,20 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
               size: 48,
               color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Text(
               'NO HEARING RECORDS',
               style: GoogleFonts.inter(
                 color: const Color(0xFF4B5563),
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1,
-                fontSize: 12,
+                fontSize: 12.sp,
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             const Text(
               'Your court schedule is empty',
-              style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+              style: TextStyle(fontSize: 12.sp, color: Color(0xFF94A3B8)),
             ),
           ],
         ),
@@ -741,7 +742,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
     final sortedKeys = grouped.keys.toList()..sort();
 
     return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: EdgeInsets.only(bottom: 24.h),
       itemCount: sortedKeys.length,
       itemBuilder: (context, index) {
         final dateKey = sortedKeys[index];
@@ -754,7 +755,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
           children: [
             // ── Date header ──
             Padding(
-              padding: const EdgeInsets.only(top: 16, bottom: 10),
+              padding: EdgeInsets.only(top: 16.h, bottom: 10.h),
               child: Row(
                 children: [
                   Container(
@@ -769,7 +770,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                               : (isDark
                                   ? Colors.white.withValues(alpha: 0.06)
                                   : Colors.black.withValues(alpha: 0.03)),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: Text(
                       isToday
@@ -778,7 +779,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                             'dd MMM yyyy, EEEE',
                           ).format(date).toUpperCase(),
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 10.sp,
                         fontWeight: FontWeight.w900,
                         color:
                             isToday
@@ -790,7 +791,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8.w),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 6,
@@ -800,12 +801,12 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                       color: (isDark ? Colors.white : Colors.black).withValues(
                         alpha: 0.04,
                       ),
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(4.r),
                     ),
                     child: Text(
                       '${dayHearings.length}',
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 10.sp,
                         fontWeight: FontWeight.w800,
                         color:
                             isDark ? const Color(0xFFCBD5E1) : Colors.black38,
@@ -814,8 +815,8 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                   ),
                   Expanded(
                     child: Container(
-                      margin: const EdgeInsets.only(left: 12),
-                      height: 1,
+                      margin: EdgeInsets.only(left: 12.w),
+                      height: 1.h,
                       color: (isDark ? Colors.white : Colors.black).withValues(
                         alpha: 0.05,
                       ),
@@ -841,37 +842,37 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
               ? AppTheme.darkCard
               : Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder:
           (ctx) => SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: EdgeInsets.symmetric(vertical: 16.h),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 36,
-                    height: 4,
+                    width: 36.w,
+                    height: 4.h,
                     decoration: BoxDecoration(
                       color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: BorderRadius.circular(2.r),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
                     child: Text(
                       h.caseTitle ?? 'Hearing',
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.w800,
-                        fontSize: 16,
+                        fontSize: 16.sp,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   ListTile(
                     leading: const Icon(
                       Icons.open_in_new_rounded,
@@ -886,7 +887,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                       context.push('/cases/${h.caseId}');
                     },
                   ),
-                  const Divider(height: 1),
+                  const Divider(height: 1.h),
                   ListTile(
                     leading: const Icon(
                       Icons.delete_outline_rounded,
@@ -901,7 +902,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                     ),
                     subtitle: const Text(
                       'Remove from court schedule',
-                      style: TextStyle(fontSize: 11),
+                      style: TextStyle(fontSize: 11.sp),
                     ),
                     onTap: () async {
                       Navigator.pop(ctx);

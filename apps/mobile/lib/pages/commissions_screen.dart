@@ -7,6 +7,7 @@ import '../models/commission_models.dart';
 import '../services/commission_service.dart';
 import '../services/providers.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 final commissionsProvider = FutureProvider<List<Commission>>((ref) async {
   ref.watch(authStateProvider);
@@ -98,9 +99,9 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
         child: Column(
           children: [
             _header(dk, data),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             _search(dk),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             TabBar(
               controller: _tabController,
               isScrollable: true,
@@ -110,13 +111,13 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
               labelColor: AppTheme.accent,
               unselectedLabelColor: dk ? Colors.white38 : Colors.black38,
               labelStyle: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: EdgeInsets.symmetric(horizontal: 8.w),
               tabs: _filters.map((f) => Tab(text: f)).toList(),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Expanded(
               child: data.when(
                 data:
@@ -129,7 +130,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                           onRefresh:
                               () async => ref.invalidate(commissionsProvider),
                           child: ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
                             itemCount: fl.length,
                             itemBuilder: (c, i) => _card(dk, fl[i]),
                           ),
@@ -147,7 +148,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                             color: AppTheme.error,
                             size: 48,
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12.h),
                           const Text('Error loading commissions'),
                           TextButton(
                             onPressed:
@@ -174,14 +175,14 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
 
   Widget _header(bool dk, AsyncValue<List<Commission>> data) => Container(
     margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-    padding: const EdgeInsets.all(20),
+    padding: EdgeInsets.all(20.r),
     decoration: BoxDecoration(
       gradient: const LinearGradient(
         colors: [Color(0xFF7C3AED), Color(0xFF2563EB)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(20.r),
       boxShadow: [
         BoxShadow(
           color: const Color(0xFF7C3AED).withValues(alpha: 0.3),
@@ -196,10 +197,10 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
         Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(10.r),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
               ),
               child: const Icon(
                 Icons.assignment_ind_rounded,
@@ -207,7 +208,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                 size: 24,
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,7 +216,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                   Text(
                     'Advocate Commissioner',
                     style: GoogleFonts.outfit(
-                      fontSize: 20,
+                      fontSize: 20.sp,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
@@ -223,7 +224,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                   Text(
                     'Commission Management & Field Kit',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       color: Colors.white70,
                     ),
                   ),
@@ -232,25 +233,25 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         data.when(
           data:
               (list) => Row(
                 children: [
                   _stat('Total', '${list.length}', Colors.white),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8.w),
                   _stat(
                     'Active',
                     '${list.where((c) => c.status == CommissionStatus.inProgress).length}',
                     const Color(0xFF34D399),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8.w),
                   _stat(
                     'Pending',
                     '${list.where((c) => c.status == CommissionStatus.pending).length}',
                     const Color(0xFFFBBF24),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8.w),
                   _stat(
                     'Overdue',
                     '${list.where((c) => c.isOverdue).length}',
@@ -266,10 +267,10 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
   );
 
   Widget _stat(String l, String v, Color c) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
     decoration: BoxDecoration(
       color: Colors.white.withValues(alpha: 0.15),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(20.r),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
@@ -277,25 +278,25 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
         Text(
           v,
           style: GoogleFonts.outfit(
-            fontSize: 16,
+            fontSize: 16.sp,
             fontWeight: FontWeight.w700,
             color: c,
           ),
         ),
-        const SizedBox(width: 4),
-        Text(l, style: GoogleFonts.inter(fontSize: 10, color: Colors.white70)),
+        SizedBox(width: 4.w),
+        Text(l, style: GoogleFonts.inter(fontSize: 10.sp, color: Colors.white70)),
       ],
     ),
   );
 
   Widget _search(bool dk) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16),
+    padding: EdgeInsets.symmetric(horizontal: 16.w),
     child: TextField(
       onChanged: (v) => setState(() => _searchQuery = v),
       decoration: InputDecoration(
         hintText: 'Search commissions...',
         hintStyle: GoogleFonts.inter(
-          fontSize: 13,
+          fontSize: 13.sp,
           color: dk ? Colors.white38 : Colors.black38,
         ),
         prefixIcon: Icon(
@@ -304,7 +305,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
           color: dk ? Colors.white38 : Colors.black38,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           borderSide: BorderSide.none,
         ),
         filled: true,
@@ -323,10 +324,10 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
   Widget _card(bool dk, Commission c) {
     final sc = _statusColor(c.status);
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 12.h),
       decoration: BoxDecoration(
         color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color:
               c.isOverdue
@@ -349,19 +350,19 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
         color: Colors.transparent,
         child: InkWell(
           onTap: () => context.push('/commissions/${c.id}'),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16.r),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: EdgeInsets.all(8.r),
                       decoration: BoxDecoration(
                         color: sc.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Icon(
                         _typeIcon(c.commissionType),
@@ -369,7 +370,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                         size: 20,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -378,7 +379,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                             c.commissionType.label,
                             style: GoogleFonts.outfit(
                               fontWeight: FontWeight.w600,
-                              fontSize: 15,
+                              fontSize: 15.sp,
                               color:
                                   dk ? Colors.white : const Color(0xFF1E293B),
                             ),
@@ -387,7 +388,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                             Text(
                               c.caseTitle ?? c.caseNumberRef ?? '',
                               style: GoogleFonts.inter(
-                                fontSize: 12,
+                                fontSize: 12.sp,
                                 color: dk ? Colors.white54 : Colors.black45,
                               ),
                               maxLines: 1,
@@ -406,12 +407,12 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                         ),
                         decoration: BoxDecoration(
                           color: sc.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(20.r),
                         ),
                         child: Text(
                           c.status.label,
                           style: GoogleFonts.inter(
-                            fontSize: 11,
+                            fontSize: 11.sp,
                             fontWeight: FontWeight.w600,
                             color: sc,
                           ),
@@ -419,7 +420,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                       ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 if (c.locationSummary != 'No location specified')
                   Row(
                     children: [
@@ -428,12 +429,12 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                         size: 14,
                         color: dk ? Colors.white38 : Colors.black38,
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4.w),
                       Expanded(
                         child: Text(
                           c.locationSummary,
                           style: GoogleFonts.inter(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             color: dk ? Colors.white54 : Colors.black45,
                           ),
                           maxLines: 1,
@@ -443,7 +444,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                     ],
                   ),
                 if (c.surveyNumber != null && c.surveyNumber!.isNotEmpty) ...[
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   Row(
                     children: [
                       Icon(
@@ -451,23 +452,23 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                         size: 14,
                         color: dk ? Colors.white38 : Colors.black38,
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4.w),
                       Text(
                         'S.No: ${c.surveyNumber}',
                         style: GoogleFonts.inter(
-                          fontSize: 12,
+                          fontSize: 12.sp,
                           color: dk ? Colors.white54 : Colors.black45,
                         ),
                       ),
                     ],
                   ),
                 ],
-                const SizedBox(height: 12),
+                SizedBox(height: 12.h),
                 Row(
                   children: [
                     if (c.warrantDate != null) ...[
                       _dateChip('Warrant', c.warrantDate!, dk),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8.w),
                     ],
                     if (c.deadlineDate != null)
                       _dateChip(
@@ -484,12 +485,12 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                       ),
                       decoration: BoxDecoration(
                         color: sc.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: Text(
                         c.status.label,
                         style: GoogleFonts.inter(
-                          fontSize: 10,
+                          fontSize: 10.sp,
                           fontWeight: FontWeight.w600,
                           color: sc,
                         ),
@@ -530,10 +531,10 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
       text = '${days}D';
     }
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),
         boxShadow:
             isOverdue
                 ? [
@@ -547,7 +548,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
       child: Text(
         text,
         style: GoogleFonts.inter(
-          fontSize: 11,
+          fontSize: 11.sp,
           fontWeight: FontWeight.w800,
           color: textColor,
           letterSpacing: 0.5,
@@ -558,7 +559,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
 
   Widget _dateChip(String l, DateTime d, bool dk, {bool over = false}) =>
       Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
         decoration: BoxDecoration(
           color:
               over
@@ -566,12 +567,12 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                   : (dk
                       ? Colors.white.withValues(alpha: 0.06)
                       : Colors.black.withValues(alpha: 0.04)),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
         ),
         child: Text(
           '$l: ${DateFormat('dd MMM').format(d)}',
           style: GoogleFonts.inter(
-            fontSize: 10,
+            fontSize: 10.sp,
             fontWeight: FontWeight.w500,
             color:
                 over ? AppTheme.error : (dk ? Colors.white54 : Colors.black45),
@@ -584,7 +585,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24.r),
           decoration: BoxDecoration(
             color: AppTheme.accent.withValues(alpha: 0.08),
             shape: BoxShape.circle,
@@ -595,20 +596,20 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
             color: AppTheme.accent.withValues(alpha: 0.5),
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20.h),
         Text(
           'No Commissions Yet',
           style: GoogleFonts.outfit(
-            fontSize: 20,
+            fontSize: 20.sp,
             fontWeight: FontWeight.w600,
             color: dk ? Colors.white70 : Colors.black54,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         Text(
           'Tap + to create your first commission',
           style: GoogleFonts.inter(
-            fontSize: 13,
+            fontSize: 13.sp,
             color: dk ? Colors.white38 : Colors.black38,
           ),
         ),
@@ -643,30 +644,30 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                   decoration: BoxDecoration(
                     color: dk ? const Color(0xFF1E1E2E) : Colors.white,
                     borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(24),
-                      topRight: Radius.circular(24),
+                      topLeft: Radius.circular(24.r),
+                      topRight: Radius.circular(24.r),
                     ),
                   ),
                   child: Column(
                     children: [
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12.h),
                       Container(
-                        width: 40,
-                        height: 4,
+                        width: 40.w,
+                        height: 4.h,
                         decoration: BoxDecoration(
                           color: Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(2),
+                          borderRadius: BorderRadius.circular(2.r),
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(20),
+                        padding: EdgeInsets.all(20.r),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               'New Commission',
                               style: GoogleFonts.outfit(
-                                fontSize: 22,
+                                fontSize: 22.sp,
                                 fontWeight: FontWeight.w700,
                                 color:
                                     dk ? Colors.white : const Color(0xFF1E293B),
@@ -681,17 +682,17 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                       ),
                       Expanded(
                         child: ListView(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: EdgeInsets.symmetric(horizontal: 20.w),
                           children: [
                             Text(
                               'Commission Type',
                               style: GoogleFonts.inter(
-                                fontSize: 13,
+                                fontSize: 13.sp,
                                 fontWeight: FontWeight.w600,
                                 color: dk ? Colors.white70 : Colors.black54,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8.h),
                             Wrap(
                               spacing: 8,
                               runSpacing: 8,
@@ -702,7 +703,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                                           label: Text(
                                             t.label,
                                             style: GoogleFonts.inter(
-                                              fontSize: 12,
+                                              fontSize: 12.sp,
                                             ),
                                           ),
                                           selected: selType == t,
@@ -714,7 +715,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                                       )
                                       .toList(),
                             ),
-                            const SizedBox(height: 20),
+                            SizedBox(height: 20.h),
                             _field('Case Number', caseNum, dk),
                             _field('Court Name', court, dk),
                             Row(
@@ -727,7 +728,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                                     (d) => ss(() => wDate = d),
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                SizedBox(width: 12.w),
                                 Expanded(
                                   child: _datePick(
                                     'Deadline',
@@ -738,45 +739,45 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16.h),
                             Text(
                               'Property Details',
                               style: GoogleFonts.inter(
-                                fontSize: 13,
+                                fontSize: 13.sp,
                                 fontWeight: FontWeight.w600,
                                 color: dk ? Colors.white70 : Colors.black54,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8.h),
                             _field('Description', prop, dk, ml: 2),
                             _field('Survey No.', survey, dk),
                             Row(
                               children: [
                                 Expanded(child: _field('Village', village, dk)),
-                                const SizedBox(width: 12),
+                                SizedBox(width: 12.w),
                                 Expanded(child: _field('Taluk', taluk, dk)),
                               ],
                             ),
                             _field('District', district, dk),
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16.h),
                             Text(
                               'Parties',
                               style: GoogleFonts.inter(
-                                fontSize: 13,
+                                fontSize: 13.sp,
                                 fontWeight: FontWeight.w600,
                                 color: dk ? Colors.white70 : Colors.black54,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8.h),
                             _field('Petitioner', pet, dk),
                             _field('Respondent', resp, dk),
                             _field('Scope of Work', scope, dk, ml: 3),
-                            const SizedBox(height: 80),
+                            SizedBox(height: 80.h),
                           ],
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.all(20),
+                        padding: EdgeInsets.all(20.r),
                         decoration: BoxDecoration(
                           border: Border(
                             top: BorderSide(
@@ -786,7 +787,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                         ),
                         child: SizedBox(
                           width: double.infinity,
-                          height: 48,
+                          height: 48.h,
                           child: ElevatedButton(
                             onPressed: () async {
                               try {
@@ -851,7 +852,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.accent,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(14.r),
                               ),
                             ),
                             child: Text(
@@ -873,34 +874,34 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
 
   Widget _field(String l, TextEditingController c, bool dk, {int ml = 1}) =>
       Padding(
-        padding: const EdgeInsets.only(bottom: 12),
+        padding: EdgeInsets.only(bottom: 12.h),
         child: TextField(
           controller: c,
           maxLines: ml,
           style: GoogleFonts.inter(
-            fontSize: 14,
+            fontSize: 14.sp,
             color: dk ? Colors.white : const Color(0xFF1E293B),
           ),
           decoration: InputDecoration(
             labelText: l,
             labelStyle: GoogleFonts.inter(
-              fontSize: 13,
+              fontSize: 13.sp,
               color: dk ? Colors.white38 : Colors.black38,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               borderSide: BorderSide(
                 color: dk ? Colors.white10 : AppTheme.borderLight,
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               borderSide: BorderSide(
                 color: dk ? Colors.white10 : AppTheme.borderLight,
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               borderSide: const BorderSide(color: AppTheme.accent),
             ),
             filled: true,
@@ -918,7 +919,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
 
   Widget _datePick(String l, DateTime? d, bool dk, Function(DateTime) cb) =>
       Padding(
-        padding: const EdgeInsets.only(bottom: 12),
+        padding: EdgeInsets.only(bottom: 12.h),
         child: InkWell(
           onTap: () async {
             final p = await showDatePicker(
@@ -933,14 +934,14 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
             decoration: InputDecoration(
               labelText: l,
               labelStyle: GoogleFonts.inter(
-                fontSize: 13,
+                fontSize: 13.sp,
                 color: dk ? Colors.white38 : Colors.black38,
               ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
                 borderSide: BorderSide(
                   color: dk ? Colors.white10 : AppTheme.borderLight,
                 ),
@@ -963,7 +964,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
             child: Text(
               d != null ? DateFormat('dd MMM yyyy').format(d) : 'Select',
               style: GoogleFonts.inter(
-                fontSize: 14,
+                fontSize: 14.sp,
                 color:
                     d != null
                         ? (dk ? Colors.white : const Color(0xFF1E293B))

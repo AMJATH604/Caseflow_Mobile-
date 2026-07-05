@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../services/supabase_service.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class GlobalSearchDelegate extends SearchDelegate {
   @override
@@ -50,7 +51,7 @@ class GlobalSearchDelegate extends SearchDelegate {
           children: [
             if (cases.isNotEmpty) ...[
               const Padding(
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.all(16.r),
                 child: Text(
                   'CASES',
                   style: TextStyle(
@@ -73,7 +74,7 @@ class GlobalSearchDelegate extends SearchDelegate {
             ],
             if (clients.isNotEmpty) ...[
               const Padding(
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.all(16.r),
                 child: Text(
                   'CLIENTS',
                   style: TextStyle(

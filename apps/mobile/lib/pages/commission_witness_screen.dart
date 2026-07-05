@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import '../services/commission_service.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CommissionWitnessScreen extends ConsumerStatefulWidget {
   final String commissionId;
@@ -106,29 +107,29 @@ class _CommissionWitnessScreenState
         actions: [
           if (_saving)
             const Padding(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.all(16.r),
               child: SizedBox(
-                width: 20,
-                height: 20,
+                width: 20.w,
+                height: 20.h,
                 child: CircularProgressIndicator(strokeWidth: 2),
               ),
             ),
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.r),
         children: [
           // Section 1: Witness Photo
           _sectionHeader(dk, Icons.camera_alt, 'Witness Photo', AppTheme.info),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           _buildPhotoCapture(dk),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
 
           // Section 2: Witness Details
           _sectionHeader(dk, Icons.person, 'Witness Details', AppTheme.accent),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           _buildDetailsCard(dk),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
 
           // Section 3: Statement (Text/Dictation)
           _sectionHeader(
@@ -137,9 +138,9 @@ class _CommissionWitnessScreenState
             'Statement (Text)',
             AppTheme.accentViolet,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           _buildStatementCard(dk),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
 
           // Section 4: Audio Statement (NEW)
           _sectionHeader(
@@ -148,19 +149,19 @@ class _CommissionWitnessScreenState
             'Audio Statement (Original Voice)',
             AppTheme.error,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           _buildAudioRecorder(dk),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
 
           // Section 5: Signature
           _sectionHeader(dk, Icons.draw, 'Digital Signature', AppTheme.warning),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           _buildSignaturePad(dk),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
 
           // Save Button
           SizedBox(
-            height: 54,
+            height: 54.h,
             child: ElevatedButton.icon(
               onPressed: _saving ? null : _saveWitness,
               icon: const Icon(Icons.save_rounded),
@@ -168,19 +169,19 @@ class _CommissionWitnessScreenState
                 'Save Witness Record',
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w700,
-                  fontSize: 15,
+                  fontSize: 15.sp,
                 ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.accent,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(16.r),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: 40.h),
         ],
       ),
     );
@@ -190,18 +191,18 @@ class _CommissionWitnessScreenState
       Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: EdgeInsets.all(6.r),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.r),
             ),
             child: Icon(icon, size: 18, color: color),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10.w),
           Text(
             title,
             style: GoogleFonts.outfit(
-              fontSize: 16,
+              fontSize: 16.sp,
               fontWeight: FontWeight.w700,
               color: dk ? Colors.white : const Color(0xFF1E293B),
             ),
@@ -213,7 +214,7 @@ class _CommissionWitnessScreenState
   Widget _buildPhotoCapture(bool dk) => Container(
     decoration: BoxDecoration(
       color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16.r),
       border: Border.all(
         color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
       ),
@@ -223,17 +224,17 @@ class _CommissionWitnessScreenState
             ? Stack(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(15.r),
                   child: Image.memory(
                     _photoBytes!,
                     width: double.infinity,
-                    height: 200,
+                    height: 200.h,
                     fit: BoxFit.cover,
                   ),
                 ),
                 Positioned(
-                  top: 8,
-                  right: 8,
+                  top: 8.h,
+                  right: 8.w,
                   child: IconButton(
                     onPressed: () => setState(() => _photoBytes = null),
                     icon: const Icon(Icons.close, color: Colors.white),
@@ -246,9 +247,9 @@ class _CommissionWitnessScreenState
             )
             : InkWell(
               onTap: _capturePhoto,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               child: Padding(
-                padding: const EdgeInsets.all(32),
+                padding: EdgeInsets.all(32.r),
                 child: Column(
                   children: [
                     Icon(
@@ -256,19 +257,19 @@ class _CommissionWitnessScreenState
                       size: 40,
                       color: dk ? Colors.white24 : Colors.black26,
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8.h),
                     Text(
                       'Tap to capture witness photo',
                       style: GoogleFonts.inter(
-                        fontSize: 13,
+                        fontSize: 13.sp,
                         color: dk ? Colors.white38 : Colors.black38,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                     Text(
                       'Photo will be GPS-tagged',
                       style: GoogleFonts.inter(
-                        fontSize: 11,
+                        fontSize: 11.sp,
                         color: dk ? Colors.white24 : Colors.black26,
                       ),
                     ),
@@ -280,10 +281,10 @@ class _CommissionWitnessScreenState
 
   // ─── Details Card ─────────────────────────────────────
   Widget _buildDetailsCard(bool dk) => Container(
-    padding: const EdgeInsets.all(16),
+    padding: EdgeInsets.all(16.r),
     decoration: BoxDecoration(
       color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16.r),
       border: Border.all(
         color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
       ),
@@ -293,33 +294,33 @@ class _CommissionWitnessScreenState
         TextField(
           controller: _nameCtrl,
           style: GoogleFonts.inter(
-            fontSize: 14,
+            fontSize: 14.sp,
             color: dk ? Colors.white : const Color(0xFF1E293B),
           ),
           decoration: InputDecoration(
             labelText: 'Full Name *',
             hintText: 'Enter witness full name',
             prefixIcon: const Icon(Icons.person_outline, size: 20),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               borderSide: const BorderSide(color: AppTheme.accent),
             ),
           ),
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: 14.h),
         DropdownButtonFormField<String>(
           initialValue: _idType,
           style: GoogleFonts.inter(
-            fontSize: 14,
+            fontSize: 14.sp,
             color: dk ? Colors.white : const Color(0xFF1E293B),
           ),
           decoration: InputDecoration(
             labelText: 'ID Type',
             prefixIcon: const Icon(Icons.badge_outlined, size: 20),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               borderSide: const BorderSide(color: AppTheme.accent),
             ),
           ),
@@ -334,20 +335,20 @@ class _CommissionWitnessScreenState
                   .toList(),
           onChanged: (v) => setState(() => _idType = v ?? 'aadhaar'),
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: 14.h),
         TextField(
           controller: _idNumberCtrl,
           style: GoogleFonts.inter(
-            fontSize: 14,
+            fontSize: 14.sp,
             color: dk ? Colors.white : const Color(0xFF1E293B),
           ),
           decoration: InputDecoration(
             labelText: 'ID Number',
             hintText: 'Enter ID number',
             prefixIcon: const Icon(Icons.numbers, size: 20),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               borderSide: const BorderSide(color: AppTheme.accent),
             ),
           ),
@@ -358,10 +359,10 @@ class _CommissionWitnessScreenState
 
   // ─── Statement Card ───────────────────────────────────
   Widget _buildStatementCard(bool dk) => Container(
-    padding: const EdgeInsets.all(16),
+    padding: EdgeInsets.all(16.r),
     decoration: BoxDecoration(
       color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16.r),
       border: Border.all(
         color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
       ),
@@ -372,26 +373,26 @@ class _CommissionWitnessScreenState
           controller: _statementCtrl,
           maxLines: 8,
           style: GoogleFonts.inter(
-            fontSize: 14,
-            height: 1.6,
+            fontSize: 14.sp,
+            height: 1.6.h,
             color: dk ? Colors.white : const Color(0xFF1E293B),
           ),
           decoration: InputDecoration(
             hintText:
                 'Record witness statement...\n\nTap the mic button to dictate.',
             alignLabelWithHint: true,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.r)),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               borderSide: const BorderSide(color: AppTheme.accent),
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12.h),
         // Voice dictation button
         SizedBox(
           width: double.infinity,
-          height: 48,
+          height: 48.h,
           child: ElevatedButton.icon(
             onPressed: _speechAvailable ? _toggleListening : null,
             icon: Icon(_isListening ? Icons.stop : Icons.mic, size: 20),
@@ -404,19 +405,19 @@ class _CommissionWitnessScreenState
                   _isListening ? AppTheme.error : AppTheme.accentViolet,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
               ),
             ),
           ),
         ),
         if (_isListening)
           Padding(
-            padding: const EdgeInsets.only(top: 8),
+            padding: EdgeInsets.only(top: 8.h),
             child: Row(
               children: [
                 Container(
-                  width: 10,
-                  height: 10,
+                  width: 10.w,
+                  height: 10.h,
                   decoration: BoxDecoration(
                     color: AppTheme.error,
                     shape: BoxShape.circle,
@@ -428,11 +429,11 @@ class _CommissionWitnessScreenState
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
                 Text(
                   'Listening... Speak clearly',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: AppTheme.error,
                     fontWeight: FontWeight.w500,
                   ),
@@ -446,10 +447,10 @@ class _CommissionWitnessScreenState
 
   // ─── Audio Statement Recorder (NEW) ───────────────────
   Widget _buildAudioRecorder(bool dk) => Container(
-    padding: const EdgeInsets.all(16),
+    padding: EdgeInsets.all(16.r),
     decoration: BoxDecoration(
       color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16.r),
       border: Border.all(
         color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
       ),
@@ -467,12 +468,12 @@ class _CommissionWitnessScreenState
                         ? 'Recording...'
                         : 'Record Audio Statement'),
                 style: GoogleFonts.inter(
-                  fontSize: 14,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                   color: dk ? Colors.white : const Color(0xFF1E293B),
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4.h),
               Text(
                 _audioPath != null
                     ? 'Original voice statement captured'
@@ -480,7 +481,7 @@ class _CommissionWitnessScreenState
                         ? 'Recording in progress'
                         : 'Tap to record original voice'),
                 style: GoogleFonts.inter(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   color: dk ? Colors.white38 : Colors.black38,
                 ),
               ),
@@ -492,11 +493,11 @@ class _CommissionWitnessScreenState
             onPressed: () => setState(() => _audioPath = null),
             icon: const Icon(Icons.delete_outline, color: AppTheme.error),
           ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8.w),
         GestureDetector(
           onTap: _toggleRecording,
           child: Container(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12.r),
             decoration: BoxDecoration(
               color:
                   _isRecording
@@ -526,7 +527,7 @@ class _CommissionWitnessScreenState
   Widget _buildSignaturePad(bool dk) => Container(
     decoration: BoxDecoration(
       color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16.r),
       border: Border.all(
         color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
       ),
@@ -553,12 +554,12 @@ class _CommissionWitnessScreenState
               }
             },
             child: Container(
-              height: 150,
+              height: 150.h,
               width: double.infinity,
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(15),
+                  top: Radius.circular(15.r),
                 ),
               ),
               child: CustomPaint(
@@ -571,7 +572,7 @@ class _CommissionWitnessScreenState
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
           decoration: BoxDecoration(
             border: Border(
               top: BorderSide(
@@ -584,7 +585,7 @@ class _CommissionWitnessScreenState
               Text(
                 'Sign above with finger',
                 style: GoogleFonts.inter(
-                  fontSize: 11,
+                  fontSize: 11.sp,
                   color: dk ? Colors.white38 : Colors.black38,
                 ),
               ),

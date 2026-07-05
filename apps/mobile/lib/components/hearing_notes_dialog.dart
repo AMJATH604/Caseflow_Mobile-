@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../services/supabase_service.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Dialog for adding/viewing notes on a hearing
 /// Notes are stored in the hearing's 'notes' field in Supabase
@@ -69,10 +70,10 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 500),
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24.r),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,10 +82,10 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(8.r),
                   decoration: BoxDecoration(
                     color: AppTheme.accent.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: const Icon(
                     Icons.edit_note,
@@ -92,7 +93,7 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
                     size: 20,
                   ),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,12 +102,12 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
                         'Hearing Notes',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: 16.sp,
                         ),
                       ),
                       Text(
                         "${widget.caseTitle} • ${DateFormat('dd MMM yyyy').format(widget.hearingDate)}",
-                        style: TextStyle(color: Colors.grey[500], fontSize: 11),
+                        style: TextStyle(color: Colors.grey[500], fontSize: 11.sp),
                       ),
                     ],
                   ),
@@ -117,14 +118,14 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
 
             // Quick note chips
             const Text(
               'Quick Notes:',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Wrap(
               spacing: 6,
               runSpacing: 6,
@@ -139,7 +140,7 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
                 _quickChip('Next date fixed'),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
 
             // Notes text field
             TextField(
@@ -148,25 +149,25 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
               decoration: InputDecoration(
                 hintText:
                     'Type your hearing notes here...\n\nE.g. Judge asked for written arguments by next date.\nOpposing counsel requested adjournment.',
-                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
+                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13.sp),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
 
             // Save button
             SizedBox(
               width: double.infinity,
-              height: 48,
+              height: 48.h,
               child: ElevatedButton.icon(
                 onPressed: _isSaving ? null : _saveNotes,
                 icon:
                     _isSaving
-                        ? const SizedBox(
-                          width: 18,
-                          height: 18,
+                        ? SizedBox(
+                          width: 18.w,
+                          height: 18.h,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             color: Colors.white,
@@ -192,16 +193,16 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
         );
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
         decoration: BoxDecoration(
           color: AppTheme.accent.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(20.r),
           border: Border.all(color: AppTheme.accent.withValues(alpha: 0.15)),
         ),
         child: Text(
           text,
           style: const TextStyle(
-            fontSize: 11,
+            fontSize: 11.sp,
             color: AppTheme.accent,
             fontWeight: FontWeight.w500,
           ),

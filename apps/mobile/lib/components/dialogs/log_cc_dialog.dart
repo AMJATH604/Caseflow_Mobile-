@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../services/supabase_service.dart';
 import '../../services/providers.dart';
 import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LogCCDialog extends ConsumerStatefulWidget {
   const LogCCDialog({super.key});
@@ -48,7 +49,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
             backgroundColor: AppTheme.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
             ),
           ),
         );
@@ -64,7 +65,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
     const themeColor = AppTheme.info;
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28.r)),
       backgroundColor: Colors.white,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 450),
@@ -73,7 +74,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
           children: [
             // ─── Premium Header ───
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(24.r),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -84,16 +85,16 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(28),
+                  top: Radius.circular(28.r),
                 ),
               ),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: EdgeInsets.all(10.r),
                     decoration: BoxDecoration(
                       color: themeColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(14.r),
                     ),
                     child: const Icon(
                       Icons.description_rounded,
@@ -101,7 +102,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                       size: 24,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16.w),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,16 +110,16 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                         Text(
                           'New CC Application',
                           style: GoogleFonts.outfit(
-                            fontSize: 20,
+                            fontSize: 20.sp,
                             fontWeight: FontWeight.bold,
                             color: AppTheme.primary,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2.h),
                         Text(
                           'Log a certified copy tracking entry',
                           style: GoogleFonts.inter(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             color: Colors.grey[500],
                           ),
                         ),
@@ -132,7 +133,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
             // ─── Form Body ───
             Flexible(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(24.r),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -142,20 +143,20 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                       Text(
                         'SELECT CASE',
                         style: GoogleFonts.inter(
-                          fontSize: 11,
+                          fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.grey[400],
                           letterSpacing: 1,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8.h),
                       casesAsync.when(
                         data:
                             (cases) => DropdownButtonFormField<String>(
                               initialValue: _selectedCaseId,
                               style: GoogleFonts.inter(
                                 color: AppTheme.primary,
-                                fontSize: 15,
+                                fontSize: 15.sp,
                               ),
                               decoration: InputDecoration(
                                 hintText: 'Choose a case...',
@@ -168,22 +169,22 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                                   alpha: 0.5,
                                 ),
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(14.r),
                                   borderSide: const BorderSide(
                                     color: AppTheme.border,
                                   ),
                                 ),
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(14.r),
                                   borderSide: const BorderSide(
                                     color: AppTheme.border,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(14.r),
                                   borderSide: const BorderSide(
                                     color: AppTheme.accent,
-                                    width: 1.5,
+                                    width: 1.5.w,
                                   ),
                                 ),
                               ),
@@ -216,19 +217,19 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                               style: const TextStyle(color: AppTheme.error),
                             ),
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20.h),
 
                       // CA Number
                       Text(
                         'CA NUMBER',
                         style: GoogleFonts.inter(
-                          fontSize: 11,
+                          fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.grey[400],
                           letterSpacing: 1,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8.h),
                       TextFormField(
                         controller: _caNumberController,
                         style: GoogleFonts.inter(fontWeight: FontWeight.w600),
@@ -241,35 +242,35 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                           filled: true,
                           fillColor: AppTheme.background.withValues(alpha: 0.5),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14.r),
                             borderSide: const BorderSide(color: AppTheme.border),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14.r),
                             borderSide: const BorderSide(color: AppTheme.border),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14.r),
                             borderSide: const BorderSide(
                               color: AppTheme.accent,
-                              width: 1.5,
+                              width: 1.5.w,
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20.h),
 
                       // Box Drop Date
                       Text(
                         'APPLICATION DATE',
                         style: GoogleFonts.inter(
-                          fontSize: 11,
+                          fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.grey[400],
                           letterSpacing: 1,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8.h),
                       InkWell(
                         onTap: () async {
                           final picked = await showDatePicker(
@@ -282,12 +283,12 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                             setState(() => _boxDropDate = picked);
                           }
                         },
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(14.r),
                         child: Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: EdgeInsets.all(16.r),
                           decoration: BoxDecoration(
                             color: AppTheme.background.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14.r),
                             border: Border.all(color: AppTheme.border),
                           ),
                           child: Row(
@@ -297,12 +298,12 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                                 color: AppTheme.accent,
                                 size: 20,
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12.w),
                               Text(
                                 DateFormat('dd MMMM yyyy').format(_boxDropDate),
                                 style: GoogleFonts.inter(
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 15,
+                                  fontSize: 15.sp,
                                   color: AppTheme.primary,
                                 ),
                               ),
@@ -316,24 +317,24 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20.h),
 
                       // Initial Status
                       Text(
                         'INITIAL STATUS',
                         style: GoogleFonts.inter(
-                          fontSize: 11,
+                          fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.grey[400],
                           letterSpacing: 1,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8.h),
                       DropdownButtonFormField<String>(
                         initialValue: _status,
                         style: GoogleFonts.inter(
                           color: AppTheme.primary,
-                          fontSize: 15,
+                          fontSize: 15.sp,
                         ),
                         decoration: InputDecoration(
                           prefixIcon: const Icon(
@@ -343,18 +344,18 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                           filled: true,
                           fillColor: AppTheme.background.withValues(alpha: 0.5),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14.r),
                             borderSide: const BorderSide(color: AppTheme.border),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14.r),
                             borderSide: const BorderSide(color: AppTheme.border),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14.r),
                             borderSide: const BorderSide(
                               color: AppTheme.accent,
-                              width: 1.5,
+                              width: 1.5.w,
                             ),
                           ),
                         ),
@@ -393,9 +394,9 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: EdgeInsets.symmetric(vertical: 16.h),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(14.r),
                         ),
                         side: const BorderSide(color: AppTheme.border),
                       ),
@@ -408,24 +409,24 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16.w),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _isSaving ? null : _save,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.accent,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: EdgeInsets.symmetric(vertical: 16.h),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(14.r),
                         ),
                         elevation: 0,
                       ),
                       child:
                           _isSaving
-                              ? const SizedBox(
-                                height: 20,
-                                width: 20,
+                              ? SizedBox(
+                                height: 20.h,
+                                width: 20.w,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                   color: Colors.white,
