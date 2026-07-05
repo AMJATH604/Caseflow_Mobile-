@@ -55,7 +55,7 @@ class PartyIntelligenceSection extends StatelessWidget {
                   children: [
                     Text(
                       partyALabel,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 9.sp,
                         fontWeight: FontWeight.w900,
                         color: Color(0xFF94A3B8),
@@ -67,7 +67,7 @@ class PartyIntelligenceSection extends StatelessWidget {
                       isRepPet
                           ? (caseData.clientName ?? 'Unknown')
                           : (caseData.opposingParty ?? 'Not Set'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF1E293B),
@@ -76,7 +76,7 @@ class PartyIntelligenceSection extends StatelessWidget {
                     if (caseData.petitionerAdvocate?.isNotEmpty == true)
                       Text(
                         'Adv. ${caseData.petitionerAdvocate}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11.sp,
                           color: Color(0xFF64748B),
                         ),
@@ -92,7 +92,7 @@ class PartyIntelligenceSection extends StatelessWidget {
                 ),
                 child: Text(
                   isRepPet ? 'YOUR CLIENT' : 'OPPOSING',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 8.sp,
                     fontWeight: FontWeight.w900,
                     color: Color(0xFF2563EB),
@@ -135,7 +135,7 @@ class PartyIntelligenceSection extends StatelessWidget {
                   children: [
                     Text(
                       partyBLabel,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 9.sp,
                         fontWeight: FontWeight.w900,
                         color: Color(0xFF94A3B8),
@@ -147,7 +147,7 @@ class PartyIntelligenceSection extends StatelessWidget {
                       isRepPet
                           ? (caseData.opposingParty ?? 'Not Set')
                           : (caseData.clientName ?? 'Unknown'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF1E293B),
@@ -156,7 +156,7 @@ class PartyIntelligenceSection extends StatelessWidget {
                     if (caseData.opposingAdvocate?.isNotEmpty == true)
                       Text(
                         'Adv. ${caseData.opposingAdvocate}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11.sp,
                           color: Color(0xFF64748B),
                         ),
@@ -172,7 +172,7 @@ class PartyIntelligenceSection extends StatelessWidget {
                 ),
                 child: Text(
                   !isRepPet ? 'YOUR CLIENT' : 'OPPOSING',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 8.sp,
                     fontWeight: FontWeight.w900,
                     color: Color(0xFFDC2626),

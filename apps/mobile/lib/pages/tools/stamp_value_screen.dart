@@ -131,7 +131,7 @@ class _StampValueScreenState extends ConsumerState<StampValueScreen> {
               contentPadding: EdgeInsets.symmetric(vertical: 14.h),
               suffixIcon:
                   _isLoading
-                      ? const Padding(
+                      ? Padding(
                         padding: EdgeInsets.all(12.0.r),
                         child: SizedBox(
                           width: 14.w,

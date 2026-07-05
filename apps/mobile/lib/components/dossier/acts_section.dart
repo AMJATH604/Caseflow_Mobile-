@@ -64,7 +64,7 @@ class ActsSection extends ConsumerWidget {
               top: 24.h,
               bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
             ),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
             ),
@@ -83,7 +83,7 @@ class ActsSection extends ConsumerWidget {
                   ),
                 ),
                 SizedBox(height: 20.h),
-                const Text(
+                Text(
                   'Add Applicable Act',
                   style: TextStyle(
                     fontSize: 18.sp,
@@ -215,7 +215,7 @@ class ActsSection extends ConsumerWidget {
                                             children: [
                                               Text(
                                                 act.actName,
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 13.sp,
                                                   fontWeight: FontWeight.w800,
                                                   color: Color(0xFF1E293B),
@@ -229,7 +229,7 @@ class ActsSection extends ConsumerWidget {
                                                       ),
                                                   child: Text(
                                                     'SECTION ${act.sectionNumber}',
-                                                    style: const TextStyle(
+                                                    style: TextStyle(
                                                       fontSize: 10.sp,
                                                       fontWeight:
                                                           FontWeight.w900,
@@ -271,7 +271,7 @@ class ActsSection extends ConsumerWidget {
                                 .toList(),
                       ),
           loading:
-              () => const Padding(
+              () => Padding(
                 padding: EdgeInsets.all(16.r),
                 child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),

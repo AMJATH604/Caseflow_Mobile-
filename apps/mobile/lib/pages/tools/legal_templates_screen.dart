@@ -122,7 +122,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -173,7 +173,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                       ),
                     ),
                     SizedBox(width: 8.w),
-                    const Text(
+                    Text(
                       'Template Categories',
                       style: TextStyle(
                         fontSize: 16.sp,
@@ -248,7 +248,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                 ),
               ),
               SizedBox(width: 12.w),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -337,10 +337,10 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                 color: AppTheme.primary,
                 size: 28,
               ),
-              const Spacer(),
+              Spacer(),
               Text(
                 category,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w800,
@@ -369,7 +369,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
         elevation: 0,
         title: Text(
           _selectedCategory!.toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.w900,
             letterSpacing: 1.2,
@@ -405,7 +405,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                 _globalSearchController.clear();
               }),
         ),
-        title: const Text(
+        title: Text(
           'Search Templates',
           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 17.sp),
         ),
@@ -485,7 +485,7 @@ class _LegalTemplatesScreenState extends State<LegalTemplatesScreen>
                 Expanded(
                   child: Text(
                     template.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 15.sp,
                     ),

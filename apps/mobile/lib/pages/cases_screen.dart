@@ -106,7 +106,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
           _summaryChip('$active Active', AppTheme.success, isDark),
           SizedBox(width: 8.w),
           _summaryChip('$closed Closed', AppTheme.error, isDark),
-          const Spacer(),
+          Spacer(),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
             decoration: BoxDecoration(
@@ -284,7 +284,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
               letterSpacing: 1.5,
             ),
           ),
-          const Spacer(),
+          Spacer(),
           PopupMenuButton<String>(
             onSelected: (v) => setState(() => _sortBy = v),
             itemBuilder:
@@ -344,7 +344,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
       child: Row(
         children: [
           if (_sortBy == value)
-            const Icon(Icons.check_rounded, size: 16, color: AppTheme.accent),
+            Icon(Icons.check_rounded, size: 16, color: AppTheme.accent),
           if (_sortBy == value) SizedBox(width: 8.w),
           Text(
             label,
@@ -439,7 +439,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
               ),
             ),
             SizedBox(height: 4.h),
-            const Text(
+            Text(
               'No cases match your filters',
               style: TextStyle(fontSize: 12.sp, color: Color(0xFF94A3B8)),
             ),
@@ -486,7 +486,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                       width: 4.w,
                       decoration: BoxDecoration(
                         color: statColor,
-                        borderRadius: const BorderRadius.only(
+                        borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(16.r),
                           bottomLeft: Radius.circular(16.r),
                         ),
@@ -561,7 +561,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                               ),
                                             ),
                                           ),
-                                          child: const Row(
+                                          child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               Icon(
@@ -604,7 +604,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                               ),
                                             ),
                                           ),
-                                          child: const Row(
+                                          child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               Icon(
@@ -795,7 +795,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
           Theme.of(context).brightness == Brightness.dark
               ? AppTheme.darkCard
               : Colors.white,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder:
@@ -847,7 +847,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                       context.push('/cases/${c.id}');
                     },
                   ),
-                  const Divider(height: 1.h),
+                  Divider(height: 1.h),
                   ListTile(
                     leading: const Icon(
                       Icons.delete_outline_rounded,
@@ -860,7 +860,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                         color: AppTheme.error,
                       ),
                     ),
-                    subtitle: const Text(
+                    subtitle: Text(
                       'Permanently remove this case and all records',
                       style: TextStyle(fontSize: 11.sp),
                     ),

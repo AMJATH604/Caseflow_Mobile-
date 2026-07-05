@@ -120,7 +120,7 @@ class _OcrToolState extends State<OcrTool> {
                   color: Color(0xFF1E293B),
                 ),
                 SizedBox(height: 16.h),
-                const Text(
+                Text(
                   'OCR Document Scanner',
                   style: TextStyle(
                     fontSize: 22.sp,
@@ -129,7 +129,7 @@ class _OcrToolState extends State<OcrTool> {
                   ),
                 ),
                 SizedBox(height: 8.h),
-                const Text(
+                Text(
                   'Extract text from photos of court orders, judgments, and legal documents',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white70, fontSize: 13.sp),
@@ -144,7 +144,7 @@ class _OcrToolState extends State<OcrTool> {
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20.r),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
@@ -216,7 +216,7 @@ class _OcrToolState extends State<OcrTool> {
           // ─── Processing ───
           if (_isProcessing) ...[
             SizedBox(height: 40.h),
-            const CircularProgressIndicator(),
+            CircularProgressIndicator(),
             SizedBox(height: 16.h),
             const Text(
               'Analyzing document with ML Kit...',
@@ -236,12 +236,12 @@ class _OcrToolState extends State<OcrTool> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.error_outline, color: Colors.red),
+                  Icon(Icons.error_outline, color: Colors.red),
                   SizedBox(width: 12.w),
                   Expanded(
                     child: Text(
                       _error!,
-                      style: const TextStyle(color: Colors.red, fontSize: 13.sp),
+                      style: TextStyle(color: Colors.red, fontSize: 13.sp),
                     ),
                   ),
                 ],
@@ -260,7 +260,7 @@ class _OcrToolState extends State<OcrTool> {
                   color: AppTheme.primary,
                 ),
                 SizedBox(width: 8.w),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'EXTRACTED TEXT',
                     style: TextStyle(
@@ -274,7 +274,7 @@ class _OcrToolState extends State<OcrTool> {
                 TextButton.icon(
                   onPressed: _copyToClipboard,
                   icon: const Icon(Icons.copy, size: 16),
-                  label: const Text('Copy All', style: TextStyle(fontSize: 12.sp)),
+                  label: Text('Copy All', style: TextStyle(fontSize: 12.sp)),
                 ),
               ],
             ),
@@ -296,7 +296,7 @@ class _OcrToolState extends State<OcrTool> {
               ),
               child: SelectableText(
                 _extractedText!,
-                style: const TextStyle(height: 1.6.h, fontSize: 14.sp),
+                style: TextStyle(height: 1.6.h, fontSize: 14.sp),
               ),
             ),
           ],

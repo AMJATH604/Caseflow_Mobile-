@@ -278,7 +278,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: const BorderSide(
+                borderSide: BorderSide(
                   color: Color(0xFF10B981),
                   width: 2.w,
                 ),
@@ -316,7 +316,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                       : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.search_rounded, size: 18),
+                          Icon(Icons.search_rounded, size: 18),
                           SizedBox(width: 8.w),
                           Text(
                             'Track Case',
@@ -589,7 +589,7 @@ class _TrackCaseScreenState extends ConsumerState<TrackCaseScreen> {
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
               ),
-              const Spacer(),
+              Spacer(),
               Text(
                 '${hearings.length} hearings',
                 style: GoogleFonts.inter(

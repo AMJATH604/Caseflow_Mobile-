@@ -226,7 +226,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               _sectionLabel('Case Category'),
               SizedBox(height: 8.h),
               SegmentedButton<String>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: 'Civil',
                     label: Text('Civil', style: TextStyle(fontSize: 12.sp)),
@@ -253,7 +253,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
                             value: t,
                             label: Text(
                               t.label,
-                              style: const TextStyle(fontSize: 12.sp),
+                              style: TextStyle(fontSize: 12.sp),
                             ),
                           ),
                         )
@@ -270,14 +270,14 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
                     value: RepresentationType.petitioner,
                     label: Text(
                       _partyALabel,
-                      style: const TextStyle(fontSize: 12.sp),
+                      style: TextStyle(fontSize: 12.sp),
                     ),
                   ),
                   ButtonSegment(
                     value: RepresentationType.respondent,
                     label: Text(
                       _partyBLabel,
-                      style: const TextStyle(fontSize: 12.sp),
+                      style: TextStyle(fontSize: 12.sp),
                     ),
                   ),
                 ],
@@ -317,14 +317,14 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
                 Padding(
                   padding: EdgeInsets.only(top: 12.h),
                   child: SwitchListTile(
-                    title: const Text(
+                    title: Text(
                       'Enable Background Tracking',
                       style: TextStyle(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    subtitle: const Text(
+                    subtitle: Text(
                       "We'll poll eCourts daily for updates",
                       style: TextStyle(fontSize: 11.sp),
                     ),
@@ -591,7 +591,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
   Widget _sectionLabel(String text) {
     return Text(
       text.toUpperCase(),
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 11.sp,
         fontWeight: FontWeight.w800,
         color: Colors.grey,
@@ -637,7 +637,7 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               ),
               Text(
                 subtitle,
-                style: const TextStyle(fontSize: 10.sp, color: Colors.grey),
+                style: TextStyle(fontSize: 10.sp, color: Colors.grey),
               ),
             ],
           ),

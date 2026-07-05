@@ -332,7 +332,7 @@ Deno.serve(async (req: Request) => {
         }
       } catch (e) {
         failCount++;
-        errors.push(`Token ${t.token.substring(0, 10)}...: ${e.message}`);
+        errors.push(`Token ${t.token.substring(0, 10)}...: ${(e as any).message}`);
       }
     }
 

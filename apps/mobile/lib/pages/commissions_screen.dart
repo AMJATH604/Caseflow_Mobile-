@@ -643,7 +643,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                   height: MediaQuery.of(ctx).size.height * 0.9,
                   decoration: BoxDecoration(
                     color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-                    borderRadius: const BorderRadius.only(
+                    borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(24.r),
                       topRight: Radius.circular(24.r),
                     ),

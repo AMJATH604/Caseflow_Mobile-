@@ -290,7 +290,7 @@ class _MactCalculatorState extends State<MactCalculator> {
     Clipboard.setData(ClipboardData(text: sb.toString()));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Row(
+        content: Row(
           children: [
             Icon(Icons.check_circle, color: Colors.white, size: 18),
             SizedBox(width: 8.w),
@@ -576,7 +576,7 @@ class _MactCalculatorState extends State<MactCalculator> {
               trailing: TextButton.icon(
                 onPressed: _copyToClipboard,
                 icon: const Icon(Icons.copy_rounded, size: 14),
-                label: const Text('Copy', style: TextStyle(fontSize: 12.sp)),
+                label: Text('Copy', style: TextStyle(fontSize: 12.sp)),
               ),
               children: [
                 // Total
@@ -598,7 +598,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'TOTAL COMPENSATION',
                         style: TextStyle(
                           fontWeight: FontWeight.w800,
@@ -607,7 +607,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                       ),
                       Text(
                         fmt.format(_totalCompensation),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 22.sp,
                           color: Colors.green,
@@ -640,7 +640,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                             children: [
                               Text(
                                 r['head'],
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14.sp,
                                 ),
@@ -658,7 +658,7 @@ class _MactCalculatorState extends State<MactCalculator> {
                         ),
                         Text(
                           fmt.format(r['amount']),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w900,
                             fontSize: 15.sp,
                             color: AppTheme.primary,

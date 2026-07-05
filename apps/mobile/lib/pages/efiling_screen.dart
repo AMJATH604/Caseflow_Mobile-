@@ -10,7 +10,7 @@ import 'package:caseflow/components/dialogs/new_case_dialog.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EFilingScreen extends ConsumerWidget {
-  const EFilingScreen({super.key});
+  EFilingScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -72,7 +72,7 @@ class EFilingScreen extends ConsumerWidget {
                 fontFamily: 'Playfair Display',
               ),
             ),
-            const Text(
+            Text(
               'Track filing progress',
               style: TextStyle(color: Colors.grey, fontSize: 14.sp),
             ),
@@ -149,7 +149,7 @@ class EFilingScreen extends ConsumerWidget {
                   SizedBox(height: 12.h),
                   Text(
                     r.documentType.toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.grey,
@@ -171,7 +171,7 @@ class EFilingScreen extends ConsumerWidget {
                       padding: EdgeInsets.only(top: 8.h),
                       child: Text(
                         'DEFECT: ${r.defectNotes}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11.sp,
                           color: Colors.red,
                           fontWeight: FontWeight.w500,

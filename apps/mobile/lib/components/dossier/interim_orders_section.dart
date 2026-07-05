@@ -76,7 +76,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                     top: 24.h,
                     bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(24.r),
@@ -98,7 +98,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                           ),
                         ),
                         SizedBox(height: 20.h),
-                        const Text(
+                        Text(
                           'Add Interim Order',
                           style: TextStyle(
                             fontSize: 18.sp,
@@ -237,11 +237,11 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
         children: [
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Color(0xFFF1F5F9),
               borderRadius: BorderRadius.vertical(top: Radius.circular(7.r)),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Expanded(
                   flex: 1,
@@ -297,7 +297,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                     flex: 1,
                     child: Text(
                       '${order.orderNumber ?? idx + 1}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF1E293B),
@@ -308,7 +308,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                     flex: 2,
                     child: Text(
                       df.format(order.orderDate),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF64748B),
@@ -332,7 +332,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                               child: Text(
                                 order.orderSummary ??
                                     "Copy Of ${order.orderType == 'deposition' ? 'Deposition' : 'Order'}",
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w700,
                                   color: Color(0xFF059669),
@@ -343,7 +343,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                             : Text(
                               order.orderSummary ??
                                   "Copy Of ${order.orderType == 'deposition' ? 'Deposition' : 'Order'}",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12.sp,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF64748B),
@@ -386,7 +386,7 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                       )
                       : _buildInterimOrdersTable(orders),
           loading:
-              () => const Padding(
+              () => Padding(
                 padding: EdgeInsets.all(16.r),
                 child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),

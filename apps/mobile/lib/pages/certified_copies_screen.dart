@@ -183,7 +183,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
         ),
 
         // Bottom padding for FAB
-        const SliverToBoxAdapter(child: SizedBox(height: 100.h)),
+        SliverToBoxAdapter(child: SizedBox(height: 100.h)),
       ],
     );
   }
@@ -200,7 +200,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
         ),
         child: Column(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 18.sp)),
+            Text(emoji, style: TextStyle(fontSize: 18.sp)),
             SizedBox(height: 4.h),
             Text(
               count,
@@ -586,7 +586,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
       decoration: BoxDecoration(
         color: AppTheme.background.withValues(alpha: 0.4),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20.r)),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(20.r)),
       ),
       child: Column(
         children: [
@@ -594,7 +594,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
           Row(
             children: [
               if (expectedDate != null && c.status != 'collected') ...[
-                const Icon(Icons.schedule_rounded, size: 14, color: AppTheme.warning),
+                Icon(Icons.schedule_rounded, size: 14, color: AppTheme.warning),
                 SizedBox(width: 6.w),
                 Text(
                   "Expected: ${DateFormat('dd MMM yyyy').format(expectedDate)}",
@@ -604,7 +604,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                     color: AppTheme.warning,
                   ),
                 ),
-                const Spacer(),
+                Spacer(),
               ],
               Icon(Icons.update_rounded, size: 14, color: Colors.grey[400]),
               SizedBox(width: 6.w),
@@ -700,7 +700,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
           (context) => [
             PopupMenuItem(
               onTap: () => _confirmDelete(context, ref, c),
-              child: const Row(
+              child: Row(
                 children: [
                   Icon(Icons.delete_outline, color: Colors.red, size: 20),
                   SizedBox(width: 12.w),
@@ -873,7 +873,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
-                            borderRadius: const BorderRadius.vertical(
+                            borderRadius: BorderRadius.vertical(
                               top: Radius.circular(28.r),
                             ),
                           ),
@@ -965,7 +965,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14.r),
-                                    borderSide: const BorderSide(
+                                    borderSide: BorderSide(
                                       color: AppTheme.accent,
                                       width: 1.5.w,
                                     ),

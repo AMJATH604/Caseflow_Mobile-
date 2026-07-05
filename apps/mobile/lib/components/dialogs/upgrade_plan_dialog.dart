@@ -148,7 +148,7 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
             SizedBox(height: 20.h),
             Text(
               'Unlock CaseFlow $planName',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22.sp,
                 fontWeight: FontWeight.bold,
                 letterSpacing: -0.5,
@@ -244,7 +244,7 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                     children: [
                       Text(
                         '$planName Plan',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15.sp,
                         ),
@@ -257,7 +257,7 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                       ),
                     ],
                   ),
-                  const Spacer(),
+                  Spacer(),
                   Text(
                     isPro
                         ? '₹${AppConfig.proPlanPrice.toInt()}'
@@ -299,7 +299,7 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
                         )
                         : Text(
                           'Upgrade to $planName',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.bold,
                           ),
@@ -348,7 +348,7 @@ class _UpgradePlanDialogState extends State<UpgradePlanDialog> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                   ),

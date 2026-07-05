@@ -34,7 +34,7 @@ class DailyBoardWidget extends ConsumerWidget {
             Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 24.w),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppTheme.secondary,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
                 border: Border(
@@ -64,7 +64,7 @@ class DailyBoardWidget extends ConsumerWidget {
                           letterSpacing: 1,
                         ),
                       ),
-                      const Spacer(),
+                      Spacer(),
                       Text(
                         '${todayHearings.length} HEARINGS',
                         style: GoogleFonts.inter(
@@ -103,7 +103,7 @@ class DailyBoardWidget extends ConsumerWidget {
                     ),
                     borderRadius:
                         isLast
-                            ? const BorderRadius.vertical(
+                            ? BorderRadius.vertical(
                               bottom: Radius.circular(16.r),
                             )
                             : null,

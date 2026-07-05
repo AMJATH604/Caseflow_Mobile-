@@ -138,7 +138,7 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
                           color: widget.accentColor,
                         ),
                       ),
-                      const Spacer(),
+                      Spacer(),
                       if (widget.showPulse && numValue > 0)
                         FadeTransition(
                           opacity: _pulseController,
@@ -234,7 +234,7 @@ class StatChip extends StatelessWidget {
   final Color color;
   final IconData icon;
 
-  const StatChip({
+  StatChip({
     super.key,
     required this.label,
     required this.value,

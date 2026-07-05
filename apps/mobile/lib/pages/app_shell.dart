@@ -70,7 +70,7 @@ class _AppShellState extends ConsumerState<AppShell> {
           ScaffoldMessenger.of(context).clearSnackBars();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Row(
+              content: Row(
                 children: [
                   Icon(
                     Icons.exit_to_app_rounded,

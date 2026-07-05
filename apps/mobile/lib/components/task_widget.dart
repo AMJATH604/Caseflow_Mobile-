@@ -7,7 +7,7 @@ import '../theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TaskWidget extends ConsumerWidget {
-  const TaskWidget({super.key});
+  TaskWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,7 +45,7 @@ class TaskWidget extends ConsumerWidget {
           tasksAsync.when(
             data: (tasks) {
               if (tasks.isEmpty) {
-                return const Center(
+                return Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 20.h),
                     child: Text(
@@ -70,7 +70,7 @@ class TaskWidget extends ConsumerWidget {
                       size: 32,
                     ),
                     SizedBox(height: 8.h),
-                    const Text(
+                    Text(
                       'Unable to load tasks',
                       style: TextStyle(
                         color: Colors.grey,

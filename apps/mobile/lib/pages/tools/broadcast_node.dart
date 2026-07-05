@@ -117,7 +117,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
   void _showAttachmentSheet(String firmId) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder:
@@ -259,7 +259,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                 allNotices.sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
                 if (allNotices.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
                       'No broadcasts found.',
                       style: TextStyle(color: Colors.grey, fontSize: 12.sp),
@@ -511,7 +511,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
             Theme.of(context).brightness == Brightness.dark
                 ? Colors.black.withOpacity(0.2)
                 : Colors.black.withOpacity(0.02),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16.r)),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(16.r)),
       ),
       child: Row(
         children: [
@@ -526,7 +526,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
           Expanded(
             child: TextField(
               controller: _noticeController,
-              style: const TextStyle(fontSize: 14.sp),
+              style: TextStyle(fontSize: 14.sp),
               decoration: InputDecoration(
                 hintText:
                     _isUploading ? 'Uploading...' : 'Broadcast to firm...',

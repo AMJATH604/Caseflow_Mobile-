@@ -29,8 +29,8 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
       const Color(0xFFF59E0B),
       const Color(0xFFEF4444),
       const Color(0xFF8B5CF6),
-      const Color(0xFFEC4899),
-      const Color(0xFF14B8A6),
+      Color(0xFFEC4899),
+      Color(0xFF14B8A6),
     ];
     return colors[name.hashCode.abs() % colors.length];
   }

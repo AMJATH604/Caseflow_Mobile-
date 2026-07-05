@@ -148,7 +148,7 @@ class _PortalsScreenState extends State<PortalsScreen>
                   SliverToBoxAdapter(child: _buildActionSection()),
                   // Footer Disclaimer
                   SliverToBoxAdapter(child: _buildFooter()),
-                  const SliverToBoxAdapter(child: SizedBox(height: 100.h)),
+                  SliverToBoxAdapter(child: SizedBox(height: 100.h)),
                 ],
               ),
     );
@@ -460,7 +460,7 @@ class _PortalsScreenState extends State<PortalsScreen>
                     size: 22,
                   ),
                 ),
-                const Spacer(),
+                Spacer(),
                 if (isSelected)
                   Container(
                     width: 22.w,
@@ -635,7 +635,7 @@ class _PortalsScreenState extends State<PortalsScreen>
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14.r),
-              borderSide: const BorderSide(color: AppTheme.accent, width: 1.5.w),
+              borderSide: BorderSide(color: AppTheme.accent, width: 1.5.w),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,

@@ -9,7 +9,7 @@ import '../components/error_state_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class NotificationsScreen extends ConsumerWidget {
-  const NotificationsScreen({super.key});
+  NotificationsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -85,15 +85,15 @@ class NotificationsScreen extends ConsumerWidget {
             leading: _buildIcon(item.status),
             title: Text(
               item.caseTitle,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp),
             ),
             subtitle: Text(
               'Updated to ${item.status.name}',
-              style: const TextStyle(fontSize: 12.sp, color: Colors.grey),
+              style: TextStyle(fontSize: 12.sp, color: Colors.grey),
             ),
             trailing: Text(
               DateFormat('HH:mm').format(DateTime.now()),
-              style: const TextStyle(fontSize: 10.sp, color: Colors.grey),
+              style: TextStyle(fontSize: 10.sp, color: Colors.grey),
             ),
           ),
         );

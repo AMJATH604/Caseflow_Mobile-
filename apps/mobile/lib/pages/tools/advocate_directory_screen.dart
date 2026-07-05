@@ -183,7 +183,7 @@ class _AdvocateDirectoryScreenState
                                 ),
                                 child: Text(
                                   "${advocates.length} Advocate${advocates.length == 1 ? '' : 's'}",
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12.sp,
                                     fontWeight: FontWeight.w700,
                                     color: AppTheme.accent,
@@ -204,7 +204,7 @@ class _AdvocateDirectoryScreenState
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const CircularProgressIndicator(color: AppTheme.accent),
+                        CircularProgressIndicator(color: AppTheme.accent),
                         SizedBox(height: 16.h),
                         Text(
                           'Loading directory...',
@@ -279,7 +279,7 @@ class _AdvocateDirectoryScreenState
                   vertical: 14,
                 ),
               ),
-              style: const TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
               onChanged: (val) => setState(() => _searchQuery = val),
             ),
           ),
@@ -475,7 +475,7 @@ class _AdvocateDirectoryScreenState
                     isDark
                         ? Colors.white.withValues(alpha: 0.02)
                         : const Color(0xFFF8FAFC),
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(16.r),
                   bottomRight: Radius.circular(16.r),
                 ),
@@ -490,7 +490,7 @@ class _AdvocateDirectoryScreenState
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.phone_rounded, size: 16, color: AppTheme.accent),
+                  Icon(Icons.phone_rounded, size: 16, color: AppTheme.accent),
                   SizedBox(width: 8.w),
                   Expanded(
                     child: Text(
@@ -568,7 +568,7 @@ class _AdvocateDirectoryScreenState
               SizedBox(width: 4.w),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w700,
                   color: AppTheme.accent,

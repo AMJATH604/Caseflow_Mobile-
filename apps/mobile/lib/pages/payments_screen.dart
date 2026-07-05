@@ -80,7 +80,7 @@ class PaymentsScreen extends ConsumerWidget {
           ),
 
         // Bottom padding for FAB
-        const SliverToBoxAdapter(child: SizedBox(height: 100.h)),
+        SliverToBoxAdapter(child: SizedBox(height: 100.h)),
       ],
     );
   }
@@ -935,7 +935,7 @@ class PaymentsScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
       ),
       backgroundColor: Colors.white,

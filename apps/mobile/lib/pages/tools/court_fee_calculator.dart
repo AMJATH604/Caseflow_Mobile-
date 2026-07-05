@@ -255,7 +255,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
     Clipboard.setData(ClipboardData(text: sb.toString()));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Row(
+        content: Row(
           children: [
             Icon(Icons.check_circle, color: Colors.white, size: 18),
             SizedBox(width: 8.w),
@@ -293,7 +293,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                 'Select the type of case to calculate court fee as per TN Court Fees & Suits Valuation Act',
                 style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
               ),
-              const Divider(height: 20.h),
+              Divider(height: 20.h),
 
               // Category selector chips
               Wrap(
@@ -478,7 +478,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
               trailing: TextButton.icon(
                 onPressed: _copyMemo,
                 icon: const Icon(Icons.copy_rounded, size: 14),
-                label: const Text('Copy Memo', style: TextStyle(fontSize: 12.sp)),
+                label: Text('Copy Memo', style: TextStyle(fontSize: 12.sp)),
               ),
               children: [
                 // Fee comparison
@@ -524,7 +524,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
                             Icon(
                               Icons.bookmark,

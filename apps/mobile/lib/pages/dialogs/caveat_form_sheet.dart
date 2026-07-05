@@ -162,7 +162,7 @@ class _CaveatFormSheetState extends ConsumerState<CaveatFormSheet> {
       height: MediaQuery.of(context).size.height * 0.9,
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24.r)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
       ),
       child: Column(
         children: [
@@ -302,7 +302,7 @@ class _CaveatFormSheetState extends ConsumerState<CaveatFormSheet> {
                             }
                           },
                         ),
-                        const Divider(height: 24.h),
+                        Divider(height: 24.h),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [

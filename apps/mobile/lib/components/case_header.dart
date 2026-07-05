@@ -10,7 +10,7 @@ class CaseHeader extends StatelessWidget {
   final CaseModel caseData;
   final VoidCallback onBack;
 
-  const CaseHeader({super.key, required this.caseData, required this.onBack});
+  CaseHeader({super.key, required this.caseData, required this.onBack});
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +134,7 @@ class CaseHeader extends StatelessWidget {
                 color: const Color(0xFF2563EB).withValues(alpha: 0.8),
               ),
               SizedBox(width: 6.w),
-              const Text(
+              Text(
                 'PAY COURT FEE',
                 style: TextStyle(
                   color: Color(0xFF2563EB),
@@ -176,7 +176,7 @@ class CaseHeader extends StatelessWidget {
             Flexible(
               child: Text(
                 text.toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                   color: Color(0xFF64748B),
                   fontSize: 10.sp,
                   fontWeight: FontWeight.w800,

@@ -214,7 +214,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                 'Select the article from the Limitation Act, 1963 or enter a custom period.',
                 style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
               ),
-              const Divider(height: 20.h),
+              Divider(height: 20.h),
 
               // Date of Accrual
               _buildDatePicker(
@@ -488,7 +488,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
                   );
                 },
                 icon: const Icon(Icons.copy_rounded, size: 14),
-                label: const Text('Copy', style: TextStyle(fontSize: 12.sp)),
+                label: Text('Copy', style: TextStyle(fontSize: 12.sp)),
               ),
               children: [
                 Container(
@@ -553,7 +553,7 @@ class _LimitationCalculatorState extends State<LimitationCalculator> {
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
           ),
         ),
       ],

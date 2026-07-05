@@ -145,7 +145,7 @@ class _AiChatScreenState extends State<AiChatScreen>
   void _showAttachmentOptions() {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder: (ctx) {
@@ -351,7 +351,7 @@ class _AiChatScreenState extends State<AiChatScreen>
 
     return Drawer(
       backgroundColor: isDark ? const Color(0xFF0F0F18) : Colors.white,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.horizontal(right: Radius.circular(20.r)),
       ),
       child: SafeArea(
@@ -920,7 +920,7 @@ class _AiChatScreenState extends State<AiChatScreen>
           ),
           child: Row(
             children: [
-              Text(prompt['icon']!, style: const TextStyle(fontSize: 22.sp)),
+              Text(prompt['icon']!, style: TextStyle(fontSize: 22.sp)),
               SizedBox(width: 14.w),
               Expanded(
                 child: Column(
@@ -1590,7 +1590,7 @@ class _AiChatScreenState extends State<AiChatScreen>
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF0F172A) : const Color(0xFFE2E8F0),
-              borderRadius: const BorderRadius.vertical(
+              borderRadius: BorderRadius.vertical(
                 top: Radius.circular(12.r),
               ),
             ),

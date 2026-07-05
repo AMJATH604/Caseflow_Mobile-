@@ -11,7 +11,7 @@ import '../components/status_badge.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DashboardCourtDiary extends ConsumerStatefulWidget {
-  const DashboardCourtDiary({super.key});
+  DashboardCourtDiary({super.key});
 
   @override
   ConsumerState<DashboardCourtDiary> createState() =>
@@ -38,7 +38,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'Court Diary',
               style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
             ),
@@ -68,14 +68,14 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                   children: [
                     _buildCalendar(hearMap),
                     SizedBox(height: 16.h),
-                    const Divider(),
+                    Divider(),
                     SizedBox(height: 8.h),
                     _buildDailyList(selectedHearings),
                   ],
                 );
               },
               loading:
-                  () => const Center(
+                  () => Center(
                     child: Padding(
                       padding: EdgeInsets.all(24.0.r),
                       child: CircularProgressIndicator(),
@@ -149,7 +149,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
       child: Center(
         child: Text(
           '$count',
-          style: const TextStyle(
+          style: TextStyle(
             color: Color(0xFF1E293B),
             fontSize: 10.0.sp,
             fontWeight: FontWeight.bold,
@@ -208,7 +208,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                   width: 4.w,
                   decoration: BoxDecoration(
                     color: statusColor,
-                    borderRadius: const BorderRadius.only(
+                    borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(14.r),
                       bottomLeft: Radius.circular(14.r),
                     ),
@@ -227,7 +227,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                             Expanded(
                               child: Text(
                                 h.caseTitle ?? 'Unknown Case',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w800,
                                   fontSize: 14.sp,
                                   color: Color(0xFF1E293B),
@@ -271,7 +271,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                       Expanded(
                                         child: Text(
                                           h.caseNumber!,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             color: Color(0xFF334155),
                                             fontSize: 13.sp,
                                             fontWeight: FontWeight.w700,
@@ -296,7 +296,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                       Expanded(
                                         child: Text(
                                           h.courtName!,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             color: Color(0xFF475569),
                                             fontSize: 12.sp,
                                             fontWeight: FontWeight.w600,
@@ -328,7 +328,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                               ),
                               child: Text(
                                 (h.purpose ?? 'Hearing').toUpperCase(),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 10.sp,
                                   fontWeight: FontWeight.w800,
                                   color: AppTheme.accent,
@@ -349,7 +349,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                 ),
                                 child: Text(
                                   h.stage!,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 10.sp,
                                     fontWeight: FontWeight.w600,
                                     color: Color(0xFF64748B),
@@ -375,7 +375,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                     ),
                                   ),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'TEAM',
                                   style: TextStyle(
                                     color: Colors.indigo,
@@ -385,7 +385,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                 ),
                               ),
                             ],
-                            const Spacer(),
+                            Spacer(),
                             if (h.status != 'adjourned' &&
                                 h.status != 'closed' &&
                                 h.status != 'disposed')
@@ -406,7 +406,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                       ),
                                     ),
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(

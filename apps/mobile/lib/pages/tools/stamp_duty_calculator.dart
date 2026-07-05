@@ -336,7 +336,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
                 ),
               ),
               SizedBox(width: 12.w),
-              const Text(
+              Text(
                 'Stamp Duty Calculator',
                 style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
               ),
@@ -388,11 +388,11 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
                     color: Color(0xFF764ba2),
                   ),
                   SizedBox(width: 8.w),
-                  const Text(
+                  Text(
                     'Buyer Gender:',
                     style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500),
                   ),
-                  const Spacer(),
+                  Spacer(),
                   ChoiceChip(
                     label: const Text('Male'),
                     selected: !_isFemale,
@@ -560,7 +560,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Stamp Duty Breakdown',
                     style: TextStyle(
                       color: Color(0xFF1E293B),
@@ -570,7 +570,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
                   ),
                   Text(
                     '$_selectedState • $_selectedDocType',
-                    style: const TextStyle(color: Colors.white70, fontSize: 11.sp),
+                    style: TextStyle(color: Colors.white70, fontSize: 11.sp),
                   ),
                 ],
               ),
@@ -609,7 +609,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'TOTAL PAYABLE',
                   style: TextStyle(
                     color: Color(0xFF1E293B),
@@ -620,7 +620,7 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
                 ),
                 Text(
                   cur.format(r['total']),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Color(0xFF1E293B),
                     fontWeight: FontWeight.w900,
                     fontSize: 20.sp,
@@ -656,12 +656,12 @@ class _StampDutyCalculatorState extends State<StampDutyCalculator>
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(color: Colors.white70, fontSize: 13.sp),
+              style: TextStyle(color: Colors.white70, fontSize: 13.sp),
             ),
           ),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               color: Color(0xFF1E293B),
               fontSize: 14.sp,
               fontWeight: FontWeight.w600,

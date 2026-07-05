@@ -281,7 +281,7 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Divider(height: 1.h),
+                                      Divider(height: 1.h),
                                       SizedBox(height: 12.h),
                                       Text(
                                         'Definition',
@@ -341,7 +341,7 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                                             borderRadius: BorderRadius.circular(
                                               8,
                                             ),
-                                            border: const Border(
+                                            border: Border(
                                               left: BorderSide(
                                                 color: AppTheme.accent,
                                                 width: 3.w,

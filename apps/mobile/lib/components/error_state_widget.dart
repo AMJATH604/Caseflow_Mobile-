@@ -8,7 +8,7 @@ class ErrorStateWidget extends StatelessWidget {
   final VoidCallback onRetry;
   final String? message;
 
-  const ErrorStateWidget({
+  ErrorStateWidget({
     super.key,
     required this.error,
     required this.onRetry,
@@ -34,7 +34,7 @@ class ErrorStateWidget extends StatelessWidget {
                 SizedBox(height: 24.h),
                 Text(
                   isOffline ? 'No Internet Connection' : 'Something went wrong',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primary,
@@ -61,7 +61,7 @@ class ErrorStateWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.refresh_rounded, size: 18),

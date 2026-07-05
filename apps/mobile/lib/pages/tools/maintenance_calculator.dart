@@ -252,7 +252,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
     Clipboard.setData(ClipboardData(text: sb.toString()));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Row(
+        content: Row(
           children: [
             Icon(Icons.check_circle, color: Colors.white, size: 18),
             SizedBox(width: 8.w),
@@ -425,7 +425,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Number of Children',
                         style: TextStyle(
@@ -465,7 +465,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                             child: Text(
                               _childCount.toString(),
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18.sp,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -529,7 +529,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
               trailing: TextButton.icon(
                 onPressed: _copyToClipboard,
                 icon: const Icon(Icons.copy_rounded, size: 14),
-                label: const Text('Copy', style: TextStyle(fontSize: 12.sp)),
+                label: Text('Copy', style: TextStyle(fontSize: 12.sp)),
               ),
               children: [
                 // Total
@@ -547,7 +547,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                   ),
                   child: Column(
                     children: [
-                      const Text(
+                      Text(
                         'TOTAL MONTHLY MAINTENANCE',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
@@ -558,7 +558,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                       SizedBox(height: 8.h),
                       Text(
                         fmt.format(_totalMaintenance),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 28.sp,
                           color: Colors.pink,
@@ -610,7 +610,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                             children: [
                               Text(
                                 r['head'],
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14.sp,
                                 ),
@@ -628,7 +628,7 @@ class _MaintenanceCalculatorState extends State<MaintenanceCalculator> {
                         ),
                         Text(
                           "${fmt.format(r['amount'])}/mo",
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w900,
                             fontSize: 14.sp,
                             color: AppTheme.primary,

@@ -442,7 +442,7 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
                 height: 80.h,
                 decoration: BoxDecoration(
                   color: color,
-                  borderRadius: const BorderRadius.only(
+                  borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(16.r),
                     bottomLeft: Radius.circular(16.r),
                   ),
@@ -556,7 +556,7 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(24.r),
@@ -598,7 +598,7 @@ class _BarEventsScreenState extends ConsumerState<BarEventsScreen> {
                     ),
                   ),
                 ),
-                const Spacer(),
+                Spacer(),
                 Text(
                   DateFormat('EEEE, dd MMM yyyy').format(event.eventDate),
                   style: GoogleFonts.inter(

@@ -214,7 +214,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                 padding: EdgeInsets.all(16.r),
                 child: Row(
                   children: [
-                    const Icon(Icons.gps_fixed, color: Colors.white, size: 28),
+                    Icon(Icons.gps_fixed, color: Colors.white, size: 28),
                     SizedBox(width: 12.w),
                     Expanded(
                       child: Column(
@@ -596,7 +596,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
             ),
           ),
         ),
-        const Divider(height: 1.h),
+        Divider(height: 1.h),
         ...children,
       ],
     ),
@@ -952,7 +952,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                       children: [
                         Expanded(
                           child: ClipRRect(
-                            borderRadius: const BorderRadius.vertical(
+                            borderRadius: BorderRadius.vertical(
                               top: Radius.circular(13.r),
                             ),
                             child: Image.network(
@@ -979,7 +979,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                           padding: EdgeInsets.all(8.r),
                           decoration: BoxDecoration(
                             color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-                            borderRadius: const BorderRadius.vertical(
+                            borderRadius: BorderRadius.vertical(
                               bottom: Radius.circular(13.r),
                             ),
                           ),
@@ -1104,7 +1104,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                         ),
                       ),
                     ),
-                    const Spacer(),
+                    Spacer(),
                     Text(
                       DateFormat(
                         'dd MMM, hh:mm a',
@@ -1211,7 +1211,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                   padding: EdgeInsets.all(16.r),
                   child: Row(
                     children: [
-                      const Icon(Icons.person_add, color: AppTheme.warning),
+                      Icon(Icons.person_add, color: AppTheme.warning),
                       SizedBox(width: 12.w),
                       Text(
                         'Record New Witness',
@@ -1310,7 +1310,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                         ],
                         if (w.signatureUrl != null)
                           _witnessTag(Icons.draw, 'Signed', AppTheme.success),
-                        const Spacer(),
+                        Spacer(),
                         Text(
                           w.locationText,
                           style: GoogleFonts.jetBrainsMono(
@@ -1436,7 +1436,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.add, size: 32, color: Color(0xFF8B5CF6)),
+                  Icon(Icons.add, size: 32, color: Color(0xFF8B5CF6)),
                   SizedBox(height: 8.h),
                   Text(
                     'New Sketch',
@@ -1468,7 +1468,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                   children: [
                     Expanded(
                       child: ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
+                        borderRadius: BorderRadius.vertical(
                           top: Radius.circular(13.r),
                         ),
                         child:
@@ -1487,7 +1487,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                       padding: EdgeInsets.all(10.r),
                       decoration: BoxDecoration(
                         color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-                        borderRadius: const BorderRadius.vertical(
+                        borderRadius: BorderRadius.vertical(
                           bottom: Radius.circular(13.r),
                         ),
                       ),
@@ -1861,7 +1861,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
           ),
           child: Row(
             children: [
-              const Icon(Icons.receipt_long, color: Colors.white, size: 28),
+              Icon(Icons.receipt_long, color: Colors.white, size: 28),
               SizedBox(width: 12.w),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -2411,7 +2411,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                     padding: EdgeInsets.all(20.r),
                     decoration: BoxDecoration(
                       color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-                      borderRadius: const BorderRadius.vertical(
+                      borderRadius: BorderRadius.vertical(
                         top: Radius.circular(24.r),
                       ),
                     ),
@@ -2594,7 +2594,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                     padding: EdgeInsets.all(20.r),
                     decoration: BoxDecoration(
                       color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-                      borderRadius: const BorderRadius.vertical(
+                      borderRadius: BorderRadius.vertical(
                         top: Radius.circular(24.r),
                       ),
                     ),

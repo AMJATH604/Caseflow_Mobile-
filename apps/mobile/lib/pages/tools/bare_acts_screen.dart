@@ -287,7 +287,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+              Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
               SizedBox(width: 10.w),
               Text('$label copied to clipboard'),
             ],
@@ -589,17 +589,17 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                           _selectedCategory == 'All'
                               ? 'All Statutes'
                               : '$_selectedCategory Law',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w800,
                             color: _textPrimary,
                             letterSpacing: -0.3,
                           ),
                         ),
-                        const Spacer(),
+                        Spacer(),
                         Text(
                           '${acts.length} ${acts.length == 1 ? 'act' : 'acts'}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w600,
                             color: _textMuted,
@@ -747,7 +747,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                         ),
                       ),
                       SizedBox(width: 14.w),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -775,7 +775,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                     ],
                   ),
 
-                  const Spacer(),
+                  Spacer(),
 
                   // Glassmorphism Search Bar
                   GestureDetector(
@@ -952,7 +952,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
           SizedBox(width: 6.w),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w800,
               fontSize: 14.sp,
               color: _textPrimary,
@@ -961,7 +961,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
           SizedBox(width: 4.w),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: _textMuted,
               fontSize: 12.sp,
               fontWeight: FontWeight.w500,
@@ -1088,7 +1088,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                                           .withValues(alpha: 0.08),
                                       borderRadius: BorderRadius.circular(8.r),
                                     ),
-                                    child: const Row(
+                                    child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(
@@ -1111,13 +1111,13 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                               ],
                             ),
 
-                            const Spacer(),
+                            Spacer(),
 
                             // Short Title (large, bold)
                             if (shortTitle.isNotEmpty)
                               Text(
                                 shortTitle,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: _textPrimary,
                                   fontSize: 18.sp,
                                   fontWeight: FontWeight.w800,
@@ -1133,7 +1133,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                               title,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: _textSecondary,
                                 fontSize: 11.sp,
                                 height: 1.4.h,
@@ -1213,7 +1213,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
             SizedBox(height: 24.h),
             Text(
               isFiltered ? 'No Statutes in Category' : 'No Statutes Yet',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w700,
                 color: _textPrimary,
@@ -1225,7 +1225,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   ? 'Try selecting a different category above'
                   : 'Upload bare acts from the admin dashboard',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: _textMuted, fontSize: 13.sp),
+              style: TextStyle(color: _textMuted, fontSize: 13.sp),
             ),
             if (isFiltered) ...[
               SizedBox(height: 20.h),
@@ -1296,7 +1296,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                       color: Colors.white,
                       size: 16,
                     ),
-                    label: const Text(
+                    label: Text(
                       'Open PDF',
                       style: TextStyle(
                         color: Colors.white,
@@ -1377,7 +1377,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                           // Short title
                           Text(
                             _selectedAct!['short_title'] ?? '',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
                               fontSize: 26.sp,
                               fontWeight: FontWeight.w900,
@@ -1415,7 +1415,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: TextField(
                   controller: _searchController,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14.sp,
                     color: _textPrimary,
                     fontWeight: FontWeight.w500,
@@ -1423,7 +1423,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   decoration: InputDecoration(
                     hintText:
                         'Search ${sectionLabel.toLowerCase()}s or keywords...',
-                    hintStyle: const TextStyle(
+                    hintStyle: TextStyle(
                       color: _textMuted,
                       fontSize: 14.sp,
                     ),
@@ -1474,7 +1474,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                   children: [
                     Text(
                       '${_filteredSections.length} ${sectionLabel.toLowerCase()}${_filteredSections.length == 1 ? '' : 's'}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: _textMuted,
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
@@ -1507,7 +1507,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
 
           // ── Content Area ──
           if (_isLoadingSections)
-            const SliverFillRemaining(
+            SliverFillRemaining(
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1633,7 +1633,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                     padding: EdgeInsets.only(top: 5.h),
                     child: Text(
                       chapterTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
                         fontSize: 15.sp,
@@ -1731,7 +1731,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                         padding: EdgeInsets.only(top: 2.h),
                         child: Text(
                           sectionTitle,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: _textPrimary,
                             fontWeight: FontWeight.w600,
                             fontSize: 14.sp,
@@ -1810,7 +1810,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
             ),
             child: SelectableText(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14.sp,
                 height: 1.85.h,
                 color: _textSecondary,
@@ -1910,7 +1910,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                 ),
               ),
               SizedBox(height: 24.h),
-              const Text(
+              Text(
                 'PDF Available',
                 style: TextStyle(
                   fontSize: 20.sp,
@@ -1919,7 +1919,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                 ),
               ),
               SizedBox(height: 8.h),
-              const Text(
+              Text(
                 'This statute is available as a PDF.\nSection-wise search will be available\nwhen sections are uploaded.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -1934,7 +1934,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                 child: ElevatedButton.icon(
                   onPressed: _openPdf,
                   icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                  label: const Text(
+                  label: Text(
                     'Open Full PDF',
                     style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.sp),
                   ),
@@ -1976,7 +1976,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
               ),
             ),
             SizedBox(height: 20.h),
-            const Text(
+            Text(
               'Coming Soon',
               style: TextStyle(
                 fontSize: 20.sp,
@@ -1985,7 +1985,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
               ),
             ),
             SizedBox(height: 8.h),
-            const Text(
+            Text(
               'Sections for this act will be uploaded soon.',
               style: TextStyle(color: _textMuted, fontSize: 13.sp),
             ),
@@ -2077,12 +2077,12 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                                     child: TextField(
                                       controller: _globalSearchController,
                                       autofocus: true,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: _textPrimary,
                                         fontSize: 16.sp,
                                         fontWeight: FontWeight.w500,
                                       ),
-                                      decoration: const InputDecoration(
+                                      decoration: InputDecoration(
                                         hintText:
                                             'Search sections, titles, keywords...',
                                         hintStyle: TextStyle(
@@ -2139,7 +2139,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                             ),
 
                             // Divider
-                            const Divider(color: _borderColor, height: 1.h),
+                            Divider(color: _borderColor, height: 1.h),
 
                             // Filter Chips
                             Container(
@@ -2168,7 +2168,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                       // Results
                       Expanded(
                         child: _isSearchingGlobal
-                            ? const Center(
+                            ? Center(
                                 child: Padding(
                                   padding: EdgeInsets.only(top: 48.h),
                                   child: SizedBox(
@@ -2299,7 +2299,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
               decoration: BoxDecoration(
                 color: domainColor.withValues(alpha: 0.04),
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16.r),
                   topRight: Radius.circular(16.r),
                 ),
@@ -2355,7 +2355,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                 children: [
                   Text(
                     sectionTitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14.sp,
                       color: _textPrimary,
@@ -2366,7 +2366,7 @@ class _BareActsLibraryScreenState extends State<BareActsLibraryScreen>
                     sectionText,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: _textSecondary,
                       fontSize: 13.sp,
                       height: 1.5.h,

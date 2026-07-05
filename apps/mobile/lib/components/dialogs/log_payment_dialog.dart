@@ -145,7 +145,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
               padding: EdgeInsets.all(24.r),
               decoration: BoxDecoration(
                 color: themeColor.withValues(alpha: 0.05),
-                borderRadius: const BorderRadius.vertical(
+                borderRadius: BorderRadius.vertical(
                   top: Radius.circular(28.r),
                 ),
               ),
@@ -515,7 +515,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
             '₹${fmt.format(_existingTotalExpenses)}',
             AppTheme.error,
           ),
-          const Divider(height: 20.h),
+          Divider(height: 20.h),
           _summaryLine(
             'Current Owed',
             '₹${fmt.format(_existingBalance)}',

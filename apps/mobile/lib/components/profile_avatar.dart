@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Premium reusable avatar widget that displays a profile photo or
 /// falls back to a gradient initial circle.

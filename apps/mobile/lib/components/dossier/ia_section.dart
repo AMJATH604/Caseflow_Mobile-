@@ -78,7 +78,7 @@ class _IASectionState extends ConsumerState<IASection> {
                   constraints: BoxConstraints(
                     maxHeight: MediaQuery.of(ctx).size.height * 0.8,
                   ),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(24.r),
@@ -100,7 +100,7 @@ class _IASectionState extends ConsumerState<IASection> {
                           ),
                         ),
                         SizedBox(height: 20.h),
-                        const Text(
+                        Text(
                           'Add IA Application',
                           style: TextStyle(
                             fontSize: 18.sp,
@@ -294,7 +294,7 @@ class _IASectionState extends ConsumerState<IASection> {
                                         children: [
                                           Text(
                                             ia.iaNumber,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 13.sp,
                                               fontWeight: FontWeight.w900,
                                               color: Color(0xFF1E293B),
@@ -304,7 +304,7 @@ class _IASectionState extends ConsumerState<IASection> {
                                           if (ia.party != null)
                                             Text(
                                               ia.party!,
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 11.sp,
                                                 color: Color(0xFF64748B),
                                               ),
@@ -322,7 +322,7 @@ class _IASectionState extends ConsumerState<IASection> {
                                                       ),
                                                   child: Text(
                                                     "FILED: ${DateFormat('dd MMM').format(ia.filingDate!)}",
-                                                    style: const TextStyle(
+                                                    style: TextStyle(
                                                       fontSize: 9.sp,
                                                       fontWeight:
                                                           FontWeight.w800,
@@ -372,7 +372,7 @@ class _IASectionState extends ConsumerState<IASection> {
                             }).toList(),
                       ),
           loading:
-              () => const Padding(
+              () => Padding(
                 padding: EdgeInsets.all(16.r),
                 child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),

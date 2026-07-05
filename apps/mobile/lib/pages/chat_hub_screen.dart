@@ -719,7 +719,7 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
       builder: (context, scrollController) => Container(
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF0F172A) : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28.r)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
         ),
         child: Column(
           children: [

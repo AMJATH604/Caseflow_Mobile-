@@ -346,13 +346,13 @@ class _CommissionReportScreenState
         fontSize: 10.sp,
         fontWeight: pw.FontWeight.bold,
       );
-      const valueStyle = pw.TextStyle(fontSize: 10.sp);
-      const bodyStyle = pw.TextStyle(fontSize: 10.sp);
+      valueStyle = pw.TextStyle(fontSize: 10.sp);
+      bodyStyle = pw.TextStyle(fontSize: 10.sp);
       final smallBold = pw.TextStyle(
         fontSize: 9.sp,
         fontWeight: pw.FontWeight.bold,
       );
-      const smallStyle = pw.TextStyle(fontSize: 9.sp);
+      smallStyle = pw.TextStyle(fontSize: 9.sp);
 
       // ── Track section numbering ──
       const int sectionNum = 0;
@@ -363,7 +363,7 @@ class _CommissionReportScreenState
       pdf.addPage(
         pw.Page(
           pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.symmetric(horizontal: 50.w, vertical: 40.h),
+          margin: pw.EdgeInsets.symmetric(horizontal: 50.w, vertical: 40.h),
           build:
               (ctx) => pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.center,
@@ -382,7 +382,7 @@ class _CommissionReportScreenState
 
                   // Court Caption
                   pw.Container(
-                    padding: const pw.EdgeInsets.all(16.r),
+                    padding: pw.EdgeInsets.all(16.r),
                     decoration: pw.BoxDecoration(
                       border: pw.Border.all(width: 1.5.w),
                     ),
@@ -390,7 +390,7 @@ class _CommissionReportScreenState
                       children: [
                         pw.Text(
                           'IN THE COURT OF',
-                          style: const pw.TextStyle(fontSize: 10.sp),
+                          style: pw.TextStyle(fontSize: 10.sp),
                         ),
                         pw.SizedBox(height: 4.h),
                         pw.Text(
@@ -431,7 +431,7 @@ class _CommissionReportScreenState
                             ),
                             pw.Text(
                               '... Petitioner(s)',
-                              style: const pw.TextStyle(fontSize: 10.sp),
+                              style: pw.TextStyle(fontSize: 10.sp),
                             ),
                           ],
                         ),
@@ -458,7 +458,7 @@ class _CommissionReportScreenState
                             ),
                             pw.Text(
                               '... Respondent(s)',
-                              style: const pw.TextStyle(fontSize: 10.sp),
+                              style: pw.TextStyle(fontSize: 10.sp),
                             ),
                           ],
                         ),
@@ -482,7 +482,7 @@ class _CommissionReportScreenState
                       pw.SizedBox(height: 2.h),
                       pw.Text(
                         'CaseFlow Professional Legal Services',
-                        style: const pw.TextStyle(fontSize: 10.sp),
+                        style: pw.TextStyle(fontSize: 10.sp),
                       ),
                     ],
                   ),
@@ -496,7 +496,7 @@ class _CommissionReportScreenState
       pdf.addPage(
         pw.Page(
           pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.symmetric(horizontal: 50.w, vertical: 40.h),
+          margin: pw.EdgeInsets.symmetric(horizontal: 50.w, vertical: 40.h),
           build:
               (ctx) => pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -532,13 +532,13 @@ class _CommissionReportScreenState
       pdf.addPage(
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.symmetric(horizontal: 50.w, vertical: 40.h),
+          margin: pw.EdgeInsets.symmetric(horizontal: 50.w, vertical: 40.h),
           header:
               (ctx) => pw.Container(
                 alignment: pw.Alignment.centerRight,
                 child: pw.Text(
                   'Advocate Commissioner Report | ${c.caseNumberRef ?? ""}',
-                  style: const pw.TextStyle(
+                  style: pw.TextStyle(
                     fontSize: 8.sp,
                     color: PdfColors.grey500,
                   ),
@@ -549,7 +549,7 @@ class _CommissionReportScreenState
                 alignment: pw.Alignment.centerRight,
                 child: pw.Text(
                   'Page ${ctx.pageNumber}',
-                  style: const pw.TextStyle(
+                  style: pw.TextStyle(
                     fontSize: 8.sp,
                     color: PdfColors.grey500,
                   ),
@@ -618,8 +618,8 @@ class _CommissionReportScreenState
                 ..._visits.asMap().entries.map((entry) {
                   final v = entry.value;
                   return pw.Container(
-                    margin: const pw.EdgeInsets.only(bottom: 12.h),
-                    padding: const pw.EdgeInsets.all(8.r),
+                    margin: pw.EdgeInsets.only(bottom: 12.h),
+                    padding: pw.EdgeInsets.all(8.r),
                     decoration: pw.BoxDecoration(
                       border: pw.Border.all(
                         width: 0.3.w,
@@ -676,7 +676,7 @@ class _CommissionReportScreenState
                           ),
                           pw.Text(
                             v.obstructionDetails!,
-                            style: const pw.TextStyle(
+                            style: pw.TextStyle(
                               fontSize: 9.sp,
                               color: PdfColors.red,
                             ),
@@ -702,7 +702,7 @@ class _CommissionReportScreenState
                 ..._observations.asMap().entries.map((entry) {
                   final o = entry.value;
                   return pw.Padding(
-                    padding: const pw.EdgeInsets.only(bottom: 8.h),
+                    padding: pw.EdgeInsets.only(bottom: 8.h),
                     child: pw.Row(
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
@@ -735,7 +735,7 @@ class _CommissionReportScreenState
                         _evidence.map((e) {
                           return pw.Container(
                             width: 230.w,
-                            padding: const pw.EdgeInsets.all(5.r),
+                            padding: pw.EdgeInsets.all(5.r),
                             decoration: pw.BoxDecoration(
                               border: pw.Border.all(
                                 width: 0.5.w,
@@ -759,12 +759,12 @@ class _CommissionReportScreenState
                                 ),
                                 pw.Text(
                                   e.caption ?? 'N/A',
-                                  style: const pw.TextStyle(fontSize: 8.sp),
+                                  style: pw.TextStyle(fontSize: 8.sp),
                                   maxLines: 2,
                                 ),
                                 pw.Text(
                                   'GPS: ${e.locationText}',
-                                  style: const pw.TextStyle(
+                                  style: pw.TextStyle(
                                     fontSize: 7.sp,
                                     color: PdfColors.grey600,
                                   ),
@@ -786,7 +786,7 @@ class _CommissionReportScreenState
                   pw.SizedBox(height: 10.h),
                   ..._sketches.map(
                     (sk) => pw.Container(
-                      margin: const pw.EdgeInsets.only(bottom: 30.h),
+                      margin: pw.EdgeInsets.only(bottom: 30.h),
                       child: pw.Column(
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
@@ -805,7 +805,7 @@ class _CommissionReportScreenState
                           pw.SizedBox(height: 5.h),
                           pw.Text(
                             'Annotations: ${sk.annotations.length} key points identified',
-                            style: const pw.TextStyle(fontSize: 8.sp),
+                            style: pw.TextStyle(fontSize: 8.sp),
                           ),
                         ],
                       ),
@@ -823,8 +823,8 @@ class _CommissionReportScreenState
                   pw.SizedBox(height: 10.h),
                   ..._witnesses.map(
                     (w) => pw.Container(
-                      margin: const pw.EdgeInsets.only(bottom: 20.h),
-                      padding: const pw.EdgeInsets.all(12.r),
+                      margin: pw.EdgeInsets.only(bottom: 20.h),
+                      padding: pw.EdgeInsets.all(12.r),
                       decoration: pw.BoxDecoration(
                         border: pw.Border.all(width: 0.5.w),
                       ),
@@ -870,7 +870,7 @@ class _CommissionReportScreenState
                                   ),
                                   pw.Text(
                                     'Signature of Witness',
-                                    style: const pw.TextStyle(fontSize: 8.sp),
+                                    style: pw.TextStyle(fontSize: 8.sp),
                                   ),
                                 ],
                               ),
@@ -913,7 +913,7 @@ class _CommissionReportScreenState
                         'INR ${_expenses.fold<double>(0, (s, e) => s + e.amount).toStringAsFixed(2)}',
                       ],
                     ],
-                    cellStyle: const pw.TextStyle(fontSize: 10.sp),
+                    cellStyle: pw.TextStyle(fontSize: 10.sp),
                     headerStyle: pw.TextStyle(
                       fontSize: 10.sp,
                       fontWeight: pw.FontWeight.bold,
@@ -974,7 +974,7 @@ class _CommissionReportScreenState
                         pw.Text('ADVOCATE COMMISSIONER', style: smallBold),
                         pw.Text(
                           '(Signature & Seal)',
-                          style: const pw.TextStyle(fontSize: 8.sp),
+                          style: pw.TextStyle(fontSize: 8.sp),
                         ),
                       ],
                     ),
@@ -1038,7 +1038,7 @@ class _CommissionReportScreenState
     pw.TextStyle lStyle,
     pw.TextStyle vStyle,
   ) => pw.Padding(
-    padding: const pw.EdgeInsets.symmetric(vertical: 2.h),
+    padding: pw.EdgeInsets.symmetric(vertical: 2.h),
     child: pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -1050,23 +1050,23 @@ class _CommissionReportScreenState
   );
 
   pw.Widget _indexRow(String sl, String title, String pg) => pw.Padding(
-    padding: const pw.EdgeInsets.symmetric(vertical: 4.h),
+    padding: pw.EdgeInsets.symmetric(vertical: 4.h),
     child: pw.Row(
       children: [
         pw.SizedBox(
           width: 30.w,
-          child: pw.Text(sl, style: const pw.TextStyle(fontSize: 10.sp)),
+          child: pw.Text(sl, style: pw.TextStyle(fontSize: 10.sp)),
         ),
         pw.Expanded(
-          child: pw.Text(title, style: const pw.TextStyle(fontSize: 10.sp)),
+          child: pw.Text(title, style: pw.TextStyle(fontSize: 10.sp)),
         ),
-        pw.Text('Pg. $pg', style: const pw.TextStyle(fontSize: 10.sp)),
+        pw.Text('Pg. $pg', style: pw.TextStyle(fontSize: 10.sp)),
       ],
     ),
   );
 
   pw.Widget _miniLabelVal(String label, String val) => pw.Padding(
-    padding: const pw.EdgeInsets.only(bottom: 2.h),
+    padding: pw.EdgeInsets.only(bottom: 2.h),
     child: pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -1078,7 +1078,7 @@ class _CommissionReportScreenState
           ),
         ),
         pw.Expanded(
-          child: pw.Text(val, style: const pw.TextStyle(fontSize: 8.sp)),
+          child: pw.Text(val, style: pw.TextStyle(fontSize: 8.sp)),
         ),
       ],
     ),

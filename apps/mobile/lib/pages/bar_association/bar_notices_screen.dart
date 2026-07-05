@@ -259,7 +259,7 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
               height: 72.h,
               decoration: BoxDecoration(
                 color: color,
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16.r),
                   bottomLeft: Radius.circular(16.r),
                 ),
@@ -381,7 +381,7 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
         maxChildSize: 0.95,
         minChildSize: 0.5,
         builder: (_, scrollController) => Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(24.r),
@@ -422,7 +422,7 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
                       ),
                     ),
                   ),
-                  const Spacer(),
+                  Spacer(),
                   Text(
                     DateFormat('dd MMM yyyy, hh:mm a').format(notice.publishedAt),
                     style: GoogleFonts.inter(

@@ -29,7 +29,7 @@ class CaseTimelineTab extends ConsumerWidget {
         final events = _buildEvents(caseData, hearings, payments, efilings);
 
         if (events.isEmpty) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -150,7 +150,7 @@ class CaseTimelineTab extends ConsumerWidget {
                                   children: [
                                     Text(
                                       event.title,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.w900,
                                         fontSize: 14.sp,
                                         color: Color(0xFF1E293B),
@@ -162,7 +162,7 @@ class CaseTimelineTab extends ConsumerWidget {
                                       DateFormat(
                                         'dd MMM yyyy, EEEE',
                                       ).format(event.date),
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 10.sp,
                                         color: Color(0xFF94A3B8),
                                         fontWeight: FontWeight.w700,
@@ -201,7 +201,7 @@ class CaseTimelineTab extends ConsumerWidget {
                                     color: Colors.green.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8.r),
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     'STARTED',
                                     style: TextStyle(
                                       fontSize: 9.sp,
@@ -234,7 +234,7 @@ class CaseTimelineTab extends ConsumerWidget {
                                   Expanded(
                                     child: Text(
                                       event.subtitle!,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11.sp,
                                         color: Color(0xFF64748B),
                                         fontWeight: FontWeight.w500,

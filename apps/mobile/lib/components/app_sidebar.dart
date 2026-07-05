@@ -8,7 +8,7 @@ import 'dialogs/reset_workspace_dialog.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppSidebar extends ConsumerWidget {
-  const AppSidebar({super.key});
+  AppSidebar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

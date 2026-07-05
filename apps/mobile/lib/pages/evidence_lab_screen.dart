@@ -182,7 +182,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                               ),
                               Text(
                                 '${total > 0 ? ((completed / total) * 100).round() : 0}%',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11.sp,
                                   fontWeight: FontWeight.w900,
                                   color: Color(0xFF10B981),
@@ -196,7 +196,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Preparation Progress',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w800,
@@ -207,7 +207,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                               SizedBox(height: 2.h),
                               Text(
                                 '$completed of $total items completed',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12.sp,
                                   color: Color(0xFF64748B),
                                 ),
@@ -407,7 +407,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                   24,
                   MediaQuery.of(context).viewInsets.bottom + 24,
                 ),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
                 ),
@@ -443,7 +443,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                           ),
                         ),
                         SizedBox(width: 12.w),
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
@@ -480,7 +480,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                       autofocus: true,
                     ),
                     SizedBox(height: 16.h),
-                    const Text(
+                    Text(
                       'Type',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
@@ -579,7 +579,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                           ),
                           elevation: 0,
                         ),
-                        child: const Text(
+                        child: Text(
                           'Add Item',
                           style: TextStyle(
                             fontWeight: FontWeight.w800,
@@ -713,7 +713,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                   ),
                   child: Text(
                     _isListening ? 'Stop' : 'Record',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
                       fontSize: 12.sp,
@@ -735,7 +735,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
               ),
               child: Text(
                 _currentVoiceNote,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13.sp,
                   color: Color(0xFF334155),
                   height: 1.4.h,
@@ -816,7 +816,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
             ),
             child: Text(
               note.witnessTag.toUpperCase(),
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
                 fontSize: 10.sp,
                 fontWeight: FontWeight.w900,
@@ -830,7 +830,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
               children: [
                 Text(
                   note.witnessName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 14.sp,
                     color: Color(0xFF0F172A),
@@ -840,7 +840,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                   SizedBox(height: 4.h),
                   Text(
                     note.notes!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12.sp,
                       color: Color(0xFF64748B),
                       height: 1.4.h,
@@ -852,7 +852,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                 SizedBox(height: 6.h),
                 Text(
                   DateFormat('dd MMM yyyy, hh:mm a').format(note.createdAt),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10.sp,
                     color: Color(0xFF94A3B8),
                     fontWeight: FontWeight.w600,
@@ -909,7 +909,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
               24,
               MediaQuery.of(context).viewInsets.bottom + 24,
             ),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
             ),
@@ -928,7 +928,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                   ),
                 ),
                 SizedBox(height: 20.h),
-                const Text(
+                Text(
                   'Save Voice Note',
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
@@ -990,7 +990,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
+                    child: Text(
                       'Save',
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
@@ -1108,7 +1108,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                     Expanded(
                       child: Text(
                         photo.description ?? 'Evidence',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 10.sp,
                           fontWeight: FontWeight.w700,
@@ -1155,7 +1155,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
                   ),
                   child: Text(
                     photo.tags.first.toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 9.sp,
                       fontWeight: FontWeight.w900,
@@ -1206,7 +1206,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
           SizedBox(height: 16.h),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w800,
               fontSize: 16.sp,
               color: Color(0xFF0F172A),
@@ -1216,7 +1216,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12.sp, color: Color(0xFF64748B)),
+            style: TextStyle(fontSize: 12.sp, color: Color(0xFF64748B)),
           ),
         ],
       ),
@@ -1253,7 +1253,7 @@ class _EvidenceLabScreenState extends ConsumerState<EvidenceLabScreen> {
             SizedBox(width: 8.w),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
                 fontSize: 13.sp,

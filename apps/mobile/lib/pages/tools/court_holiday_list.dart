@@ -94,7 +94,7 @@ class CourtHolidayList extends StatelessWidget {
                 ),
                 child: Text(
                   month['month'].toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,
                     color: AppTheme.primary,
@@ -153,7 +153,7 @@ class CourtHolidayList extends StatelessWidget {
               children: [
                 Text(
                   day['name'],
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14.sp,
                   ),
@@ -167,7 +167,7 @@ class CourtHolidayList extends StatelessWidget {
           ),
           Text(
             day['date'],
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w800,
               fontSize: 13.sp,
               color: AppTheme.primary,

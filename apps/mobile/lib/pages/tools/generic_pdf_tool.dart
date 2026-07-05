@@ -294,7 +294,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
           SizedBox(height: 12.h),
           Text(
             widget.title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22.sp,
               fontWeight: FontWeight.bold,
               color: Color(0xFF1E293B),
@@ -304,7 +304,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
           Text(
             widget.description,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Color(0xBBFFFFFF), fontSize: 13.sp),
+            style: TextStyle(color: Color(0xBBFFFFFF), fontSize: 13.sp),
           ),
           if (_isLocalTool) ...[
             SizedBox(height: 8.h),
@@ -314,7 +314,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
                 color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(20.r),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.offline_bolt, size: 13, color: Color(0xFF1E293B)),
@@ -391,25 +391,25 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
         children: [
           Row(
             children: [
-              const Icon(Icons.attach_file, size: 18, color: AppTheme.primary),
+              Icon(Icons.attach_file, size: 18, color: AppTheme.primary),
               SizedBox(width: 8.w),
               Text(
                 "${_selectedFiles.length} file${_selectedFiles.length > 1 ? 's' : ''} selected",
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14.sp,
                 ),
               ),
-              const Spacer(),
+              Spacer(),
               if (_isMultiFile)
                 TextButton.icon(
                   onPressed: _addMoreFiles,
                   icon: const Icon(Icons.add, size: 16),
-                  label: const Text('Add More', style: TextStyle(fontSize: 12.sp)),
+                  label: Text('Add More', style: TextStyle(fontSize: 12.sp)),
                 ),
             ],
           ),
-          const Divider(height: 16.h),
+          Divider(height: 16.h),
           if (_isMultiFile)
             ReorderableListView.builder(
               shrinkWrap: true,
@@ -437,7 +437,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
       child: Row(
         children: [
           if (_isMultiFile) ...[
-            const Icon(Icons.drag_handle, size: 18, color: Colors.grey),
+            Icon(Icons.drag_handle, size: 18, color: Colors.grey),
             SizedBox(width: 6.w),
             Container(
               width: 22.w,
@@ -449,7 +449,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
               ),
               child: Text(
                 '${index + 1}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11.sp,
                   fontWeight: FontWeight.bold,
                   color: AppTheme.primary,
@@ -458,18 +458,18 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
             ),
             SizedBox(width: 8.w),
           ],
-          const Icon(Icons.insert_drive_file, size: 16, color: Colors.blueGrey),
+          Icon(Icons.insert_drive_file, size: 16, color: Colors.blueGrey),
           SizedBox(width: 8.w),
           Expanded(
             child: Text(
               f.name,
-              style: const TextStyle(fontSize: 12.sp),
+              style: TextStyle(fontSize: 12.sp),
               overflow: TextOverflow.ellipsis,
             ),
           ),
           Text(
             '${(f.size / 1024).toStringAsFixed(0)} KB',
-            style: const TextStyle(fontSize: 10.sp, color: Colors.grey),
+            style: TextStyle(fontSize: 10.sp, color: Colors.grey),
           ),
           if (_isMultiFile && _selectedFiles.length > 1) ...[
             SizedBox(width: 4.w),
@@ -505,7 +505,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(Icons.tune, size: 18, color: AppTheme.primary),
               SizedBox(width: 8.w),
@@ -551,7 +551,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Choose rotation direction:',
           style: TextStyle(fontSize: 13.sp, color: Colors.grey),
         ),
@@ -621,7 +621,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'How would you like to split?',
           style: TextStyle(fontSize: 13.sp, color: Colors.grey),
         ),
@@ -669,7 +669,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Choose compression level:',
           style: TextStyle(fontSize: 13.sp, color: Colors.grey),
         ),
@@ -722,13 +722,13 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
         SizedBox(height: 20.h),
         Row(
           children: [
-            const Icon(Icons.opacity, size: 16, color: Colors.grey),
+            Icon(Icons.opacity, size: 16, color: Colors.grey),
             SizedBox(width: 8.w),
-            const Text('Opacity', style: TextStyle(fontSize: 13.sp)),
-            const Spacer(),
+            Text('Opacity', style: TextStyle(fontSize: 13.sp)),
+            Spacer(),
             Text(
               '${(_watermarkOpacity * 100).toInt()}%',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.sp),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13.sp),
             ),
           ],
         ),
@@ -742,13 +742,13 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
         SizedBox(height: 8.h),
         Row(
           children: [
-            const Icon(Icons.format_size, size: 16, color: Colors.grey),
+            Icon(Icons.format_size, size: 16, color: Colors.grey),
             SizedBox(width: 8.w),
-            const Text('Font Size', style: TextStyle(fontSize: 13.sp)),
-            const Spacer(),
+            Text('Font Size', style: TextStyle(fontSize: 13.sp)),
+            Spacer(),
             Text(
               '${_watermarkFontSize.toInt()}pt',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.sp),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13.sp),
             ),
           ],
         ),
@@ -768,7 +768,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Choose image quality:',
           style: TextStyle(fontSize: 13.sp, color: Colors.grey),
         ),
@@ -805,7 +805,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Choose page size:',
           style: TextStyle(fontSize: 13.sp, color: Colors.grey),
         ),
@@ -844,7 +844,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
       children: [
         Row(
           children: [
-            const Icon(Icons.swap_vert, size: 16, color: Colors.grey),
+            Icon(Icons.swap_vert, size: 16, color: Colors.grey),
             SizedBox(width: 8.w),
             Text(
               'Drag files above to reorder them',
@@ -861,7 +861,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
           ),
           child: Row(
             children: [
-              const Icon(Icons.info_outline, size: 16, color: Colors.blue),
+              Icon(Icons.info_outline, size: 16, color: Colors.blue),
               SizedBox(width: 8.w),
               Expanded(
                 child: Text(
@@ -953,7 +953,7 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
         icon: const Icon(Icons.play_arrow_rounded, size: 22),
         label: Text(
           _getProcessLabel(),
-          style: const TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.accent,
@@ -1031,12 +1031,12 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.error_outline, color: Colors.red),
+            Icon(Icons.error_outline, color: Colors.red),
             SizedBox(width: 12.w),
             Expanded(
               child: Text(
                 _error!,
-                style: const TextStyle(color: Colors.red, fontSize: 13.sp),
+                style: TextStyle(color: Colors.red, fontSize: 13.sp),
               ),
             ),
           ],
@@ -1058,9 +1058,9 @@ class _GenericPdfToolState extends State<GenericPdfTool> {
         ),
         child: Column(
           children: [
-            const Icon(Icons.check_circle, color: Colors.green, size: 56),
+            Icon(Icons.check_circle, color: Colors.green, size: 56),
             SizedBox(height: 16.h),
-            const Text(
+            Text(
               'Success!',
               style: TextStyle(
                 fontWeight: FontWeight.bold,

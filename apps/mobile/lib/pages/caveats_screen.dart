@@ -213,7 +213,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                     _statBadge(
                       'Exp. Soon',
                       '$expiring',
-                      const Color(0xFFFDE047),
+                      Color(0xFFFDE047),
                     ), // Yellow
                   if (expiring > 0) SizedBox(width: 8.w),
                   _statBadge(

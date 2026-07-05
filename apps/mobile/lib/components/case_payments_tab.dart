@@ -118,7 +118,7 @@ class CasePaymentsTab extends ConsumerWidget {
                     ),
                   ),
                   SizedBox(width: 10.w),
-                  const Text(
+                  Text(
                     'Financial Summary',
                     style: TextStyle(
                       color: Colors.white,
@@ -161,7 +161,7 @@ class CasePaymentsTab extends ConsumerWidget {
         // Section Title
         Row(
           children: [
-            const Text(
+            Text(
               'Transactions',
               style: TextStyle(
                 fontWeight: FontWeight.w800,
@@ -169,7 +169,7 @@ class CasePaymentsTab extends ConsumerWidget {
                 color: Color(0xFF0F172A),
               ),
             ),
-            const Spacer(),
+            Spacer(),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
               decoration: BoxDecoration(
@@ -178,7 +178,7 @@ class CasePaymentsTab extends ConsumerWidget {
               ),
               child: Text(
                 '${payments.length} Records',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11.sp,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF64748B),
@@ -277,7 +277,7 @@ class CasePaymentsTab extends ConsumerWidget {
               width: 4.w,
               decoration: BoxDecoration(
                 color: stripeColor,
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16.r),
                   bottomLeft: Radius.circular(16.r),
                 ),
@@ -351,7 +351,7 @@ class CasePaymentsTab extends ConsumerWidget {
                               // Total Fee
                               Text(
                                 'Total: ${_cur.format(p.totalFee)}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11.sp,
                                   color: Color(0xFF64748B),
                                   fontWeight: FontWeight.w600,
@@ -364,7 +364,7 @@ class CasePaymentsTab extends ConsumerWidget {
                                 ),
                                 Text(
                                   'Due: ${_cur.format(p.balanceAmount)}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 11.sp,
                                     color: Color(0xFFEF4444),
                                     fontWeight: FontWeight.w700,
@@ -408,7 +408,7 @@ class CasePaymentsTab extends ConsumerWidget {
                                 p.paidDate != null
                                     ? _dateFmt.format(p.paidDate!)
                                     : 'No Date',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11.sp,
                                   color: Color(0xFF94A3B8),
                                   fontWeight: FontWeight.w600,
@@ -421,7 +421,7 @@ class CasePaymentsTab extends ConsumerWidget {
                             SizedBox(height: 6.h),
                             Text(
                               p.notes!,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11.sp,
                                 color: Color(0xFF64748B),
                                 fontStyle: FontStyle.italic,
@@ -473,7 +473,7 @@ class CasePaymentsTab extends ConsumerWidget {
             ),
           ),
           SizedBox(height: 20.h),
-          const Text(
+          Text(
             'No Payment Records',
             style: TextStyle(
               fontWeight: FontWeight.w800,
@@ -482,7 +482,7 @@ class CasePaymentsTab extends ConsumerWidget {
             ),
           ),
           SizedBox(height: 8.h),
-          const Text(
+          Text(
             'Track fees, expenses, and billing\nfor this case',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -515,7 +515,7 @@ class CasePaymentsTab extends ConsumerWidget {
             ),
           ],
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.add_rounded, color: Colors.white, size: 20),
@@ -555,7 +555,7 @@ class CasePaymentsTab extends ConsumerWidget {
                   24,
                   MediaQuery.of(context).viewInsets.bottom + 24,
                 ),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
                 ),
@@ -595,7 +595,7 @@ class CasePaymentsTab extends ConsumerWidget {
                             ),
                           ),
                           SizedBox(width: 12.w),
-                          const Column(
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
@@ -620,7 +620,7 @@ class CasePaymentsTab extends ConsumerWidget {
                       SizedBox(height: 24.h),
 
                       // Type Selector (Revenue vs Expense)
-                      const Text(
+                      Text(
                         'Transaction Type',
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
@@ -691,7 +691,7 @@ class CasePaymentsTab extends ConsumerWidget {
                       SizedBox(height: 16.h),
 
                       // Payment Mode Chips
-                      const Text(
+                      Text(
                         'Payment Mode',
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
@@ -822,7 +822,7 @@ class CasePaymentsTab extends ConsumerWidget {
                             ),
                             elevation: 0,
                           ),
-                          child: const Text(
+                          child: Text(
                             'Save Payment',
                             style: TextStyle(
                               fontWeight: FontWeight.w800,

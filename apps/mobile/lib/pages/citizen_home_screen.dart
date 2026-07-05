@@ -991,7 +991,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
         return Container(
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF0F172A) : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28.r)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.3),
@@ -1012,7 +1012,7 @@ class _CitizenHomeScreenState extends ConsumerState<CitizenHomeScreen>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: const BorderRadius.vertical(
+                  borderRadius: BorderRadius.vertical(
                     top: Radius.circular(28.r),
                   ),
                 ),

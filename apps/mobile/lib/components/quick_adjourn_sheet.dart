@@ -105,7 +105,7 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
         children: [
           Row(
             children: [
-              const Icon(Icons.forward, color: AppTheme.accent),
+              Icon(Icons.forward, color: AppTheme.accent),
               SizedBox(width: 12.w),
               Text(
                 'Quick Adjourn',

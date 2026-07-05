@@ -568,7 +568,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
     Clipboard.setData(ClipboardData(text: sb.toString()));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Row(
+        content: Row(
           children: [
             Icon(Icons.check_circle, color: Colors.white, size: 18),
             SizedBox(width: 8.w),
@@ -783,7 +783,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                     : 'Select Class I heirs under Hindu Succession Act, 1956',
                 style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
               ),
-              const Divider(height: 20.h),
+              Divider(height: 20.h),
 
               if (_deceasedGender == 'Male')
                 _buildCounterRow(
@@ -832,7 +832,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                   _selectedLaw == 'Muslim (Hanafi)'
                       ? 'Gets 1/6 fixed + residuary'
                       : 'Not a Class I heir for male deceased',
-                  style: const TextStyle(fontSize: 11.sp),
+                  style: TextStyle(fontSize: 11.sp),
                 ),
                 value: _fatherAlive,
                 onChanged:
@@ -852,7 +852,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                   _selectedLaw == 'Muslim (Hanafi)'
                       ? 'Gets 1/6 or 1/3 fixed share'
                       : 'Class I heir for male deceased',
-                  style: const TextStyle(fontSize: 11.sp),
+                  style: TextStyle(fontSize: 11.sp),
                 ),
                 value: _motherAlive,
                 onChanged:
@@ -904,7 +904,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                 trailing: TextButton.icon(
                   onPressed: _copyToClipboard,
                   icon: const Icon(Icons.copy_rounded, size: 14),
-                  label: const Text(
+                  label: Text(
                     'Copy Memo',
                     style: TextStyle(fontSize: 12.sp),
                   ),
@@ -944,7 +944,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                                     ) ??
                                     0),
                           ),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w900,
                             fontSize: 18.sp,
                             color: AppTheme.primary,
@@ -992,7 +992,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                               children: [
                                 Text(
                                   row['heir'],
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.w700,
                                     fontSize: 14.sp,
                                   ),
@@ -1010,7 +1010,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                           ),
                           Text(
                             formatCurrency.format(row['amount']),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.w900,
                               fontSize: 16.sp,
                               color: AppTheme.primary,
@@ -1079,7 +1079,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                                       ),
                                     ),
                                   if (isHeader)
-                                    const Padding(
+                                    Padding(
                                       padding: EdgeInsets.only(
                                         top: 3.h,
                                         right: 6.w,
@@ -1091,7 +1091,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                                       ),
                                     ),
                                   if (step.startsWith('⚠'))
-                                    const Padding(
+                                    Padding(
                                       padding: EdgeInsets.only(
                                         top: 3.h,
                                         right: 6.w,
@@ -1213,7 +1213,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15.sp),
+              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15.sp),
             ),
           ),
           Container(
@@ -1238,7 +1238,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                   child: Text(
                     value.toString(),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
                     ),

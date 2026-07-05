@@ -229,7 +229,7 @@ Deno.serve(async (req: Request) => {
           }
         } catch (e) {
           failCount++;
-          errors.push(`Token ${token.substring(0, 10)}...: ${e.message}`);
+          errors.push(`Token ${token.substring(0, 10)}...: ${(e as any).message}`);
         }
       }
     }
@@ -248,7 +248,7 @@ Deno.serve(async (req: Request) => {
     );
   } catch (error) {
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: (error as any).message }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }

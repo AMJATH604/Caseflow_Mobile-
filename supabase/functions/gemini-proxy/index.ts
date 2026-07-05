@@ -266,7 +266,7 @@ Deno.serve(async (req: Request) => {
     );
 
   } catch (error) {
-    console.error("Critical Proxy Error:", error.message);
+    console.error("Critical Proxy Error:", (error as any).message);
     return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 });

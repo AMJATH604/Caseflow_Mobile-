@@ -166,7 +166,7 @@ class _BarAssociationHomeScreenState
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.vpn_key_rounded, size: 20),
+                      Icon(Icons.vpn_key_rounded, size: 20),
                       SizedBox(width: 10.w),
                       Text(
                         'Enter Invite Code',
@@ -1020,7 +1020,7 @@ class _BarAssociationHomeScreenState
             height: 64.h,
             decoration: BoxDecoration(
               color: color,
-              borderRadius: const BorderRadius.only(
+              borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(16.r),
                 bottomLeft: Radius.circular(16.r),
               ),
@@ -1277,7 +1277,7 @@ class _BarAssociationHomeScreenState
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) => Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(24.r),
@@ -1369,7 +1369,7 @@ class _BarAssociationHomeScreenState
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16.r),
-                    borderSide: const BorderSide(
+                    borderSide: BorderSide(
                       color: _BarColors.primary,
                       width: 2.w,
                     ),

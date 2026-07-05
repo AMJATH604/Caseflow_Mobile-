@@ -310,7 +310,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         padding: EdgeInsets.all(24.r),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
         ),
@@ -806,7 +806,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               opacity: _cardOpacity.value,
               child: Container(
                 width: double.infinity,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
                   boxShadow: [
@@ -1596,7 +1596,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14.r),
-              borderSide: const BorderSide(
+              borderSide: BorderSide(
                 color: Color(0xFF2563EB),
                 width: 1.5.w,
               ),
@@ -1662,7 +1662,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14.r),
-              borderSide: const BorderSide(
+              borderSide: BorderSide(
                 color: Color(0xFF2563EB),
                 width: 1.5.w,
               ),
@@ -1782,9 +1782,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       shape: BoxShape.circle,
                       color:
                           [
-                            const Color(0xFF2563EB),
-                            const Color(0xFF059669),
-                            const Color(0xFFD97706),
+                            Color(0xFF2563EB),
+                            Color(0xFF059669),
+                            Color(0xFFD97706),
                           ][i],
                       border: Border.all(color: Colors.white, width: 2.w),
                     ),

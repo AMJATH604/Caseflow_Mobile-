@@ -319,7 +319,7 @@ class DashboardScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const DailyBoardWidget(),
+              DailyBoardWidget(),
               SizedBox(height: 32.h),
               Text(
                 'Jump To',
@@ -450,9 +450,9 @@ class DashboardScreen extends ConsumerWidget {
                 ],
               ),
               SizedBox(height: 32.h),
-              const DashboardCourtDiary(),
+              DashboardCourtDiary(),
               SizedBox(height: 24.h),
-              const TaskWidget(),
+              TaskWidget(),
               SizedBox(height: 40.h),
             ],
           ),
@@ -567,7 +567,7 @@ class DashboardScreen extends ConsumerWidget {
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         padding: EdgeInsets.all(24.r),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
         ),
@@ -948,7 +948,7 @@ class DashboardScreen extends ConsumerWidget {
         ),
         SizedBox(height: 40.h),
 
-        const Row(
+        Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
@@ -1056,7 +1056,7 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildLoadingState() {
-    return const Center(
+    return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 200.h),
         child: CircularProgressIndicator(color: AppTheme.accent),

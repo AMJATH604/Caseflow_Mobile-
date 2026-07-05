@@ -446,7 +446,7 @@ class _CommissionFieldVisitScreenState
                       color: dk ? Colors.white : const Color(0xFF1E293B),
                     ),
                   ),
-                  const Spacer(),
+                  Spacer(),
                   Text(
                     '${_feed.length} events',
                     style: GoogleFonts.inter(
@@ -494,7 +494,7 @@ class _CommissionFieldVisitScreenState
                 ),
               ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 80.h)),
+          SliverToBoxAdapter(child: SizedBox(height: 80.h)),
         ],
       ),
     );
@@ -777,7 +777,7 @@ class _CommissionFieldVisitScreenState
                     padding: EdgeInsets.all(20.r),
                     decoration: BoxDecoration(
                       color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-                      borderRadius: const BorderRadius.vertical(
+                      borderRadius: BorderRadius.vertical(
                         top: Radius.circular(24.r),
                       ),
                     ),
@@ -912,7 +912,7 @@ class _CommissionFieldVisitScreenState
               padding: EdgeInsets.all(20.r),
               decoration: BoxDecoration(
                 color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-                borderRadius: const BorderRadius.vertical(
+                borderRadius: BorderRadius.vertical(
                   top: Radius.circular(24.r),
                 ),
               ),
@@ -921,7 +921,7 @@ class _CommissionFieldVisitScreenState
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.warning_amber, color: AppTheme.error),
+                      Icon(Icons.warning_amber, color: AppTheme.error),
                       SizedBox(width: 8.w),
                       Text(
                         'Report Obstruction',

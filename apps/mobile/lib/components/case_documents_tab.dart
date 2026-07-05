@@ -22,7 +22,7 @@ class CaseDocumentsTab extends ConsumerWidget {
           data:
               (docs) =>
                   docs.isEmpty
-                      ? const Center(
+                      ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -73,7 +73,7 @@ class CaseDocumentsTab extends ConsumerWidget {
                                     children: [
                                       Text(
                                         name,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 14.sp,
                                           color: Color(0xFF1E293B),
@@ -82,7 +82,7 @@ class CaseDocumentsTab extends ConsumerWidget {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       SizedBox(height: 4.h),
-                                      const Text(
+                                      Text(
                                         'SECURE VAULT',
                                         style: TextStyle(
                                           color: Color(0xFF94A3B8),

@@ -165,13 +165,13 @@ Deno.serve(async (req: Request) => {
           }
         } catch (e) {
           failCount++;
-          errors.push(`Token ${token.substring(0, 10)}...: ${e.message}`);
+          errors.push(`Token ${token.substring(0, 10)}...: ${(e as any).message}`);
         }
       }
     }
 
     return new Response(JSON.stringify({ success: true, caveatsFound: caveats.length, sentCount, failCount }), { headers: { "Content-Type": "application/json" } });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ error: (error as any).message }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 });

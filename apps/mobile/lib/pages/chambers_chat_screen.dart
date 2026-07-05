@@ -728,7 +728,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
       ),
       backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
@@ -915,7 +915,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
             Container(
               width: 4.w,
               height: 48.h,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: Color(0xFF4F46E5),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(12.r),
@@ -988,7 +988,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
         ),
         child: Row(
           children: [
-            Container(width: 3.w, height: 36.h, color: const Color(0xFF4F46E5)),
+            Container(width: 3.w, height: 36.h, color: Color(0xFF4F46E5)),
             SizedBox(width: 8.w),
             Expanded(
               child: Column(
@@ -1614,7 +1614,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
   void _showAttachmentSheet() {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
       ),
       builder:
@@ -1820,7 +1820,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
         ),
         actions: [
           if (_isUploading)
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(right: 16.w),
               child: Center(
                 child: SizedBox(

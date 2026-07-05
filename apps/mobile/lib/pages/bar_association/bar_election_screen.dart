@@ -306,7 +306,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.timer_rounded, size: 14, color: Colors.white),
+              Icon(Icons.timer_rounded, size: 14, color: Colors.white),
               SizedBox(width: 6.w),
               Text(
                 days > 0 ? '${days}d ${hours}h left' : '${hours}h left',
@@ -531,7 +531,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.how_to_vote_rounded, size: 20),
+                          Icon(Icons.how_to_vote_rounded, size: 20),
                           SizedBox(width: 10.w),
                           Text(
                             'Submit Vote (${_selectedVotes.length}/${posts.length})',
@@ -556,7 +556,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
       future: BarAssociationRepository.getNominations(post.id),
       builder: (context, nomSnapshot) {
         if (!nomSnapshot.hasData) {
-          return const Padding(
+          return Padding(
             padding: EdgeInsets.all(16.r),
             child: Center(
               child: CircularProgressIndicator(color: _C.violet),
@@ -593,7 +593,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                       _C.pink.withValues(alpha: 0.04),
                     ],
                   ),
-                  borderRadius: const BorderRadius.only(
+                  borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(16.r),
                     topRight: Radius.circular(16.r),
                   ),
@@ -622,7 +622,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                         color: _C.violet,
                       ),
                     ),
-                    const Spacer(),
+                    Spacer(),
                     if (_selectedVotes.containsKey(post.id))
                       Container(
                         width: 24.w,
@@ -837,7 +837,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
           children: [
             Row(
               children: [
-                const Text('🏆', style: TextStyle(fontSize: 22.sp)),
+                Text('🏆', style: TextStyle(fontSize: 22.sp)),
                 SizedBox(width: 8.w),
                 Text(
                   'Election Results',
@@ -889,7 +889,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                       _C.pink.withValues(alpha: 0.04),
                     ],
                   ),
-                  borderRadius: const BorderRadius.only(
+                  borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(16.r),
                     topRight: Radius.circular(16.r),
                   ),
@@ -907,7 +907,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                         color: _C.violet,
                       ),
                     ),
-                    const Spacer(),
+                    Spacer(),
                     Text(
                       '$totalVotes votes',
                       style: GoogleFonts.inter(
@@ -936,7 +936,7 @@ class _BarElectionScreenState extends ConsumerState<BarElectionScreen>
                       child: Row(
                         children: [
                           if (isWinner)
-                            const Text('🏆', style: TextStyle(fontSize: 18.sp))
+                            Text('🏆', style: TextStyle(fontSize: 18.sp))
                           else
                             SizedBox(
                               width: 18.w,

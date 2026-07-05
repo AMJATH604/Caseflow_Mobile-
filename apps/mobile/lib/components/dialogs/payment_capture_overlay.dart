@@ -327,7 +327,7 @@ class _PaymentCaptureOverlayState extends ConsumerState<PaymentCaptureOverlay>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28.r)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF059669).withValues(alpha: 0.3),
@@ -511,7 +511,7 @@ class _PaymentCaptureOverlayState extends ConsumerState<PaymentCaptureOverlay>
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14.r),
-              borderSide: const BorderSide(color: AppTheme.accent, width: 1.5.w),
+              borderSide: BorderSide(color: AppTheme.accent, width: 1.5.w),
             ),
           ),
           items:
@@ -573,14 +573,14 @@ class _PaymentCaptureOverlayState extends ConsumerState<PaymentCaptureOverlay>
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16.r),
-              borderSide: const BorderSide(
+              borderSide: BorderSide(
                 color: Color(0xFFBBF7D0),
                 width: 1.5.w,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16.r),
-              borderSide: const BorderSide(color: Color(0xFF059669), width: 2.w),
+              borderSide: BorderSide(color: Color(0xFF059669), width: 2.w),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 20,
@@ -629,7 +629,7 @@ class _PaymentCaptureOverlayState extends ConsumerState<PaymentCaptureOverlay>
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14.r),
-              borderSide: const BorderSide(color: AppTheme.accent, width: 1.5.w),
+              borderSide: BorderSide(color: AppTheme.accent, width: 1.5.w),
             ),
           ),
         ),

@@ -407,7 +407,7 @@ class _CommissionSketchScreenState
                   ),
                 ),
               ),
-              const Spacer(),
+              Spacer(),
               // Stroke widths
               ..._widths.map(
                 (w) => GestureDetector(
@@ -626,7 +626,7 @@ class _CommissionSketchScreenState
               padding: EdgeInsets.all(20.r),
               decoration: BoxDecoration(
                 color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-                borderRadius: const BorderRadius.vertical(
+                borderRadius: BorderRadius.vertical(
                   top: Radius.circular(24.r),
                 ),
               ),
@@ -905,7 +905,7 @@ class _SketchPainter extends CustomPainter {
     canvas.drawPath(southPath, southPaint);
 
     // N label
-    const textSpan = TextSpan(
+    textSpan = TextSpan(
       text: 'N',
       style: TextStyle(
         color: Color(0xFFEF4444),

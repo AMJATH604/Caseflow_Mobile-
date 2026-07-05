@@ -7,14 +7,14 @@ import 'dialogs/reset_workspace_dialog.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MobileMoreSheet extends ConsumerWidget {
-  const MobileMoreSheet({super.key});
+  MobileMoreSheet({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.only(
+        borderRadius: BorderRadius.only(
           topLeft: Radius.circular(24.r),
           topRight: Radius.circular(24.r),
         ),
@@ -171,7 +171,7 @@ class MobileMoreSheet extends ConsumerWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            subtitle: const Text(
+            subtitle: Text(
               'Delete all cases and data',
               style: TextStyle(fontSize: 10.sp),
             ),
@@ -224,7 +224,7 @@ class MobileMoreSheet extends ConsumerWidget {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               color: Color(0xFF1E293B),

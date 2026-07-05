@@ -123,11 +123,11 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
           // Header
           Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Color(0xFFF1F5F9),
               borderRadius: BorderRadius.vertical(top: Radius.circular(7.r)),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Expanded(
                   flex: 2,
@@ -224,7 +224,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                             ),
                           ),
                           if (isFuture)
-                            const Text(
+                            Text(
                               'UPCOMING',
                               style: TextStyle(
                                 fontSize: 8.sp,
@@ -243,7 +243,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                         children: [
                           Text(
                             h.purpose ?? h.stage ?? 'Standard Hearing',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF1E293B),
@@ -254,7 +254,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                           if (h.notes?.isNotEmpty == true)
                             Text(
                               h.notes!,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 10.sp,
                                 color: Color(0xFF94A3B8),
                               ),
@@ -303,7 +303,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
             return _buildCaseHistoryTable(sorted);
           },
           loading:
-              () => const Padding(
+              () => Padding(
                 padding: EdgeInsets.all(16.r),
                 child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),

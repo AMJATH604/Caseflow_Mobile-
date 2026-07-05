@@ -222,7 +222,7 @@ Deno.serve(async (req: Request) => {
   } catch (error) {
     console.error("Error in generate-carousel function:", error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: (error as any).message }),
       { status: 500, headers: corsHeaders }
     );
   }

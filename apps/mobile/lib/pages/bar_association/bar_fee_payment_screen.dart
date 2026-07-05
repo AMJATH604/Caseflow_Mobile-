@@ -31,7 +31,7 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
       appBar: AppBar(
         title: Text(
           'Membership Fees',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 20.sp, color: const Color(0xFF0F172A)),
+          style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 20.sp, color: Color(0xFF0F172A)),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -43,7 +43,7 @@ class _BarFeePaymentScreenState extends ConsumerState<BarFeePaymentScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline_rounded, size: 48, color: Color(0xFFEF4444)),
+              Icon(Icons.error_outline_rounded, size: 48, color: Color(0xFFEF4444)),
               SizedBox(height: 12.h),
               Text('Failed to load data', style: GoogleFonts.inter()),
             ],

@@ -440,7 +440,7 @@ class _HeroNewsCard extends StatelessWidget {
             // Image section
             if (article.imageUrl != null)
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(
+                borderRadius: BorderRadius.vertical(
                   top: Radius.circular(24.r),
                 ),
                 child: Image.network(
@@ -458,7 +458,7 @@ class _HeroNewsCard extends StatelessWidget {
                               const Color(0xFFEF4444).withValues(alpha: 0.05),
                             ],
                           ),
-                          borderRadius: const BorderRadius.vertical(
+                          borderRadius: BorderRadius.vertical(
                             top: Radius.circular(24.r),
                           ),
                         ),
@@ -520,7 +520,7 @@ class _HeroNewsCard extends StatelessWidget {
                   Row(
                     children: [
                       _ReadMoreButton(),
-                      const Spacer(),
+                      Spacer(),
                       _BookmarkButton(article: article, ref: ref),
                       SizedBox(width: 8.w),
                       _ShareButton(article: article),

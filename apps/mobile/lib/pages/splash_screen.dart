@@ -406,7 +406,7 @@ class _SplashScreenState extends State<SplashScreen>
                                     ),
                               ),
 
-                              const Spacer(flex: 2),
+                              Spacer(flex: 2),
 
                               // Loading indicator
                               AnimatedBuilder(
@@ -491,7 +491,7 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Spacer(flex: 3),
+                        Spacer(flex: 3),
 
                         // Elegant gilded framed circular illustration
                         Transform.scale(
@@ -533,7 +533,7 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                         ),
 
-                        const Spacer(flex: 1),
+                        Spacer(flex: 1),
 
                         // Inspiring constitution quote
                         Padding(
@@ -571,7 +571,7 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                         ),
 
-                        const Spacer(flex: 2),
+                        Spacer(flex: 2),
 
                         // Premium matching linear loading indicator
                         Opacity(

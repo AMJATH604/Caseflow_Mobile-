@@ -170,11 +170,11 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
         ),
         title: Text(
           member.memberName ?? member.memberEmail,
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.sp),
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.sp),
         ),
         subtitle: Text(
           member.status.toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 9.sp,
             fontWeight: FontWeight.w800,
             color: AppTheme.accent,
@@ -213,12 +213,12 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.business_center_rounded, color: AppTheme.accent),
+          Icon(Icons.business_center_rounded, color: AppTheme.accent),
           SizedBox(width: 12.w),
           Expanded(
             child: Text(
               "Invite from ${invitation.ownerName ?? 'Firm'}",
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.sp),
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.sp),
             ),
           ),
           TextButton(
@@ -278,7 +278,7 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
               color: AppTheme.accent.withValues(alpha: 0.2),
             ),
             SizedBox(height: 16.h),
-            const Text(
+            Text(
               'Firm Hub Inactive',
               style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w800),
             ),
@@ -293,7 +293,7 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
     );
   }
 
-  Widget _buildEmptyTeamState() => const Center(
+  Widget _buildEmptyTeamState() => Center(
     child: Padding(
       padding: EdgeInsets.all(32.r),
       child: Text('No members yet.', style: TextStyle(color: Colors.grey)),

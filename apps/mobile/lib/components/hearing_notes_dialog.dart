@@ -98,7 +98,7 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Hearing Notes',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -121,7 +121,7 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
             SizedBox(height: 16.h),
 
             // Quick note chips
-            const Text(
+            Text(
               'Quick Notes:',
               style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600),
             ),
@@ -201,7 +201,7 @@ class _HearingNotesDialogState extends State<HearingNotesDialog> {
         ),
         child: Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11.sp,
             color: AppTheme.accent,
             fontWeight: FontWeight.w500,

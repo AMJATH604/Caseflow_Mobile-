@@ -242,7 +242,7 @@ Deno.serve(async (req: Request) => {
         console.log(`No new articles from ${feed.source}`);
       }
     } catch (err) {
-      const errMsg = `Feed ${feed.source} error: ${err.message}`;
+      const errMsg = `Feed ${feed.source} error: ${(err as any).message}`;
       console.error(errMsg);
       errors.push(errMsg);
     }

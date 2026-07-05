@@ -111,12 +111,12 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
         dividerColor: Colors.transparent,
         labelColor: Colors.black,
         unselectedLabelColor: const Color(0xFF64748B),
-        labelStyle: const TextStyle(
+        labelStyle: TextStyle(
           fontWeight: FontWeight.w900,
           fontSize: 11.sp,
           letterSpacing: 0.5,
         ),
-        unselectedLabelStyle: const TextStyle(
+        unselectedLabelStyle: TextStyle(
           fontWeight: FontWeight.w700,
           fontSize: 11.sp,
         ),

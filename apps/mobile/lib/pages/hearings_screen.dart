@@ -283,7 +283,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                 final day = cellIndex - startWeekday + 1;
 
                 if (day < 1 || day > lastDay.day) {
-                  return const Expanded(child: SizedBox(height: 44.h));
+                  return Expanded(child: SizedBox(height: 44.h));
                 }
 
                 final cellDate = DateTime(
@@ -463,7 +463,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                   width: 4.w,
                   decoration: BoxDecoration(
                     color: statusColor,
-                    borderRadius: const BorderRadius.only(
+                    borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(14.r),
                       bottomLeft: Radius.circular(14.r),
                     ),
@@ -724,7 +724,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
               ),
             ),
             SizedBox(height: 4.h),
-            const Text(
+            Text(
               'Your court schedule is empty',
               style: TextStyle(fontSize: 12.sp, color: Color(0xFF94A3B8)),
             ),
@@ -841,7 +841,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
           Theme.of(context).brightness == Brightness.dark
               ? AppTheme.darkCard
               : Colors.white,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder:
@@ -887,7 +887,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                       context.push('/cases/${h.caseId}');
                     },
                   ),
-                  const Divider(height: 1.h),
+                  Divider(height: 1.h),
                   ListTile(
                     leading: const Icon(
                       Icons.delete_outline_rounded,
@@ -900,7 +900,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                         color: AppTheme.error,
                       ),
                     ),
-                    subtitle: const Text(
+                    subtitle: Text(
                       'Remove from court schedule',
                       style: TextStyle(fontSize: 11.sp),
                     ),

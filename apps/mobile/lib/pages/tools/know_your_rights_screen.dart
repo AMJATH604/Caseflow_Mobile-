@@ -49,7 +49,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
 
     Clipboard.setData(ClipboardData(text: textToShare));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Row(
           children: [
             Icon(Icons.check_circle_rounded, color: Colors.greenAccent),
@@ -416,7 +416,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(icon, style: const TextStyle(fontSize: 16.sp)),
+                Text(icon, style: TextStyle(fontSize: 16.sp)),
                 SizedBox(width: 6.w),
                 Text(
                   title,
@@ -487,7 +487,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
               shape: BoxShape.circle,
             ),
             child: Center(
-              child: Text(category.icon, style: const TextStyle(fontSize: 18.sp)),
+              child: Text(category.icon, style: TextStyle(fontSize: 18.sp)),
             ),
           ),
           title: Text(
@@ -500,7 +500,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
           ),
           subtitle: Text(
             card.sectionOrStatute,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               color: Color(0xFFD4AF37), // Gold accent
@@ -517,7 +517,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Divider(color: Colors.white10, height: 16.h),
+                  Divider(color: Colors.white10, height: 16.h),
                   SizedBox(height: 8.h),
 
                   // ── Pillar 1: What is the Law? ──
@@ -575,7 +575,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Emergency Contacts & Helplines',
                                 style: TextStyle(
                                   fontSize: 10.sp,

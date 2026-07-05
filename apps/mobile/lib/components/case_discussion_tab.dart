@@ -204,7 +204,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
       ),
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 11.sp,
           fontWeight: FontWeight.w700,
           color: Color(0xFF64748B),
@@ -377,7 +377,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
             ),
           ),
           SizedBox(height: 20.h),
-          const Text(
+          Text(
             'Start a Discussion',
             style: TextStyle(
               fontWeight: FontWeight.w800,
@@ -386,7 +386,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
             ),
           ),
           SizedBox(height: 8.h),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 48.w),
             child: Text(
               'Coordinate with your team members\nabout case strategy and updates',
@@ -409,7 +409,7 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
       padding: const EdgeInsets.fromLTRB(12, 10, 8, 24),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: const Border(
+        border: Border(
           top: BorderSide(color: Color(0xFFF1F5F9), width: 1.5.w),
         ),
         boxShadow: [
@@ -433,8 +433,8 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
               child: TextField(
                 controller: _messageController,
                 maxLines: null,
-                style: const TextStyle(color: Color(0xFF1E293B), fontSize: 14.sp),
-                decoration: const InputDecoration(
+                style: TextStyle(color: Color(0xFF1E293B), fontSize: 14.sp),
+                decoration: InputDecoration(
                   hintText: 'Type a message...',
                   hintStyle: TextStyle(
                     fontSize: 14.sp,

@@ -251,7 +251,7 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
                             : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.add_rounded, size: 18),
+                                Icon(Icons.add_rounded, size: 18),
                                 SizedBox(width: 8.w),
                                 Text(
                                   'Add Client',
@@ -317,7 +317,7 @@ class _AddClientDialogState extends ConsumerState<AddClientDialog> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14.r),
-            borderSide: const BorderSide(color: AppTheme.accent, width: 1.5.w),
+            borderSide: BorderSide(color: AppTheme.accent, width: 1.5.w),
           ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,

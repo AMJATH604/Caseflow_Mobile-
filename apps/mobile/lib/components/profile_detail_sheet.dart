@@ -74,7 +74,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
       builder: (context, scrollController) => Container(
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF0F172A) : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(32.r)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.15),
@@ -778,7 +778,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
         padding: EdgeInsets.all(24.r),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E293B) : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24.r)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -898,7 +898,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.check_circle_rounded,
+                Icon(Icons.check_circle_rounded,
                     color: Colors.white, size: 18),
                 SizedBox(width: 10.w),
                 Text('Photo updated!',

@@ -382,7 +382,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                   );
                 },
                 icon: const Icon(Icons.copy_rounded, size: 14),
-                label: const Text('Copy', style: TextStyle(fontSize: 12.sp)),
+                label: Text('Copy', style: TextStyle(fontSize: 12.sp)),
               ),
               children: [
                 // Stats Row
@@ -444,7 +444,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
                       SizedBox(width: 6.w),
                       Text(
                         _result!['phaseLabel'],
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w700,
                           color: AppTheme.accent,

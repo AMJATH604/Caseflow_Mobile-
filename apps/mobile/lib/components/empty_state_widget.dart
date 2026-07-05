@@ -10,7 +10,7 @@ class EmptyStateWidget extends StatelessWidget {
   final String? buttonText;
   final VoidCallback? onButtonTap;
 
-  const EmptyStateWidget({
+  EmptyStateWidget({
     super.key,
     required this.icon,
     required this.title,

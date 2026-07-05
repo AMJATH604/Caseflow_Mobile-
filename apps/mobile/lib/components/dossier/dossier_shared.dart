@@ -14,7 +14,7 @@ class DossierSection extends StatelessWidget {
   final Color? badgeColor;
   final Widget? trailing;
 
-  const DossierSection({
+  DossierSection({
     super.key,
     required this.icon,
     required this.title,
@@ -54,7 +54,7 @@ class DossierSection extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w900,
                     color: Color(0xFF1E293B),
@@ -123,7 +123,7 @@ class DossierHelper {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12.sp,
                 color: Color(0xFF94A3B8),
                 fontStyle: FontStyle.italic,
@@ -144,7 +144,7 @@ class DossierHelper {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: Color(0xFF94A3B8),
               fontSize: 11.sp,
               fontWeight: FontWeight.w600,
@@ -154,7 +154,7 @@ class DossierHelper {
           Flexible(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w900,
                 fontSize: 13.sp,
                 color: Color(0xFF1E293B),
@@ -182,7 +182,7 @@ class DossierHelper {
           SizedBox(height: 12.h),
           Text(
             '$count',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24.sp,
               fontWeight: FontWeight.w900,
               color: Color(0xFF1E293B),
@@ -191,7 +191,7 @@ class DossierHelper {
           ),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 9.sp,
               color: Color(0xFF94A3B8),
               fontWeight: FontWeight.w900,

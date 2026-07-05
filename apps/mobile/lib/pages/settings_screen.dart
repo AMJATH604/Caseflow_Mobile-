@@ -1009,7 +1009,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.check_circle_rounded, color: Colors.white, size: 16),
+            Icon(Icons.check_circle_rounded, color: Colors.white, size: 16),
             SizedBox(width: 8.w),
             Text(message, style: GoogleFonts.inter(fontSize: 13.sp)),
           ],

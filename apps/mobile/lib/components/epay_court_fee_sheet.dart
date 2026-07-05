@@ -180,7 +180,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
       expand: false,
       builder:
           (context, scrollController) => Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
             ),
@@ -617,7 +617,7 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                 : Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.launch_rounded, size: 20),
+                    Icon(Icons.launch_rounded, size: 20),
                     SizedBox(width: 10.w),
                     Text(
                       'Open eCourts ePay Portal',

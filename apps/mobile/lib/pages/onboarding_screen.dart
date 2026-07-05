@@ -282,7 +282,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Spacer(flex: 1),
+          Spacer(flex: 1),
 
           // Illustration area
           AnimatedBuilder(
@@ -301,7 +301,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                       slide.accentColor.withValues(alpha: 0.05),
                       Colors.transparent,
                     ],
-                    stops: const [0.3, 0.6, 1.0],
+                    stops: [0.3, 0.6, 1.0],
                   ),
                 ),
                 child: Center(

@@ -148,7 +148,7 @@ class _QuickActionFABState extends ConsumerState<QuickActionFAB>
           ),
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               color: Color(0xFF1E293B),

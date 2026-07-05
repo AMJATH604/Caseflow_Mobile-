@@ -190,7 +190,7 @@ class _LegalDictionaryState extends State<LegalDictionary> {
                   color: Colors.grey[500],
                 ),
               ),
-              const Spacer(),
+              Spacer(),
               Text(
                 'Tap a term to expand',
                 style: TextStyle(fontSize: 11.sp, color: Colors.grey[400]),
@@ -323,7 +323,7 @@ class _LegalDictionaryState extends State<LegalDictionary> {
                 Expanded(
                   child: Text(
                     term.term,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 15.sp,
                     ),
@@ -419,7 +419,7 @@ class _LegalDictionaryState extends State<LegalDictionary> {
                 child: TextButton.icon(
                   onPressed: () => _copyTerm(term),
                   icon: const Icon(Icons.copy_rounded, size: 14),
-                  label: const Text('Copy', style: TextStyle(fontSize: 12.sp)),
+                  label: Text('Copy', style: TextStyle(fontSize: 12.sp)),
                   style: TextButton.styleFrom(
                     visualDensity: VisualDensity.compact,
                   ),

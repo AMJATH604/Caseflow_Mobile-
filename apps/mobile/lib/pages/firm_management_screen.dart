@@ -221,7 +221,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
   void _showAttachmentSheet() {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder:
@@ -422,7 +422,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
           SizedBox(width: 12.w),
           Text(
             title.toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w900,
               color: Color(0xFF1E293B),
@@ -476,7 +476,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Chambers Chat',
                     style: TextStyle(
                       fontSize: 17.sp,
@@ -536,8 +536,8 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
               ),
               child: TextField(
                 controller: _emailController,
-                style: const TextStyle(color: Color(0xFF1E293B), fontSize: 13.sp),
-                decoration: const InputDecoration(
+                style: TextStyle(color: Color(0xFF1E293B), fontSize: 13.sp),
+                decoration: InputDecoration(
                   hintText: "Junior's Professional Email",
                   hintStyle: TextStyle(color: Color(0xFFCBD5E1)),
                   prefixIcon: Icon(
@@ -564,7 +564,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                   ),
                   elevation: 0,
                 ),
-                child: const Text(
+                child: Text(
                   'INITIALIZE RECRUITMENT',
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
@@ -600,7 +600,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
           isMe
               ? '${member.memberName ?? member.memberEmail} (Me)'
               : (member.memberName ?? member.memberEmail),
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w900,
             color: Color(0xFF1E293B),
             fontSize: 14.sp,
@@ -661,7 +661,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Authenticated Chambers Profile',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -768,7 +768,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
               ),
             ),
             SizedBox(height: 12.h),
-            const Text(
+            Text(
               'Transform CaseFlow into a shared chambers workspace. Recruit juniors and synchronize your legal operations.',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -784,7 +784,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
               child: ElevatedButton.icon(
                 onPressed: () => context.push('/upgrade'),
                 icon: const Icon(Icons.flash_on_rounded, size: 18),
-                label: const Text(
+                label: Text(
                   'ACTIVATE BUSINESS NODES',
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
@@ -819,7 +819,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
         borderRadius: BorderRadius.circular(24.r),
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
-      child: const Column(
+      child: Column(
         children: [
           Icon(
             Icons.person_add_rounded,

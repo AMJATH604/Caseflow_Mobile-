@@ -35,7 +35,7 @@ class ClientDetailSheet extends ConsumerWidget {
       const Color(0xFFEF4444),
       const Color(0xFF8B5CF6),
       const Color(0xFFEC4899),
-      const Color(0xFF14B8A6),
+      Color(0xFF14B8A6),
     ];
     return colors[name.hashCode.abs() % colors.length];
   }
@@ -54,7 +54,7 @@ class ClientDetailSheet extends ConsumerWidget {
         return Container(
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF0F172A) : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28.r)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.15),
@@ -322,7 +322,7 @@ class ClientDetailSheet extends ConsumerWidget {
                   );
                 },
                 loading:
-                    () => const Padding(
+                    () => Padding(
                       padding: EdgeInsets.all(20.r),
                       child: Center(
                         child: CircularProgressIndicator(

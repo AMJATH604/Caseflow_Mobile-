@@ -273,7 +273,7 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
                             : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.save_rounded, size: 18),
+                                Icon(Icons.save_rounded, size: 18),
                                 SizedBox(width: 8.w),
                                 Text(
                                   'Save Changes',
@@ -339,7 +339,7 @@ class _EditClientDialogState extends ConsumerState<EditClientDialog> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14.r),
-            borderSide: const BorderSide(color: AppTheme.accent, width: 1.5.w),
+            borderSide: BorderSide(color: AppTheme.accent, width: 1.5.w),
           ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,

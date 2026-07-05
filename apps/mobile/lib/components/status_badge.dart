@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class StatusBadge extends StatelessWidget {
   final String status;
 
-  const StatusBadge({super.key, required this.status});
+  StatusBadge({super.key, required this.status});
 
   @override
   Widget build(BuildContext context) {

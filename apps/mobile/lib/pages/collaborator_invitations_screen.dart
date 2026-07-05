@@ -138,7 +138,7 @@ class _CollaboratorInvitationsScreenState
                                   ),
                                   Text(
                                     'Invited by $inviter',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12.sp,
                                       color: Color(0xFF64748B),
                                     ),
@@ -148,7 +148,7 @@ class _CollaboratorInvitationsScreenState
                             ),
                           ],
                         ),
-                        const Divider(height: 24.h),
+                        Divider(height: 24.h),
                         Row(
                           children: [
                             Expanded(
@@ -161,7 +161,7 @@ class _CollaboratorInvitationsScreenState
                                   ),
                                   foregroundColor: const Color(0xFF64748B),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'REJECT',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w900,
@@ -180,7 +180,7 @@ class _CollaboratorInvitationsScreenState
                                   foregroundColor: Colors.black,
                                   elevation: 0,
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'ACCEPT',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w900,
@@ -219,7 +219,7 @@ class _CollaboratorInvitationsScreenState
             ),
           ),
           SizedBox(height: 8.h),
-          const Text(
+          Text(
             'When someone shares a case with you, it will appear here.',
             style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13.sp),
           ),

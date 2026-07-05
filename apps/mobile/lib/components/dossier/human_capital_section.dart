@@ -143,7 +143,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'COLLABORATORS',
               style: TextStyle(
                 fontSize: 9.sp,
@@ -196,7 +196,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                         children: [
                           Text(
                             collaboratorName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w700,
                               color: Color(0xFF1E293B),
@@ -205,7 +205,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                           SizedBox(height: 2.h),
                           Text(
                             "Shared by $ownerName${dateStr.isNotEmpty ? ' · $dateStr' : ''}",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 9.sp,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF94A3B8),
@@ -328,7 +328,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
             child: OutlinedButton.icon(
               onPressed: () => _showReassignDialog(caseData),
               icon: const Icon(Icons.sync_alt_rounded, size: 16),
-              label: const Text(
+              label: Text(
                 'TRANSFER OWNERSHIP',
                 style: TextStyle(
                   fontSize: 11.sp,
@@ -349,7 +349,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
             child: TextButton.icon(
               onPressed: () => _showShareDialog(),
               icon: const Icon(Icons.share_rounded, size: 16),
-              label: const Text(
+              label: Text(
                 'SHARE WITH COLLEAGUE',
                 style: TextStyle(
                   fontSize: 11.sp,

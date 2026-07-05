@@ -111,7 +111,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                   child: Center(
                     child: Text(
                       initial,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w900,
                         fontSize: 20.sp,
@@ -127,7 +127,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                     children: [
                       Text(
                         note.witnessName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w800,
                           fontSize: 15.sp,
                           color: Color(0xFF0F172A),
@@ -148,7 +148,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                             ),
                             child: Text(
                               tag,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 10.sp,
                                 fontWeight: FontWeight.w900,
@@ -189,7 +189,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                   },
                   itemBuilder:
                       (_) => [
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'delete',
                           child: Row(
                             children: [
@@ -273,7 +273,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                   Expanded(
                     child: Text(
                       note.notes!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12.sp,
                         color: Color(0xFF92400E),
                         height: 1.4.h,
@@ -299,7 +299,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                 SizedBox(width: 6.w),
                 Text(
                   "Added ${DateFormat('dd MMM yyyy').format(note.createdAt)}",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10.sp,
                     color: Color(0xFF94A3B8),
                     fontWeight: FontWeight.w600,
@@ -381,7 +381,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
             ),
           ),
           SizedBox(height: 20.h),
-          const Text(
+          Text(
             'No Witnesses Recorded',
             style: TextStyle(
               fontWeight: FontWeight.w800,
@@ -390,7 +390,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
             ),
           ),
           SizedBox(height: 8.h),
-          const Text(
+          Text(
             'Add PW, DW, or CW witnesses\nwith examination notes',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -415,7 +415,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                 ),
               ],
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.add_rounded, color: Colors.white, size: 18),
@@ -455,7 +455,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
             ),
           ],
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.person_add_alt_1_rounded, color: Colors.white, size: 20),
@@ -494,7 +494,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                   24,
                   MediaQuery.of(context).viewInsets.bottom + 24,
                 ),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
                 ),
@@ -532,7 +532,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                           ),
                         ),
                         SizedBox(width: 12.w),
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
@@ -572,7 +572,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                     SizedBox(height: 16.h),
 
                     // Tag Selector
-                    const Text(
+                    Text(
                       'Witness Type',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
@@ -711,7 +711,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                           ),
                           elevation: 0,
                         ),
-                        child: const Text(
+                        child: Text(
                           'Save Witness',
                           style: TextStyle(
                             fontWeight: FontWeight.w800,

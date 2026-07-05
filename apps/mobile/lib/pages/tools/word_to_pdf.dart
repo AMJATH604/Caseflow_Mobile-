@@ -70,7 +70,7 @@ class _WordToPdfState extends State<WordToPdf> {
                   color: Color(0xFF1E293B),
                 ),
                 SizedBox(height: 16.h),
-                const Text(
+                Text(
                   'Word to PDF Converter',
                   style: TextStyle(
                     fontSize: 20.sp,
@@ -107,7 +107,7 @@ class _WordToPdfState extends State<WordToPdf> {
           ),
           if (_isProcessing) ...[
             SizedBox(height: 48.h),
-            const LinearProgressIndicator(minHeight: 8),
+            LinearProgressIndicator(minHeight: 8),
             SizedBox(height: 16.h),
             const Text(
               'Optimizing document structure...',
@@ -125,7 +125,7 @@ class _WordToPdfState extends State<WordToPdf> {
               ),
               child: Column(
                 children: [
-                  const Icon(Icons.check_circle, color: Colors.green, size: 48),
+                  Icon(Icons.check_circle, color: Colors.green, size: 48),
                   SizedBox(height: 16.h),
                   Text(
                     "${_file?.name ?? 'Document'} converted successfully!",

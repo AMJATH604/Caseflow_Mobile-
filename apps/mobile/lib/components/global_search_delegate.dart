@@ -50,7 +50,7 @@ class GlobalSearchDelegate extends SearchDelegate {
         return ListView(
           children: [
             if (cases.isNotEmpty) ...[
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(16.r),
                 child: Text(
                   'CASES',
@@ -73,7 +73,7 @@ class GlobalSearchDelegate extends SearchDelegate {
               ),
             ],
             if (clients.isNotEmpty) ...[
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(16.r),
                 child: Text(
                   'CLIENTS',

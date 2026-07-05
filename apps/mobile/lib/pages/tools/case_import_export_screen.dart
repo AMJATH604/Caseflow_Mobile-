@@ -61,7 +61,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
             ),
             indicatorSize: TabBarIndicatorSize.tab,
             dividerColor: Colors.transparent,
-            tabs: const [
+            tabs: [
               Tab(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -139,7 +139,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                       ),
                     ),
                     SizedBox(width: 12.w),
-                    const Text(
+                    Text(
                       'Export Case',
                       style: TextStyle(
                         fontSize: 18.sp,
@@ -149,7 +149,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                   ],
                 ),
                 SizedBox(height: 16.h),
-                const Text(
+                Text(
                   'Select a case to export its complete data.',
                   style: TextStyle(color: Colors.grey, fontSize: 13.sp),
                 ),
@@ -199,7 +199,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
               title: 'Export as PDF',
               subtitle:
                   'Professional report with all case details, hearings, payments & documents',
-              gradient: const [Color(0xFFe74c3c), Color(0xFFc0392b)],
+              gradient: [Color(0xFFe74c3c), Color(0xFFc0392b)],
               onTap: _isProcessing ? null : () => _exportAsPdf(),
             ),
             SizedBox(height: 12.h),
@@ -257,7 +257,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Color(0xFF1E293B),
                       fontWeight: FontWeight.bold,
                       fontSize: 15.sp,
@@ -306,7 +306,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
             icon: Icons.account_balance_rounded,
             title: 'Import from eCourts',
             subtitle: 'Import case data from eCourts mycases.txt export file',
-            gradient: const [Color(0xFF2980b9), Color(0xFF3498db)],
+            gradient: [Color(0xFF2980b9), Color(0xFF3498db)],
             filetype: 'txt',
             onTap: _isProcessing ? null : () => _importFromECourts(),
           ),
@@ -315,7 +315,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
             icon: Icons.restore_rounded,
             title: 'Restore from CaseFlow Backup',
             subtitle: 'Import a previously exported .caseflow.json backup file',
-            gradient: const [Color(0xFF8e44ad), Color(0xFF9b59b6)],
+            gradient: [Color(0xFF8e44ad), Color(0xFF9b59b6)],
             filetype: 'json',
             onTap: _isProcessing ? null : () => _importFromCaseFlow(),
           ),
@@ -344,7 +344,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'How to export from eCourts?',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -410,7 +410,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15.sp,
                     ),
@@ -689,7 +689,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.r),
                 ),
-                title: const Row(
+                title: Row(
                   children: [
                     Icon(Icons.account_balance, color: Color(0xFF2980b9)),
                     SizedBox(width: 8.w),
@@ -729,7 +729,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                             ),
                             label: Text(
                               allSelected ? 'Deselect All' : 'Select All',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11.sp,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -853,7 +853,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                                     // Role Switcher
                                     Row(
                                       children: [
-                                        const Text(
+                                        Text(
                                           'Representing:',
                                           style: TextStyle(
                                             fontSize: 11.sp,
@@ -863,7 +863,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                                         SizedBox(width: 8.w),
                                         Expanded(
                                           child: SegmentedButton<String>(
-                                            segments: const [
+                                            segments: [
                                               ButtonSegment(
                                                 value: 'petitioner',
                                                 label: Text(
@@ -900,7 +900,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                                         ),
                                       ],
                                     ),
-                                    const Divider(height: 20.h, thickness: 0.5),
+                                    Divider(height: 20.h, thickness: 0.5),
                                     if (c['petitioner'] != null)
                                       _previewDetailRow(
                                         Icons.person_rounded,
@@ -974,7 +974,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.r),
             ),
-            title: const Row(
+            title: Row(
               children: [
                 Icon(Icons.restore, color: Color(0xFF8e44ad)),
                 SizedBox(width: 8.w),
@@ -996,7 +996,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                     children: [
                       Text(
                         caseData['case_title'] ?? 'Unknown',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14.sp,
                         ),
@@ -1022,7 +1022,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                   ),
                 ),
                 SizedBox(height: 16.h),
-                const Text(
+                Text(
                   'Will import:',
                   style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.sp),
                 ),
@@ -1061,8 +1061,8 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
         children: [
           Icon(icon, size: 16, color: Colors.grey),
           SizedBox(width: 8.w),
-          Text(label, style: const TextStyle(fontSize: 12.sp)),
-          const Spacer(),
+          Text(label, style: TextStyle(fontSize: 12.sp)),
+          Spacer(),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
             decoration: BoxDecoration(

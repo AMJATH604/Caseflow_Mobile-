@@ -84,7 +84,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: const BorderRadius.vertical(
+                borderRadius: BorderRadius.vertical(
                   top: Radius.circular(28.r),
                 ),
               ),
@@ -182,7 +182,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14.r),
-                                  borderSide: const BorderSide(
+                                  borderSide: BorderSide(
                                     color: AppTheme.accent,
                                     width: 1.5.w,
                                   ),
@@ -251,7 +251,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14.r),
-                            borderSide: const BorderSide(
+                            borderSide: BorderSide(
                               color: AppTheme.accent,
                               width: 1.5.w,
                             ),
@@ -353,7 +353,7 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14.r),
-                            borderSide: const BorderSide(
+                            borderSide: BorderSide(
                               color: AppTheme.accent,
                               width: 1.5.w,
                             ),

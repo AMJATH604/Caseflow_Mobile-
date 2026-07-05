@@ -43,7 +43,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
                 ),
               ),
               SizedBox(height: 32.h),
-              const Text(
+              Text(
                 'All Features Unlocked!',
                 style: TextStyle(
                   fontSize: 28.sp,
@@ -53,7 +53,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 16.h),
-              const Text(
+              Text(
                 'Welcome to the CaseFlow Beta Phase. We have decided to make all Professional and Business features free for all users during this period.',
                 style: TextStyle(fontSize: 16.sp, color: Colors.grey),
                 textAlign: TextAlign.center,
