@@ -8,6 +8,7 @@ import '../services/supabase_service.dart';
 import '../services/providers.dart';
 import '../services/fcm_service.dart';
 import '../models/geo_data.dart';
+import '../utils/responsive.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   final String initialRole;
@@ -679,7 +680,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   Widget _buildHeaderSection() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(32, 24, 32, 0),
+      padding: EdgeInsets.fromLTRB(R.w(32), R.h(24), R.w(32), 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -687,10 +688,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           Row(
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: R.w(48),
+                height: R.w(48),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(R.r(14)),
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0xFF2563EB).withValues(alpha: 0.3),
@@ -700,21 +701,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(R.r(14)),
                   child: Image.asset(
                     'assets/images/logo.png',
                     fit: BoxFit.contain,
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
+              R.gapW(14),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'CASEFLOW',
                     style: GoogleFonts.playfairDisplay(
-                      fontSize: 22,
+                      fontSize: R.sp(22),
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
                       letterSpacing: 3,
@@ -723,7 +724,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   Text(
                     'Your Practice, Perfected',
                     style: GoogleFonts.inter(
-                      fontSize: 11,
+                      fontSize: R.sp(11),
                       color: const Color(0xFFD4AF37).withValues(alpha: 0.8),
                       letterSpacing: 1,
                       fontWeight: FontWeight.w400,
@@ -734,13 +735,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ],
           ),
 
-          const SizedBox(height: 28),
+          R.gapH(28),
 
           // Welcome text
           Text(
             _authTab == 0 ? 'Welcome\nBack' : 'Join the\nProfession',
             style: GoogleFonts.playfairDisplay(
-              fontSize: 36,
+              fontSize: R.sp(36),
               fontWeight: FontWeight.w700,
               color: Colors.white,
               height: 1.15,

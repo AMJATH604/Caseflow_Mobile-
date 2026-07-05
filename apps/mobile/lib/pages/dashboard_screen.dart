@@ -20,6 +20,7 @@ import '../components/daily_board_widget.dart';
 import '../components/error_state_widget.dart';
 import '../services/analytics_service.dart';
 import 'citizen_home_screen.dart';
+import '../utils/responsive.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});

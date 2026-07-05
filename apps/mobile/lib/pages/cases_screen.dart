@@ -8,6 +8,7 @@ import '../models/models.dart';
 import '../services/supabase_service.dart';
 import '../components/error_state_widget.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 
 class CasesScreen extends ConsumerStatefulWidget {
   const CasesScreen({super.key});
