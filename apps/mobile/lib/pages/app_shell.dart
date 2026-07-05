@@ -200,7 +200,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                 : null,
         body: Row(
           children: [
-            if (!isMobile && !isCitizenMode) const AppSidebar(),
+            if (!isMobile && !isCitizenMode) AppSidebar(),
             Expanded(
               child: Column(
                 children: [

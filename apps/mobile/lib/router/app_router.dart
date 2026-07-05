@@ -176,7 +176,7 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: '/efiling',
-          builder: (context, state) => const EFilingScreen(),
+          builder: (context, state) => EFilingScreen(),
         ),
         GoRoute(
           path: '/certified-copies',
@@ -192,7 +192,7 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: '/notifications',
-          builder: (context, state) => const NotificationsScreen(),
+          builder: (context, state) => NotificationsScreen(),
         ),
         GoRoute(
           path: '/settings',

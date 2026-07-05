@@ -64,7 +64,7 @@ class NotificationsScreen extends ConsumerWidget {
 
   Widget _buildActivityFeed(List<CaseModel> items) {
     if (items.isEmpty) {
-      return const EmptyStateWidget(
+      return EmptyStateWidget(
         icon: Icons.notifications_none,
         title: 'No Recent Updates',
         message:

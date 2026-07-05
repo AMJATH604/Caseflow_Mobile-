@@ -126,7 +126,7 @@ class MobileBottomNav extends ConsumerWidget {
           context: context,
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
-          builder: (context) => const MobileMoreSheet(),
+          builder: (context) => MobileMoreSheet(),
         );
       },
       child: SizedBox(
