@@ -90,7 +90,7 @@ Deno.serve(async (req: Request) => {
           }
         }
       } catch (e) {
-        console.warn(`[${executionId}] Failed to read request text:`, e.message);
+        console.warn(`[${executionId}] Failed to read request text:`, (e as any).message);
       }
     }
 
@@ -142,7 +142,7 @@ Deno.serve(async (req: Request) => {
     try {
       firebaseServiceAccount = JSON.parse(firebaseServiceAccountJson);
     } catch (parseError) {
-      console.error(`[${executionId}] Invalid FIREBASE_SERVICE_ACCOUNT JSON:`, parseError.message);
+      console.error(`[${executionId}] Invalid FIREBASE_SERVICE_ACCOUNT JSON:`, (parseError as any).message);
       return new Response(
         JSON.stringify({ error: "Server misconfigured: invalid Firebase service account format" }),
         { status: 500, headers: { "Content-Type": "application/json" } }

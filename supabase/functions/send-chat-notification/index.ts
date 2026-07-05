@@ -352,8 +352,8 @@ Deno.serve(async (req: Request) => {
       { headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error(`[${executionId}] Error:`, error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error(`[${executionId}] Error:`, (error as any).message);
+    return new Response(JSON.stringify({ error: (error as any).message }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
