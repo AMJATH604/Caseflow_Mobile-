@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../services/providers.dart';
+import '../services/paginated_providers.dart';
 import '../services/supabase_service.dart';
 import '../components/dialogs/add_client_dialog.dart';
 import '../components/dialogs/client_detail_sheet.dart';
@@ -19,6 +20,27 @@ class ClientsScreen extends ConsumerStatefulWidget {
 
 class _ClientsScreenState extends ConsumerState<ClientsScreen> {
   String _searchQuery = '';
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.8) {
+      ref.read(paginatedClientsProvider.notifier).loadMore();
+    }
+  }
 
   // Generate consistent gradient color from name
   Color _avatarColor(String name) {
@@ -37,7 +59,8 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final clientsAsync = ref.watch(clientsProvider);
+    final paginatedState = ref.watch(paginatedClientsProvider);
+    final clients = paginatedState.items;
     final isMobile = MediaQuery.of(context).size.width < 768;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -52,50 +75,52 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
             _buildSearch(isDark),
             SizedBox(height: 16.h),
             Expanded(
-              child: clientsAsync.when(
-                data: (clients) => _buildClientsList(isMobile, isDark, clients),
-                loading:
-                    () => const Center(
+              child: paginatedState.isLoading && clients.isEmpty
+                  ? const Center(
                       child: CircularProgressIndicator(color: AppTheme.accent),
-                    ),
-                error:
-                    (err, stack) => Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(24.0.r),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.error_outline_rounded,
-                              color: Colors.red,
-                              size: 48,
+                    )
+                  : paginatedState.error != null && clients.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(24.0.r),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.error_outline_rounded,
+                                  color: Colors.red,
+                                  size: 48,
+                                ),
+                                SizedBox(height: 16.h),
+                                Text(
+                                  'Connection Error',
+                                  style: GoogleFonts.outfit(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18.sp,
+                                  ),
+                                ),
+                                SizedBox(height: 8.h),
+                                Text(
+                                  '${paginatedState.error}',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.inter(
+                                    color: const Color(0xFF64748B),
+                                  ),
+                                ),
+                                SizedBox(height: 16.h),
+                                ElevatedButton(
+                                  onPressed: () => ref.read(paginatedClientsProvider.notifier).refresh(),
+                                  child: const Text('Retry Connection'),
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 16.h),
-                            Text(
-                              'Connection Error',
-                              style: GoogleFonts.outfit(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18.sp,
-                              ),
-                            ),
-                            SizedBox(height: 8.h),
-                            Text(
-                              '$err',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.inter(
-                                color: const Color(0xFF64748B),
-                              ),
-                            ),
-                            SizedBox(height: 16.h),
-                            ElevatedButton(
-                              onPressed: () => ref.invalidate(clientsProvider),
-                              child: const Text('Retry Connection'),
-                            ),
-                          ],
+                          ),
+                        )
+                      : RefreshIndicator(
+                          color: AppTheme.accent,
+                          onRefresh: () => ref.read(paginatedClientsProvider.notifier).refresh(),
+                          child: _buildClientsList(isMobile, isDark, clients, paginatedState),
                         ),
-                      ),
-                    ),
-              ),
             ),
           ],
         ),
@@ -243,6 +268,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     bool isMobile,
     bool isDark,
     List<ClientModel> clients,
+    [dynamic paginatedState]
   ) {
     final filtered =
         clients.where((c) {
@@ -288,6 +314,8 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
 
     // Stats bar
     final activeCount = filtered.where((c) => c.hasActiveCases).length;
+    final hasMore = paginatedState?.hasMore ?? false;
+    final isLoadingMore = paginatedState?.isLoadingMore ?? false;
 
     return Column(
       children: [
@@ -316,9 +344,44 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
         // Client Cards List
         Expanded(
           child: ListView.builder(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 0.h),
-            itemCount: filtered.length,
+            itemCount: filtered.length + (hasMore ? 1 : 0),
             itemBuilder: (context, index) {
+              // Loading more indicator at the bottom
+              if (index == filtered.length) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                  child: Center(
+                    child: isLoadingMore
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 16.r,
+                                height: 16.r,
+                                child: const CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppTheme.accent,
+                                ),
+                              ),
+                              SizedBox(width: 8.w),
+                              Text(
+                                'Loading more clients...',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  color: const Color(0xFF94A3B8),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                );
+              }
+
               final c = filtered[index];
               return _buildClientCard(c, isDark);
             },
@@ -638,7 +701,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     );
     if (confirmed == true) {
       await SupabaseService.deleteClient(client.id);
-      ref.invalidate(clientsProvider);
+      ref.read(paginatedClientsProvider.notifier).refresh();
     }
   }
 }

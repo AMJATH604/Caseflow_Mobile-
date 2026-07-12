@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -93,19 +93,27 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
   h1, h2, h3 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    letter-spacing: -0.02em;
   }
 }
 
 @layer utilities {
   .glass-card {
-    @apply bg-card/80 backdrop-blur-sm border border-border/50 shadow-sm;
+    @apply bg-card/85 backdrop-blur-md border border-border/40 shadow-md;
   }
   .kpi-card {
-    @apply bg-card rounded-lg border border-border/60 p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:border-accent/30;
+    @apply bg-card rounded-2xl border border-border/50 p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:border-accent/40 hover:-translate-y-0.5;
   }
   .status-badge {
     @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 

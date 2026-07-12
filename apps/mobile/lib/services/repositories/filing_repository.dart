@@ -9,6 +9,8 @@ class FilingRepository {
 
   static Future<List<EFilingRecord>> fetchEfilingRecords({
     String? caseId,
+    int? limit,
+    int? offset,
   }) async {
     final user = _client.auth.currentUser;
     if (user == null) return [];
@@ -31,10 +33,19 @@ class FilingRepository {
       query = query.inFilter('case_id', visibleCaseIds);
     }
 
-    final response = await query.order('updated_at', ascending: false);
-    return (response as List)
-        .map((json) => EFilingRecord.fromJson(json))
-        .toList();
+    // Apply pagination and ordering in a single chain to avoid type mismatch
+    final List response;
+    if (limit != null && offset != null) {
+      response = await query
+          .order('updated_at', ascending: false)
+          .range(offset, offset + limit - 1);
+    } else if (limit != null) {
+      response =
+          await query.order('updated_at', ascending: false).limit(limit);
+    } else {
+      response = await query.order('updated_at', ascending: false);
+    }
+    return response.map((json) => EFilingRecord.fromJson(json)).toList();
   }
 
   static Future<void> createEfilingRecord(Map<String, dynamic> record) async {

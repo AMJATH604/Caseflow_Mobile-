@@ -7,66 +7,8 @@
 // Or copy the contents to Supabase Dashboard > Edge Functions > New Function
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { getAccessToken } from "../_shared/fcm_utils.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-// Google Auth - get access token from service account
-async function getAccessToken(serviceAccount: any): Promise<string> {
-  const now = Math.floor(Date.now() / 1000);
-  
-  const base64UrlEncode = (str: string) => 
-    btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    
-  const base64UrlEncodeBytes = (bytes: Uint8Array) => 
-    btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-
-  const header = base64UrlEncode(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-  const payload = base64UrlEncode(
-    JSON.stringify({
-      iss: serviceAccount.client_email,
-      scope: "https://www.googleapis.com/auth/firebase.messaging",
-      aud: "https://oauth2.googleapis.com/token",
-      iat: now,
-      exp: now + 3600,
-    })
-  );
-
-  // Import the private key
-  const pemContents = serviceAccount.private_key
-    .replace(/-----BEGIN PRIVATE KEY-----/, "")
-    .replace(/-----END PRIVATE KEY-----/, "")
-    .replace(/\n/g, "");
-  const binaryKey = Uint8Array.from(atob(pemContents), (c) => c.charCodeAt(0));
-
-  const cryptoKey = await crypto.subtle.importKey(
-    "pkcs8",
-    binaryKey,
-    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-
-  const unsignedToken = `${header}.${payload}`;
-  const signature = await crypto.subtle.sign(
-    "RSASSA-PKCS1-v1_5",
-    cryptoKey,
-    new TextEncoder().encode(unsignedToken)
-  );
-
-  const jwt = `${unsignedToken}.${base64UrlEncodeBytes(new Uint8Array(signature))}`;
-
-  // Exchange JWT for access token
-  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
-  });
-
-  const tokenData = await tokenResponse.json();
-  if (!tokenData.access_token) {
-    throw new Error(`Failed to get OAuth token: ${JSON.stringify(tokenData)}`);
-  }
-  return tokenData.access_token;
-}
 
 Deno.serve(async (req: Request) => {
   const url = new URL(req.url);

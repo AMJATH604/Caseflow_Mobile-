@@ -5,27 +5,65 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 const GEMINI_MODEL = "gemini-2.5-flash";
 
-// ─── Rate Limiting: Per-user request tracking ───────────────────────
-// In-memory rate limiter (resets on cold start, which is acceptable for Edge Functions)
-const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+// ─── Rate Limiting: Hybrid in-memory + DB-backed ────────────────────
+// In-memory cache for fast-path checks (avoids DB round-trip on every request).
+// Falls through to a Supabase query when the in-memory cache has no entry,
+// ensuring rate limits persist across cold starts.
+const rateLimitCache = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_MAX = 30;          // Max requests per window
 const RATE_LIMIT_WINDOW_MS = 3600000; // 1 hour window
 
-function checkRateLimit(userId: string): { allowed: boolean; remaining: number } {
+function checkRateLimitFast(userId: string): { allowed: boolean; remaining: number; needsDbCheck: boolean } {
   const now = Date.now();
-  const entry = rateLimitStore.get(userId);
+  const entry = rateLimitCache.get(userId);
 
   if (!entry || now > entry.resetAt) {
-    rateLimitStore.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true, remaining: RATE_LIMIT_MAX - 1 };
+    // No in-memory entry — need to check DB for persistence across cold starts
+    return { allowed: true, remaining: RATE_LIMIT_MAX, needsDbCheck: true };
   }
 
   if (entry.count >= RATE_LIMIT_MAX) {
-    return { allowed: false, remaining: 0 };
+    return { allowed: false, remaining: 0, needsDbCheck: false };
   }
 
   entry.count++;
-  return { allowed: true, remaining: RATE_LIMIT_MAX - entry.count };
+  return { allowed: true, remaining: RATE_LIMIT_MAX - entry.count, needsDbCheck: false };
+}
+
+async function checkRateLimitWithDb(
+  userId: string,
+  supabase: any
+): Promise<{ allowed: boolean; remaining: number }> {
+  const now = Date.now();
+  const windowStart = new Date(now - RATE_LIMIT_WINDOW_MS).toISOString();
+
+  try {
+    // Count AI requests in the last hour from audit_logs
+    const { count, error } = await supabase
+      .from("audit_logs")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("action", "aiQuery")
+      .gte("created_at", windowStart);
+
+    const currentCount = error ? 0 : (count ?? 0);
+
+    // Update in-memory cache
+    rateLimitCache.set(userId, {
+      count: currentCount + 1,
+      resetAt: now + RATE_LIMIT_WINDOW_MS,
+    });
+
+    if (currentCount >= RATE_LIMIT_MAX) {
+      return { allowed: false, remaining: 0 };
+    }
+
+    return { allowed: true, remaining: RATE_LIMIT_MAX - currentCount - 1 };
+  } catch {
+    // If DB check fails, fall back to allowing (don't block users due to infra issues)
+    rateLimitCache.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return { allowed: true, remaining: RATE_LIMIT_MAX - 1 };
+  }
 }
 
 // ─── Input Sanitization ─────────────────────────────────────────────
@@ -115,8 +153,13 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // ─── Rate Limiting ────────────────────────────────────────
-    const rateCheck = checkRateLimit(user.id);
+    // ─── Rate Limiting (hybrid: fast in-memory + DB fallback) ──
+    let rateCheck = checkRateLimitFast(user.id);
+    if (rateCheck.needsDbCheck) {
+      // Cold start or cache miss — check persistent count from audit_logs
+      const supabaseAdmin = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      rateCheck = { ...(await checkRateLimitWithDb(user.id, supabaseAdmin)), needsDbCheck: false };
+    }
     if (!rateCheck.allowed) {
       return new Response(
         JSON.stringify({ 

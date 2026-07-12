@@ -4,35 +4,66 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../models/models.dart';
 import '../services/providers.dart';
+import '../services/paginated_providers.dart';
 import '../services/supabase_service.dart';
 import '../components/error_state_widget.dart';
 import '../theme/app_theme.dart';
 import '../components/dialogs/log_payment_dialog.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class PaymentsScreen extends ConsumerWidget {
+class PaymentsScreen extends ConsumerStatefulWidget {
   const PaymentsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final paymentsAsync = ref.watch(paymentsProvider);
+  ConsumerState<PaymentsScreen> createState() => _PaymentsScreenState();
+}
+
+class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.8) {
+      ref.read(paginatedPaymentsProvider.notifier).loadMore();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final paginatedState = ref.watch(paginatedPaymentsProvider);
+    final payments = paginatedState.items;
     final isMobile = MediaQuery.of(context).size.width < 768;
 
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
-        child: paymentsAsync.when(
-          data: (payments) => _buildContent(context, ref, isMobile, payments),
-          loading:
-              () => const Center(
+        child: paginatedState.isLoading && payments.isEmpty
+            ? const Center(
                 child: CircularProgressIndicator(color: AppTheme.accent),
-              ),
-          error:
-              (err, stack) => ErrorStateWidget(
-                error: err,
-                onRetry: () => ref.invalidate(paymentsProvider),
-              ),
-        ),
+              )
+            : paginatedState.error != null && payments.isEmpty
+                ? ErrorStateWidget(
+                    error: paginatedState.error!,
+                    onRetry: () => ref.read(paginatedPaymentsProvider.notifier).refresh(),
+                  )
+                : RefreshIndicator(
+                    color: AppTheme.accent,
+                    onRefresh: () => ref.read(paginatedPaymentsProvider.notifier).refresh(),
+                    child: _buildContent(context, ref, isMobile, payments, paginatedState),
+                  ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddPaymentDialog(context),
@@ -57,8 +88,13 @@ class PaymentsScreen extends ConsumerWidget {
     WidgetRef ref,
     bool isMobile,
     List<Payment> payments,
+    dynamic paginatedState,
   ) {
+    final clientCards = _buildPerClientCards(context, ref, payments);
+
     return CustomScrollView(
+      controller: _scrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
         // ─── Header ───
         SliverToBoxAdapter(child: _buildHeader(context)),
@@ -73,8 +109,40 @@ class PaymentsScreen extends ConsumerWidget {
               vertical: 8,
             ),
             sliver: SliverList(
-              delegate: SliverChildListDelegate(
-                _buildPerClientCards(context, ref, payments),
+              delegate: SliverChildListDelegate(clientCards),
+            ),
+          ),
+
+        // Loading more indicator
+        if (paginatedState.hasMore)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+              child: Center(
+                child: paginatedState.isLoadingMore
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 16.r,
+                            height: 16.r,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppTheme.accent,
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'Loading more payments...',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: const Color(0xFF94A3B8),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
               ),
             ),
           ),

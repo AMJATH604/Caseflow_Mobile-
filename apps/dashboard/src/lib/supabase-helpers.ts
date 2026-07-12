@@ -1,7 +1,18 @@
 import { supabase } from "@/integrations/supabase/client";
 
 // Clients
-export const fetchClients = async () => {
+export const fetchClients = async (options?: { page?: number; pageSize?: number }) => {
+  if (options?.page != null && options?.pageSize != null) {
+    const from = (options.page! - 1) * options.pageSize!;
+    const to = from + options.pageSize! - 1;
+    const { data, error, count } = await supabase
+      .from("clients")
+      .select("*", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(from, to);
+    if (error) throw error;
+    return { data: data ?? [], count: count ?? 0 };
+  }
   const { data, error } = await supabase.from("clients").select("*").order("created_at", { ascending: false });
   if (error) throw error;
   return data;
@@ -27,7 +38,18 @@ export const deleteClient = async (id: string) => {
 };
 
 // Cases
-export const fetchCases = async () => {
+export const fetchCases = async (options?: { page?: number; pageSize?: number }) => {
+  if (options?.page != null && options?.pageSize != null) {
+    const from = (options.page! - 1) * options.pageSize!;
+    const to = from + options.pageSize! - 1;
+    const { data, error, count } = await supabase
+      .from("cases")
+      .select("*, clients(name)", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(from, to);
+    if (error) throw error;
+    return { data: data ?? [], count: count ?? 0 };
+  }
   const { data, error } = await supabase.from("cases").select("*, clients(name)").order("created_at", { ascending: false });
   if (error) throw error;
   return data;
@@ -58,9 +80,16 @@ export const updateCase = async (id: string, updates: Record<string, any>) => {
 };
 
 // Hearings
-export const fetchHearings = async (caseId?: string) => {
-  let query = supabase.from("hearings").select("*, cases(case_title, case_number)").order("hearing_date", { ascending: true });
+export const fetchHearings = async (caseId?: string, options?: { page?: number; pageSize?: number }) => {
+  let query = supabase.from("hearings").select("*, cases(case_title, case_number)", options?.page != null ? { count: "exact" } : undefined).order("hearing_date", { ascending: true });
   if (caseId) query = query.eq("case_id", caseId);
+  if (options?.page != null && options?.pageSize != null) {
+    const from = (options.page! - 1) * options.pageSize!;
+    const to = from + options.pageSize! - 1;
+    const { data, error, count } = await query.range(from, to);
+    if (error) throw error;
+    return { data: data ?? [], count: count ?? 0 };
+  }
   const { data, error } = await query;
   if (error) throw error;
   return data;
@@ -152,9 +181,16 @@ export const updateEfilingRecord = async (id: string, updates: Record<string, an
 };
 
 // Payments
-export const fetchPayments = async (caseId?: string) => {
-  let query = supabase.from("payments").select("*, cases(case_title, case_number)").order("paid_date", { ascending: false });
+export const fetchPayments = async (caseId?: string, options?: { page?: number; pageSize?: number }) => {
+  let query = supabase.from("payments").select("*, cases(case_title, case_number)", options?.page != null ? { count: "exact" } : undefined).order("paid_date", { ascending: false });
   if (caseId) query = query.eq("case_id", caseId);
+  if (options?.page != null && options?.pageSize != null) {
+    const from = (options.page! - 1) * options.pageSize!;
+    const to = from + options.pageSize! - 1;
+    const { data, error, count } = await query.range(from, to);
+    if (error) throw error;
+    return { data: data ?? [], count: count ?? 0 };
+  }
   const { data, error } = await query;
   if (error) throw error;
   return data;

@@ -5,7 +5,11 @@ import 'base_repository.dart';
 class PaymentRepository {
   static final _client = BaseRepository.client;
 
-  static Future<List<Payment>> fetchPayments({String? caseId}) async {
+  static Future<List<Payment>> fetchPayments({
+    String? caseId,
+    int? limit,
+    int? offset,
+  }) async {
     final user = _client.auth.currentUser;
     if (user == null) return [];
 
@@ -27,8 +31,18 @@ class PaymentRepository {
       query = query.inFilter('case_id', visibleCaseIds);
     }
 
-    final response = await query.order('paid_date', ascending: false);
-    return (response as List).map((json) => Payment.fromJson(json)).toList();
+    // Apply pagination and ordering in a single chain to avoid type mismatch
+    final List response;
+    if (limit != null && offset != null) {
+      response = await query
+          .order('paid_date', ascending: false)
+          .range(offset, offset + limit - 1);
+    } else if (limit != null) {
+      response = await query.order('paid_date', ascending: false).limit(limit);
+    } else {
+      response = await query.order('paid_date', ascending: false);
+    }
+    return response.map((json) => Payment.fromJson(json)).toList();
   }
 
   static Future<void> createPayment(Map<String, dynamic> payment) async {

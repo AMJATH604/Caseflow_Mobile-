@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../services/providers.dart';
+import '../services/paginated_providers.dart';
 import '../models/models.dart';
 import '../services/supabase_service.dart';
 import '../components/error_state_widget.dart';
@@ -22,10 +23,32 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
   String _searchQuery = '';
   String _statusFilter = 'all';
   String _sortBy = 'recent'; // recent, hearing, filing
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.8) {
+      ref.read(paginatedCasesProvider.notifier).loadMore();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final casesAsync = ref.watch(casesProvider);
+    final paginatedState = ref.watch(paginatedCasesProvider);
+    final cases = paginatedState.items;
     final isMobile = MediaQuery.of(context).size.width < 768;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -36,29 +59,28 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
         children: [
           _buildHeader(isMobile, isDark),
           SizedBox(height: 12.h),
-          casesAsync.when(
-            data: (cases) => _buildStatusSummary(cases, isDark),
-            loading: () => const SizedBox(),
-            error: (_, __) => const SizedBox(),
-          ),
+          if (!paginatedState.isLoading)
+            _buildStatusSummary(cases, isDark),
           SizedBox(height: 12.h),
-          _buildSearchAndFilters(isMobile, isDark, casesAsync.value ?? []),
+          _buildSearchAndFilters(isMobile, isDark, cases),
           SizedBox(height: 8.h),
           _buildSortBar(isDark),
           SizedBox(height: 8.h),
           Expanded(
-            child: casesAsync.when(
-              data: (cases) => _buildCasesList(isMobile, isDark, cases),
-              loading:
-                  () => const Center(
+            child: paginatedState.isLoading && cases.isEmpty
+                ? const Center(
                     child: CircularProgressIndicator(color: AppTheme.accent),
-                  ),
-              error:
-                  (err, stack) => ErrorStateWidget(
-                    error: err,
-                    onRetry: () => ref.invalidate(casesProvider),
-                  ),
-            ),
+                  )
+                : paginatedState.error != null && cases.isEmpty
+                    ? ErrorStateWidget(
+                        error: paginatedState.error!,
+                        onRetry: () => ref.read(paginatedCasesProvider.notifier).refresh(),
+                      )
+                    : RefreshIndicator(
+                        color: AppTheme.accent,
+                        onRefresh: () => ref.read(paginatedCasesProvider.notifier).refresh(),
+                        child: _buildCasesList(isMobile, isDark, cases, paginatedState),
+                      ),
           ),
         ],
       ),
@@ -371,7 +393,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
     }
   }
 
-  Widget _buildCasesList(bool isMobile, bool isDark, List<CaseModel> cases) {
+  Widget _buildCasesList(bool isMobile, bool isDark, List<CaseModel> cases, dynamic paginatedState) {
     final currentUserId = ref.read(userProvider)?.id ?? '';
 
     final filtered =
@@ -448,10 +470,48 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
       );
     }
 
+    final hasMore = paginatedState.hasMore ?? false;
+    final isLoadingMore = paginatedState.isLoadingMore ?? false;
+
     return ListView.builder(
+      controller: _scrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-      itemCount: filtered.length,
+      itemCount: filtered.length + (hasMore ? 1 : 0),
       itemBuilder: (context, index) {
+        // Loading more indicator at the bottom
+        if (index == filtered.length) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.h),
+            child: Center(
+              child: isLoadingMore
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 16.r,
+                          height: 16.r,
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppTheme.accent,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          'Loading more cases...',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: const Color(0xFF94A3B8),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          );
+        }
+
         final c = filtered[index];
         final statColor = _caseColor(c.status.name);
         final isOwner = c.createdBy == currentUserId;
@@ -916,7 +976,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
   Future<void> _deleteCase(String id) async {
     try {
       await SupabaseService.deleteCase(id);
-      ref.invalidate(casesProvider);
+      ref.read(paginatedCasesProvider.notifier).refresh();
       if (mounted) {
         ScaffoldMessenger.of(
           context,

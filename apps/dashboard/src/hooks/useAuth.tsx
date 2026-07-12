@@ -20,16 +20,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const checkAdminStatus = async (user: User) => {
     try {
       const userId = user.id;
-      const email = user.email;
-      
-      console.log("DEBUG: Attempting admin check for:", { userId, email });
-
-      // TEMP OVERRIDE: Automatically grant admin access to the owner's email
-      if (email === "amjath10now@gmail.com" || email === "admin@caseflow.com") {
-        console.log("INFO: Owner override active. Granting Admin access.");
-        setIsAdmin(true);
-        return;
-      }
 
       const { data, error } = await supabase
         .from("profiles")
@@ -38,20 +28,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .maybeSingle();
       
       if (error) {
-        console.error("Supabase Error checking admin status:", error);
+        console.error("Admin status check failed:", error.message);
         setIsAdmin(false);
         return;
       }
 
       if (data) {
-        console.log("Admin search result:", data);
         setIsAdmin(!!data.is_admin);
       } else {
-        console.warn("Warning: No profile record found for this user in database.");
         setIsAdmin(false);
       }
     } catch (err) {
-      console.error("Unexpected Error during admin check:", err);
+      console.error("Unexpected error during admin check:", err);
       setIsAdmin(false);
     }
   };
@@ -68,10 +56,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }).catch(() => setLoading(false));
 
     // Then listen for future auth changes (login, logout, token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       if (session?.user) {
-        checkAdminStatus(session.user);
+        setLoading(true);
+        await checkAdminStatus(session.user);
       } else {
         setIsAdmin(false);
       }

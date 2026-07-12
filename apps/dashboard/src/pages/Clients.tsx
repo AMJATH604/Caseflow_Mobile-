@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRealtimeQuery } from "@/hooks/useRealtimeQuery";
+import { usePaginatedQuery } from "@/hooks/usePaginatedQuery";
 import { fetchClients, createClient, deleteClient } from "@/lib/supabase-helpers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Users, Phone, Mail, Calendar, Search } from "lucide-react";
+import { Plus, Trash2, Users, Phone, Mail, Calendar, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -20,17 +21,22 @@ export default function Clients() {
   const { toast } = useToast();
   const qc = useQueryClient();
 
-  const { data: clients = [], isLoading } = useRealtimeQuery({ queryKey: ["clients"], queryFn: fetchClients, table: "clients" });
+  const { data: clients = [], page, totalPages, totalCount, nextPage, prevPage, isLoading, isTransitioning } = usePaginatedQuery({
+    queryKey: ["clients"],
+    queryFn: ({ page, pageSize }) => fetchClients({ page, pageSize }),
+    pageSize: 25,
+    table: "clients",
+  });
 
   const createMut = useMutation({
     mutationFn: () => createClient(form),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["clients"] }); setOpen(false); setForm({ name: "", phone: "", email: "", address: "" }); toast({ title: "Client added" }); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["clients", "paginated"] }); setOpen(false); setForm({ name: "", phone: "", email: "", address: "" }); toast({ title: "Client added" }); },
     onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
   const deleteMut = useMutation({
     mutationFn: deleteClient,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["clients"] }); toast({ title: "Client deleted" }); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["clients", "paginated"] }); toast({ title: "Client deleted" }); },
     onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
@@ -121,6 +127,23 @@ export default function Clients() {
         </CardContent>
       </Card>
 
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="hidden md:flex items-center justify-between px-2">
+          <p className="text-sm text-muted-foreground">
+            Showing page {page} of {totalPages} ({totalCount} total)
+          </p>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={prevPage} disabled={page <= 1 || isTransitioning}>
+              <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+            </Button>
+            <Button variant="outline" size="sm" onClick={nextPage} disabled={page >= totalPages || isTransitioning}>
+              Next <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Mobile Contact Cards */}
       <div className="md:hidden space-y-3">
         {isLoading ? (
@@ -178,6 +201,21 @@ export default function Clients() {
               </div>
             </div>
           ))
+        )}
+
+        {/* Mobile Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between pt-2">
+            <Button variant="outline" size="sm" onClick={prevPage} disabled={page <= 1 || isTransitioning}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-xs text-muted-foreground">
+              {page} / {totalPages}
+            </span>
+            <Button variant="outline" size="sm" onClick={nextPage} disabled={page >= totalPages || isTransitioning}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         )}
       </div>
     </div>

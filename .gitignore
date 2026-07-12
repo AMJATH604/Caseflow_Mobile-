@@ -7,11 +7,20 @@ Thumbs.db
 *.tmp
 *.temp
 
-# ─── Environment & Secrets ────────────────────────────────────
+# ─── Environment & Secrets (CRITICAL — never commit these) ───
 .env
 .env.*
 !.env.example
-
+**/**.env
+**/**.env.local
+**/**.env.production
+**/**.env.staging
+# Firebase credentials
+**/google-services.json
+**/GoogleService-Info.plist
+**/firebase_credentials.json
+# Supabase
+supabase/.temp/
 # ─── IDE ──────────────────────────────────────────────────────
 .idea/
 .vscode/

@@ -37,12 +37,20 @@
   <script>
     // Global error handler — catches errors BEFORE React mounts
     window.onerror = function (msg, src, line, col, err) {
+      console.error("Global JS Error:", msg, "at", src, ":", line, ":", col, err);
       var el = document.getElementById('root');
-      if (el) el.innerHTML = '<div style="padding:24px;font-family:monospace;font-size:13px;background:#1a1a2e;color:#e94560;min-height:100vh"><h2 style="color:#fff">⚠️ JS Error</h2><div style="background:#16213e;padding:16px;border-radius:8px;word-break:break-word;margin:8px 0"><b>' + msg + '</b><br/><br/>File: ' + src + '<br/>Line: ' + line + ':' + col + '</div><pre style="background:#16213e;padding:16px;border-radius:8px;overflow:auto;color:#a5a5c0;font-size:11px;white-space:pre-wrap">' + (err && err.stack ? err.stack : 'No stack') + '</pre></div>';
+      // Only show error overlay if React has not mounted (i.e. root has no children)
+      if (el && (!el.children || el.children.length === 0 || el.innerHTML.includes('JS Error'))) {
+        el.innerHTML = '<div style="padding:24px;font-family:monospace;font-size:13px;background:#1a1a2e;color:#e94560;min-height:100vh"><h2 style="color:#fff">⚠️ JS Error</h2><div style="background:#16213e;padding:16px;border-radius:8px;word-break:break-word;margin:8px 0"><b>' + msg + '</b><br/><br/>File: ' + src + '<br/>Line: ' + line + ':' + col + '</div><pre style="background:#16213e;padding:16px;border-radius:8px;overflow:auto;color:#a5a5c0;font-size:11px;white-space:pre-wrap">' + (err && err.stack ? err.stack : 'No stack') + '</pre></div>';
+      }
     };
     window.addEventListener('unhandledrejection', function (e) {
+      console.error("Unhandled Promise Rejection:", e.reason);
       var el = document.getElementById('root');
-      if (el && !el.innerHTML.includes('JS Error')) el.innerHTML = '<div style="padding:24px;font-family:monospace;font-size:13px;background:#1a1a2e;color:#e94560;min-height:100vh"><h2 style="color:#fff">⚠️ Promise Error</h2><pre style="background:#16213e;padding:16px;border-radius:8px;overflow:auto;color:#fff;font-size:12px;white-space:pre-wrap">' + (e.reason && e.reason.stack ? e.reason.stack : String(e.reason)) + '</pre></div>';
+      // Only show error overlay if React has not mounted
+      if (el && (!el.children || el.children.length === 0 || el.innerHTML.includes('Promise Error'))) {
+        el.innerHTML = '<div style="padding:24px;font-family:monospace;font-size:13px;background:#1a1a2e;color:#e94560;min-height:100vh"><h2 style="color:#fff">⚠️ Promise Error</h2><pre style="background:#16213e;padding:16px;border-radius:8px;overflow:auto;color:#fff;font-size:12px;white-space:pre-wrap">' + (e.reason && e.reason.stack ? e.reason.stack : String(e.reason)) + '</pre></div>';
+      }
     });
     // Unregister stale service workers (PWA conflicts with Capacitor)
     if ('serviceWorker' in navigator) {

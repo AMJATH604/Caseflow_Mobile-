@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import '../services/providers.dart';
+import '../services/paginated_providers.dart';
+import '../services/paginated_notifier.dart';
 import '../services/supabase_service.dart';
 import '../components/error_state_widget.dart';
 import '../theme/app_theme.dart';
@@ -20,10 +22,32 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
   DateTime _focusedMonth = DateTime(DateTime.now().year, DateTime.now().month);
   DateTime _selectedDate = DateTime.now();
   String _view = 'calendar'; // calendar, list
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent * 0.8) {
+      ref.read(paginatedHearingsProvider.notifier).loadMore();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final hearingsAsync = ref.watch(hearingsProvider);
+    final paginatedState = ref.watch(paginatedHearingsProvider);
+    final hearings = paginatedState.items;
     final isMobile = MediaQuery.of(context).size.width < 768;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -39,24 +63,24 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
               _buildHeader(isMobile, isDark),
               SizedBox(height: 24.h),
               Expanded(
-                child: hearingsAsync.when(
-                  data:
-                      (hearings) =>
-                          _view == 'calendar'
-                              ? _buildCalendarView(isMobile, isDark, hearings)
-                              : _buildListView(isMobile, isDark, hearings),
-                  loading:
-                      () => const Center(
+                child: paginatedState.isLoading && hearings.isEmpty
+                    ? const Center(
                         child: CircularProgressIndicator(
                           color: AppTheme.accent,
                         ),
-                      ),
-                  error:
-                      (err, stack) => ErrorStateWidget(
-                        error: err,
-                        onRetry: () => ref.invalidate(hearingsProvider),
-                      ),
-                ),
+                      )
+                    : paginatedState.error != null && hearings.isEmpty
+                        ? ErrorStateWidget(
+                            error: paginatedState.error!,
+                            onRetry: () => ref.read(paginatedHearingsProvider.notifier).refresh(),
+                          )
+                        : _view == 'calendar'
+                            ? _buildCalendarView(isMobile, isDark, hearings)
+                            : RefreshIndicator(
+                                color: AppTheme.accent,
+                                onRefresh: () => ref.read(paginatedHearingsProvider.notifier).refresh(),
+                                child: _buildListView(isMobile, isDark, hearings, paginatedState),
+                              ),
               ),
             ],
           ),
@@ -702,7 +726,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
   }
 
   // ─── LIST VIEW ──────────────────────────────────────
-  Widget _buildListView(bool isMobile, bool isDark, List<dynamic> hearings) {
+  Widget _buildListView(bool isMobile, bool isDark, List<dynamic> hearings, PaginatedState paginatedState) {
     if (hearings.isEmpty) {
       return Center(
         child: Column(
@@ -742,9 +766,44 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
     final sortedKeys = grouped.keys.toList()..sort();
 
     return ListView.builder(
+      controller: _scrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: EdgeInsets.only(bottom: 24.h),
-      itemCount: sortedKeys.length,
+      itemCount: sortedKeys.length + (paginatedState.hasMore ? 1 : 0),
       itemBuilder: (context, index) {
+        // Loading more indicator at the bottom
+        if (index == sortedKeys.length) {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.h),
+            child: Center(
+              child: paginatedState.isLoadingMore
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 16.r,
+                          height: 16.r,
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppTheme.accent,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          'Loading more hearings...',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: const Color(0xFF94A3B8),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          );
+        }
+
         final dateKey = sortedKeys[index];
         final date = DateTime.parse(dateKey);
         final dayHearings = grouped[dateKey]!;
@@ -936,7 +995,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                       );
                       if (confirmed == true) {
                         await SupabaseService.deleteHearing(h.id);
-                        ref.invalidate(hearingsProvider);
+                        ref.read(paginatedHearingsProvider.notifier).refresh();
                       }
                     },
                   ),

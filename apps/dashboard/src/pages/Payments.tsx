@@ -1,8 +1,9 @@
 import { useRealtimeQuery } from "@/hooks/useRealtimeQuery";
+import { usePaginatedQuery } from "@/hooks/usePaginatedQuery";
 import { fetchPayments, createPayment, fetchCases, deletePayment } from "@/lib/supabase-helpers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CreditCard, Plus, Trash2, IndianRupee, Calendar, Banknote, LucideIndianRupee } from "lucide-react";
+import { CreditCard, Plus, Trash2, IndianRupee, Calendar, Banknote, LucideIndianRupee, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -16,7 +17,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
 export default function Payments() {
-  const { data: payments = [], isLoading } = useRealtimeQuery({ queryKey: ["payments-all"], queryFn: () => fetchPayments(), table: "payments" });
+  const { data: allPayments = [] } = useRealtimeQuery({ queryKey: ["payments-all"], queryFn: () => fetchPayments(), table: "payments" });
+  const { data: payments = [], page, totalPages, totalCount, nextPage, prevPage, isLoading, isTransitioning } = usePaginatedQuery({
+    queryKey: ["payments-list"],
+    queryFn: ({ page, pageSize }) => fetchPayments(undefined, { page, pageSize }),
+    pageSize: 25,
+    table: "payments",
+  });
   const { data: cases = [] } = useRealtimeQuery({ queryKey: ["cases-list"], queryFn: () => fetchCases(), table: "cases" });
   const [open, setOpen] = useState(false);
   const [caseId, setCaseId] = useState("");
@@ -35,6 +42,7 @@ export default function Payments() {
     mutationFn: (data: any) => createPayment(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["payments-all"] });
+      qc.invalidateQueries({ queryKey: ["payments-list", "paginated"] });
       setOpen(false);
       resetForm();
       toast({ title: "Ledger entry recorded successfully" });
@@ -48,6 +56,7 @@ export default function Payments() {
     mutationFn: (id: string) => deletePayment(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["payments-all"] });
+      qc.invalidateQueries({ queryKey: ["payments-list", "paginated"] });
       toast({ title: "Entry deleted successfully" });
     },
     onError: (err: any) => {
@@ -96,10 +105,10 @@ export default function Payments() {
     return acc;
   }, {});
 
-  const totalRevenue = payments.filter((p: any) => (p.transaction_type || 'revenue') === 'revenue')
+  const totalRevenue = allPayments.filter((p: any) => (p.transaction_type || 'revenue') === 'revenue')
     .reduce((sum: number, p: any) => sum + Number(p.paid_amount), 0);
   
-  const totalExpenses = payments.filter((p: any) => p.transaction_type === 'expense')
+  const totalExpenses = allPayments.filter((p: any) => p.transaction_type === 'expense')
     .reduce((sum: number, p: any) => sum + Number(p.paid_amount), 0);
 
   const stats = [
@@ -283,6 +292,22 @@ export default function Payments() {
             <div>
               <h3 className="font-bold text-muted-foreground">No Ledger Entries</h3>
               <p className="text-sm text-muted-foreground/60">Start by recording your first case revenue or expense.</p>
+            </div>
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between pt-4 border-t">
+            <p className="text-xs text-muted-foreground">
+              Showing page {page} of {totalPages} ({totalCount} total)
+            </p>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="h-8 text-xs" onClick={prevPage} disabled={page <= 1 || isTransitioning}>
+                <ChevronLeft className="h-3 w-3 mr-1" /> Previous
+              </Button>
+              <Button variant="outline" size="sm" className="h-8 text-xs" onClick={nextPage} disabled={page >= totalPages || isTransitioning}>
+                Next <ChevronRight className="h-3 w-3 ml-1" />
+              </Button>
             </div>
           </div>
         )}

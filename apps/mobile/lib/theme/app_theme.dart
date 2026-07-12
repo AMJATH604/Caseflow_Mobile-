@@ -69,12 +69,12 @@ class AppTheme {
 
   static BoxDecoration cardDecoration({Color? color, bool isDark = false}) =>
       BoxDecoration(
-        color: color ?? secondaryLight,
+        color: color ?? (isDark ? _darkSecondary : secondaryLight),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderLight),
+        border: Border.all(color: isDark ? _darkBorder : borderLight),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -84,7 +84,26 @@ class AppTheme {
   static BoxDecoration glassDecoration({
     double blur = 0,
     double opacity = 0.1,
-  }) => cardDecoration();
+    bool isDark = false,
+  }) =>
+      BoxDecoration(
+        color: isDark
+            ? _darkSecondary.withValues(alpha: 0.85)
+            : secondaryLight.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.08)
+              : borderLight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: blur > 0 ? blur : 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      );
 
   // ─── Themes ─────────────────────────────────────────
   static ThemeData get darkTheme {

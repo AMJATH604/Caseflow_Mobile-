@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRealtimeQuery } from "@/hooks/useRealtimeQuery";
+import { usePaginatedQuery } from "@/hooks/usePaginatedQuery";
 import { fetchCases, fetchClients, createCase } from "@/lib/supabase-helpers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { StatusBadge } from "@/components/StatusBadge";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Briefcase, ChevronRight, Scale, Search } from "lucide-react";
+import { Plus, Briefcase, ChevronRight, Scale, Search, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function Cases() {
@@ -35,12 +36,17 @@ export default function Cases() {
   const qc = useQueryClient();
   const navigate = useNavigate();
 
-  const { data: cases = [], isLoading } = useRealtimeQuery({ queryKey: ["cases"], queryFn: fetchCases, table: "cases" });
+  const { data: cases = [], page, totalPages, totalCount, nextPage, prevPage, isLoading, isTransitioning } = usePaginatedQuery({
+    queryKey: ["cases"],
+    queryFn: ({ page, pageSize }) => fetchCases({ page, pageSize }),
+    pageSize: 25,
+    table: "cases",
+  });
   const { data: clients = [] } = useRealtimeQuery({ queryKey: ["clients"], queryFn: fetchClients, table: "clients" });
 
   const createMut = useMutation({
     mutationFn: () => createCase(form),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["cases"] }); setOpen(false); toast({ title: "Case created" }); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["cases", "paginated"] }); setOpen(false); toast({ title: "Case created" }); },
     onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
@@ -186,6 +192,23 @@ export default function Cases() {
         </CardContent>
       </Card>
 
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="hidden md:flex items-center justify-between px-2">
+          <p className="text-sm text-muted-foreground">
+            Showing page {page} of {totalPages} ({totalCount} total)
+          </p>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={prevPage} disabled={page <= 1 || isTransitioning}>
+              <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+            </Button>
+            <Button variant="outline" size="sm" onClick={nextPage} disabled={page >= totalPages || isTransitioning}>
+              Next <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Mobile Cards */}
       <div className="md:hidden space-y-3">
         {isLoading ? (
@@ -224,6 +247,21 @@ export default function Cases() {
               </div>
             </div>
           ))
+        )}
+
+        {/* Mobile Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between pt-2">
+            <Button variant="outline" size="sm" onClick={prevPage} disabled={page <= 1 || isTransitioning}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-xs text-muted-foreground">
+              {page} / {totalPages}
+            </span>
+            <Button variant="outline" size="sm" onClick={nextPage} disabled={page >= totalPages || isTransitioning}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         )}
       </div>
     </div>

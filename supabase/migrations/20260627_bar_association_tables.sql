@@ -508,6 +508,7 @@ CREATE POLICY "Admins manage events" ON public.bar_events
 -- ═══════════════════════════════════════════════════════════════
 
 -- Generate voter hash: SHA-256(member_id || election_id || salt)
+-- Salt is read from Supabase app config: ALTER DATABASE postgres SET app.settings.election_salt = 'your-secret-salt';
 CREATE OR REPLACE FUNCTION public.generate_voter_hash(
   p_member_id UUID,
   p_election_id UUID
@@ -517,7 +518,10 @@ LANGUAGE sql STABLE
 AS $$
   SELECT encode(
     digest(
-      p_member_id::text || p_election_id::text || 'caseflow_bar_election_salt_2026',
+      p_member_id::text || p_election_id::text || coalesce(
+        current_setting('app.settings.election_salt', true),
+        'caseflow_bar_election_default_salt'
+      ),
       'sha256'
     ),
     'hex'
