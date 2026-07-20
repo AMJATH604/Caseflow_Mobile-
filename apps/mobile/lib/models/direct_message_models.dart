@@ -1,4 +1,5 @@
 import 'models.dart';
+import '../components/chat/chat_message_data.dart';
 
 class DirectConversation {
   final String id;
@@ -39,7 +40,7 @@ class DirectConversation {
   }
 }
 
-class DirectMessage {
+class DirectMessage with ChatMessageData {
   final String id;
   final String conversationId;
   final String senderId;
@@ -66,10 +67,7 @@ class DirectMessage {
     this.replyToSender,
   });
 
-  bool get hasAttachment => attachmentUrl != null && attachmentUrl!.isNotEmpty;
-  bool get isImage => attachmentType == 'image';
-  bool get isVideo => attachmentType == 'video';
-  bool get hasReply => replyToId != null && replyToId!.isNotEmpty;
+  // hasAttachment, isImage, isVideo, hasReply are inherited from ChatMessageData
 
   factory DirectMessage.fromJson(Map<String, dynamic> json) => DirectMessage(
         id: json['id'] ?? '',

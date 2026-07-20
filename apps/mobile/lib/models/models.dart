@@ -1,4 +1,5 @@
 import 'enums.dart';
+import '../components/chat/chat_message_data.dart';
 export 'enums.dart';
 export 'direct_message_models.dart';
 
@@ -710,7 +711,7 @@ class FirmMember {
   );
 }
 
-class CaseComment {
+class CaseComment with ChatMessageData {
   final String id;
   final String? caseId;
   final String firmId;
@@ -759,10 +760,7 @@ class CaseComment {
     replyToSender: json['reply_to_sender'],
   );
 
-  bool get hasAttachment => attachmentUrl != null && attachmentUrl!.isNotEmpty;
-  bool get isImage => attachmentType == 'image';
-  bool get isVideo => attachmentType == 'video';
-  bool get hasReply => replyToId != null && replyToId!.isNotEmpty;
+  // hasAttachment, isImage, isVideo, hasReply are inherited from ChatMessageData
 
   static DateTime _parseUtc(dynamic value) {
     if (value == null) return DateTime.now().toUtc();
