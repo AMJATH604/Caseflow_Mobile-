@@ -7,13 +7,30 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Book, Plus, Upload, Trash2, Edit, ChevronRight, Search, File, 
-  FileJson, CheckCircle, AlertCircle, Loader2, BookOpen, Settings, 
-  Database, Info, HelpCircle, Layers, Check, RefreshCw 
+  CheckCircle, AlertCircle, Loader2, BookOpen, Settings, 
+  Layers, Copy, FileText, Type, LayoutList, Eye, X, RefreshCw
 } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+// Type for a bulk row entry
+interface BulkRow {
+  chapter_number: string;
+  chapter_title: string;
+  section_number: string;
+  section_title: string;
+  section_text: string;
+}
+
+const emptyRow = (): BulkRow => ({
+  chapter_number: "",
+  chapter_title: "",
+  section_number: "",
+  section_title: "",
+  section_text: "",
+});
 
 export default function BareActs() {
   const [acts, setActs] = useState<any[]>([]);
@@ -41,22 +58,15 @@ export default function BareActs() {
     section_text: "",
   });
 
-  // Import Wizard State
-  const [importStep, setImportStep] = useState(1); // 1: Upload, 2: Map, 3: Preview, 4: Uploader
-  const [jsonFile, setJsonFile] = useState<File | null>(null);
-  const [pastedJson, setPastedJson] = useState("");
-  const [parsedJsonData, setParsedJsonData] = useState<any[]>([]);
-  const [availableKeys, setAvailableKeys] = useState<string[]>([]);
-  const [fieldMapping, setFieldMapping] = useState({
-    chapter_number: "",
-    chapter_title: "",
-    section_number: "",
-    section_title: "",
-    section_text: "",
-  });
-  const [purgeBeforeImport, setPurgeBeforeImport] = useState(true);
-  const [importProgress, setImportProgress] = useState<{ current: number; total: number; inserted: number; failed: number } | null>(null);
-  const [importing, setImporting] = useState(false);
+  // ─── Bulk Add Sections State ─────────────────────────────
+  const [bulkMode, setBulkMode] = useState<"form" | "text">("form");
+  const [bulkRows, setBulkRows] = useState<BulkRow[]>([emptyRow()]);
+  const [pastedText, setPastedText] = useState("");
+  const [parsedFromText, setParsedFromText] = useState<BulkRow[]>([]);
+  const [showTextPreview, setShowTextPreview] = useState(false);
+  const [bulkSaving, setBulkSaving] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState<{ current: number; total: number; inserted: number; failed: number } | null>(null);
+  const [purgeBeforeImport, setPurgeBeforeImport] = useState(false);
 
   useEffect(() => {
     fetchActs();
@@ -227,92 +237,142 @@ export default function BareActs() {
     }
   };
 
-  // Import File Parser
-  const parseJsonFile = async (file: File) => {
-    try {
-      const text = await file.text();
-      handleJsonParse(text);
-    } catch (err: any) {
-      toast.error("Could not read JSON file: " + err.message);
+  // ─── Bulk Add: Form Builder Helpers ──────────────────────
+  const addBulkRow = () => {
+    setBulkRows([...bulkRows, emptyRow()]);
+  };
+
+  const duplicateBulkRow = (index: number) => {
+    const source = bulkRows[index];
+    const nextSectionNum = source.section_number
+      ? String(parseInt(source.section_number.replace(/\D/g, '')) + 1 || '')
+      : "";
+    const duplicated: BulkRow = {
+      ...source,
+      section_number: nextSectionNum,
+      section_title: "",
+      section_text: "",
+    };
+    const newRows = [...bulkRows];
+    newRows.splice(index + 1, 0, duplicated);
+    setBulkRows(newRows);
+  };
+
+  const removeBulkRow = (index: number) => {
+    if (bulkRows.length <= 1) {
+      setBulkRows([emptyRow()]);
+      return;
+    }
+    setBulkRows(bulkRows.filter((_, i) => i !== index));
+  };
+
+  const updateBulkRow = (index: number, field: keyof BulkRow, value: string) => {
+    const updated = [...bulkRows];
+    updated[index] = { ...updated[index], [field]: value };
+    setBulkRows(updated);
+  };
+
+  // ─── Bulk Add: Plain Text Parser ─────────────────────────
+  const parseTextImport = (text: string) => {
+    if (!text.trim()) {
+      setParsedFromText([]);
+      setShowTextPreview(false);
+      return;
+    }
+
+    const rows: BulkRow[] = [];
+    let currentChapter = "";
+    let currentChapterTitle = "";
+
+    // Split on lines
+    const lines = text.split('\n');
+    let currentSection: BulkRow | null = null;
+    let collectingContent = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmed = line.trim();
+
+      // Chapter delimiter: --- or === 
+      if (/^[-=]{3,}$/.test(trimmed)) {
+        // If we were collecting a section, save it
+        if (currentSection && currentSection.section_number) {
+          rows.push(currentSection);
+          currentSection = null;
+          collectingContent = false;
+        }
+        continue;
+      }
+
+      // Chapter header: "Chapter: X" or "Chapter No: X" or "Chapter X"
+      const chapterMatch = trimmed.match(/^chapter\s*(?:no\.?|number)?\s*[:.]?\s*(.+)$/i);
+      if (chapterMatch) {
+        currentChapter = chapterMatch[1].trim();
+        continue;
+      }
+
+      // Chapter title: "Chapter Title: X" or "Title: X" (only if right after a chapter line)
+      const chapterTitleMatch = trimmed.match(/^(?:chapter\s+)?title\s*[:.]?\s*(.+)$/i);
+      if (chapterTitleMatch) {
+        currentChapterTitle = chapterTitleMatch[1].trim();
+        continue;
+      }
+
+      // Section header: "Section 1: Title" or "Sec 1. Title" or "Section 1 - Title" or "Art. 1: Title"
+      const sectionMatch = trimmed.match(
+        /^(?:section|sec\.?|article|art\.?)\s*(\d+[a-zA-Z]?)\s*[:.–\-]\s*(.+)$/i
+      );
+      if (sectionMatch) {
+        // Save previous section if exists
+        if (currentSection && currentSection.section_number) {
+          rows.push(currentSection);
+        }
+
+        currentSection = {
+          chapter_number: currentChapter,
+          chapter_title: currentChapterTitle,
+          section_number: sectionMatch[1].trim(),
+          section_title: sectionMatch[2].trim(),
+          section_text: "",
+        };
+        collectingContent = true;
+        continue;
+      }
+
+      // Content lines (body text of the current section)
+      if (collectingContent && currentSection && trimmed) {
+        currentSection.section_text += (currentSection.section_text ? "\n" : "") + trimmed;
+      }
+    }
+
+    // Don't forget the last section
+    if (currentSection && currentSection.section_number) {
+      rows.push(currentSection);
+    }
+
+    setParsedFromText(rows);
+    setShowTextPreview(rows.length > 0);
+
+    if (rows.length > 0) {
+      toast.success(`Parsed ${rows.length} sections from text`);
+    } else {
+      toast.error("Could not parse any sections. Use the format: Section 1: Title followed by content on the next lines.");
     }
   };
 
-  const handleJsonParse = (text: string) => {
-    try {
-      const parsed = JSON.parse(text);
-      let dataArray: any[] = [];
-
-      if (Array.isArray(parsed)) {
-        dataArray = parsed;
-      } else if (parsed && typeof parsed === "object") {
-        // Look for common array wrapper keys (e.g. data, sections, records)
-        const possibleArrayKey = Object.keys(parsed).find(k => Array.isArray(parsed[k]));
-        if (possibleArrayKey) {
-          dataArray = parsed[possibleArrayKey];
-        } else {
-          dataArray = [parsed];
-        }
-      }
-
-      if (dataArray.length === 0) {
-        toast.error("JSON structure must contain an array of sections");
-        return;
-      }
-
-      setParsedJsonData(dataArray);
-
-      // Find all unique keys from sample objects to support mapping
-      const keys = new Set<string>();
-      dataArray.slice(0, 10).forEach(item => {
-        if (item && typeof item === "object" && !Array.isArray(item)) {
-          Object.keys(item).forEach(k => keys.add(k));
-        }
-      });
-
-      const extractedKeys = Array.from(keys);
-      setAvailableKeys(extractedKeys);
-
-      // Pre-map standard names
-      const preMap = {
-        chapter_number: extractedKeys.find(k => /chap.*num|chapter_no|chap_no|chapter$/i.test(k)) || "",
-        chapter_title: extractedKeys.find(k => /chap.*title|chapter_name|chap_name/i.test(k)) || "",
-        section_number: extractedKeys.find(k => /sec.*num|section_no|sec_no|number|id/i.test(k)) || "",
-        section_title: extractedKeys.find(k => /sec.*title|title|heading/i.test(k)) || "",
-        section_text: extractedKeys.find(k => /text|content|body|desc/i.test(k)) || "",
-      };
-
-      setFieldMapping(preMap);
-      setImportStep(2);
-      toast.success(`Successfully loaded ${dataArray.length} items. Map your keys to continue.`);
-    } catch (err: any) {
-      toast.error("Invalid JSON syntax: " + err.message);
+  // ─── Bulk Save (works for both form rows and parsed text rows) ───
+  const executeBulkSave = async (rowsToSave: BulkRow[]) => {
+    // Validate: at least one row with required fields
+    const validRows = rowsToSave.filter(r => r.section_number && r.section_title && r.section_text);
+    if (validRows.length === 0) {
+      toast.error("No valid sections to save. Each section needs a number, title, and content.");
+      return;
     }
-  };
 
-  // Run dynamic mapper transformations
-  const getMappedData = () => {
-    return parsedJsonData.map((item, index) => {
-      return {
-        act_id: selectedAct.id,
-        chapter_number: item[fieldMapping.chapter_number] || "",
-        chapter_title: item[fieldMapping.chapter_title] || "",
-        section_number: item[fieldMapping.section_number] || "",
-        section_title: item[fieldMapping.section_title] || "",
-        section_text: item[fieldMapping.section_text] || "",
-        title: item[fieldMapping.section_title] || "",
-        content: item[fieldMapping.section_text] || "",
-        sequence_order: index + 1,
-      };
-    });
-  };
+    setBulkSaving(true);
+    setBulkProgress(null);
 
-  // Batch Sync execution
-  const executeImport = async () => {
-    const formattedData = getMappedData();
-    setImporting(true);
-    setImportProgress(null);
-
-    // 1. Purge older sections
+    // Purge if needed
     if (purgeBeforeImport) {
       const { error: purgeError } = await supabase
         .from("bare_act_sections")
@@ -320,13 +380,29 @@ export default function BareActs() {
         .eq("act_id", selectedAct.id);
 
       if (purgeError) {
-        toast.error("Failed to empty database: " + purgeError.message);
-        setImporting(false);
+        toast.error("Failed to clear existing sections: " + purgeError.message);
+        setBulkSaving(false);
         return;
       }
     }
 
-    // 2. Insert in batches
+    // Calculate starting sequence
+    const startSequence = purgeBeforeImport ? 1 : sections.length + 1;
+
+    // Format for DB
+    const formattedData = validRows.map((row, index) => ({
+      act_id: selectedAct.id,
+      chapter_number: row.chapter_number || "",
+      chapter_title: row.chapter_title || "",
+      section_number: row.section_number,
+      section_title: row.section_title,
+      section_text: row.section_text,
+      title: row.section_title,
+      content: row.section_text,
+      sequence_order: startSequence + index,
+    }));
+
+    // Insert in batches
     const BATCH_SIZE = 50;
     const totalBatches = Math.ceil(formattedData.length / BATCH_SIZE);
     let inserted = 0;
@@ -336,32 +412,33 @@ export default function BareActs() {
       const batch = formattedData.slice(i, i + BATCH_SIZE);
       const batchIndex = Math.floor(i / BATCH_SIZE) + 1;
 
-      setImportProgress({ current: batchIndex, total: totalBatches, inserted, failed });
+      setBulkProgress({ current: batchIndex, total: totalBatches, inserted, failed });
 
       const { error } = await supabase.from("bare_act_sections").insert(batch);
 
       if (error) {
-        console.error(`Batch ${batchIndex} import failed:`, error.message);
+        console.error(`Batch ${batchIndex} failed:`, error.message);
         failed += batch.length;
       } else {
         inserted += batch.length;
       }
     }
 
-    setImportProgress({ current: totalBatches, total: totalBatches, inserted, failed });
-    setImporting(false);
+    setBulkProgress({ current: totalBatches, total: totalBatches, inserted, failed });
+    setBulkSaving(false);
 
     if (failed > 0) {
-      toast.warning(`Import complete. ${inserted} imported, ${failed} failed.`);
+      toast.warning(`Import done. ${inserted} imported, ${failed} failed.`);
     } else {
-      toast.success(`Successfully imported all ${inserted} sections!`);
+      toast.success(`Successfully added ${inserted} sections!`);
     }
 
-    // Reset wizard
-    setJsonFile(null);
-    setPastedJson("");
-    setParsedJsonData([]);
-    setImportStep(1);
+    // Reset
+    setBulkRows([emptyRow()]);
+    setPastedText("");
+    setParsedFromText([]);
+    setShowTextPreview(false);
+    setBulkProgress(null);
     fetchSections(selectedAct.id);
   };
 
@@ -375,6 +452,9 @@ export default function BareActs() {
     s.section_title.toLowerCase().includes(searchSectionQuery.toLowerCase()) ||
     s.section_text.toLowerCase().includes(searchSectionQuery.toLowerCase())
   );
+
+  // Count valid rows in form builder
+  const validFormRowCount = bulkRows.filter(r => r.section_number && r.section_title && r.section_text).length;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-7xl mx-auto pb-12">
@@ -505,14 +585,14 @@ export default function BareActs() {
         </div>
       </div>
 
-      {/* RIGHT COLUMN: Chapters/Sections Directory, Uploader, Settings (cols-8) */}
+      {/* RIGHT COLUMN: Chapters/Sections Directory, Bulk Add, Settings (cols-8) */}
       <div className="lg:col-span-8">
         {!selectedAct ? (
           <div className="h-full flex flex-col items-center justify-center text-center py-24 px-6 border border-dashed rounded-2xl bg-card">
             <BookOpen className="h-16 w-16 text-muted-foreground/30 stroke-[1.5]" />
             <h3 className="mt-4 text-lg font-bold text-foreground">No Statute Selected</h3>
             <p className="mt-1.5 text-xs text-muted-foreground max-w-sm">
-              Please choose a statute from the directory sidebar to explore chapters/sections, update contents, or run JSON import tasks.
+              Please choose a statute from the directory sidebar to explore chapters/sections, add new content, or update settings.
             </p>
           </div>
         ) : (
@@ -553,9 +633,9 @@ export default function BareActs() {
                   <Layers className="h-3.5 w-3.5" />
                   Sections ({sections.length})
                 </TabsTrigger>
-                <TabsTrigger value="import" className="text-xs flex items-center gap-2">
-                  <Upload className="h-3.5 w-3.5" />
-                  JSON Import Wizard
+                <TabsTrigger value="bulk-add" className="text-xs flex items-center gap-2">
+                  <Plus className="h-3.5 w-3.5" />
+                  Bulk Add Sections
                 </TabsTrigger>
                 <TabsTrigger value="settings" className="text-xs flex items-center gap-2">
                   <Settings className="h-3.5 w-3.5" />
@@ -588,7 +668,7 @@ export default function BareActs() {
                   </div>
                 ) : filteredSections.length === 0 ? (
                   <div className="text-center py-16 text-xs text-muted-foreground border border-dashed rounded-xl bg-card">
-                    {searchSectionQuery ? "No sections match your search query." : "This statute has no sections yet. Go to JSON Import Wizard to upload them."}
+                    {searchSectionQuery ? "No sections match your search query." : "This statute has no sections yet. Go to Bulk Add Sections to upload them."}
                   </div>
                 ) : (
                   <div className="border border-border rounded-xl bg-card overflow-hidden shadow-sm">
@@ -636,318 +716,329 @@ export default function BareActs() {
                 )}
               </TabsContent>
 
-              {/* TAB 2: JSON Import Wizard */}
-              <TabsContent value="import" className="mt-4 space-y-4">
+              {/* TAB 2: Bulk Add Sections */}
+              <TabsContent value="bulk-add" className="mt-4 space-y-4">
                 <Card>
-                  <CardHeader>
+                  <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-base font-bold">Dynamic JSON Bulk Upload Wizard</CardTitle>
+                        <CardTitle className="text-base font-bold">Bulk Add Sections</CardTitle>
                         <CardDescription className="text-xs">
-                          Map custom JSON properties directly to statute columns. Upload in seconds.
+                          Add multiple sections at once using a form or by pasting text.
                         </CardDescription>
                       </div>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-xs h-8">
-                            <HelpCircle className="h-3.5 w-3.5 mr-1" />
-                            View Templates
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-xl">
-                          <DialogHeader>
-                            <DialogTitle>Accepted JSON Structures</DialogTitle>
-                            <DialogDescription>Your file can contain an array of objects. Use any keys; you will map them in Step 2.</DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4 py-2 text-xs">
-                            <p className="font-semibold text-slate-700">Sample Structure (Recommended):</p>
-                            <pre className="p-3 rounded-lg bg-slate-950 text-emerald-400 overflow-x-auto font-mono text-[10px]">
-{`[
-  {
-    "chapter": "1",
-    "chapter_name": "Preliminary",
-    "section": "1",
-    "title": "Short title and commencement",
-    "content": "This Act may be called the Code..."
-  },
-  {
-    "chapter": "1",
-    "chapter_name": "Preliminary",
-    "section": "2",
-    "title": "Definitions",
-    "content": "In this Code, unless the context..."
-  }
-]`}
-                            </pre>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
+
+                      {/* Mode Toggle */}
+                      <div className="flex items-center bg-muted rounded-lg p-0.5">
+                        <button
+                          onClick={() => setBulkMode("form")}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                            bulkMode === "form"
+                              ? "bg-white text-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          <LayoutList className="h-3.5 w-3.5" />
+                          Form Builder
+                        </button>
+                        <button
+                          onClick={() => setBulkMode("text")}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                            bulkMode === "text"
+                              ? "bg-white text-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          <Type className="h-3.5 w-3.5" />
+                          Paste Text
+                        </button>
+                      </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* WIZARD PROCESS STEPPER */}
-                    <div className="flex items-center justify-between max-w-md mx-auto py-2">
-                      {[1, 2, 3, 4].map((step) => (
-                        <div key={step} className="flex items-center">
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${
-                            importStep === step
-                              ? 'bg-primary text-white scale-110 shadow-sm'
-                              : importStep > step
-                                ? 'bg-emerald-500 text-white'
-                                : 'bg-muted text-muted-foreground'
-                          }`}>
-                            {importStep > step ? <Check className="h-4 w-4" /> : step}
-                          </div>
-                          {step < 4 && (
-                            <div className={`h-[2px] w-12 sm:w-16 mx-2 ${
-                              importStep > step ? 'bg-emerald-500' : 'bg-muted'
-                            }`} />
-                          )}
-                        </div>
-                      ))}
-                    </div>
 
-                    {/* STEP 1: Upload File or Paste Text */}
-                    {importStep === 1 && (
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Option 1: Upload JSON File</label>
-                          <div className="flex items-center gap-3">
-                            <label className="flex-1 cursor-pointer">
-                              <input
-                                type="file"
-                                accept=".json"
-                                className="hidden"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0] || null;
-                                  setJsonFile(file);
-                                  if (file) parseJsonFile(file);
-                                }}
-                              />
-                              <div className={`flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-2xl transition-all duration-200 ${
-                                jsonFile ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50 hover:bg-muted/10'
-                              }`}>
-                                <FileJson className="h-10 w-10 text-muted-foreground mb-3" />
-                                <span className="text-sm font-semibold text-foreground">
-                                  {jsonFile ? jsonFile.name : "Click to select statute JSON file"}
-                                </span>
-                                <span className="text-xs text-muted-foreground mt-1">Supports any file size — processed in batches of 50</span>
-                              </div>
-                            </label>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-4 py-2">
-                          <div className="flex-1 h-px bg-border" />
-                          <span className="text-[10px] text-muted-foreground font-black tracking-widest uppercase">OR</span>
-                          <div className="flex-1 h-px bg-border" />
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Option 2: Paste Raw JSON String</label>
-                          <Textarea
-                            placeholder='[{"chapter_number":"1", "section_number":"1", "section_title":"...", "section_text":"..."}]'
-                            className="font-mono text-xs min-h-[160px]"
-                            value={pastedJson}
-                            onChange={(e) => setPastedJson(e.target.value)}
-                          />
-                          <Button size="sm" className="w-full text-xs" onClick={() => handleJsonParse(pastedJson)} disabled={!pastedJson.trim()}>
-                            Validate & Map Paste Data
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* STEP 2: MAPPING DROPDOWNS */}
-                    {importStep === 2 && (
-                      <div className="space-y-5 animate-in fade-in duration-300">
-                        <div className="p-4 rounded-xl bg-amber-50 border border-amber-100 flex items-start gap-3">
-                          <Info className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                  <CardContent className="space-y-5">
+                    {/* ───── FORM BUILDER MODE ───── */}
+                    {bulkMode === "form" && (
+                      <div className="space-y-4 animate-in fade-in duration-200">
+                        {/* Info Bar */}
+                        <div className="p-3 rounded-xl bg-blue-50 border border-blue-100 flex items-start gap-3">
+                          <LayoutList className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
                           <div className="space-y-0.5">
-                            <p className="text-xs font-bold text-amber-800">Assign JSON Keys</p>
-                            <p className="text-[11px] text-amber-700 leading-snug">
-                              We found keys in your JSON structure. Please map which property represents the statutory fields.
+                            <p className="text-xs font-bold text-blue-800">Fill in section details row by row</p>
+                            <p className="text-[11px] text-blue-700 leading-snug">
+                              Add rows, fill in the section info, and click "Save All" when done. Use "Duplicate" to quickly clone a row with the same chapter info.
                             </p>
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-slate-700">Chapter Number</label>
-                            <Select 
-                              value={fieldMapping.chapter_number} 
-                              onValueChange={(val) => setFieldMapping({...fieldMapping, chapter_number: val})}
+                        {/* Section Rows */}
+                        <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
+                          {bulkRows.map((row, index) => (
+                            <div 
+                              key={index} 
+                              className="p-4 rounded-xl border border-border bg-card hover:border-primary/30 transition-colors group"
                             >
-                              <SelectTrigger className="text-xs h-9">
-                                <SelectValue placeholder="Skip / None" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="none">-- Skip Chapter Number --</SelectItem>
-                                {availableKeys.map(k => <SelectItem key={k} value={k}>{k}</SelectItem>)}
-                              </SelectContent>
-                            </Select>
+                              {/* Row header */}
+                              <div className="flex items-center justify-between mb-3">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                                  Section Entry #{index + 1}
+                                </span>
+                                <div className="flex items-center gap-1 opacity-50 group-hover:opacity-100 transition-opacity">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="h-7 px-2 text-[10px]" 
+                                    onClick={() => duplicateBulkRow(index)}
+                                    title="Duplicate this row"
+                                  >
+                                    <Copy className="h-3 w-3 mr-1" />
+                                    Duplicate
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10" 
+                                    onClick={() => removeBulkRow(index)}
+                                    title="Remove row"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
+
+                              {/* Chapter fields */}
+                              <div className="grid grid-cols-2 gap-3 mb-3">
+                                <div className="space-y-1">
+                                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Chapter No</label>
+                                  <Input
+                                    placeholder="e.g. I, II, 1"
+                                    value={row.chapter_number}
+                                    onChange={(e) => updateBulkRow(index, "chapter_number", e.target.value)}
+                                    className="text-xs h-8"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Chapter Title</label>
+                                  <Input
+                                    placeholder="e.g. Preliminary"
+                                    value={row.chapter_title}
+                                    onChange={(e) => updateBulkRow(index, "chapter_title", e.target.value)}
+                                    className="text-xs h-8"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Section fields */}
+                              <div className="grid grid-cols-3 gap-3 mb-3">
+                                <div className="space-y-1">
+                                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Section No *</label>
+                                  <Input
+                                    placeholder="e.g. 1"
+                                    value={row.section_number}
+                                    onChange={(e) => updateBulkRow(index, "section_number", e.target.value)}
+                                    className="text-xs h-8 font-bold text-primary"
+                                  />
+                                </div>
+                                <div className="col-span-2 space-y-1">
+                                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Section Title *</label>
+                                  <Input
+                                    placeholder="e.g. Short title and commencement"
+                                    value={row.section_title}
+                                    onChange={(e) => updateBulkRow(index, "section_title", e.target.value)}
+                                    className="text-xs h-8"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Section text */}
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Section Content *</label>
+                                <Textarea
+                                  placeholder="Paste the full text of this section..."
+                                  value={row.section_text}
+                                  onChange={(e) => updateBulkRow(index, "section_text", e.target.value)}
+                                  className="text-xs min-h-[80px]"
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Action Bar */}
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl border border-border bg-slate-50">
+                          <div className="flex items-center gap-2">
+                            <Button size="sm" variant="outline" className="text-xs h-8" onClick={addBulkRow}>
+                              <Plus className="h-3.5 w-3.5 mr-1" />
+                              Add Row
+                            </Button>
+                            <span className="text-[10px] text-muted-foreground">
+                              {bulkRows.length} row{bulkRows.length !== 1 ? "s" : ""} • {validFormRowCount} valid
+                            </span>
                           </div>
 
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-slate-700">Chapter Title</label>
-                            <Select 
-                              value={fieldMapping.chapter_title} 
-                              onValueChange={(val) => setFieldMapping({...fieldMapping, chapter_title: val})}
+                          <div className="flex items-center gap-3">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                checked={purgeBeforeImport} 
+                                onChange={(e) => setPurgeBeforeImport(e.target.checked)}
+                                className="rounded border-slate-300 text-primary focus:ring-primary"
+                              />
+                              <span className="text-[10px] text-slate-600 font-medium">Replace existing sections</span>
+                            </label>
+                            <Button 
+                              size="sm" 
+                              className="text-xs h-8 bg-emerald-600 hover:bg-emerald-700 text-white"
+                              disabled={validFormRowCount === 0 || bulkSaving}
+                              onClick={() => executeBulkSave(bulkRows)}
                             >
-                              <SelectTrigger className="text-xs h-9">
-                                <SelectValue placeholder="Skip / None" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="none">-- Skip Chapter Title --</SelectItem>
-                                {availableKeys.map(k => <SelectItem key={k} value={k}>{k}</SelectItem>)}
-                              </SelectContent>
-                            </Select>
+                              {bulkSaving ? (
+                                <><Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> Saving...</>
+                              ) : (
+                                <><CheckCircle className="h-3.5 w-3.5 mr-1" /> Save All ({validFormRowCount})</>
+                              )}
+                            </Button>
                           </div>
+                        </div>
+                      </div>
+                    )}
 
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-slate-700">Section Number * (Required)</label>
-                            <Select 
-                              value={fieldMapping.section_number} 
-                              onValueChange={(val) => setFieldMapping({...fieldMapping, section_number: val})}
-                            >
-                              <SelectTrigger className="text-xs h-9">
-                                <SelectValue placeholder="Select column..." />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {availableKeys.map(k => <SelectItem key={k} value={k}>{k}</SelectItem>)}
-                              </SelectContent>
-                            </Select>
-                          </div>
+                    {/* ───── PASTE TEXT MODE ───── */}
+                    {bulkMode === "text" && (
+                      <div className="space-y-4 animate-in fade-in duration-200">
+                        {/* Instructions */}
+                        <div className="p-3 rounded-xl bg-violet-50 border border-violet-100 flex items-start gap-3">
+                          <FileText className="h-4 w-4 text-violet-600 shrink-0 mt-0.5" />
+                          <div className="space-y-1">
+                            <p className="text-xs font-bold text-violet-800">Paste the statute text below</p>
+                            <p className="text-[11px] text-violet-700 leading-snug">
+                              Use the following format. The parser auto-detects sections:
+                            </p>
+                            <pre className="mt-2 p-3 rounded-lg bg-slate-900 text-emerald-400 font-mono text-[10px] overflow-x-auto leading-relaxed">
+{`---
+Chapter: I
+Title: Preliminary
 
-                          <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-slate-700">Section Title * (Required)</label>
-                            <Select 
-                              value={fieldMapping.section_title} 
-                              onValueChange={(val) => setFieldMapping({...fieldMapping, section_title: val})}
-                            >
-                              <SelectTrigger className="text-xs h-9">
-                                <SelectValue placeholder="Select column..." />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {availableKeys.map(k => <SelectItem key={k} value={k}>{k}</SelectItem>)}
-                              </SelectContent>
-                            </Select>
-                          </div>
+Section 1: Short title and commencement
+This Act may be called the Code...
 
-                          <div className="space-y-1.5 md:col-span-2">
-                            <label className="text-xs font-bold text-slate-700">Section Text / Content * (Required)</label>
-                            <Select 
-                              value={fieldMapping.section_text} 
-                              onValueChange={(val) => setFieldMapping({...fieldMapping, section_text: val})}
-                            >
-                              <SelectTrigger className="text-xs h-9">
-                                <SelectValue placeholder="Select column..." />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {availableKeys.map(k => <SelectItem key={k} value={k}>{k}</SelectItem>)}
-                              </SelectContent>
-                            </Select>
+Section 2: Definitions
+In this Code, unless the context...
+
+---
+Chapter: II
+Title: General Explanations
+
+Section 6: Definition of offence
+A person is said to commit...`}
+                            </pre>
                           </div>
                         </div>
 
-                        <div className="flex justify-between pt-4 border-t border-border/60">
-                          <Button size="sm" variant="ghost" onClick={() => setImportStep(1)} className="text-xs">
-                            Back
-                          </Button>
+                        {/* Text Input */}
+                        <div className="space-y-2">
+                          <Textarea
+                            placeholder="Paste your statute text here following the format shown above..."
+                            className="font-mono text-xs min-h-[200px]"
+                            value={pastedText}
+                            onChange={(e) => setPastedText(e.target.value)}
+                          />
                           <Button 
                             size="sm" 
-                            disabled={!fieldMapping.section_number || !fieldMapping.section_title || !fieldMapping.section_text} 
-                            onClick={() => setImportStep(3)}
-                            className="text-xs"
+                            className="w-full text-xs" 
+                            onClick={() => parseTextImport(pastedText)} 
+                            disabled={!pastedText.trim()}
                           >
-                            Preview Mapping
+                            <Eye className="h-3.5 w-3.5 mr-1" />
+                            Parse & Preview
                           </Button>
                         </div>
-                      </div>
-                    )}
 
-                    {/* STEP 3: MAPPED PREVIEW */}
-                    {importStep === 3 && (
-                      <div className="space-y-5 animate-in fade-in duration-300">
-                        <div className="border border-border rounded-xl bg-card overflow-hidden">
-                          <div className="p-3 bg-muted/30 border-b border-border text-xs font-bold">
-                            Live Mapped Data Preview (First 3 entries)
-                          </div>
-                          <div className="p-3 space-y-4">
-                            {getMappedData().slice(0, 3).map((item, idx) => (
-                              <div key={idx} className="p-3 rounded-lg bg-slate-50 border border-slate-100 space-y-2 text-xs">
-                                <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 border-b pb-1">
-                                  <span>Chapter: {item.chapter_number || "None"} - {item.chapter_title || "None"}</span>
-                                  <span>Sec: {item.section_number}</span>
+                        {/* Parsed Preview */}
+                        {showTextPreview && parsedFromText.length > 0 && (
+                          <div className="space-y-4 animate-in slide-in-from-bottom-2 duration-300">
+                            <div className="border border-border rounded-xl bg-card overflow-hidden">
+                              <div className="p-3 bg-emerald-50 border-b border-emerald-100 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <CheckCircle className="h-4 w-4 text-emerald-600" />
+                                  <span className="text-xs font-bold text-emerald-800">
+                                    Parsed {parsedFromText.length} sections
+                                  </span>
                                 </div>
-                                <h4 className="font-bold text-slate-900">{item.section_title}</h4>
-                                <p className="text-slate-600 line-clamp-3 leading-relaxed">{item.section_text}</p>
+                                <span className="text-[10px] text-emerald-600">Preview below</span>
                               </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input 
-                              type="checkbox" 
-                              checked={purgeBeforeImport} 
-                              onChange={(e) => setPurgeBeforeImport(e.target.checked)}
-                              className="rounded border-slate-300 text-primary focus:ring-primary"
-                            />
-                            <div className="space-y-0.5">
-                              <span className="text-xs font-bold text-slate-800 block">Replace existing sections</span>
-                              <span className="text-[10px] text-muted-foreground block">Cleans database table for this act before inserting</span>
+                              <div className="p-3 space-y-3 max-h-[300px] overflow-y-auto">
+                                {parsedFromText.slice(0, 10).map((item, idx) => (
+                                  <div key={idx} className="p-3 rounded-lg bg-slate-50 border border-slate-100 space-y-1.5 text-xs">
+                                    <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 border-b pb-1.5">
+                                      <span>
+                                        {item.chapter_number ? `Ch. ${item.chapter_number}` : "No Chapter"} 
+                                        {item.chapter_title ? ` — ${item.chapter_title}` : ""}
+                                      </span>
+                                      <span className="text-primary font-black">Sec {item.section_number}</span>
+                                    </div>
+                                    <h4 className="font-bold text-slate-900">{item.section_title}</h4>
+                                    <p className="text-slate-600 line-clamp-2 leading-relaxed">{item.section_text}</p>
+                                  </div>
+                                ))}
+                                {parsedFromText.length > 10 && (
+                                  <div className="text-center text-[10px] text-muted-foreground py-2">
+                                    ...and {parsedFromText.length - 10} more sections
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          </label>
 
-                          <div className="flex items-center gap-2 self-end sm:self-center">
-                            <Button size="sm" variant="ghost" onClick={() => setImportStep(2)} className="text-xs">
-                              Back
-                            </Button>
-                            <Button size="sm" onClick={() => { setImportStep(4); executeImport(); }} className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white">
-                              Execute Import & Sync
-                            </Button>
+                            {/* Save Actions */}
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl border border-border bg-slate-50">
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input 
+                                  type="checkbox" 
+                                  checked={purgeBeforeImport} 
+                                  onChange={(e) => setPurgeBeforeImport(e.target.checked)}
+                                  className="rounded border-slate-300 text-primary focus:ring-primary"
+                                />
+                                <div className="space-y-0.5">
+                                  <span className="text-xs font-bold text-slate-800 block">Replace existing sections</span>
+                                  <span className="text-[10px] text-muted-foreground block">Clears all existing sections for this act before adding</span>
+                                </div>
+                              </label>
+                              <Button 
+                                size="sm" 
+                                className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+                                disabled={parsedFromText.length === 0 || bulkSaving}
+                                onClick={() => executeBulkSave(parsedFromText)}
+                              >
+                                {bulkSaving ? (
+                                  <><Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> Saving...</>
+                                ) : (
+                                  <><Upload className="h-3.5 w-3.5 mr-1" /> Import {parsedFromText.length} Sections</>
+                                )}
+                              </Button>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     )}
 
-                    {/* STEP 4: PROGRESS OVERLAY */}
-                    {importStep === 4 && importProgress && (
-                      <div className="space-y-4 py-8 animate-in fade-in duration-300 text-center max-w-sm mx-auto">
-                        {importing ? (
-                          <RefreshCw className="h-10 w-10 text-primary animate-spin mx-auto" />
-                        ) : importProgress.failed > 0 ? (
-                          <AlertCircle className="h-10 w-10 text-amber-500 mx-auto" />
-                        ) : (
-                          <CheckCircle className="h-10 w-10 text-emerald-500 mx-auto" />
-                        )}
-
+                    {/* ───── BULK SAVE PROGRESS ───── */}
+                    {bulkSaving && bulkProgress && (
+                      <div className="space-y-3 py-4 text-center max-w-sm mx-auto animate-in fade-in duration-200">
+                        <RefreshCw className="h-8 w-8 text-primary animate-spin mx-auto" />
                         <div className="space-y-1">
                           <h4 className="font-bold text-sm text-foreground">
-                            {importing ? `Processing batches...` : `Import Session Completed`}
+                            Saving sections...
                           </h4>
                           <p className="text-xs text-muted-foreground">
-                            {importing 
-                              ? `Uploading batch ${importProgress.current} of ${importProgress.total}`
-                              : `Synced successfully! ${importProgress.inserted} rows inserted.`
-                            }
+                            Processing batch {bulkProgress.current} of {bulkProgress.total}
                           </p>
                         </div>
-
                         <div className="w-full bg-slate-100 rounded-full h-2">
                           <div 
                             className="bg-primary h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${(importProgress.current / importProgress.total) * 100}%` }}
+                            style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
                           />
                         </div>
-
-                        {!importing && (
-                          <Button size="sm" className="mt-4 text-xs w-full" onClick={() => setImportStep(1)}>
-                            Start New Import Session
-                          </Button>
-                        )}
                       </div>
                     )}
                   </CardContent>

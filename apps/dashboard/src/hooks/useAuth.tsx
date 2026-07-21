@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -8,80 +8,139 @@ interface AuthContextType {
   isAdmin: boolean;
   loading: boolean;
   signOut: () => Promise<void>;
+  refetchAdminStatus: () => Promise<boolean>;
 }
 
-const AuthContext = createContext<AuthContextType>({ session: null, user: null, isAdmin: false, loading: true, signOut: async () => { } });
+const AuthContext = createContext<AuthContextType>({ 
+  session: null, 
+  user: null, 
+  isAdmin: false, 
+  loading: true, 
+  signOut: async () => {},
+  refetchAdminStatus: async () => false,
+});
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const checkAdminStatus = async (user: User) => {
-    try {
-      const userId = user.id;
+  const checkAdminStatus = useCallback(async (userToCheck: User | null): Promise<boolean> => {
+    if (!userToCheck) {
+      setIsAdmin(false);
+      return false;
+    }
 
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("is_admin")
-        .eq("id", userId)
-        .maybeSingle();
+    try {
+      let query = supabase.from("profiles").select("is_admin");
+      
+      if (userToCheck.id) {
+        query = query.eq("id", userToCheck.id);
+      } else if (userToCheck.email) {
+        query = query.eq("email", userToCheck.email);
+      }
+
+      const { data, error } = await query.maybeSingle();
       
       if (error) {
         console.error("Admin status check failed:", error.message);
         setIsAdmin(false);
-        return;
+        return false;
       }
 
-      if (data) {
-        setIsAdmin(!!data.is_admin);
-      } else {
-        setIsAdmin(false);
-      }
+      const adminFlag = !!data?.is_admin;
+      setIsAdmin(adminFlag);
+      return adminFlag;
     } catch (err) {
       console.error("Unexpected error during admin check:", err);
       setIsAdmin(false);
+      return false;
     }
-  };
+  }, []);
+
+  const refetchAdminStatus = useCallback(async (): Promise<boolean> => {
+    try {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      if (currentSession?.user) {
+        setSession(currentSession);
+        return await checkAdminStatus(currentSession.user);
+      }
+    } catch (err) {
+      console.error("Error refetching session:", err);
+    }
+    setIsAdmin(false);
+    return false;
+  }, [checkAdminStatus]);
 
   useEffect(() => {
-    // Restore persisted session FIRST to avoid redirect flash
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
-        checkAdminStatus(session.user).then(() => setLoading(false));
-      } else {
-        setLoading(false);
-      }
-    }).catch(() => setLoading(false));
+    let isMounted = true;
 
-    // Then listen for future auth changes (login, logout, token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      if (session?.user) {
-        setLoading(true);
-        await checkAdminStatus(session.user);
+    const initAuth = async () => {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        if (isMounted) {
+          setSession(initialSession);
+          if (initialSession?.user) {
+            await checkAdminStatus(initialSession.user);
+          }
+        }
+      } catch (err) {
+        console.error("Error restoring session:", err);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    initAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+      if (!isMounted) return;
+      setSession(newSession);
+      if (newSession?.user) {
+        await checkAdminStatus(newSession.user);
       } else {
         setIsAdmin(false);
       }
       setLoading(false);
     });
 
-    // Safety timeout: never hang on loading screen forever (poor network)
-    const timer = setTimeout(() => setLoading(false), 5000);
+    const timer = setTimeout(() => {
+      if (isMounted) setLoading(false);
+    }, 5000);
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
       clearTimeout(timer);
     };
-  }, []);
+  }, [checkAdminStatus]);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.warn("Supabase signOut error (ignoring and force clearing local state):", err);
+    } finally {
+      // Force clear all Supabase tokens from localStorage
+      try {
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const key = localStorage.key(i);
+          if (key && (key.includes("supabase") || key.includes("sb-") || key.includes("auth"))) {
+            localStorage.removeItem(key);
+          }
+        }
+      } catch (e) {
+        console.error("Failed clearing localStorage:", e);
+      }
+      setSession(null);
+      setIsAdmin(false);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ session, user: session?.user ?? null, isAdmin, loading, signOut }}>
+    <AuthContext.Provider value={{ session, user: session?.user ?? null, isAdmin, loading, signOut, refetchAdminStatus }}>
       {children}
     </AuthContext.Provider>
   );
