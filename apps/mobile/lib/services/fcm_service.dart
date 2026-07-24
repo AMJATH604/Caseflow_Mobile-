@@ -4,13 +4,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart'; // For rootNavigatorKey
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Handles Firebase Cloud Messaging (FCM) for server-side push notifications.
-/// Includes WhatsApp-style rich notifications with Reply, Mark as Read actions.
 class FcmService {
   static final FcmService _instance = FcmService._internal();
   factory FcmService() => _instance;
@@ -28,10 +26,8 @@ class FcmService {
   static const _chamberChannelName = 'Chat Messages';
   static const _dmChannelId = 'dm_messages';
   static const _dmChannelName = 'Direct Messages';
-
-  // ─── Action IDs ────────────────────────────────────────
-  static const _actionReply = 'REPLY';
-  static const _actionMarkRead = 'MARK_READ';
+  static const _hearingChannelId = 'hearing_reminders';
+  static const _hearingChannelName = 'Hearing Reminders';
 
   /// Initialize FCM: request permission, get token, store in Supabase.
   /// Call this after the user is authenticated.
@@ -65,7 +61,6 @@ class FcmService {
     await _localNotifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTap,
-      onDidReceiveBackgroundNotificationResponse: _onBackgroundNotificationAction,
     );
 
     _localNotificationsInitialized = true;
@@ -234,50 +229,33 @@ class FcmService {
     }
   }
 
-  // ─── Rich Notification Display ─────────────────────────────
+  // ─── Simple Local Notification Display ─────────────────────────────
 
-  /// Show a WhatsApp-style rich notification with Reply, Mark as Read, and Mute actions.
+  /// Show a simple local notification when app is in foreground.
   Future<void> showRichNotification(RemoteMessage message) async {
     final data = message.data;
     final type = data['type'] ?? '';
     final title = message.notification?.title ?? data['title'] ?? 'CaseFlow';
     final body = message.notification?.body ?? data['body'] ?? '';
-    final senderName = data['sender_name'] ?? title;
 
     final isDm = type == 'dm_message';
+    final isChat = type == 'chat_message';
 
-    // Check if notifications are muted for this chat/sender
-    final muteKey = isDm 
-        ? 'muted_conv_${data['conversation_id']}' 
-        : 'muted_firm_${data['firm_id']}';
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      if (prefs.getBool(muteKey) == true) {
-        debugPrint('FCM: Notification is muted for $muteKey. Skipping display.');
-        return;
-      }
-    } catch (e) {
-      debugPrint('FCM: Error checking mute preference: $e');
+    // Route to appropriate channel
+    String channelId;
+    String channelName;
+    if (isDm) {
+      channelId = _dmChannelId;
+      channelName = _dmChannelName;
+    } else if (isChat) {
+      channelId = _chamberChannelId;
+      channelName = _chamberChannelName;
+    } else {
+      channelId = _hearingChannelId;
+      channelName = _hearingChannelName;
     }
 
-    // Determine suggested reply based on message body (WhatsApp-style smart suggestion)
-    String suggestion = 'Okay';
-    final lowerBody = body.toLowerCase();
-    if (lowerBody.contains('hi') || lowerBody.contains('hello')) {
-      suggestion = 'How are you?';
-    } else if (lowerBody.contains('?') || lowerBody.contains('how')) {
-      suggestion = 'Fine, thank you';
-    } else if (lowerBody.contains('where') || lowerBody.contains('when')) {
-      suggestion = 'I will let you know';
-    } else if (lowerBody.contains('urgent') || lowerBody.contains('call')) {
-      suggestion = 'I will call you back';
-    }
-
-    final channelId = isDm ? _dmChannelId : _chamberChannelId;
-    final channelName = isDm ? _dmChannelName : _chamberChannelName;
-
-    // Create notification with actions
+    // Create simple notification details without action buttons
     final androidDetails = AndroidNotificationDetails(
       channelId,
       channelName,
@@ -285,51 +263,21 @@ class FcmService {
       priority: Priority.high,
       playSound: true,
       enableVibration: true,
-      category: AndroidNotificationCategory.message,
-      styleInformation: BigTextStyleInformation(
-        body,
-        contentTitle: senderName,
-        summaryText: isDm ? 'Direct Message' : (data['channel'] ?? 'Chambers'),
-      ),
-      actions: [
-        AndroidNotificationAction(
-          'SMART_REPLY:$suggestion',
-          suggestion,
-          showsUserInterface: false,
-        ),
-        const AndroidNotificationAction(
-          _actionReply,
-          'Reply',
-          showsUserInterface: false,
-          inputs: [
-            AndroidNotificationActionInput(
-              label: 'Type a message...',
-            ),
-          ],
-        ),
-        const AndroidNotificationAction(
-          _actionMarkRead,
-          'Mark as Read',
-          showsUserInterface: false,
-        ),
-        const AndroidNotificationAction(
-          'MUTE',
-          'Mute',
-          showsUserInterface: false,
-        ),
-      ],
+      icon: '@mipmap/ic_launcher',
     );
 
     final details = NotificationDetails(android: androidDetails);
 
-    // Use a unique ID based on conversation/channel
+    // Use a unique ID based on conversation/channel/hearing
     final notifId = isDm
         ? (data['conversation_id']?.hashCode ?? DateTime.now().millisecondsSinceEpoch) % 2147483647
-        : (data['firm_id']?.hashCode ?? DateTime.now().millisecondsSinceEpoch) % 2147483647;
+        : isChat
+            ? (data['firm_id']?.hashCode ?? DateTime.now().millisecondsSinceEpoch) % 2147483647
+            : (data['hearing_id']?.hashCode ?? data['caveat_id']?.hashCode ?? DateTime.now().millisecondsSinceEpoch) % 2147483647;
 
     await _localNotifications.show(
       notifId.abs(),
-      senderName,
+      title,
       body,
       details,
       payload: jsonEncode(data),
@@ -349,170 +297,6 @@ class FcmService {
       _navigateToChat(data);
     } catch (e) {
       debugPrint('FCM: Error parsing notification payload: $e');
-    }
-  }
-
-  /// Handle background notification actions (Reply, Mark as Read, Mute, Smart Reply).
-  @pragma('vm:entry-point')
-  static void _onBackgroundNotificationAction(NotificationResponse response) {
-    debugPrint('FCM: Background action: ${response.actionId}');
-
-    if (response.payload == null) return;
-
-    try {
-      final data = jsonDecode(response.payload!) as Map<String, dynamic>;
-      final type = data['type'] ?? '';
-      final isDm = type == 'dm_message';
-
-      if (response.actionId == _actionReply) {
-        final replyText = response.input;
-        if (replyText != null && replyText.isNotEmpty) {
-          _handleReplyAction(data, replyText, isDm);
-        }
-      } else if (response.actionId == _actionMarkRead) {
-        _handleMarkReadAction(data, isDm);
-      } else if (response.actionId == 'MUTE') {
-        _handleMuteAction(data, isDm);
-      } else if (response.actionId != null && response.actionId!.startsWith('SMART_REPLY:')) {
-        final suggestionText = response.actionId!.substring('SMART_REPLY:'.length);
-        _handleReplyAction(data, suggestionText, isDm);
-      }
-    } catch (e) {
-      debugPrint('FCM: Error handling action: $e');
-    }
-  }
-
-  /// Send a reply directly from the notification.
-  static Future<void> _handleReplyAction(
-    Map<String, dynamic> data,
-    String replyText,
-    bool isDm,
-  ) async {
-    try {
-      final supabase = Supabase.instance.client;
-      final user = supabase.auth.currentUser;
-      if (user == null) return;
-
-      if (isDm) {
-        // Send DM reply
-        final conversationId = data['conversation_id'];
-        if (conversationId == null) return;
-
-        // Get sender's name
-        final profile = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', user.id)
-            .single();
-
-        await supabase.from('direct_messages').insert({
-          'conversation_id': conversationId,
-          'sender_id': user.id,
-          'message': replyText,
-        });
-
-        // Update conversation's last_message_at
-        await supabase.from('direct_conversations').update({
-          'last_message_at': DateTime.now().toUtc().toIso8601String(),
-        }).eq('id', conversationId);
-
-        debugPrint('FCM: ✅ DM reply sent from notification');
-      } else {
-        // Send chambers reply
-        final firmId = data['firm_id'];
-        final caseId = data['case_id'];
-        if (firmId == null) return;
-
-        final profile = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', user.id)
-            .single();
-
-        await supabase.from('case_discussions').insert({
-          'firm_id': firmId,
-          'case_id': (caseId != null && caseId.isNotEmpty) ? caseId : null,
-          'sender_id': user.id,
-          'sender_name': profile['full_name'] ?? 'You',
-          'message': replyText,
-        });
-
-        debugPrint('FCM: ✅ Chambers reply sent from notification');
-      }
-
-      // Dismiss the notification upon successful reply
-      final notifId = isDm
-          ? (data['conversation_id']?.hashCode ?? 0) % 2147483647
-          : (data['firm_id']?.hashCode ?? 0) % 2147483647;
-
-      final plugin = FlutterLocalNotificationsPlugin();
-      await plugin.cancel(notifId.abs());
-    } catch (e) {
-      debugPrint('FCM: ❌ Reply action failed: $e');
-    }
-  }
-
-  /// Mark messages as read from the notification.
-  static Future<void> _handleMarkReadAction(
-    Map<String, dynamic> data,
-    bool isDm,
-  ) async {
-    try {
-      final supabase = Supabase.instance.client;
-      final user = supabase.auth.currentUser;
-      if (user == null) return;
-
-      if (isDm) {
-        final conversationId = data['conversation_id'];
-        if (conversationId == null) return;
-
-        await supabase
-            .from('direct_messages')
-            .update({'is_read': true})
-            .eq('conversation_id', conversationId)
-            .neq('sender_id', user.id)
-            .eq('is_read', false);
-
-        debugPrint('FCM: ✅ DM messages marked as read');
-      }
-
-      // Dismiss the notification
-      final notifId = isDm
-          ? (data['conversation_id']?.hashCode ?? 0) % 2147483647
-          : (data['firm_id']?.hashCode ?? 0) % 2147483647;
-
-      final plugin = FlutterLocalNotificationsPlugin();
-      await plugin.cancel(notifId.abs());
-
-      debugPrint('FCM: ✅ Notification dismissed after mark-as-read');
-    } catch (e) {
-      debugPrint('FCM: ❌ Mark as read failed: $e');
-    }
-  }
-
-  /// Mute notifications for this sender/chat.
-  static Future<void> _handleMuteAction(
-    Map<String, dynamic> data,
-    bool isDm,
-  ) async {
-    try {
-      final muteKey = isDm 
-          ? 'muted_conv_${data['conversation_id']}' 
-          : 'muted_firm_${data['firm_id']}';
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(muteKey, true);
-      debugPrint('FCM: ✅ Muted notifications for $muteKey');
-
-      // Dismiss the notification
-      final notifId = isDm
-          ? (data['conversation_id']?.hashCode ?? 0) % 2147483647
-          : (data['firm_id']?.hashCode ?? 0) % 2147483647;
-
-      final plugin = FlutterLocalNotificationsPlugin();
-      await plugin.cancel(notifId.abs());
-    } catch (e) {
-      debugPrint('FCM: ❌ Mute action failed: $e');
     }
   }
 

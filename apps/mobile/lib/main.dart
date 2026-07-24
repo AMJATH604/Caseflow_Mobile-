@@ -24,10 +24,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   debugPrint('FCM: Background message received: ${message.data}');
-  
-  final service = FcmService();
-  await service.initLocalNotifications();
-  await service.showRichNotification(message);
+  // Do NOT display a manual local notification here to avoid duplicates.
+  // The FCM SDK automatically displays the notification in the background
+  // using the 'notification' payload block sent by the server.
 }
 
 void main() async {
