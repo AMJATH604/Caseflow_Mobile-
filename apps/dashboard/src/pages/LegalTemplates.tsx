@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadFile, deleteFile } from "@/lib/storageService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -78,28 +79,14 @@ export default function LegalTemplates() {
 
             // 1. Upload PDF if selected
             if (pdfFile) {
-                const fileExt = pdfFile.name.split(".").pop();
-                const fileName = `pdf_${Math.random()}.${fileExt}`;
-                const filePath = `templates/${fileName}`;
-                const { error: uploadError } = await supabase.storage
-                    .from("legal_templates")
-                    .upload(filePath, pdfFile);
-                if (uploadError) throw uploadError;
-                const { data: urlData } = supabase.storage.from("legal_templates").getPublicUrl(filePath);
-                pdfUrl = urlData.publicUrl;
+                const res = await uploadFile(pdfFile, "legal_templates", "templates");
+                pdfUrl = res.url;
             }
 
             // 2. Upload Word if selected
             if (docxFile) {
-                const fileExt = docxFile.name.split(".").pop();
-                const fileName = `docx_${Math.random()}.${fileExt}`;
-                const filePath = `templates/${fileName}`;
-                const { error: uploadError } = await supabase.storage
-                    .from("legal_templates")
-                    .upload(filePath, docxFile);
-                if (uploadError) throw uploadError;
-                const { data: urlData } = supabase.storage.from("legal_templates").getPublicUrl(filePath);
-                docxUrl = urlData.publicUrl;
+                const res = await uploadFile(docxFile, "legal_templates", "templates");
+                docxUrl = res.url;
             }
 
             // 3. Insert record into database
@@ -137,12 +124,12 @@ export default function LegalTemplates() {
             // Delete PDF from storage
             if (pdfUrl) {
                 const path = pdfUrl.split("/").pop();
-                if (path) await supabase.storage.from("legal_templates").remove([`templates/${path}`]);
+                if (path) await deleteFile(`templates/${path}`, "supabase", "legal_templates");
             }
             // Delete DOCX from storage
             if (docxUrl) {
                 const path = docxUrl.split("/").pop();
-                if (path) await supabase.storage.from("legal_templates").remove([`templates/${path}`]);
+                if (path) await deleteFile(`templates/${path}`, "supabase", "legal_templates");
             }
 
             const { error } = await supabase.from("legal_templates").delete().eq("id", id);

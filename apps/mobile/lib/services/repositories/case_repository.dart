@@ -129,6 +129,7 @@ class CaseRepository {
     );
 
     // Cascading delete: removes all related records before the case itself.
+    await _client.from('strategy_tasks').delete().eq('case_id', id);
     await _client.from('ecourt_sync_records').delete().eq('case_id', id);
     await _client.from('ecourt_hearing_history').delete().eq('case_id', id);
     await _client.from('hearings').delete().eq('case_id', id);

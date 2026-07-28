@@ -11,11 +11,10 @@ import 'chat_video_bubble.dart';
 import 'chat_voice_bubble.dart';
 import 'chat_document_bubble.dart';
 
-/// The main chat message bubble widget.
+/// Premium WhatsApp-style chat bubble.
 ///
-/// Renders a WhatsApp-style bubble that adapts its content based on message type
-/// (text, image, video, voice, document) and includes reply quotes, timestamps,
-/// and read receipts.
+/// Renders a message bubble with proper tail shape, adaptive colors,
+/// and supports text, image, video, voice, and document content types.
 class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
   final T message;
   final bool isMe;
@@ -84,61 +83,69 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ─── WhatsApp-accurate bubble colors ─────────────
     final bubbleColor = isMe
-        ? (isDark ? const Color(0xFF005C4B) : const Color(0xFFDCF8C6))
+        ? (isDark ? const Color(0xFF005C4B) : const Color(0xFFD9FDD3))
         : (isDark ? const Color(0xFF202C33) : Colors.white);
-    final textColor = isDark ? Colors.white : const Color(0xFF1F2C34);
+    final textColor = isDark ? const Color(0xFFE9EDEF) : const Color(0xFF111B21);
     final metaColor = isMe
-        ? (isDark ? Colors.white54 : const Color(0xFF667781))
-        : (isDark ? Colors.white38 : const Color(0xFF667781));
+        ? (isDark ? const Color(0xFF8696A0) : const Color(0xFF667781))
+        : (isDark ? const Color(0xFF8696A0) : const Color(0xFF667781));
 
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: GestureDetector(
         onLongPress: onLongPress,
         child: Container(
-          margin: EdgeInsets.only(bottom: 6.h),
+          margin: EdgeInsets.only(
+            bottom: 2.h,
+            left: isMe ? 64.w : 0,
+            right: isMe ? 0 : 64.w,
+          ),
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.78,
           ),
           decoration: BoxDecoration(
             color: bubbleColor,
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(16.r),
-              topRight: Radius.circular(16.r),
-              bottomLeft: Radius.circular(isMe ? 16 : 4),
-              bottomRight: Radius.circular(isMe ? 4 : 16),
+              topLeft: Radius.circular(isMe ? 12.r : 3.r),
+              topRight: Radius.circular(isMe ? 3.r : 12.r),
+              bottomLeft: Radius.circular(12.r),
+              bottomRight: Radius.circular(12.r),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+                color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.06),
+                blurRadius: 1,
+                offset: const Offset(0, 1),
               ),
             ],
-            border: Border.all(
-              color: isMe
-                  ? Colors.transparent
-                  : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
-            ),
           ),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+            padding: EdgeInsets.only(
+              left: 8.w,
+              right: 8.w,
+              top: 6.h,
+              bottom: 5.h,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
+                // ─── Sender name (group chats) ───────
                 if (senderName != null && !isMe) ...[
                   Text(
                     senderName!,
                     style: GoogleFonts.inter(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w800,
-                      color: senderNameColor ?? const Color(0xFF4F46E5),
+                      fontSize: 12.5.sp,
+                      fontWeight: FontWeight.w600,
+                      color: senderNameColor ?? const Color(0xFF00A884),
                     ),
                   ),
-                  SizedBox(height: 4.h),
+                  SizedBox(height: 2.h),
                 ],
+
+                // ─── Quoted reply ────────────────────
                 if (message.hasReply)
                   ChatQuotedReply(
                     replyToId: message.replyToId,
@@ -147,6 +154,8 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
                     isDark: isDark,
                     onTap: onReplyTap,
                   ),
+
+                // ─── Attachment content ──────────────
                 if (message.hasAttachment) ...[
                   if (message.isImage)
                     ChatImageBubble(
@@ -190,36 +199,41 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
                           ? () => onSaveAttachment!(message)
                           : null,
                     ),
-                  SizedBox(height: 6.h),
+                  SizedBox(height: 4.h),
                 ],
+
+                // ─── Text content ────────────────────
                 if (!message.hasAttachment)
                   Text(
                     message.message,
                     style: GoogleFonts.inter(
                       color: textColor,
-                      fontSize: 14.sp,
-                      height: 1.4.h,
+                      fontSize: 14.5.sp,
+                      height: 1.35,
                     ),
                   ),
-                SizedBox(height: 4.h),
+
+                // ─── Timestamp + read receipt ────────
+                SizedBox(height: 2.h),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      DateFormat('hh:mm a').format(message.createdAt.toLocal()),
+                      DateFormat('h:mm a').format(message.createdAt.toLocal()),
                       style: GoogleFonts.inter(
-                        fontSize: 10.sp,
+                        fontSize: 10.5.sp,
                         color: metaColor,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     if (showReadReceipt && isMe) ...[
-                      SizedBox(width: 6.w),
+                      SizedBox(width: 4.w),
                       Icon(
                         Icons.done_all_rounded,
-                        size: 14,
-                        color: isRead ? const Color(0xFF10B981) : metaColor,
+                        size: 16.sp,
+                        color: isRead
+                            ? const Color(0xFF53BDEB)
+                            : metaColor,
                       ),
                     ],
                   ],

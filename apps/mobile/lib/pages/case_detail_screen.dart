@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/providers.dart';
 import '../theme/app_theme.dart';
 import '../components/case_dossier_tab.dart';
+import '../components/case_strategy_tab.dart';
 import '../components/case_discussion_tab.dart';
 import '../components/case_documents_tab.dart';
 import '../components/case_payments_tab.dart';
@@ -27,7 +28,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 7, vsync: this);
   }
 
   @override
@@ -61,6 +62,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
                   controller: _tabController,
                   children: [
                     CaseDossierTab(caseId: widget.id, caseData: caseData),
+                    CaseStrategyTab(caseId: widget.id),
                     CaseDiscussionTab(
                       caseId: widget.id,
                       firmId: caseData.firmId ?? caseData.createdBy,
@@ -122,6 +124,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
         ),
         tabs: const [
           Tab(text: 'DOSSIER'),
+          Tab(text: 'STRATEGY'),
           Tab(text: 'DISCUSSION'),
           Tab(text: 'DOCUMENTS'),
           Tab(text: 'PAYMENTS'),

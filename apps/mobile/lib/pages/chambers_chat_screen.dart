@@ -745,9 +745,11 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     if (_profile == null) {
       return Scaffold(
         backgroundColor:
-            isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-        body: const Center(
-          child: CircularProgressIndicator(color: Color(0xFF4F46E5)),
+            isDark ? const Color(0xFF0B141A) : const Color(0xFFECE5DD),
+        body: Center(
+          child: CircularProgressIndicator(
+            color: isDark ? const Color(0xFF00A884) : const Color(0xFF008069),
+          ),
         ),
       );
     }
@@ -760,69 +762,64 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF0B141A) : const Color(0xFFF0F2F5),
+          isDark ? const Color(0xFF0B141A) : const Color(0xFFECE5DD),
       appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-        foregroundColor: isDark ? Colors.white : const Color(0xFF0F172A),
-        elevation: 0.5,
-        scrolledUnderElevation: 0.5,
-        leadingWidth: 40,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
-            size: 20,
+        backgroundColor: isDark ? const Color(0xFF202C33) : const Color(0xFF008069),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leadingWidth: 28,
+        leading: Padding(
+          padding: EdgeInsets.only(left: 4.w),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 22),
+            onPressed: () => Navigator.pop(context),
           ),
-          onPressed: () => Navigator.pop(context),
         ),
         titleSpacing: 0,
         title: Row(
           children: [
             Container(
-              width: 38.w,
-              height: 38.h,
-              decoration: const BoxDecoration(
+              width: 40.w,
+              height: 40.w,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF00A884) : Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
               ),
               child: const Icon(
                 Icons.groups_rounded,
                 color: Colors.white,
-                size: 20,
+                size: 22,
               ),
             ),
-            SizedBox(width: 12.w),
+            SizedBox(width: 10.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Digital Chambers',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       fontSize: 16.sp,
-                      fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
                   typingText != null
                       ? Text(
                           typingText,
                           style: GoogleFonts.inter(
-                            fontSize: 11.sp,
-                            color: const Color(0xFF10B981),
-                            fontWeight: FontWeight.w700,
+                            fontSize: 12.sp,
+                            color: const Color(0xFFD1F4CC),
+                            fontWeight: FontWeight.w400,
                           ),
                         )
                       : Text(
                           'Team Discussion',
                           style: GoogleFonts.inter(
-                            fontSize: 11.sp,
-                            color: isDark ? Colors.white70 : const Color(0xFF64748B),
-                            fontWeight: FontWeight.w500,
+                            fontSize: 12.sp,
+                            color: Colors.white70,
+                            fontWeight: FontWeight.w400,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -840,9 +837,9 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                 child: SizedBox(
                   width: 20.w,
                   height: 20.h,
-                  child: CircularProgressIndicator(
+                  child: const CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Color(0xFF4F46E5),
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -856,8 +853,10 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
               builder: (context, ref, child) {
                 final firmId = _firmId;
                 if (firmId == null) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF4F46E5)),
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: isDark ? const Color(0xFF00A884) : const Color(0xFF008069),
+                    ),
                   );
                 }
                 final discussionsAsync = ref.watch(firmNoticesProvider(firmId));

@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// Date separator between message groups (TODAY, YESTERDAY, date).
+/// WhatsApp-style date separator pill between message groups.
 class ChatDateSeparator extends StatelessWidget {
   final DateTime date;
   final bool isDark;
@@ -16,27 +16,32 @@ class ChatDateSeparator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 12.h),
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
-      decoration: BoxDecoration(
-        color: isDark
-            ? const Color(0xFF1E293B)
-            : Colors.white.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
+    return Center(
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 10.h),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+        decoration: BoxDecoration(
+          color: isDark
+              ? const Color(0xFF202C33).withValues(alpha: 0.9)
+              : Colors.white.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(8.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 3,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Text(
+          _formatDateLabel(date),
+          style: GoogleFonts.inter(
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w500,
+            color: isDark
+                ? const Color(0xFF8696A0)
+                : const Color(0xFF667781),
           ),
-        ],
-      ),
-      child: Text(
-        _formatDateLabel(date),
-        style: GoogleFonts.inter(
-          fontSize: 11.sp,
-          fontWeight: FontWeight.w700,
-          color: isDark ? Colors.white70 : const Color(0xFF475569),
         ),
       ),
     );
@@ -51,7 +56,7 @@ class ChatDateSeparator extends StatelessWidget {
     if (diff == 0) return 'TODAY';
     if (diff == 1) return 'YESTERDAY';
     if (diff < 7) return DateFormat('EEEE').format(date).toUpperCase();
-    return DateFormat('dd MMM yyyy').format(date).toUpperCase();
+    return DateFormat('dd/MM/yyyy').format(date);
   }
 
   /// Helper to check if two dates are the same calendar day.

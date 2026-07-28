@@ -152,77 +152,67 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final headerColor = isDark ? const Color(0xFF202C33) : const Color(0xFF008069);
+    final bgColor = isDark ? const Color(0xFF111B21) : Colors.white;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+      backgroundColor: bgColor,
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
-            expandedHeight: 180,
+            expandedHeight: 160,
             floating: false,
             pinned: true,
-            backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+            backgroundColor: headerColor,
             elevation: 0,
             scrolledUnderElevation: 0,
-            iconTheme: IconThemeData(color: isDark ? Colors.white : const Color(0xFF0F172A)),
+            iconTheme: const IconThemeData(color: Colors.white),
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: isDark
-                        ? [const Color(0xFF1E1B4B), const Color(0xFF0F172A)]
-                        : [const Color(0xFFEEF2FF), Colors.white],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
+                color: headerColor,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 90, 20, 16),
+                  padding: EdgeInsets.fromLTRB(20.w, 80.h, 20.w, 14.h),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
                         'CaseFlow Messenger',
-                        style: GoogleFonts.outfit(
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.w800,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        style: GoogleFonts.inter(
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
                         ),
                       ),
                       SizedBox(height: 12.h),
+                      // Search bar
                       Container(
-                        height: 46.h,
+                        height: 38.h,
                         decoration: BoxDecoration(
                           color: isDark
-                              ? Colors.white.withValues(alpha: 0.06)
-                              : const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(
-                            color: isDark
-                                ? Colors.white.withValues(alpha: 0.08)
-                                : const Color(0xFFE2E8F0),
-                          ),
+                              ? Colors.white.withValues(alpha: 0.08)
+                              : Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8.r),
                         ),
                         child: TextField(
                           onChanged: (val) => setState(() => _searchQuery = val),
                           decoration: InputDecoration(
-                            hintText: 'Search chats...',
+                            hintText: 'Search...',
                             hintStyle: GoogleFonts.inter(
-                              color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                              color: Colors.white70,
                               fontSize: 14.sp,
                             ),
-                            prefixIcon: const Icon(
+                            prefixIcon: Icon(
                               Icons.search_rounded,
-                              color: Color(0xFF4F46E5),
+                              color: Colors.white.withValues(alpha: 0.8),
                               size: 20,
                             ),
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(vertical: 12.h),
+                            contentPadding: EdgeInsets.symmetric(vertical: 8.h),
                           ),
                           style: GoogleFonts.inter(
                             fontSize: 14.sp,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -234,40 +224,20 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
           ),
         ],
         body: _loading
-            ? const Center(
-                child: CircularProgressIndicator(color: Color(0xFF4F46E5)),
+            ? Center(
+                child: CircularProgressIndicator(
+                  color: isDark ? const Color(0xFF00A884) : const Color(0xFF008069),
+                ),
               )
             : RefreshIndicator(
                 onRefresh: _loadAllChats,
-                color: const Color(0xFF4F46E5),
+                color: const Color(0xFF00A884),
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                  padding: EdgeInsets.fromLTRB(0, 8.h, 0, 100.h),
                   children: [
                     // 1. Digital Chambers Pinned Group Chat
                     if (_chambersInfo != null && _searchQuery.isEmpty) ...[
                       _buildChambersTile(isDark),
-                      SizedBox(height: 24.h),
-                      Row(
-                        children: [
-                          Text(
-                            'DIRECT MESSAGES',
-                            style: GoogleFonts.inter(
-                              fontSize: 11.sp,
-                              fontWeight: FontWeight.w800,
-                              color: isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8),
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: Divider(
-                              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-                              thickness: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 12.h),
                     ],
 
                     // 2. DM Conversations
@@ -281,27 +251,12 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                 ),
               ),
       ),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: const LinearGradient(
-            colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF4F46E5).withValues(alpha: 0.3),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: FloatingActionButton(
-          onPressed: () => _showAdvocatePicker(context),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          heroTag: 'new_dm_fab',
-          child: const Icon(Icons.message_rounded, color: Colors.white, size: 22),
-        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAdvocatePicker(context),
+        backgroundColor: isDark ? const Color(0xFF00A884) : const Color(0xFF008069),
+        elevation: 4,
+        heroTag: 'new_dm_fab',
+        child: const Icon(Icons.message_rounded, color: Colors.white, size: 22),
       ),
     );
   }
@@ -325,97 +280,89 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
       }
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.white,
-        borderRadius: BorderRadius.circular(20.r),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF4F46E5).withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-        border: Border.all(
-          color: isDark ? const Color(0xFF2D3748) : const Color(0xFFEEF2FF),
-          width: 1.5.w,
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => context.push('/chambers-chat'),
-          borderRadius: BorderRadius.circular(20.r),
-          child: Padding(
-            padding: EdgeInsets.all(18.r),
-            child: Row(
-              children: [
-                Container(
-                  width: 52.w,
-                  height: 52.h,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: const Icon(
-                    Icons.groups_rounded,
-                    color: Colors.white,
-                    size: 26,
-                  ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => context.push('/chambers-chat'),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+          child: Row(
+            children: [
+              // Group avatar
+              Container(
+                width: 52.w,
+                height: 52.w,
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF00A884) : const Color(0xFF008069),
+                  shape: BoxShape.circle,
                 ),
-                SizedBox(width: 16.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
+                child: const Icon(
+                  Icons.groups_rounded,
+                  color: Colors.white,
+                  size: 26,
+                ),
+              ),
+              SizedBox(width: 14.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
                             'Digital Chambers',
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.inter(
                               fontSize: 16.sp,
-                              fontWeight: FontWeight.w800,
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              fontWeight: FontWeight.w600,
+                              color: isDark
+                                  ? const Color(0xFFE9EDEF)
+                                  : const Color(0xFF111B21),
                             ),
                           ),
-                          if (time.isNotEmpty)
-                            Text(
-                              time,
-                              style: GoogleFonts.inter(
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
-                              ),
-                            ),
-                        ],
-                      ),
-                      SizedBox(height: 6.h),
-                      Text(
-                        preview,
-                        style: GoogleFonts.inter(
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w500,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
+                        if (time.isNotEmpty)
+                          Text(
+                            time,
+                            style: GoogleFonts.inter(
+                              fontSize: 12.sp,
+                              color: isDark
+                                  ? const Color(0xFF8696A0)
+                                  : const Color(0xFF667781),
+                            ),
+                          ),
+                      ],
+                    ),
+                    SizedBox(height: 3.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.campaign_rounded,
+                          size: 16.sp,
+                          color: isDark
+                              ? const Color(0xFF8696A0)
+                              : const Color(0xFF667781),
+                        ),
+                        SizedBox(width: 4.w),
+                        Expanded(
+                          child: Text(
+                            preview,
+                            style: GoogleFonts.inter(
+                              fontSize: 14.sp,
+                              color: isDark
+                                  ? const Color(0xFF8696A0)
+                                  : const Color(0xFF667781),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                SizedBox(width: 12.w),
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  color: Color(0xFF4F46E5),
-                  size: 20,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -427,10 +374,6 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
     final lastMsg = conv['last_message'] as Map<String, dynamic>?;
     final unread = conv['unread_count'] as int? ?? 0;
     final name = partner['full_name'] ?? 'Unknown';
-    final location = [
-      partner['practice_district'],
-      partner['practice_state'],
-    ].where((s) => s != null).join(', ');
 
     String preview = 'No messages yet';
     String time = '';
@@ -448,109 +391,109 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
       }
     }
 
-    return Container(
-      margin: EdgeInsets.only(bottom: 10.h),
-      decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.02) : Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.04)
-              : const Color(0xFFE2E8F0),
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => context.push('/dm/${conv['id']}'),
-          borderRadius: BorderRadius.circular(16.r),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-            child: Row(
-              children: [
-                ProfileAvatar(
-                  avatarUrl: partner['avatar_url'],
-                  name: name,
-                  radius: 24,
-                ),
-                SizedBox(width: 14.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              name,
-                              style: GoogleFonts.outfit(
-                                fontSize: 15.sp,
-                                fontWeight: unread > 0 ? FontWeight.w800 : FontWeight.w600,
-                                color: isDark ? Colors.white : const Color(0xFF0F172A),
-                              ),
-                              overflow: TextOverflow.ellipsis,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => context.push('/dm/${conv['id']}'),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+          child: Row(
+            children: [
+              // Avatar
+              ProfileAvatar(
+                avatarUrl: partner['avatar_url'],
+                name: name,
+                radius: 26,
+              ),
+              SizedBox(width: 14.w),
+              // Content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            name,
+                            style: GoogleFonts.inter(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                              color: isDark
+                                  ? const Color(0xFFE9EDEF)
+                                  : const Color(0xFF111B21),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (time.isNotEmpty)
+                          Text(
+                            time,
+                            style: GoogleFonts.inter(
+                              fontSize: 12.sp,
+                              color: unread > 0
+                                  ? const Color(0xFF00A884)
+                                  : (isDark
+                                      ? const Color(0xFF8696A0)
+                                      : const Color(0xFF667781)),
                             ),
                           ),
-                          if (time.isNotEmpty)
-                            Text(
-                              time,
+                      ],
+                    ),
+                    SizedBox(height: 3.h),
+                    Row(
+                      children: [
+                        // Double tick for sent messages
+                        if (lastMsg != null && lastMsg['sender_id'] == _myUserId) ...[
+                          Icon(
+                            Icons.done_all_rounded,
+                            size: 16.sp,
+                            color: isDark
+                                ? const Color(0xFF8696A0)
+                                : const Color(0xFF667781),
+                          ),
+                          SizedBox(width: 3.w),
+                        ],
+                        Expanded(
+                          child: Text(
+                            preview,
+                            style: GoogleFonts.inter(
+                              fontSize: 14.sp,
+                              color: isDark
+                                  ? const Color(0xFF8696A0)
+                                  : const Color(0xFF667781),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (unread > 0) ...[
+                          SizedBox(width: 8.w),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 6.w,
+                              vertical: 3.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF00A884),
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                            child: Text(
+                              '$unread',
                               style: GoogleFonts.inter(
                                 fontSize: 11.sp,
-                                fontWeight: unread > 0 ? FontWeight.w700 : FontWeight.w500,
-                                color: unread > 0
-                                    ? const Color(0xFF4F46E5)
-                                    : (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
                               ),
-                            ),
-                        ],
-                      ),
-                      SizedBox(height: 4.h),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              preview,
-                              style: GoogleFonts.inter(
-                                fontSize: 13.sp,
-                                fontWeight: unread > 0 ? FontWeight.w600 : FontWeight.w400,
-                                color: unread > 0
-                                    ? (isDark ? Colors.white70 : const Color(0xFF1E293B))
-                                    : (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (unread > 0) ...[
-                            SizedBox(width: 8.w),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-                                ),
-                                borderRadius: BorderRadius.circular(12.r),
-                              ),
-                              child: Text(
-                                '$unread',
-                                style: GoogleFonts.inter(
-                                  fontSize: 10.sp,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ],
                         ],
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -563,33 +506,30 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
       child: Center(
         child: Column(
           children: [
-            Container(
-              padding: EdgeInsets.all(16.r),
-              decoration: BoxDecoration(
-                color: const Color(0xFF4F46E5).withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.chat_bubble_outline_rounded,
-                size: 32,
-                color: Color(0xFF4F46E5),
-              ),
+            Icon(
+              Icons.chat_rounded,
+              size: 48.sp,
+              color: isDark
+                  ? const Color(0xFF8696A0)
+                  : const Color(0xFF667781),
             ),
             SizedBox(height: 16.h),
             Text(
-              'No Direct Messages Yet',
-              style: GoogleFonts.outfit(
+              'No conversations yet',
+              style: GoogleFonts.inter(
                 fontSize: 16.sp,
-                fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white70 : const Color(0xFF475569),
+                fontWeight: FontWeight.w600,
+                color: isDark
+                    ? const Color(0xFFE9EDEF)
+                    : const Color(0xFF111B21),
               ),
             ),
             SizedBox(height: 6.h),
             Text(
-              'Tap the chat icon to message advocates.',
+              'Tap the message icon to start chatting',
               style: GoogleFonts.inter(
-                fontSize: 12.sp,
-                color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                fontSize: 13.sp,
+                color: const Color(0xFF8696A0),
               ),
             ),
           ],
@@ -711,6 +651,7 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final headerColor = isDark ? const Color(0xFF202C33) : const Color(0xFF008069);
 
     return DraggableScrollableSheet(
       initialChildSize: 0.8,
@@ -718,110 +659,106 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
       maxChildSize: 0.95,
       builder: (context, scrollController) => Container(
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF0F172A) : Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
+          color: isDark ? const Color(0xFF111B21) : Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
         ),
         child: Column(
           children: [
-            SizedBox(height: 12.h),
+            // Header
             Container(
-              width: 40.w,
-              height: 4.h,
+              padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 14.h),
               decoration: BoxDecoration(
-                color: isDark ? Colors.white24 : const Color(0xFFE2E8F0),
-                borderRadius: BorderRadius.circular(2.r),
+                color: headerColor,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
               ),
-            ),
-            SizedBox(height: 16.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              child: Row(
+              child: Column(
                 children: [
                   Container(
-                    padding: EdgeInsets.all(8.r),
+                    width: 36.w,
+                    height: 4.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4F46E5).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                    child: const Icon(
-                      Icons.person_add_rounded,
-                      color: Color(0xFF4F46E5),
-                      size: 18,
+                      color: Colors.white.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(2.r),
                     ),
                   ),
-                  SizedBox(width: 12.w),
-                  Text(
-                    'New Message',
-                    style: GoogleFonts.outfit(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w700,
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
-                    ),
+                  SizedBox(height: 16.h),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.person_add_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                      SizedBox(width: 12.w),
+                      Text(
+                        'New Message',
+                        style: GoogleFonts.inter(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 16.h),
             // Search bar
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 8.h),
               child: Container(
+                height: 38.h,
                 decoration: BoxDecoration(
                   color: isDark
                       ? Colors.white.withValues(alpha: 0.06)
-                      : const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(14.r),
-                  border: Border.all(
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.08)
-                        : const Color(0xFFE2E8F0),
-                  ),
+                      : const Color(0xFFF0F2F5),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Search advocate by name...',
                     hintStyle: GoogleFonts.inter(
-                      color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                      color: const Color(0xFF8696A0),
                       fontSize: 14.sp,
                     ),
                     prefixIcon: const Icon(
                       Icons.search_rounded,
-                      color: Color(0xFF4F46E5),
+                      color: Color(0xFF8696A0),
                       size: 20,
                     ),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
+                    contentPadding: EdgeInsets.symmetric(vertical: 8.h),
                   ),
                   style: GoogleFonts.inter(
                     fontSize: 14.sp,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    color: isDark
+                        ? const Color(0xFFE9EDEF)
+                        : const Color(0xFF111B21),
                   ),
                   onChanged: (v) => setState(() => _search = v),
                 ),
               ),
             ),
-            SizedBox(height: 12.h),
             // List
             Expanded(
               child: _loading
-                  ? const Center(
-                      child: CircularProgressIndicator(color: Color(0xFF4F46E5)),
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        color: isDark ? const Color(0xFF00A884) : const Color(0xFF008069),
+                      ),
                     )
                   : _filtered.isEmpty
                       ? Center(
                           child: Text(
                             'No advocates found',
                             style: GoogleFonts.inter(
-                              color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                              color: const Color(0xFF8696A0),
                             ),
                           ),
                         )
                       : ListView.builder(
                           controller: scrollController,
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          padding: EdgeInsets.zero,
                           itemCount: _filtered.length,
                           itemBuilder: (context, i) {
                             final adv = _filtered[i];
@@ -842,62 +779,48 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
       adv['practice_state'],
     ].where((s) => s != null).join(', ');
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: 4.h),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _startConversation(adv),
-          borderRadius: BorderRadius.circular(14.r),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 10.h),
-            child: Row(
-              children: [
-                ProfileAvatar(
-                  avatarUrl: adv['avatar_url'],
-                  name: name,
-                  radius: 22,
-                ),
-                SizedBox(width: 14.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _startConversation(adv),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          child: Row(
+            children: [
+              ProfileAvatar(
+                avatarUrl: adv['avatar_url'],
+                name: name,
+                radius: 24,
+              ),
+              SizedBox(width: 14.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: GoogleFonts.inter(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? const Color(0xFFE9EDEF)
+                            : const Color(0xFF111B21),
+                      ),
+                    ),
+                    if (location.isNotEmpty) ...[
+                      SizedBox(height: 2.h),
                       Text(
-                        name,
-                        style: GoogleFonts.outfit(
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        location,
+                        style: GoogleFonts.inter(
+                          fontSize: 13.sp,
+                          color: const Color(0xFF8696A0),
                         ),
                       ),
-                      if (location.isNotEmpty) ...[
-                        SizedBox(height: 2.h),
-                        Text(
-                          location,
-                          style: GoogleFonts.inter(
-                            fontSize: 12.sp,
-                            color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
-                          ),
-                        ),
-                      ],
                     ],
-                  ),
+                  ],
                 ),
-                Container(
-                  padding: EdgeInsets.all(8.r),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4F46E5).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
-                  child: const Icon(
-                    Icons.chat_bubble_outline_rounded,
-                    color: Color(0xFF4F46E5),
-                    size: 16,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

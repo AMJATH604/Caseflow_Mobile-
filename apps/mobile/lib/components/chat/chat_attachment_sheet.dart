@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// Bottom sheet for choosing attachment type (camera, gallery, video, document).
+/// WhatsApp-style attachment picker grid.
+///
+/// Shows a bottom sheet with 4 colorful option icons in a row:
+/// Camera, Gallery, Video, Document.
 class ChatAttachmentSheet extends StatelessWidget {
   final void Function(String type) onSelect;
 
@@ -15,9 +18,7 @@ class ChatAttachmentSheet extends StatelessWidget {
   }) {
     return showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (ctx) => ChatAttachmentSheet._internal(
         onSelect: (type) {
           Navigator.pop(ctx);
@@ -31,92 +32,116 @@ class ChatAttachmentSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.all(24.r),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 38.w,
-              height: 4.h,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2.r),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF202C33) : Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 12.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Drag handle
+              Container(
+                width: 36.w,
+                height: 4.h,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.2)
+                      : const Color(0xFFDADFE3),
+                  borderRadius: BorderRadius.circular(2.r),
+                ),
               ),
-            ),
-            SizedBox(height: 20.h),
-            Text(
-              'Share Attachment',
-              style: GoogleFonts.outfit(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w700,
+              SizedBox(height: 24.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _attachOption(
+                    icon: Icons.camera_alt_rounded,
+                    label: 'Camera',
+                    color: const Color(0xFFFF6584),
+                    onTap: () => onSelect('camera'),
+                    isDark: isDark,
+                  ),
+                  _attachOption(
+                    icon: Icons.photo_rounded,
+                    label: 'Gallery',
+                    color: const Color(0xFF7C4DFF),
+                    onTap: () => onSelect('gallery'),
+                    isDark: isDark,
+                  ),
+                  _attachOption(
+                    icon: Icons.videocam_rounded,
+                    label: 'Video',
+                    color: const Color(0xFF00BFA5),
+                    onTap: () => onSelect('video'),
+                    isDark: isDark,
+                  ),
+                  _attachOption(
+                    icon: Icons.insert_drive_file_rounded,
+                    label: 'Document',
+                    color: const Color(0xFF5C6BC0),
+                    onTap: () => onSelect('file'),
+                    isDark: isDark,
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: 24.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _attachOption(
-                  Icons.camera_alt_rounded,
-                  'Camera',
-                  Colors.pink,
-                  () => onSelect('camera'),
-                ),
-                _attachOption(
-                  Icons.photo_library_rounded,
-                  'Gallery',
-                  Colors.purple,
-                  () => onSelect('gallery'),
-                ),
-                _attachOption(
-                  Icons.video_library_rounded,
-                  'Video',
-                  Colors.deepPurple,
-                  () => onSelect('video'),
-                ),
-                _attachOption(
-                  Icons.description_rounded,
-                  'Document',
-                  Colors.blue,
-                  () => onSelect('file'),
-                ),
-              ],
-            ),
-            SizedBox(height: 12.h),
-          ],
+              SizedBox(height: 8.h),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _attachOption(
-    IconData icon,
-    String label,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
+  Widget _attachOption({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16.r),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 56.w,
-            height: 56.h,
+            height: 56.w,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
+              gradient: LinearGradient(
+                colors: [
+                  color,
+                  color.withValues(alpha: 0.7),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.circular(16.r),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-            child: Icon(icon, color: color, size: 26),
+            child: Icon(icon, color: Colors.white, size: 26.sp),
           ),
           SizedBox(height: 8.h),
           Text(
             label,
             style: GoogleFonts.inter(
               fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+              color: isDark
+                  ? const Color(0xFF8696A0)
+                  : const Color(0xFF667781),
             ),
           ),
         ],

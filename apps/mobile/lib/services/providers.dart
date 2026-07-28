@@ -10,7 +10,9 @@ import 'repositories/base_repository.dart';
 import '../models/models.dart';
 import '../models/case_dossier_models.dart';
 import '../models/caveat_models.dart';
+import '../models/strategy_models.dart';
 import 'caveat_service.dart';
+import 'repositories/strategy_repository.dart';
 
 // ─── Auth State ─────────────────────────────────────
 
@@ -364,5 +366,33 @@ final barFeeHistoryProvider =
       return RetryHelper.retry(
         () => BarAssociationRepository.getFeeHistory(memberId),
       );
+    });
+
+// ─── Strategy Board ──────────────────────────────────
+
+/// All tasks for a specific case (for the board view).
+final strategyTasksProvider =
+    FutureProvider.family<List<StrategyTask>, String>((ref, caseId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(
+        () => StrategyRepository.fetchTasks(caseId),
+      );
+    });
+
+/// Tasks assigned to the current user across all cases.
+final myStrategyTasksProvider =
+    FutureProvider<List<StrategyTask>>((ref) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(() => StrategyRepository.fetchMyTasks());
+    });
+
+/// Board summary stats (for case detail header badge).
+final strategyBoardSummaryProvider =
+    FutureProvider.family<Map<String, int>, String>((ref, caseId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return StrategyRepository.fetchBoardSummary(caseId);
     });
 

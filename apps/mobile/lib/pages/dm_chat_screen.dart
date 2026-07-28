@@ -844,9 +844,11 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
     if (_loading) {
       return Scaffold(
         backgroundColor:
-            isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-        body: const Center(
-          child: CircularProgressIndicator(color: Color(0xFF4F46E5)),
+            isDark ? const Color(0xFF0B141A) : const Color(0xFFECE5DD),
+        body: Center(
+          child: CircularProgressIndicator(
+            color: isDark ? const Color(0xFF00A884) : const Color(0xFF008069),
+          ),
         ),
       );
     }
@@ -854,8 +856,12 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
     if (_partnerProfile == null) {
       return Scaffold(
         backgroundColor:
-            isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-        appBar: AppBar(title: const Text('Error')),
+            isDark ? const Color(0xFF0B141A) : const Color(0xFFECE5DD),
+        appBar: AppBar(
+          backgroundColor: isDark ? const Color(0xFF202C33) : const Color(0xFF008069),
+          foregroundColor: Colors.white,
+          title: const Text('Error'),
+        ),
         body: const Center(child: Text('Failed to load advocate details.')),
       );
     }
@@ -869,87 +875,110 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF0B141A) : const Color(0xFFF0F2F5),
+          isDark ? const Color(0xFF0B141A) : const Color(0xFFECE5DD),
       appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-        foregroundColor: isDark ? Colors.white : const Color(0xFF0F172A),
-        elevation: 0.5,
-        scrolledUnderElevation: 0.5,
-        leadingWidth: 40,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
-            size: 20,
+        backgroundColor: isDark ? const Color(0xFF202C33) : const Color(0xFF008069),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leadingWidth: 28,
+        leading: Padding(
+          padding: EdgeInsets.only(left: 4.w),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 22),
+            onPressed: () => Navigator.pop(context),
           ),
-          onPressed: () => Navigator.pop(context),
         ),
         titleSpacing: 0,
-        title: Row(
-          children: [
-            ProfileAvatar(
-              avatarUrl: _partnerProfile!['avatar_url'],
-              name: partnerName,
-              radius: 18,
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        title: GestureDetector(
+          onTap: () {},
+          child: Row(
+            children: [
+              Stack(
                 children: [
-                  Text(
-                    partnerName,
-                    style: GoogleFonts.outfit(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
-                    ),
+                  ProfileAvatar(
+                    avatarUrl: _partnerProfile!['avatar_url'],
+                    name: partnerName,
+                    radius: 19,
                   ),
-                  _isPartnerTyping
-                      ? Text(
-                          'typing...',
-                          style: GoogleFonts.inter(
-                            fontSize: 11.sp,
-                            color: const Color(0xFF10B981),
-                            fontWeight: FontWeight.w700,
+                  if (_isPartnerOnline)
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        width: 12.w,
+                        height: 12.w,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF25D366),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isDark ? const Color(0xFF202C33) : const Color(0xFF008069),
+                            width: 2,
                           ),
-                        )
-                      : _isPartnerOnline
-                          ? Text(
-                              'Online',
-                              style: GoogleFonts.inter(
-                                fontSize: 11.sp,
-                                color: const Color(0xFF10B981),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            )
-                          : (_partnerLastSeenAt != null
-                              ? Text(
-                                  _formatLastSeen(_partnerLastSeenAt!),
-                                  style: GoogleFonts.inter(
-                                    fontSize: 11.sp,
-                                    color: isDark ? Colors.white54 : const Color(0xFF94A3B8),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                )
-                              : (partnerLocation.isNotEmpty
-                                  ? Text(
-                                      partnerLocation,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 11.sp,
-                                        color: isDark ? Colors.white70 : const Color(0xFF64748B),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    )
-                                  : const SizedBox.shrink())),
+                        ),
+                      ),
+                    ),
                 ],
               ),
-            ),
-          ],
+              SizedBox(width: 10.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      partnerName,
+                      style: GoogleFonts.inter(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                    _isPartnerTyping
+                        ? Text(
+                            'typing...',
+                            style: GoogleFonts.inter(
+                              fontSize: 12.sp,
+                              color: const Color(0xFFD1F4CC),
+                              fontWeight: FontWeight.w400,
+                            ),
+                          )
+                        : _isPartnerOnline
+                            ? Text(
+                                'online',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12.sp,
+                                  color: const Color(0xFFD1F4CC),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              )
+                            : (_partnerLastSeenAt != null
+                                ? Text(
+                                    _formatLastSeen(_partnerLastSeenAt!),
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12.sp,
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  )
+                                : (partnerLocation.isNotEmpty
+                                    ? Text(
+                                        partnerLocation,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 12.sp,
+                                          color: Colors.white70,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      )
+                                    : const SizedBox.shrink())),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
         actions: [
           if (_isUploading)
@@ -959,9 +988,9 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                 child: SizedBox(
                   width: 20.w,
                   height: 20.h,
-                  child: CircularProgressIndicator(
+                  child: const CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Color(0xFF4F46E5),
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -1221,39 +1250,51 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
 
   Widget _buildEmptyState(String name, bool isDark) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: EdgeInsets.all(20.r),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: const Color(0xFF4F46E5).withValues(alpha: 0.1),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+        margin: EdgeInsets.symmetric(horizontal: 48.w),
+        decoration: BoxDecoration(
+          color: isDark
+              ? const Color(0xFF202C33).withValues(alpha: 0.9)
+              : Colors.white.withValues(alpha: 0.95),
+          borderRadius: BorderRadius.circular(12.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-            child: const Icon(
-              Icons.waving_hand_rounded,
-              size: 40,
-              color: Color(0xFF4F46E5),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '👋',
+              style: TextStyle(fontSize: 36.sp),
             ),
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            'Say Hello to $name',
-            style: GoogleFonts.outfit(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            SizedBox(height: 10.h),
+            Text(
+              'Say hello to $name',
+              style: GoogleFonts.inter(
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w600,
+                color: isDark
+                    ? const Color(0xFFE9EDEF)
+                    : const Color(0xFF111B21),
+              ),
+              textAlign: TextAlign.center,
             ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Start the conversation now.',
-            style: GoogleFonts.inter(
-              fontSize: 13.sp,
-              color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+            SizedBox(height: 4.h),
+            Text(
+              'Start a conversation now',
+              style: GoogleFonts.inter(
+                fontSize: 13.sp,
+                color: const Color(0xFF8696A0),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { uploadFile, getFileUrl } from "@/lib/storageService";
 
 // Clients
 export const fetchClients = async (options?: { page?: number; pageSize?: number }) => {
@@ -266,28 +267,30 @@ export const fetchDocuments = async (caseId: string) => {
 export const uploadDocument = async (caseId: string, file: File, documentType: string) => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
-  const filePath = `${user.id}/${caseId}/${Date.now()}_${file.name}`;
-  const { error: uploadError } = await supabase.storage.from("legal-documents").upload(filePath, file);
-  if (uploadError) throw uploadError;
+  const subPath = `${user.id}/${caseId}`;
+  const result = await uploadFile(file, "legal-documents", subPath);
+  const fileRef = result.provider === "r2" ? `r2://${result.key}` : result.key;
+
   const { data, error } = await supabase.from("documents").insert({
-    case_id: caseId, document_type: documentType as any, file_url: filePath, uploaded_by: user.id,
+    case_id: caseId, document_type: documentType as any, file_url: fileRef, uploaded_by: user.id,
   }).select().single();
   if (error) throw error;
   return data;
 };
 
 export const getSignedUrl = async (filePath: string) => {
-  const { data, error } = await supabase.storage.from("legal-documents").createSignedUrl(filePath, 3600);
-  if (error) throw error;
-  return data.signedUrl;
+  if (filePath.startsWith("r2://")) {
+    return await getFileUrl(filePath, "r2");
+  }
+  return await getFileUrl(filePath, "supabase", "legal-documents");
 };
 
 // Dashboard stats
 export const fetchDashboardStats = async () => {
   const [activeCasesRes, closedCasesRes, hearingsRes, efilingRes, paymentsRes] = await Promise.all([
     supabase.from("cases").select("id, status, stage, court_name").eq("status", "active"),
-    supabase.from("cases").select("id, status, stage, court_name").eq("status", "closed"),
-    supabase.from("hearings").select("id, hearing_date, case_id, cases(case_title, case_number)").gte("hearing_date", new Date().toISOString().split("T")[0]).order("hearing_date", { ascending: true }),
+    supabase.from("cases").select("id, status, stage, court_name").in("status", ["closed", "disposed", "dismissed"]),
+    supabase.from("hearings").select("id, hearing_date, case_id, cases(case_title, case_number)").order("hearing_date", { ascending: true }),
     supabase.from("efiling_records").select("id, status, case_id, cases(case_title)"),
     supabase.from("payments").select("id, balance_amount, case_id, cases(case_title)"),
   ]);

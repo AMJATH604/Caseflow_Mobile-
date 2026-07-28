@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// Chat input bar with text field, attachment button, camera button, mic/send toggle.
+/// Premium WhatsApp-style chat input bar.
 ///
-/// Also shows a recording UI when [isRecording] is true.
+/// Features:
+/// - Emoji button on the left
+/// - Expandable text field
+/// - Attachment clip + Camera icons on the right inside the pill
+/// - Floating teal send/mic button outside the pill
+/// - Recording mode with red dot, timer, delete, and send
 class ChatInputBar extends StatelessWidget {
   final TextEditingController controller;
   final bool isDark;
@@ -37,6 +42,10 @@ class ChatInputBar extends StatelessWidget {
     this.onTextChanged,
   });
 
+  // WhatsApp teal accent
+  static const _teal = Color(0xFF00A884);
+  static const _tealDark = Color(0xFF005C4B);
+
   String _formatDuration(int seconds) {
     final m = seconds ~/ 60;
     final s = seconds % 60;
@@ -45,84 +54,93 @@ class ChatInputBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isRecording) {
-      return _buildRecordingBar(context);
-    }
+    if (isRecording) return _buildRecordingBar(context);
     return _buildNormalBar(context);
   }
 
   Widget _buildRecordingBar(BuildContext context) {
+    final bgColor = isDark ? const Color(0xFF111B21) : const Color(0xFFF0F2F5);
+
     return Container(
       padding: EdgeInsets.only(
-        left: 8.w,
-        right: 8.w,
-        top: 8.h,
+        left: 6.w,
+        right: 6.w,
+        top: 6.h,
         bottom: MediaQuery.of(context).viewInsets.bottom > 0
-            ? 8
-            : MediaQuery.of(context).padding.bottom + 8,
+            ? 6
+            : MediaQuery.of(context).padding.bottom + 6,
       ),
-      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+      color: bgColor,
       child: Row(
         children: [
+          // Recording pill
           Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                color: isDark ? const Color(0xFF202C33) : Colors.white,
                 borderRadius: BorderRadius.circular(24.r),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.fiber_manual_record,
-                    color: Color(0xFFEF4444),
-                    size: 16,
+                  // Red pulsing dot
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.3, end: 1.0),
+                    duration: const Duration(milliseconds: 800),
+                    builder: (_, opacity, __) => Container(
+                      width: 10.w,
+                      height: 10.w,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEF4444).withValues(alpha: opacity),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                   ),
-                  SizedBox(width: 8.w),
+                  SizedBox(width: 10.w),
                   Text(
                     _formatDuration(recordDuration),
                     style: GoogleFonts.inter(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      fontFeatures: [const FontFeature.tabularFigures()],
+                      color: isDark ? const Color(0xFFE9EDEF) : const Color(0xFF111B21),
                     ),
                   ),
                   SizedBox(width: 12.w),
-                  Text(
-                    'Recording voice...',
-                    style: GoogleFonts.inter(
-                      fontSize: 14.sp,
-                      color: isDark ? Colors.white60 : Colors.grey[600],
+                  Expanded(
+                    child: Text(
+                      'Recording voice note...',
+                      style: GoogleFonts.inter(
+                        fontSize: 13.sp,
+                        color: const Color(0xFF8696A0),
+                      ),
+                    ),
+                  ),
+                  // Delete button
+                  GestureDetector(
+                    onTap: onCancelRecording,
+                    child: Container(
+                      padding: EdgeInsets.all(6.w),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.delete_rounded,
+                        color: const Color(0xFFEF4444),
+                        size: 20.sp,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          SizedBox(width: 8.w),
-          IconButton(
-            icon: const Icon(
-              Icons.delete_outline_rounded,
-              color: Color(0xFFEF4444),
-              size: 26,
-            ),
-            onPressed: onCancelRecording,
-          ),
-          SizedBox(width: 8.w),
-          Container(
-            width: 48.w,
-            height: 48.h,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.send_rounded, size: 22, color: Colors.white),
-              onPressed: onStopRecording,
-            ),
+          SizedBox(width: 6.w),
+          // Send voice button
+          _buildActionButton(
+            icon: Icons.send_rounded,
+            onTap: onStopRecording,
           ),
         ],
       ),
@@ -130,95 +148,180 @@ class ChatInputBar extends StatelessWidget {
   }
 
   Widget _buildNormalBar(BuildContext context) {
-    final showMic = controller.text.trim().isEmpty;
+    final hasText = controller.text.trim().isNotEmpty;
+    final bgColor = isDark ? const Color(0xFF111B21) : const Color(0xFFF0F2F5);
+    final pillColor = isDark ? const Color(0xFF202C33) : Colors.white;
+    final iconColor = isDark ? const Color(0xFF8696A0) : const Color(0xFF54656F);
 
     return Container(
       padding: EdgeInsets.only(
-        left: 8.w,
-        right: 8.w,
-        top: 8.h,
+        left: 6.w,
+        right: 6.w,
+        top: 6.h,
         bottom: MediaQuery.of(context).viewInsets.bottom > 0
-            ? 8
-            : MediaQuery.of(context).padding.bottom + 8,
+            ? 6
+            : MediaQuery.of(context).padding.bottom + 6,
       ),
-      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+      color: bgColor,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
+          // ─── Text field pill ──────────────────
           Expanded(
             child: Container(
+              constraints: BoxConstraints(maxHeight: 120.h),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                color: pillColor,
                 borderRadius: BorderRadius.circular(24.r),
-                border: Border.all(
-                  color: isDark
-                      ? const Color(0xFF334155)
-                      : const Color(0xFFE2E8F0),
-                ),
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.attach_file_rounded,
-                      size: 22,
-                      color: const Color(0xFF4F46E5),
+                  // Emoji button
+                  Padding(
+                    padding: EdgeInsets.only(left: 4.w, bottom: 4.h),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.emoji_emotions_outlined,
+                        size: 24.sp,
+                        color: iconColor,
+                      ),
+                      onPressed: null, // Reserved for emoji picker
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints(
+                        minWidth: 36.w,
+                        minHeight: 36.h,
+                      ),
                     ),
-                    onPressed: isUploading ? null : onAttach,
                   ),
+
+                  // Text field
                   Expanded(
                     child: TextField(
                       controller: controller,
-                      maxLines: 4,
+                      maxLines: 6,
                       minLines: 1,
                       style: GoogleFonts.inter(
-                        fontSize: 15.sp,
-                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        fontSize: 16.sp,
+                        color: isDark
+                            ? const Color(0xFFE9EDEF)
+                            : const Color(0xFF111B21),
+                        height: 1.35,
                       ),
                       textInputAction: TextInputAction.newline,
+                      textCapitalization: TextCapitalization.sentences,
                       onChanged: onTextChanged,
                       decoration: InputDecoration(
-                        hintText: 'Type a message...',
+                        hintText: 'Message',
                         hintStyle: GoogleFonts.inter(
-                          color: isDark ? Colors.white38 : Colors.grey[500],
-                          fontSize: 15.sp,
+                          color: const Color(0xFF8696A0),
+                          fontSize: 16.sp,
                         ),
                         border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 10.h,
+                        ),
+                        isDense: true,
                       ),
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.camera_alt_rounded,
-                      size: 22,
-                      color: const Color(0xFF4F46E5),
+
+                  // Attachment clip
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 4.h),
+                    child: IconButton(
+                      icon: Transform.rotate(
+                        angle: 0.8,
+                        child: Icon(
+                          Icons.attach_file_rounded,
+                          size: 22.sp,
+                          color: iconColor,
+                        ),
+                      ),
+                      onPressed: isUploading ? null : onAttach,
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints(
+                        minWidth: 36.w,
+                        minHeight: 36.h,
+                      ),
                     ),
-                    onPressed: isUploading ? null : onCamera,
                   ),
+
+                  // Camera (only when text is empty)
+                  if (!hasText)
+                    Padding(
+                      padding: EdgeInsets.only(right: 4.w, bottom: 4.h),
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.camera_alt_rounded,
+                          size: 22.sp,
+                          color: iconColor,
+                        ),
+                        onPressed: isUploading ? null : onCamera,
+                        padding: EdgeInsets.zero,
+                        constraints: BoxConstraints(
+                          minWidth: 36.w,
+                          minHeight: 36.h,
+                        ),
+                      ),
+                    ),
+
+                  if (hasText) SizedBox(width: 4.w),
                 ],
               ),
             ),
           ),
-          SizedBox(width: 8.w),
-          Container(
-            width: 48.w,
-            height: 48.h,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: Icon(
-                showMic ? Icons.mic_rounded : Icons.send_rounded,
-                size: 20,
-                color: Colors.white,
-              ),
-              onPressed: showMic ? onStartRecording : onSend,
-            ),
+          SizedBox(width: 6.w),
+
+          // ─── Send / Mic floating button ──────
+          _buildActionButton(
+            icon: hasText ? Icons.send_rounded : Icons.mic_rounded,
+            onTap: hasText ? onSend : onStartRecording,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    VoidCallback? onTap,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 2.h),
+      child: GestureDetector(
+        onTap: isUploading ? null : onTap,
+        child: Container(
+          width: 48.w,
+          height: 48.w,
+          decoration: BoxDecoration(
+            color: isDark ? _tealDark : _teal,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: (isDark ? _tealDark : _teal).withValues(alpha: 0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: isUploading
+              ? Center(
+                  child: SizedBox(
+                    width: 20.w,
+                    height: 20.w,
+                    child: const CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  ),
+                )
+              : Icon(
+                  icon,
+                  size: 22.sp,
+                  color: Colors.white,
+                ),
+        ),
       ),
     );
   }

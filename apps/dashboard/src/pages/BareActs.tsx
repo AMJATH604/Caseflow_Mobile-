@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadFile } from "@/lib/storageService";
 import { 
   Book, Plus, Upload, Trash2, Edit, ChevronRight, Search, File, 
   CheckCircle, AlertCircle, Loader2, BookOpen, Settings, 
@@ -46,6 +47,7 @@ export default function BareActs() {
   const [newAct, setNewAct] = useState({ title: "", short_title: "", description: "" });
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [creatingAct, setCreatingAct] = useState(false);
+  const [isAddActDialogOpen, setIsAddActDialogOpen] = useState(false);
 
   // Edit Section Dialog State
   const [isSectionDialogOpen, setIsSectionDialogOpen] = useState(false);
@@ -114,19 +116,14 @@ export default function BareActs() {
     let pdf_url = null;
 
     if (pdfFile) {
-      const fileName = `${newAct.short_title.toLowerCase()}_${Date.now()}.pdf`;
-      const { error: uploadError } = await supabase.storage
-        .from("bare_acts")
-        .upload(fileName, pdfFile);
-
-      if (uploadError) {
+      try {
+        const result = await uploadFile(pdfFile, "bare_acts");
+        pdf_url = result.url;
+      } catch (uploadError: any) {
         toast.error("PDF upload failed: " + uploadError.message);
         setCreatingAct(false);
         return;
       }
-
-      const { data: urlData } = supabase.storage.from("bare_acts").getPublicUrl(fileName);
-      pdf_url = urlData.publicUrl;
     }
 
     const { data, error } = await supabase
@@ -139,6 +136,7 @@ export default function BareActs() {
       toast.error("Failed to create act: " + error.message);
     } else {
       toast.success("Statute created successfully");
+      setIsAddActDialogOpen(false);
       fetchActs();
       setNewAct({ title: "", short_title: "", description: "" });
       setPdfFile(null);
@@ -470,7 +468,7 @@ export default function BareActs() {
           </div>
 
           {/* New statute dialog */}
-          <Dialog>
+          <Dialog open={isAddActDialogOpen} onOpenChange={setIsAddActDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm" className="bg-primary hover:bg-primary/95 text-xs h-8">
                 <Plus className="h-4 w-4 mr-1" />
@@ -1069,11 +1067,8 @@ A person is said to commit...`}
                             if (file) {
                               toast.promise(
                                 (async () => {
-                                  const fileName = `${selectedAct.short_title.toLowerCase()}_${Date.now()}.pdf`;
-                                  const { error: uploadError } = await supabase.storage.from("bare_acts").upload(fileName, file);
-                                  if (uploadError) throw new Error(uploadError.message);
-                                  const { data: urlData } = supabase.storage.from("bare_acts").getPublicUrl(fileName);
-                                  const pdf_url = urlData.publicUrl;
+                                  const result = await uploadFile(file, "bare_acts");
+                                  const pdf_url = result.url;
                                   const { error: updateError } = await supabase.from("bare_acts").update({ pdf_url }).eq("id", selectedAct.id);
                                   if (updateError) throw new Error(updateError.message);
                                   setSelectedAct({...selectedAct, pdf_url});

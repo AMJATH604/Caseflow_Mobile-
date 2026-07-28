@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// Quoted reply block shown inside a chat bubble when a message is a reply.
+/// WhatsApp-style quoted reply block inside a chat bubble.
 class ChatQuotedReply extends StatelessWidget {
   final String? replyToId;
   final String? replyToSender;
@@ -24,42 +24,63 @@ class ChatQuotedReply extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.only(bottom: 6.h),
-        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+        margin: EdgeInsets.only(bottom: 4.h),
         decoration: BoxDecoration(
-          color: (isDark ? Colors.black : Colors.white).withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(6.r),
+          color: isDark
+              ? Colors.black.withValues(alpha: 0.2)
+              : Colors.black.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(8.r),
         ),
-        child: Row(
-          children: [
-            Container(width: 3.w, height: 36.h, color: const Color(0xFF4F46E5)),
-            SizedBox(width: 8.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    replyToSender ?? 'Advocate',
-                    style: GoogleFonts.inter(
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF4F46E5),
-                    ),
+        child: IntrinsicHeight(
+          child: Row(
+            children: [
+              // Accent bar
+              Container(
+                width: 4.w,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00A884),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(8.r),
+                    bottomLeft: Radius.circular(8.r),
                   ),
-                  SizedBox(height: 1.h),
-                  Text(
-                    replyToMessage ?? '',
-                    style: GoogleFonts.inter(
-                      fontSize: 12.sp,
-                      color: isDark ? Colors.white70 : const Color(0xFF334155),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+              SizedBox(width: 8.w),
+              // Content
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 2.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        replyToSender ?? 'Advocate',
+                        style: GoogleFonts.inter(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF00A884),
+                        ),
+                      ),
+                      SizedBox(height: 1.h),
+                      Text(
+                        replyToMessage ?? '',
+                        style: GoogleFonts.inter(
+                          fontSize: 12.5.sp,
+                          color: isDark
+                              ? const Color(0xFF8696A0)
+                              : const Color(0xFF667781),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(width: 6.w),
+            ],
+          ),
         ),
       ),
     );
