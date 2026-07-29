@@ -160,7 +160,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
-            expandedHeight: 160,
+            expandedHeight: 140,
             floating: false,
             pinned: true,
             backgroundColor: headerColor,
@@ -185,21 +185,24 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                         ),
                       ),
                       SizedBox(height: 12.h),
-                      // Search bar
+                      // Search bar — fixed visibility
                       Container(
-                        height: 38.h,
+                        height: 40.h,
                         decoration: BoxDecoration(
                           color: isDark
-                              ? Colors.white.withValues(alpha: 0.08)
-                              : Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(8.r),
+                              ? Colors.white.withValues(alpha: 0.12)
+                              : Colors.white.withValues(alpha: 0.25),
+                          borderRadius: BorderRadius.circular(10.r),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.15),
+                          ),
                         ),
                         child: TextField(
                           onChanged: (val) => setState(() => _searchQuery = val),
                           decoration: InputDecoration(
-                            hintText: 'Search...',
+                            hintText: 'Search conversations...',
                             hintStyle: GoogleFonts.inter(
-                              color: Colors.white70,
+                              color: Colors.white.withValues(alpha: 0.7),
                               fontSize: 14.sp,
                             ),
                             prefixIcon: Icon(
@@ -208,12 +211,13 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                               size: 20,
                             ),
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(vertical: 8.h),
+                            contentPadding: EdgeInsets.symmetric(vertical: 10.h),
                           ),
                           style: GoogleFonts.inter(
                             fontSize: 14.sp,
                             color: Colors.white,
                           ),
+                          cursorColor: Colors.white,
                         ),
                       ),
                     ],
@@ -233,14 +237,26 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                 onRefresh: _loadAllChats,
                 color: const Color(0xFF00A884),
                 child: ListView(
-                  padding: EdgeInsets.fromLTRB(0, 8.h, 0, 100.h),
+                  padding: EdgeInsets.fromLTRB(0, 0, 0, 100.h),
                   children: [
-                    // 1. Digital Chambers Pinned Group Chat
+                    // ═══ CHAMBERS SECTION ═══
                     if (_chambersInfo != null && _searchQuery.isEmpty) ...[
+                      _buildSectionHeader('CHAMBERS', isDark),
                       _buildChambersTile(isDark),
+                      // Divider
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 78.w),
+                        child: Divider(
+                          height: 1,
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.06)
+                              : const Color(0xFFE8E8E8),
+                        ),
+                      ),
                     ],
 
-                    // 2. DM Conversations
+                    // ═══ MESSAGES SECTION ═══
+                    _buildSectionHeader('MESSAGES', isDark),
                     if (_filteredConversations.isEmpty)
                       _buildEmptyDmsState(isDark)
                     else
@@ -257,6 +273,36 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
         elevation: 4,
         heroTag: 'new_dm_fab',
         child: const Icon(Icons.message_rounded, color: Colors.white, size: 22),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String label, bool isDark) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 6.h),
+      child: Row(
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 11.sp,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
+              color: isDark
+                  ? const Color(0xFF00A884)
+                  : const Color(0xFF008069),
+            ),
+          ),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Container(
+              height: 1,
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.04)
+                  : const Color(0xFFF1F5F9),
+            ),
+          ),
+        ],
       ),
     );
   }

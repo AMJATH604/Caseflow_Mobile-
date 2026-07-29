@@ -14,21 +14,32 @@ class StrategyRepository {
 
   /// Fetch all tasks for a case, with assignee profile joins and counts.
   static Future<List<StrategyTask>> fetchTasks(String caseId) async {
-    final response = await _client
-        .from('strategy_tasks')
-        .select('''
-          *,
-          assigned_profile:profiles!strategy_tasks_assigned_to_fkey(full_name, avatar_url),
-          creator_profile:profiles!strategy_tasks_created_by_fkey(full_name)
-        ''')
-        .eq('case_id', caseId)
-        .isFilter('deleted_at', null)
-        .order('position', ascending: true);
+    try {
+      final response = await _client
+          .from('strategy_tasks')
+          .select('''
+            *,
+            assigned_profile:profiles!strategy_tasks_assigned_to_fkey(full_name, avatar_url),
+            creator_profile:profiles!strategy_tasks_created_by_fkey(full_name)
+          ''')
+          .eq('case_id', caseId)
+          .isFilter('deleted_at', null)
+          .order('position', ascending: true);
 
-    final tasks = (response as List)
-        .map((json) => StrategyTask.fromJson(json))
-        .toList();
-    return tasks;
+      final tasks = (response as List)
+          .map((json) => StrategyTask.fromJson(json))
+          .toList();
+      return tasks;
+    } catch (e) {
+      // If table doesn't exist yet (migration not applied), return empty
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('relation') && msg.contains('does not exist') ||
+          msg.contains('42p01') ||
+          msg.contains('strategy_tasks')) {
+        return [];
+      }
+      rethrow;
+    }
   }
 
   /// Fetch tasks assigned to the current user across all cases.

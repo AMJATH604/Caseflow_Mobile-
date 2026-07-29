@@ -12,6 +12,7 @@ class DailyBoardWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final hearingsAsync = ref.watch(hearingsProvider);
 
     return hearingsAsync.when(
@@ -19,144 +20,250 @@ class DailyBoardWidget extends ConsumerWidget {
         final today = DateTime.now();
         final todayStr = DateFormat('yyyy-MM-dd').format(today);
 
-        final todayHearings =
-            allHearings.where((h) {
-              return DateFormat('yyyy-MM-dd').format(h.hearingDate) == todayStr;
-            }).toList();
+        final todayHearings = allHearings.where((h) {
+          return DateFormat('yyyy-MM-dd').format(h.hearingDate) == todayStr;
+        }).toList();
 
         if (todayHearings.isEmpty) {
-          return _buildEmptyBoard(today);
+          return _buildEmptyBoard(today, isDark);
         }
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 24.w),
-              decoration: BoxDecoration(
-                color: AppTheme.secondary,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
-                border: Border(
-                  top: BorderSide(color: AppTheme.border),
-                  left: BorderSide(color: AppTheme.border),
-                  right: BorderSide(color: AppTheme.border),
-                  bottom: BorderSide(color: AppTheme.border, width: 0.5.w),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.calendar_view_day_rounded,
-                        color: AppTheme.accent,
-                        size: 18,
-                      ),
-                      SizedBox(width: 10.w),
-                      Text(
-                        "TODAY'S SCHEDULE",
-                        style: GoogleFonts.inter(
-                          color: const Color(0xFF1E293B),
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1,
-                        ),
-                      ),
-                      Spacer(),
-                      Text(
-                        '${todayHearings.length} HEARINGS',
-                        style: GoogleFonts.inter(
-                          color: AppTheme.accent,
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E293B) : Colors.white,
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.06)
+                  : const Color(0xFFE2E8F0),
             ),
-            ...todayHearings.asMap().entries.map((entry) {
-              final index = entry.key;
-              final h = entry.value;
-              final color = _itemColor(index);
-              final isLast = index == todayHearings.length - 1;
-
-              return InkWell(
-                onTap: () => context.push('/cases/${h.caseId}'),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 16,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+                blurRadius: 20,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ─── Header ───────────────────────────
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.fromLTRB(20.w, 18.h, 20.w, 14.h),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isDark
+                        ? [
+                            const Color(0xFF4F46E5).withValues(alpha: 0.15),
+                            const Color(0xFF1E293B),
+                          ]
+                        : [
+                            const Color(0xFFEEF2FF),
+                            Colors.white,
+                          ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border(
-                      left: const BorderSide(color: AppTheme.border),
-                      right: const BorderSide(color: AppTheme.border),
-                      bottom: BorderSide(
-                        color: AppTheme.border,
-                        width: isLast ? 1 : 0.5,
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(20.r)),
+                ),
+                child: Row(
+                  children: [
+                    // Calendar icon badge
+                    Container(
+                      width: 42.w,
+                      height: 42.w,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF4F46E5), Color(0xFF6366F1)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(12.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF4F46E5)
+                                .withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            DateFormat('dd').format(today),
+                            style: GoogleFonts.inter(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              height: 1.1,
+                            ),
+                          ),
+                          Text(
+                            DateFormat('MMM').format(today).toUpperCase(),
+                            style: GoogleFonts.inter(
+                              fontSize: 8.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white.withValues(alpha: 0.8),
+                              height: 1.2,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    borderRadius:
-                        isLast
-                            ? BorderRadius.vertical(
-                              bottom: Radius.circular(16.r),
-                            )
-                            : null,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 3.w,
-                        height: 32.h,
-                        decoration: BoxDecoration(
-                          color: color,
-                          borderRadius: BorderRadius.circular(2.r),
+                    SizedBox(width: 14.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Today's Schedule",
+                            style: GoogleFonts.inter(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w700,
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A),
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            DateFormat('EEEE, MMMM dd').format(today),
+                            style: GoogleFonts.inter(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w500,
+                              color: isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : const Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Count badge
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 12.w, vertical: 6.h),
+                      decoration: BoxDecoration(
+                        color: AppTheme.accent.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      child: Text(
+                        '${todayHearings.length}',
+                        style: GoogleFonts.inter(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.accent,
                         ),
                       ),
-                      SizedBox(width: 16.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              h.caseTitle ?? 'Unknown Case',
-                              style: GoogleFonts.inter(
-                                color: const Color(0xFF1E293B),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14.sp,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            SizedBox(height: 4.h),
-                            Text(
-                              (h.purpose ?? h.stage ?? 'Hearing').toUpperCase(),
-                              style: GoogleFonts.inter(
-                                color: const Color(0xFF6B7280),
-                                fontSize: 9.sp,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        color: Color(0xFF94A3B8),
-                        size: 14,
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              );
-            }),
-          ],
+              ),
+
+              // ─── Hearing Items ────────────────────
+              ...todayHearings.asMap().entries.map((entry) {
+                final index = entry.key;
+                final h = entry.value;
+                final color = _itemColor(index);
+                final isLast = index == todayHearings.length - 1;
+
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => context.push('/cases/${h.caseId}'),
+                    borderRadius: isLast
+                        ? BorderRadius.vertical(
+                            bottom: Radius.circular(20.r))
+                        : null,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20.w, vertical: 14.h),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: isLast
+                              ? BorderSide.none
+                              : BorderSide(
+                                  color: isDark
+                                      ? Colors.white.withValues(alpha: 0.04)
+                                      : const Color(0xFFF1F5F9),
+                                ),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          // Color bar
+                          Container(
+                            width: 3.5.w,
+                            height: 36.h,
+                            decoration: BoxDecoration(
+                              color: color,
+                              borderRadius: BorderRadius.circular(2.r),
+                            ),
+                          ),
+                          SizedBox(width: 14.w),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  h.caseTitle ?? 'Unknown Case',
+                                  style: GoogleFonts.inter(
+                                    color: isDark
+                                        ? Colors.white
+                                        : const Color(0xFF0F172A),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14.sp,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                SizedBox(height: 4.h),
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 6.w, vertical: 2.h),
+                                      decoration: BoxDecoration(
+                                        color: color.withValues(alpha: 0.1),
+                                        borderRadius:
+                                            BorderRadius.circular(4.r),
+                                      ),
+                                      child: Text(
+                                        (h.purpose ?? h.stage ?? 'Hearing')
+                                            .toUpperCase(),
+                                        style: GoogleFonts.inter(
+                                          color: color,
+                                          fontSize: 9.sp,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            color: isDark
+                                ? const Color(0xFF475569)
+                                : const Color(0xFFCBD5E1),
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
         );
       },
       loading: () => const SizedBox.shrink(),
@@ -164,34 +271,62 @@ class DailyBoardWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyBoard(DateTime today) {
+  Widget _buildEmptyBoard(DateTime today, bool isDark) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 40.h, horizontal: 24.w),
-      decoration: AppTheme.cardDecoration(),
+      padding: EdgeInsets.symmetric(vertical: 36.h, horizontal: 24.w),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : const Color(0xFFE2E8F0),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
         children: [
-          const Icon(
-            Icons.event_available_rounded,
-            size: 32,
-            color: Color(0xFF94A3B8),
+          Container(
+            width: 56.w,
+            height: 56.w,
+            decoration: BoxDecoration(
+              color: isDark
+                  ? const Color(0xFF10B981).withValues(alpha: 0.1)
+                  : const Color(0xFFF0FDF4),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.event_available_rounded,
+              size: 28,
+              color: isDark
+                  ? const Color(0xFF10B981)
+                  : const Color(0xFF34D399),
+            ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 14.h),
           Text(
-            'NO HEARINGS TODAY',
+            'No Hearings Today',
             style: GoogleFonts.inter(
-              color: const Color(0xFF6B7280),
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
               fontWeight: FontWeight.w700,
-              fontSize: 12.sp,
-              letterSpacing: 1,
+              fontSize: 15.sp,
             ),
           ),
           SizedBox(height: 4.h),
           Text(
             DateFormat('EEEE, MMMM dd').format(today),
             style: GoogleFonts.inter(
-              color: const Color(0xFF4B5563),
-              fontSize: 11.sp,
+              color: isDark
+                  ? const Color(0xFF64748B)
+                  : const Color(0xFF94A3B8),
+              fontSize: 12.sp,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -202,11 +337,12 @@ class DailyBoardWidget extends ConsumerWidget {
 
   Color _itemColor(int index) {
     const colors = [
-      AppTheme.accent,
-      AppTheme.accentViolet,
+      Color(0xFF6366F1),
+      Color(0xFF8B5CF6),
       Color(0xFF10B981),
       Color(0xFF3B82F6),
       Color(0xFFF59E0B),
+      Color(0xFFEC4899),
     ];
     return colors[index % colors.length];
   }
