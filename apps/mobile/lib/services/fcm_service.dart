@@ -327,16 +327,40 @@ class FcmService {
   static void _performNavigation(BuildContext ctx, String type, Map<String, dynamic> data) {
     try {
       if (type == 'dm_message') {
+        // ─── 1-on-1 DM notification → open DM chat ──────────
         final conversationId = data['conversation_id'];
-        if (conversationId != null) {
+        if (conversationId != null && conversationId.toString().isNotEmpty) {
           debugPrint('FCM: Pushing route /dm/$conversationId');
           GoRouter.of(ctx).push('/dm/$conversationId');
         } else {
-          debugPrint('FCM: conversation_id is null');
+          debugPrint('FCM: conversation_id is null for dm_message');
         }
       } else if (type == 'chat_message') {
+        // ─── Digital Chambers notification → open chambers ───
         debugPrint('FCM: Pushing route /chambers-chat');
         GoRouter.of(ctx).push('/chambers-chat');
+      } else if (type == 'hearing_reminder' || type == 'court_diary') {
+        // ─── Court Diary / Hearing Reminder → open case ─────
+        final caseId = data['case_id'];
+        if (caseId != null && caseId.toString().isNotEmpty) {
+          debugPrint('FCM: Pushing route /cases/$caseId');
+          GoRouter.of(ctx).push('/cases/$caseId');
+        } else {
+          debugPrint('FCM: case_id is null for hearing notification');
+        }
+      } else {
+        // ─── Fallback: detect from payload fields ────────────
+        final conversationId = data['conversation_id'];
+        final caseId = data['case_id'];
+        if (conversationId != null && conversationId.toString().isNotEmpty) {
+          debugPrint('FCM: Fallback → /dm/$conversationId');
+          GoRouter.of(ctx).push('/dm/$conversationId');
+        } else if (caseId != null && caseId.toString().isNotEmpty) {
+          debugPrint('FCM: Fallback → /cases/$caseId');
+          GoRouter.of(ctx).push('/cases/$caseId');
+        } else {
+          debugPrint('FCM: Unknown notification type "$type" with no matching payload');
+        }
       }
     } catch (e) {
       debugPrint('FCM: Navigation failed with error: $e');

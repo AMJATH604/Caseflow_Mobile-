@@ -8,7 +8,8 @@ import '../theme/app_theme.dart';
 import '../components/profile_avatar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// Unified Chat Hub containing Chambers Group and DM conversations
+/// Unified Chat Hub — WhatsApp-style full-screen layout
+/// with search bar, filter chips, separate Chambers & DMs.
 class ChatHubScreen extends ConsumerStatefulWidget {
   const ChatHubScreen({super.key});
 
@@ -23,6 +24,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
   String? _myUserId;
   String? _myFirmId;
   String _searchQuery = '';
+  int _selectedFilter = 0; // 0=All, 1=Unread, 2=Chambers, 3=DMs
 
   @override
   void initState() {
@@ -140,172 +142,257 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
   }
 
   List<Map<String, dynamic>> get _filteredConversations {
-    if (_searchQuery.isEmpty) return _conversations;
-    final q = _searchQuery.toLowerCase();
-    return _conversations.where((conv) {
-      final partner = conv['partner'] as Map<String, dynamic>;
-      final name = (partner['full_name'] ?? '').toString().toLowerCase();
-      return name.contains(q);
-    }).toList();
+    var list = _conversations;
+
+    // Apply search filter
+    if (_searchQuery.isNotEmpty) {
+      final q = _searchQuery.toLowerCase();
+      list = list.where((conv) {
+        final partner = conv['partner'] as Map<String, dynamic>;
+        final name = (partner['full_name'] ?? '').toString().toLowerCase();
+        return name.contains(q);
+      }).toList();
+    }
+
+    // Apply chip filter for unread
+    if (_selectedFilter == 1) {
+      list = list.where((conv) => (conv['unread_count'] as int? ?? 0) > 0).toList();
+    }
+
+    return list;
   }
+
+  // ═══════════════════════════════════════════════════════
+  // BUILD — WhatsApp-style full-screen layout
+  // ═══════════════════════════════════════════════════════
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final headerColor = isDark ? const Color(0xFF202C33) : const Color(0xFF008069);
     final bgColor = isDark ? const Color(0xFF111B21) : Colors.white;
+    final accentColor = isDark ? const Color(0xFF00A884) : const Color(0xFF008069);
 
     return Scaffold(
       backgroundColor: bgColor,
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar(
-            expandedHeight: 140,
-            floating: false,
-            pinned: true,
-            backgroundColor: headerColor,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            iconTheme: const IconThemeData(color: Colors.white),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                color: headerColor,
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(20.w, 80.h, 20.w, 14.h),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'CaseFlow Messenger',
-                        style: GoogleFonts.inter(
-                          fontSize: 22.sp,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ─── Top Bar (Title + Action Icons) ──────────
+            Padding(
+              padding: EdgeInsets.fromLTRB(20.w, 16.h, 12.w, 0),
+              child: Row(
+                children: [
+                  // Back button
+                  InkWell(
+                    onTap: () => context.pop(),
+                    borderRadius: BorderRadius.circular(20.r),
+                    child: Padding(
+                      padding: EdgeInsets.all(4.r),
+                      child: Icon(
+                        Icons.arrow_back_rounded,
+                        color: isDark ? Colors.white : const Color(0xFF111B21),
+                        size: 24,
                       ),
-                      SizedBox(height: 12.h),
-                      // Search bar — fixed visibility
-                      Container(
-                        height: 40.h,
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.12)
-                              : Colors.white.withValues(alpha: 0.25),
-                          borderRadius: BorderRadius.circular(10.r),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.15),
-                          ),
-                        ),
-                        child: TextField(
-                          onChanged: (val) => setState(() => _searchQuery = val),
-                          decoration: InputDecoration(
-                            hintText: 'Search conversations...',
-                            hintStyle: GoogleFonts.inter(
-                              color: Colors.white.withValues(alpha: 0.7),
-                              fontSize: 14.sp,
-                            ),
-                            prefixIcon: Icon(
-                              Icons.search_rounded,
-                              color: Colors.white.withValues(alpha: 0.8),
-                              size: 20,
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(vertical: 10.h),
-                          ),
-                          style: GoogleFonts.inter(
-                            fontSize: 14.sp,
-                            color: Colors.white,
-                          ),
-                          cursorColor: Colors.white,
-                        ),
-                      ),
-                    ],
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'CaseFlow',
+                    style: GoogleFonts.inter(
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.w700,
+                      color: accentColor,
+                    ),
+                  ),
+                  const Spacer(),
+                  _actionIcon(Icons.camera_alt_outlined, isDark, () {}),
+                  _actionIcon(Icons.more_vert_rounded, isDark, () {}),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 14.h),
+
+            // ─── Search Bar Pill ─────────────────────────
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Container(
+                height: 40.h,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.06)
+                      : const Color(0xFFF0F2F5),
+                  borderRadius: BorderRadius.circular(24.r),
+                ),
+                child: TextField(
+                  onChanged: (val) => setState(() => _searchQuery = val),
+                  decoration: InputDecoration(
+                    hintText: 'Ask Meta AI or Search',
+                    hintStyle: GoogleFonts.inter(
+                      color: isDark
+                          ? const Color(0xFF8696A0)
+                          : const Color(0xFF667781),
+                      fontSize: 14.sp,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: isDark
+                          ? const Color(0xFF8696A0)
+                          : const Color(0xFF667781),
+                      size: 22,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 10.h),
+                  ),
+                  style: GoogleFonts.inter(
+                    fontSize: 14.sp,
+                    color: isDark
+                        ? const Color(0xFFE9EDEF)
+                        : const Color(0xFF111B21),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
-        body: _loading
-            ? Center(
-                child: CircularProgressIndicator(
-                  color: isDark ? const Color(0xFF00A884) : const Color(0xFF008069),
-                ),
-              )
-            : RefreshIndicator(
-                onRefresh: _loadAllChats,
-                color: const Color(0xFF00A884),
-                child: ListView(
-                  padding: EdgeInsets.fromLTRB(0, 0, 0, 100.h),
-                  children: [
-                    // ═══ CHAMBERS SECTION ═══
-                    if (_chambersInfo != null && _searchQuery.isEmpty) ...[
-                      _buildSectionHeader('CHAMBERS', isDark),
-                      _buildChambersTile(isDark),
-                      // Divider
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 78.w),
-                        child: Divider(
-                          height: 1,
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.06)
-                              : const Color(0xFFE8E8E8),
-                        ),
-                      ),
-                    ],
 
-                    // ═══ MESSAGES SECTION ═══
-                    _buildSectionHeader('MESSAGES', isDark),
-                    if (_filteredConversations.isEmpty)
-                      _buildEmptyDmsState(isDark)
-                    else
-                      ..._filteredConversations.map(
-                        (conv) => _buildConversationTile(conv, isDark),
-                      ),
-                  ],
-                ),
+            SizedBox(height: 12.h),
+
+            // ─── Filter Chips ────────────────────────────
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Row(
+                children: [
+                  _filterChip('All', 0, isDark, accentColor),
+                  SizedBox(width: 8.w),
+                  _filterChip('Unread', 1, isDark, accentColor),
+                  SizedBox(width: 8.w),
+                  _filterChip('Chambers', 2, isDark, accentColor),
+                  SizedBox(width: 8.w),
+                  _filterChip('DMs', 3, isDark, accentColor),
+                ],
               ),
+            ),
+
+            SizedBox(height: 8.h),
+
+            // ─── Chat List ───────────────────────────────
+            Expanded(
+              child: _loading
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        color: accentColor,
+                        strokeWidth: 2.5,
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: _loadAllChats,
+                      color: accentColor,
+                      child: ListView(
+                        padding: EdgeInsets.fromLTRB(0, 0, 0, 100.h),
+                        children: _buildChatListItems(isDark),
+                      ),
+                    ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAdvocatePicker(context),
         backgroundColor: isDark ? const Color(0xFF00A884) : const Color(0xFF008069),
         elevation: 4,
         heroTag: 'new_dm_fab',
-        child: const Icon(Icons.message_rounded, color: Colors.white, size: 22),
+        child: const Icon(Icons.add_comment_rounded, color: Colors.white, size: 22),
       ),
     );
   }
 
-  Widget _buildSectionHeader(String label, bool isDark) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 6.h),
-      child: Row(
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 11.sp,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
-              color: isDark
-                  ? const Color(0xFF00A884)
-                  : const Color(0xFF008069),
-            ),
+  List<Widget> _buildChatListItems(bool isDark) {
+    final showChambers = _selectedFilter == 0 || _selectedFilter == 2;
+    final showDms = _selectedFilter == 0 || _selectedFilter == 1 || _selectedFilter == 3;
+
+    final List<Widget> items = [];
+
+    // Chambers tile
+    if (showChambers && _chambersInfo != null && _searchQuery.isEmpty) {
+      items.add(_buildChambersTile(isDark));
+    }
+
+    // DM tiles
+    if (showDms) {
+      final convs = _filteredConversations;
+      if (convs.isEmpty && !showChambers) {
+        items.add(_buildEmptyDmsState(isDark));
+      } else {
+        for (final conv in convs) {
+          items.add(_buildConversationTile(conv, isDark));
+        }
+      }
+    }
+
+    // If nothing to show at all
+    if (items.isEmpty) {
+      items.add(_buildEmptyDmsState(isDark));
+    }
+
+    return items;
+  }
+
+  Widget _actionIcon(IconData icon, bool isDark, VoidCallback onTap) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20.r),
+        child: Padding(
+          padding: EdgeInsets.all(10.r),
+          child: Icon(
+            icon,
+            color: isDark ? const Color(0xFFAEBDC6) : const Color(0xFF54656F),
+            size: 22,
           ),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: Container(
-              height: 1,
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.04)
-                  : const Color(0xFFF1F5F9),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
+
+  Widget _filterChip(String label, int index, bool isDark, Color accent) {
+    final isSelected = _selectedFilter == index;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedFilter = index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 7.h),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? (isDark
+                  ? accent.withValues(alpha: 0.2)
+                  : accent.withValues(alpha: 0.12))
+              : (isDark
+                  ? Colors.white.withValues(alpha: 0.06)
+                  : const Color(0xFFF0F2F5)),
+          borderRadius: BorderRadius.circular(20.r),
+          border: isSelected
+              ? Border.all(color: accent.withValues(alpha: 0.4), width: 1)
+              : null,
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 13.sp,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            color: isSelected
+                ? accent
+                : (isDark
+                    ? const Color(0xFF8696A0)
+                    : const Color(0xFF667781)),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ─── Chambers Tile ─────────────────────────────────────
 
   Widget _buildChambersTile(bool isDark) {
     final lastMsg = _chambersInfo!['last_message'] as Map<String, dynamic>?;
@@ -415,6 +502,8 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
     );
   }
 
+  // ─── DM Conversation Tile ──────────────────────────────
+
   Widget _buildConversationTile(Map<String, dynamic> conv, bool isDark) {
     final partner = conv['partner'] as Map<String, dynamic>;
     final lastMsg = conv['last_message'] as Map<String, dynamic>?;
@@ -431,9 +520,6 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
         time = DateFormat('h:mm a').format(dt.toLocal());
       } else {
         time = DateFormat('MMM d').format(dt.toLocal());
-      }
-      if (lastMsg['sender_id'] == _myUserId) {
-        preview = 'You: $preview';
       }
     }
 
@@ -502,7 +588,9 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                         ],
                         Expanded(
                           child: Text(
-                            preview,
+                            lastMsg != null && lastMsg['sender_id'] == _myUserId
+                                ? 'You: $preview'
+                                : preview,
                             style: GoogleFonts.inter(
                               fontSize: 14.sp,
                               color: isDark
@@ -697,7 +785,7 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final headerColor = isDark ? const Color(0xFF202C33) : const Color(0xFF008069);
+    final accentColor = isDark ? const Color(0xFF00A884) : const Color(0xFF008069);
 
     return DraggableScrollableSheet(
       initialChildSize: 0.8,
@@ -714,7 +802,7 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
             Container(
               padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 14.h),
               decoration: BoxDecoration(
-                color: headerColor,
+                color: accentColor,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
               ),
               child: Column(
@@ -790,7 +878,7 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
               child: _loading
                   ? Center(
                       child: CircularProgressIndicator(
-                        color: isDark ? const Color(0xFF00A884) : const Color(0xFF008069),
+                        color: accentColor,
                       ),
                     )
                   : _filtered.isEmpty

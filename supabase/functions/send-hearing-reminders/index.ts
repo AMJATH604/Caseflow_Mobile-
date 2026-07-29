@@ -282,6 +282,7 @@ Deno.serve(async (req: Request) => {
                       body: body,
                     },
                     data: {
+                      type: "hearing_reminder",
                       case_id: hearing.case_id,
                       hearing_id: hearing.id,
                       reminder_type: reminder_type,
