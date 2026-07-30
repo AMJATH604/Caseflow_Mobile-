@@ -93,13 +93,7 @@ class MobileMoreSheet extends ConsumerWidget {
                 Colors.purple,
                 '/payments',
               ),
-              _buildMenuItem(
-                context,
-                Icons.handyman_rounded,
-                'Tools',
-                Colors.teal,
-                '/tools',
-              ),
+
               _buildMenuItem(
                 context,
                 Icons.assignment_ind_rounded,
