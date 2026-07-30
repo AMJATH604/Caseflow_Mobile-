@@ -55,7 +55,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
     final paginatedState = ref.watch(paginatedCasesProvider);
     final rawCases = paginatedState.items;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final currentUserId = BaseRepository.client.auth.currentUser?.id;
+    final currentUserId = SupabaseService.client.auth.currentUser?.id;
 
     // Filter & Sort
     final filteredCases = _getFilteredAndSortedCases(rawCases);
