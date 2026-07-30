@@ -69,6 +69,7 @@ class DashboardScreen extends ConsumerWidget {
         },
         color: AppTheme.accent,
         child: SingleChildScrollView(
+          key: const PageStorageKey('dashboard_scroll_view'),
           physics: const AlwaysScrollableScrollPhysics(),
           child: statsAsync.when(
             skipLoadingOnRefresh: true,

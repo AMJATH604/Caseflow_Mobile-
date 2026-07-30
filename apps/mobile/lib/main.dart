@@ -92,9 +92,15 @@ void main() async {
   // Create a ProviderContainer so we can wire RealtimeSyncService callback
   final container = ProviderContainer();
 
-  // Wire the Realtime callback to increment dataRefreshProvider
-  RealtimeSyncService().onDataChanged = () {
-    container.read(dataRefreshProvider.notifier).state++;
+  // Wire the Realtime callback for table-specific Riverpod invalidations
+  RealtimeSyncService().onTableChanged = (table) {
+    if (table == 'tasks') {
+      container.invalidate(tasksProvider);
+    } else if (table == 'strategy_tasks') {
+      container.invalidate(myStrategyTasksProvider);
+    } else {
+      container.read(dataRefreshProvider.notifier).state++;
+    }
   };
 
   // Initialize Realtime if user is already signed in (app restart scenario)

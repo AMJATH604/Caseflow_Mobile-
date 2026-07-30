@@ -13,8 +13,11 @@ class RealtimeSyncService {
   static final RealtimeSyncService _instance = RealtimeSyncService._();
   factory RealtimeSyncService() => _instance;
 
-  /// Callback that increments [dataRefreshProvider] in the Riverpod container.
-  /// Set this from main.dart after ProviderScope is available.
+  /// Callback that receives table-specific Realtime changes.
+  /// Set this from main.dart to invalidate specific providers (e.g. tasksProvider only).
+  void Function(String table)? onTableChanged;
+
+  /// Legacy global callback fallback.
   VoidCallback? onDataChanged;
 
   /// Tracks whether we are currently subscribed.
@@ -63,7 +66,7 @@ class RealtimeSyncService {
               callback: (payload) {
                 debugPrint(
                     'Realtime: ${payload.eventType} on $table');
-                _triggerRefresh();
+                _triggerRefresh(table);
               },
             )
             .subscribe((status, [error]) {
@@ -79,14 +82,17 @@ class RealtimeSyncService {
     debugPrint('RealtimeSyncService: Subscribed to ${_monitoredTables.length} tables');
   }
 
-  /// Debounced refresh trigger.
-  /// Batches multiple rapid events (e.g., bulk imports) into a single
-  /// UI refresh within a 500ms window.
-  void _triggerRefresh() {
+  /// Debounced refresh trigger per table.
+  /// Batches multiple rapid events into a targeted UI refresh.
+  void _triggerRefresh(String table) {
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
-      debugPrint('RealtimeSyncService: Triggering global data refresh');
-      onDataChanged?.call();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      debugPrint('RealtimeSyncService: Triggering refresh for table: $table');
+      if (onTableChanged != null) {
+        onTableChanged!(table);
+      } else {
+        onDataChanged?.call();
+      }
     });
   }
 
