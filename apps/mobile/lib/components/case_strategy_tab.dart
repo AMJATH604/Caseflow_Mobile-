@@ -166,7 +166,7 @@ class _CaseStrategyTabState extends ConsumerState<CaseStrategyTab> {
           child: tasks.isEmpty ? _buildEmptyState() : _buildColumns(grouped),
         ),
 
-        // ─── Bottom action bar ───────────────────
+        // ─── Bottom action bar (Always visible so tasks can be added) ───
         _buildBottomBar(),
       ],
     );
