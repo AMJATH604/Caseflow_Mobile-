@@ -75,6 +75,7 @@ class _TaskWidgetState extends ConsumerState<TaskWidget>
                   children: [
                     // Progress ring
                     tasksAsync.when(
+                      skipLoadingOnRefresh: true,
                       data: (tasks) => _buildProgressRing(tasks, isDark),
                       loading: () => SizedBox(
                         width: 44.w,
@@ -103,6 +104,7 @@ class _TaskWidgetState extends ConsumerState<TaskWidget>
                           ),
                           SizedBox(height: 2.h),
                           tasksAsync.when(
+                            skipLoadingOnRefresh: true,
                             data: (tasks) {
                               final done =
                                   tasks.where((t) => t.isCompleted).length;
@@ -200,6 +202,7 @@ class _TaskWidgetState extends ConsumerState<TaskWidget>
 
           // ─── Task List ─────────────────────────────────
           tasksAsync.when(
+            skipLoadingOnRefresh: true,
             data: (tasks) {
               final filtered = _filterTasks(tasks);
               if (filtered.isEmpty) {

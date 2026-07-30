@@ -34,8 +34,8 @@ class DashboardScreen extends ConsumerWidget {
     final profileAsync = ref.watch(userProfileProvider);
     final profile = profileAsync.valueOrNull;
 
-    // If the profile is loading, show a general loading indicator
-    if (profileAsync.isLoading) {
+    // If the profile is loading for the first time (no cached value), show loading
+    if (profileAsync.isLoading && !profileAsync.hasValue) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator(color: AppTheme.accent)),
       );
@@ -71,6 +71,7 @@ class DashboardScreen extends ConsumerWidget {
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: statsAsync.when(
+            skipLoadingOnRefresh: true,
             data:
                 (stats) =>
                     isMobile

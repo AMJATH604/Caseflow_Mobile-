@@ -44,6 +44,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
             ),
             SizedBox(height: 16.h),
             hearingsAsync.when(
+              skipLoadingOnRefresh: true,
               data: (hearings) {
                 // Pre-compute markers for the calendar
                 final hearMap = <DateTime, List<Hearing>>{};

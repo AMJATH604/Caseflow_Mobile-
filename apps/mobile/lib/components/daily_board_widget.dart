@@ -16,6 +16,7 @@ class DailyBoardWidget extends ConsumerWidget {
     final hearingsAsync = ref.watch(hearingsProvider);
 
     return hearingsAsync.when(
+      skipLoadingOnRefresh: true,
       data: (allHearings) {
         final today = DateTime.now();
         final todayStr = DateFormat('yyyy-MM-dd').format(today);
