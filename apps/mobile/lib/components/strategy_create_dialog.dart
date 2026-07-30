@@ -237,12 +237,14 @@ class _StrategyCreateDialogState extends State<StrategyCreateDialog> {
                       value: null,
                       child: Text('Unassigned'),
                     ),
-                    ...widget.firmMembers.map(
-                      (m) => DropdownMenuItem(
-                        value: m['id'] as String,
-                        child: Text(m['full_name'] as String? ?? 'Member'),
-                      ),
-                    ),
+                    ...widget.firmMembers
+                        .where((m) => m['id'] != null)
+                        .map(
+                          (m) => DropdownMenuItem<String?>(
+                            value: m['id'].toString(),
+                            child: Text(m['full_name']?.toString() ?? 'Member'),
+                          ),
+                        ),
                   ],
                   onChanged: (v) => setState(() => _assignedTo = v),
                 ),

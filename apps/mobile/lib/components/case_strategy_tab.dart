@@ -40,7 +40,8 @@ class _CaseStrategyTabState extends ConsumerState<CaseStrategyTab> {
       if (mounted) {
         setState(() {
           _firmMembers = members
-              .map((m) => {'id': m.memberId, 'full_name': m.memberName})
+              .where((m) => m.memberId != null)
+              .map((m) => {'id': m.memberId!, 'full_name': m.memberName ?? 'Member'})
               .toList();
           _membersLoaded = true;
         });
