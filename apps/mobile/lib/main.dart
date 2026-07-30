@@ -16,6 +16,7 @@ import 'components/dialogs/payment_capture_overlay.dart';
 import 'theme/app_theme.dart';
 import 'router/app_router.dart';
 import 'services/app_localizations.dart';
+import 'services/realtime_sync_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 /// Top-level handler for background/terminated FCM messages.
@@ -88,10 +89,19 @@ void main() async {
     ),
   );
 
-  // Initialize FCM if user is already signed in (app restart scenario)
+  // Create a ProviderContainer so we can wire RealtimeSyncService callback
+  final container = ProviderContainer();
+
+  // Wire the Realtime callback to increment dataRefreshProvider
+  RealtimeSyncService().onDataChanged = () {
+    container.read(dataRefreshProvider.notifier).state++;
+  };
+
+  // Initialize Realtime if user is already signed in (app restart scenario)
   if (Supabase.instance.client.auth.currentSession != null) {
     Future.delayed(const Duration(seconds: 2), () {
       FcmService().initialize();
+      RealtimeSyncService().initialize();
     });
     // Set Crashlytics user identifier
     final userId = Supabase.instance.client.auth.currentUser?.id;
@@ -101,11 +111,12 @@ void main() async {
     }
   }
 
-  // Listen for future auth changes to init/cleanup FCM
+  // Listen for future auth changes to init/cleanup FCM + Realtime
   Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
     if (data.event == AuthChangeEvent.signedIn) {
       Future.delayed(const Duration(seconds: 2), () {
         FcmService().initialize();
+        RealtimeSyncService().initialize();
       });
       // Track user in Crashlytics + Analytics on sign-in
       final userId = data.session?.user.id;
@@ -116,10 +127,11 @@ void main() async {
     } else if (data.event == AuthChangeEvent.signedOut) {
       FirebaseCrashlytics.instance.setUserIdentifier('');
       AnalyticsService.setUserId(null);
+      RealtimeSyncService().dispose();
     }
   });
 
-  runApp(const ProviderScope(child: CaseFlowApp()));
+  runApp(UncontrolledProviderScope(container: container, child: const CaseFlowApp()));
 }
 
 /// Global navigator key for showing overlays from lifecycle events.

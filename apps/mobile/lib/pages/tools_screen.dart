@@ -431,10 +431,10 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: isMobile ? 2 : 4,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1.0,
+            crossAxisCount: isMobile ? 3 : 6,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: 0.85,
           ),
           itemCount: tools.length,
           itemBuilder: (context, index) {
@@ -461,7 +461,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: EdgeInsets.all(12.r),
+                    padding: EdgeInsets.all(10.r),
                     decoration: BoxDecoration(
                       color: tool['color'].withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(8.r),
@@ -469,19 +469,22 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
                         color: tool['color'].withValues(alpha: 0.1),
                       ),
                     ),
-                    child: Icon(tool['icon'], color: tool['color'], size: 22),
+                    child: Icon(tool['icon'], color: tool['color'], size: 20),
                   ),
-                  SizedBox(height: 12.h),
+                  SizedBox(height: 8.h),
                   Text(
                     tool['title'],
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
+                      fontSize: 11.sp,
                       color:
                           Theme.of(context).brightness == Brightness.dark
                               ? Colors.white
                               : Colors.black87,
                     ),
                     textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 4.h),
                   Padding(

@@ -310,6 +310,108 @@ class _TaskWidgetState extends ConsumerState<TaskWidget>
           child: InkWell(
             borderRadius: BorderRadius.circular(12.r),
             onTap: () async {
+              if (!isCompleted) {
+                // Marking as completed → ask for confirmation
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) {
+                    final dlgDark = Theme.of(ctx).brightness == Brightness.dark;
+                    return AlertDialog(
+                      backgroundColor: dlgDark
+                          ? const Color(0xFF1E293B)
+                          : Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      icon: Container(
+                        width: 48.w,
+                        height: 48.w,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check_circle_outline_rounded,
+                          color: Color(0xFF10B981),
+                          size: 28,
+                        ),
+                      ),
+                      title: Text(
+                        'Mark as Completed?',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 17.sp,
+                          color: dlgDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                      ),
+                      content: Text(
+                        'Are you sure you want to mark "${task.title}" as completed? This action can be undone.',
+                        style: GoogleFonts.inter(
+                          fontSize: 13.sp,
+                          color: dlgDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
+                          height: 1.5,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      actionsAlignment: MainAxisAlignment.center,
+                      actionsPadding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 16.h),
+                      actions: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.pop(ctx, false),
+                            style: OutlinedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(vertical: 12.h),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              side: BorderSide(
+                                color: dlgDark
+                                    ? const Color(0xFF334155)
+                                    : const Color(0xFFE2E8F0),
+                              ),
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.sp,
+                                color: dlgDark
+                                    ? const Color(0xFF94A3B8)
+                                    : const Color(0xFF64748B),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 12.w),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.pop(ctx, true),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF10B981),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(vertical: 12.h),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                            ),
+                            child: Text(
+                              'Complete',
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.sp,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+                if (confirm != true) return;
+              }
               await SupabaseService.updateTask(
                   task.id, {'is_completed': !isCompleted});
               ref.invalidate(tasksProvider);

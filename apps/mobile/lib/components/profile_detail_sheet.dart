@@ -11,6 +11,7 @@ import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
 import 'profile_avatar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../services/account_switcher_service.dart';
 
 /// Premium profile detail bottom sheet — Silicon-level design.
 ///
@@ -39,6 +40,8 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
   late Animation<double> _fadeIn;
   late Animation<Offset> _slideUp;
   bool _isUploadingPhoto = false;
+  List<Map<String, dynamic>> _savedAccounts = [];
+  bool _isSwitching = false;
 
   @override
   void initState() {
@@ -53,6 +56,18 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
     _controller.forward();
+    _loadSavedAccounts();
+  }
+
+  Future<void> _loadSavedAccounts() async {
+    // Auto-save current session
+    final profile = ref.read(userProfileProvider).valueOrNull;
+    await AccountSwitcherService.saveCurrentSession(
+      fullName: profile?.fullName,
+      avatarUrl: profile?.avatarUrl,
+    );
+    final accounts = await AccountSwitcherService.getSavedAccounts();
+    if (mounted) setState(() => _savedAccounts = accounts);
   }
 
   @override
@@ -111,6 +126,10 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
 
                         // ─── Hero Header ──────────────────
                         _buildHeroHeader(context, profile, isDark),
+
+                        // ─── Account Switcher ──────────────
+                        if (_savedAccounts.length > 1)
+                          _buildAccountSwitcher(context, profile, isDark),
 
                         // ─── Professional Info ────────────
                         _buildSection(
@@ -683,6 +702,267 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
     );
   }
 
+  // ─── ACCOUNT SWITCHER ──────────────────────────────
+
+  Widget _buildAccountSwitcher(
+    BuildContext context,
+    UserProfile currentProfile,
+    bool isDark,
+  ) {
+    final currentUserId = AccountSwitcherService.currentUserId;
+    final otherAccounts = _savedAccounts
+        .where((a) => a['userId'] != currentUserId)
+        .toList();
+
+    if (otherAccounts.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(
+          color: isDark
+              ? const Color(0xFF334155)
+              : const Color(0xFFE2E8F0),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 4),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.r),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: const Icon(
+                    Icons.switch_account_rounded,
+                    color: Color(0xFF2563EB),
+                    size: 16,
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Text(
+                  'SWITCH ACCOUNT',
+                  style: GoogleFonts.inter(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w800,
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 4.h),
+          // Account list
+          ...otherAccounts.map((account) => _buildAccountTile(
+            context,
+            account,
+            currentProfile,
+            isDark,
+          )),
+          SizedBox(height: 8.h),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAccountTile(
+    BuildContext context,
+    Map<String, dynamic> account,
+    UserProfile currentProfile,
+    bool isDark,
+  ) {
+    final email = account['email'] as String? ?? '';
+    final fullName = account['fullName'] as String? ?? 'Account';
+    final initial = fullName.isNotEmpty ? fullName[0].toUpperCase() : '?';
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 2.h),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12.r),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12.r),
+          onTap: _isSwitching ? null : () => _switchAccount(context, account, currentProfile),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Row(
+              children: [
+                // Avatar
+                Container(
+                  width: 40.w,
+                  height: 40.w,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      initial,
+                      style: GoogleFonts.inter(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                // Name & email
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        fullName,
+                        style: GoogleFonts.inter(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : const Color(0xFF1E293B),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        email,
+                        style: GoogleFonts.inter(
+                          fontSize: 12.sp,
+                          color: isDark
+                              ? const Color(0xFF64748B)
+                              : const Color(0xFF94A3B8),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                // Switch indicator
+                if (_isSwitching)
+                  SizedBox(
+                    width: 20.w,
+                    height: 20.w,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppTheme.accent,
+                    ),
+                  )
+                else
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2563EB).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Text(
+                      'Switch',
+                      style: GoogleFonts.inter(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF2563EB),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _switchAccount(
+    BuildContext context,
+    Map<String, dynamic> account,
+    UserProfile currentProfile,
+  ) async {
+    setState(() => _isSwitching = true);
+
+    final success = await AccountSwitcherService.switchToAccount(
+      account,
+      currentFullName: currentProfile.fullName,
+      currentAvatarUrl: currentProfile.avatarUrl,
+    );
+
+    if (mounted) {
+      setState(() => _isSwitching = false);
+      if (success) {
+        Navigator.pop(context);
+        // Refresh all data for the new account
+        ref.invalidate(userProfileProvider);
+        ref.read(dataRefreshProvider.notifier).state++;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.switch_account_rounded,
+                    color: Colors.white, size: 18),
+                SizedBox(width: 10.w),
+                Text(
+                  'Switched to ${account['fullName'] ?? account['email']}',
+                  style: GoogleFonts.inter(fontSize: 13.sp),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFF059669),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline_rounded,
+                    color: Colors.white, size: 18),
+                SizedBox(width: 10.w),
+                const Text('Session expired. Please sign in again.'),
+              ],
+            ),
+            backgroundColor: const Color(0xFFEF4444),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+          ),
+        );
+        // Remove the expired account
+        await AccountSwitcherService.removeAccount(
+          account['userId'] as String,
+        );
+        await _loadSavedAccounts();
+      }
+    }
+  }
+
   // ─── ACTIONS ────────────────────────────────────────
 
   Widget _buildActionsSection(BuildContext context, bool isDark) {
@@ -690,6 +970,17 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Column(
         children: [
+          _buildActionButton(
+            isDark,
+            icon: Icons.person_add_alt_rounded,
+            label: 'Add Another Account',
+            color: const Color(0xFF2563EB),
+            onTap: () {
+              Navigator.pop(context);
+              GoRouter.of(context).go('/login');
+            },
+          ),
+          SizedBox(height: 12.h),
           _buildActionButton(
             isDark,
             icon: Icons.settings_rounded,
