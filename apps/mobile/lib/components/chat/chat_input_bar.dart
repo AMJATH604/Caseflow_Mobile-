@@ -42,9 +42,9 @@ class ChatInputBar extends StatelessWidget {
     this.onTextChanged,
   });
 
-  // WhatsApp teal accent
-  static const _teal = Color(0xFF00A884);
-  static const _tealDark = Color(0xFF005C4B);
+  // Accent blue styling
+  static const _accentBlue = Color(0xFF2563EB);
+  static const _accentDark = Color(0xFF1D4ED8);
 
   String _formatDuration(int seconds) {
     final m = seconds ~/ 60;
@@ -295,11 +295,11 @@ class ChatInputBar extends StatelessWidget {
           width: 48.w,
           height: 48.w,
           decoration: BoxDecoration(
-            color: isDark ? _tealDark : _teal,
+            color: isDark ? _accentDark : _accentBlue,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: (isDark ? _tealDark : _teal).withValues(alpha: 0.3),
+                color: (isDark ? _accentDark : _accentBlue).withValues(alpha: 0.35),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),

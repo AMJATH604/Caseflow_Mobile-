@@ -745,10 +745,10 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     if (_profile == null) {
       return Scaffold(
         backgroundColor:
-            isDark ? const Color(0xFF0B141A) : const Color(0xFFECE5DD),
+            isDark ? const Color(0xFF090D16) : const Color(0xFFF8FAFC),
         body: Center(
           child: CircularProgressIndicator(
-            color: isDark ? const Color(0xFF00A884) : const Color(0xFF008069),
+            color: AppTheme.accent,
           ),
         ),
       );
@@ -762,9 +762,9 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF0B141A) : const Color(0xFFECE5DD),
+          isDark ? const Color(0xFF090D16) : const Color(0xFFF8FAFC),
       appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF202C33) : const Color(0xFF008069),
+        backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFF1E1B4B),
         foregroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,

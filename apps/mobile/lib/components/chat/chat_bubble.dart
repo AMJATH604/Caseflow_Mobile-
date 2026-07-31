@@ -83,14 +83,12 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ─── WhatsApp-accurate bubble colors ─────────────
+    // ─── Modern High-Contrast Bubble Colors ────────────
     final bubbleColor = isMe
-        ? (isDark ? const Color(0xFF005C4B) : const Color(0xFFD9FDD3))
-        : (isDark ? const Color(0xFF202C33) : Colors.white);
-    final textColor = isDark ? const Color(0xFFE9EDEF) : const Color(0xFF111B21);
-    final metaColor = isMe
-        ? (isDark ? const Color(0xFF8696A0) : const Color(0xFF667781))
-        : (isDark ? const Color(0xFF8696A0) : const Color(0xFF667781));
+        ? (isDark ? const Color(0xFF1E293B) : Colors.white)
+        : (isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9));
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final metaColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -98,7 +96,7 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
         onLongPress: onLongPress,
         child: Container(
           margin: EdgeInsets.only(
-            bottom: 2.h,
+            bottom: 4.h,
             left: isMe ? 64.w : 0,
             right: isMe ? 0 : 64.w,
           ),
@@ -108,16 +106,26 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
           decoration: BoxDecoration(
             color: bubbleColor,
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(isMe ? 12.r : 3.r),
-              topRight: Radius.circular(isMe ? 3.r : 12.r),
-              bottomLeft: Radius.circular(12.r),
-              bottomRight: Radius.circular(12.r),
+              topLeft: Radius.circular(16.r),
+              topRight: Radius.circular(16.r),
+              bottomLeft: Radius.circular(isMe ? 16.r : 4.r),
+              bottomRight: Radius.circular(isMe ? 4.r : 16.r),
+            ),
+            border: Border.all(
+              color: isMe
+                  ? (isDark
+                      ? const Color(0xFF334155)
+                      : const Color(0xFFE2E8F0))
+                  : (isDark
+                      ? const Color(0xFF1E293B)
+                      : const Color(0xFFE2E8F0)),
+              width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.15 : 0.06),
-                blurRadius: 1,
-                offset: const Offset(0, 1),
+                color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.04),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
               ),
             ],
           ),

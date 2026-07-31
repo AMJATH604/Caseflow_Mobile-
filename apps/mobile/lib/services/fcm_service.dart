@@ -259,10 +259,15 @@ class FcmService {
     final androidDetails = AndroidNotificationDetails(
       channelId,
       channelName,
-      importance: Importance.high,
-      priority: Priority.high,
+      importance: Importance.max,
+      priority: Priority.max,
       playSound: true,
       enableVibration: true,
+      styleInformation: BigTextStyleInformation(
+        body,
+        contentTitle: title,
+        summaryText: isDm ? 'Direct Message' : (isChat ? 'Digital Chambers' : 'CaseFlow'),
+      ),
       icon: '@mipmap/ic_launcher',
     );
 

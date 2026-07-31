@@ -49,24 +49,31 @@ class ChatVoiceBubble extends StatelessWidget {
 
     return Container(
       width: 250.w,
-      padding: EdgeInsets.symmetric(vertical: 4.h),
+      padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 4.w),
       child: Row(
         children: [
           GestureDetector(
             onTap: () => onPlayVoice?.call(attachmentUrl),
             child: Container(
-              width: 40.w,
-              height: 40.h,
+              width: 42.w,
+              height: 42.h,
               decoration: BoxDecoration(
                 color: isMe
-                    ? Colors.white24
-                    : const Color(0xFF4F46E5).withValues(alpha: 0.1),
+                    ? AppTheme.accent
+                    : (isDark ? AppTheme.accent : const Color(0xFF2563EB)),
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.accent.withValues(alpha: 0.3),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Icon(
                 showPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                color: isMe ? Colors.white : const Color(0xFF4F46E5),
-                size: 24,
+                color: Colors.white,
+                size: 24.sp,
               ),
             ),
           ),
@@ -77,16 +84,16 @@ class ChatVoiceBubble extends StatelessWidget {
               children: [
                 SliderTheme(
                   data: SliderThemeData(
-                    trackHeight: 3,
-                    activeTrackColor:
-                        isMe ? Colors.white : const Color(0xFF4F46E5),
-                    inactiveTrackColor:
-                        isMe ? Colors.white30 : Colors.grey[300],
+                    trackHeight: 4,
+                    activeTrackColor: AppTheme.accent,
+                    inactiveTrackColor: isDark
+                        ? Colors.white.withValues(alpha: 0.15)
+                        : const Color(0xFFE2E8F0),
                     thumbShape: const RoundSliderThumbShape(
                       enabledThumbRadius: 6,
                     ),
-                    thumbColor:
-                        isMe ? Colors.white : const Color(0xFF4F46E5),
+                    thumbColor: AppTheme.accent,
+                    overlayColor: AppTheme.accent.withValues(alpha: 0.2),
                   ),
                   child: Slider(
                     value: progressValue.clamp(0.0, 1.0),
@@ -101,14 +108,15 @@ class ChatVoiceBubble extends StatelessWidget {
                       Text(
                         durationText,
                         style: TextStyle(
-                          fontSize: 10.sp,
-                          color: isMe ? Colors.white70 : Colors.black45,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                         ),
                       ),
-                      const Icon(
+                      Icon(
                         Icons.mic_rounded,
-                        size: 14,
-                        color: Color(0xFF10B981),
+                        size: 14.sp,
+                        color: AppTheme.accent,
                       ),
                     ],
                   ),

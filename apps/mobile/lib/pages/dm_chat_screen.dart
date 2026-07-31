@@ -856,9 +856,9 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
     if (_partnerProfile == null) {
       return Scaffold(
         backgroundColor:
-            isDark ? const Color(0xFF0B141A) : const Color(0xFFECE5DD),
+            isDark ? const Color(0xFF090D16) : const Color(0xFFF8FAFC),
         appBar: AppBar(
-          backgroundColor: isDark ? const Color(0xFF202C33) : const Color(0xFF008069),
+          backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFF1E1B4B),
           foregroundColor: Colors.white,
           title: const Text('Error'),
         ),
@@ -875,9 +875,9 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF0B141A) : const Color(0xFFECE5DD),
+          isDark ? const Color(0xFF090D16) : const Color(0xFFF8FAFC),
       appBar: AppBar(
-        backgroundColor: isDark ? const Color(0xFF202C33) : const Color(0xFF008069),
+        backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFF1E1B4B),
         foregroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
