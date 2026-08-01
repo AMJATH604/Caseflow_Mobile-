@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../main.dart'; // For rootNavigatorKey
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'supabase_service.dart';
 
 /// Handles Firebase Cloud Messaging (FCM) for server-side push notifications.
 class FcmService {
