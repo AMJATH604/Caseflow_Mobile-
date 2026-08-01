@@ -20,7 +20,7 @@ import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../components/profile_avatar.dart';
 import '../components/chat/chat_widgets.dart';
-import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart' as emoji;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DmChatScreen extends ConsumerStatefulWidget {
@@ -1261,12 +1261,12 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
           if (_showEmoji)
             SizedBox(
               height: 250.h,
-              child: EmojiPicker(
+              child: emoji.EmojiPicker(
                 textEditingController: _msgController,
-                config: Config(
+                config: emoji.Config(
                   height: 250.h,
                   checkPlatformCompatibility: true,
-                  emojiViewConfig: EmojiViewConfig(
+                  emojiViewConfig: emoji.EmojiViewConfig(
                     backgroundColor: isDark
                         ? const Color(0xFF111B21)
                         : const Color(0xFFF0F2F5),
