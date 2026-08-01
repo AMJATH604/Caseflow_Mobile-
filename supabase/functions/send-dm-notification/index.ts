@@ -136,10 +136,6 @@ Deno.serve(async (req: Request) => {
         const fcmPayload: any = {
           message: {
             token: t.token,
-            notification: {
-              title: title,
-              body: notificationBody,
-            },
             data: {
               type: "dm_message",
               title: title,
@@ -152,18 +148,11 @@ Deno.serve(async (req: Request) => {
             },
             android: {
               priority: "high",
-              notification: {
-                channel_id: "dm_messages_v2",
-                sound: "default",
-                click_action: "FLUTTER_NOTIFICATION_CLICK",
-                tag: `dm_${conversationId}`,
-                color: "#00A884",
-                icon: "ic_launcher",
-              },
             },
             apns: {
               payload: {
                 aps: {
+                  contentAvailable: true,
                   sound: "default",
                   badge: 1,
                 },
