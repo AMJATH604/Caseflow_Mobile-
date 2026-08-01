@@ -8,6 +8,7 @@ import '../main.dart'; // For rootNavigatorKey
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'supabase_service.dart';
+import 'app_constants.dart';
 
 /// Handles Firebase Cloud Messaging (FCM) for server-side push notifications.
 class FcmService {
@@ -381,6 +382,9 @@ class FcmService {
             debugPrint('FCM: Quick reply sent to Chambers $firmId');
           }
         }
+        if (response.id != null) {
+          _instance._localNotifications.cancel(response.id!);
+        }
         return; // Quick reply handled, do not navigate
       }
 
@@ -392,6 +396,9 @@ class FcmService {
             await SupabaseService.markDirectMessagesRead(conversationId);
             debugPrint('FCM: Marked conversation $conversationId as read');
           }
+        }
+        if (response.id != null) {
+          _instance._localNotifications.cancel(response.id!);
         }
         return; // Mark as read handled, do not navigate
       }
@@ -690,11 +697,29 @@ class _NotificationBannerState extends State<_NotificationBanner>
 /// in background or terminated state. Must be marked @pragma('vm:entry-point').
 @pragma('vm:entry-point')
 void notificationTapBackground(NotificationResponse response) async {
+  WidgetsFlutterBinding.ensureInitialized();
   debugPrint('FCM: Background notification action: ${response.actionId}, input: ${response.input}');
 
   if (response.payload == null) return;
 
   try {
+    try {
+      final client = Supabase.instance.client;
+      if (client.auth.currentSession == null) {
+        await Supabase.initialize(
+          url: AppConstants.supabaseUrl,
+          anonKey: AppConstants.supabaseAnonKey,
+        );
+      }
+    } catch (_) {
+      try {
+        await Supabase.initialize(
+          url: AppConstants.supabaseUrl,
+          anonKey: AppConstants.supabaseAnonKey,
+        );
+      } catch (_) {}
+    }
+
     final data = jsonDecode(response.payload!) as Map<String, dynamic>;
     final type = data['type'] ?? '';
 
@@ -732,6 +757,11 @@ void notificationTapBackground(NotificationResponse response) async {
           debugPrint('FCM: Marked DM conversation $conversationId as read in background');
         }
       }
+    }
+
+    if (response.id != null) {
+      final localNotif = FlutterLocalNotificationsPlugin();
+      await localNotif.cancel(response.id!);
     }
   } catch (e) {
     debugPrint('FCM: Error handling background notification response: $e');
