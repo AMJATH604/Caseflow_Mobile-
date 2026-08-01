@@ -259,7 +259,7 @@ class FcmService {
     StyleInformation styleInformation;
     if (isDm || isChat) {
       final senderName = data['sender_name'] ?? title.replaceAll('💬 ', '');
-      final mePerson = const Person(name: 'You', key: 'user_me');
+      const mePerson = Person(name: 'You', key: 'user_me');
       final senderPerson = Person(
         name: senderName,
         key: data['sender_id'] ?? senderName,
@@ -268,7 +268,7 @@ class FcmService {
       styleInformation = MessagingStyleInformation(
         mePerson,
         conversationTitle: isChat ? 'Digital Chambers' : null,
-        isGroupConversation: isChat,
+        groupConversation: isChat,
         messages: [
           Message(
             body,
