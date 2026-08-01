@@ -1,9 +1,12 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
+import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
 import '../components/profile_avatar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,11 +28,55 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
   String? _myFirmId;
   String _searchQuery = '';
   int _selectedFilter = 0; // 0=All, 1=Unread, 2=Chambers, 3=DMs
+  RealtimeChannel? _chatHubChannel;
+  bool _realtimeSubscribed = false;
 
   @override
   void initState() {
     super.initState();
     _loadAllChats();
+    _subscribeToRealtime();
+  }
+
+  @override
+  void dispose() {
+    if (_chatHubChannel != null) {
+      Supabase.instance.client.removeChannel(_chatHubChannel!);
+    }
+    super.dispose();
+  }
+
+  void _subscribeToRealtime() {
+    if (_realtimeSubscribed) return;
+    _realtimeSubscribed = true;
+
+    _chatHubChannel = Supabase.instance.client.channel('chat_hub_realtime_updates');
+    _chatHubChannel!
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'direct_conversations',
+          callback: (payload) {
+            if (mounted) _loadAllChats();
+          },
+        )
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'direct_messages',
+          callback: (payload) {
+            if (mounted) _loadAllChats();
+          },
+        )
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'case_discussions',
+          callback: (payload) {
+            if (mounted) _loadAllChats();
+          },
+        )
+        .subscribe();
   }
 
   Future<void> _loadAllChats() async {
@@ -141,6 +188,95 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
     );
   }
 
+  Future<void> _handleCameraTap() async {
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+      imageQuality: 70,
+    );
+    if (picked == null) return;
+
+    if (mounted) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (ctx) => _AdvocatePickerSheet(
+          initialAttachment: File(picked.path),
+        ),
+      );
+    }
+  }
+
+  Future<void> _markAllAsRead() async {
+    try {
+      for (final conv in _conversations) {
+        final unread = conv['unread_count'] as int? ?? 0;
+        if (unread > 0) {
+          await SupabaseService.markDirectMessagesRead(conv['id']);
+        }
+      }
+      await _loadAllChats();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('All messages marked as read ✅')),
+        );
+      }
+    } catch (e) {
+      debugPrint('Mark all read error: $e');
+    }
+  }
+
+  void _showOptionsMenu(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF111B21) : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 36.w,
+              height: 4.h,
+              margin: EdgeInsets.only(top: 10.h, bottom: 10.h),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white24 : Colors.black12,
+                borderRadius: BorderRadius.circular(2.r),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.refresh_rounded, color: Color(0xFF00A884)),
+              title: Text('Refresh Chats', style: GoogleFonts.inter(fontSize: 15.sp)),
+              onTap: () {
+                Navigator.pop(ctx);
+                _loadAllChats();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.mark_chat_read_rounded, color: Color(0xFF00A884)),
+              title: Text('Mark All as Read', style: GoogleFonts.inter(fontSize: 15.sp)),
+              onTap: () {
+                Navigator.pop(ctx);
+                _markAllAsRead();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.groups_rounded, color: Color(0xFF00A884)),
+              title: Text('Digital Chambers', style: GoogleFonts.inter(fontSize: 15.sp)),
+              onTap: () {
+                Navigator.pop(ctx);
+                context.push('/chambers-chat');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   List<Map<String, dynamic>> get _filteredConversations {
     var list = _conversations;
 
@@ -206,8 +342,8 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                     ),
                   ),
                   const Spacer(),
-                  _actionIcon(Icons.camera_alt_outlined, isDark, () {}),
-                  _actionIcon(Icons.more_vert_rounded, isDark, () {}),
+                  _actionIcon(Icons.camera_alt_outlined, isDark, _handleCameraTap),
+                  _actionIcon(Icons.more_vert_rounded, isDark, () => _showOptionsMenu(context)),
                 ],
               ),
             ),
@@ -678,7 +814,8 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
 // ═══════════════════════════════════════════════════════
 
 class _AdvocatePickerSheet extends ConsumerStatefulWidget {
-  const _AdvocatePickerSheet();
+  final File? initialAttachment;
+  const _AdvocatePickerSheet({this.initialAttachment});
 
   @override
   ConsumerState<_AdvocatePickerSheet> createState() =>
@@ -763,6 +900,21 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
             .select('id')
             .single();
         convId = newConv['id'];
+      }
+
+      if (widget.initialAttachment != null) {
+        final url = await SupabaseService.uploadDirectMessageAttachment(
+          file: widget.initialAttachment!,
+          conversationId: convId,
+        );
+        if (url != null) {
+          await SupabaseService.sendDirectMessage(
+            convId,
+            '📷 Photo',
+            attachmentUrl: url,
+            attachmentType: 'image',
+          );
+        }
       }
 
       if (mounted) {

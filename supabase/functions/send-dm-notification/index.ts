@@ -157,6 +157,8 @@ Deno.serve(async (req: Request) => {
                 sound: "default",
                 click_action: "FLUTTER_NOTIFICATION_CLICK",
                 tag: `dm_${conversationId}`,
+                color: "#00A884",
+                icon: "ic_launcher",
               },
             },
             apns: {

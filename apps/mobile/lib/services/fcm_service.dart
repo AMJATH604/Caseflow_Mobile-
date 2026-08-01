@@ -255,7 +255,36 @@ class FcmService {
       channelName = _hearingChannelName;
     }
 
-    // Create simple notification details without action buttons
+    // Build MessagingStyleInformation for messaging notifications (WhatsApp-style)
+    StyleInformation styleInformation;
+    if (isDm || isChat) {
+      final senderName = data['sender_name'] ?? title.replaceAll('💬 ', '');
+      final mePerson = const Person(name: 'You', key: 'user_me');
+      final senderPerson = Person(
+        name: senderName,
+        key: data['sender_id'] ?? senderName,
+      );
+
+      styleInformation = MessagingStyleInformation(
+        mePerson,
+        conversationTitle: isChat ? 'Digital Chambers' : null,
+        isGroupConversation: isChat,
+        messages: [
+          Message(
+            body,
+            DateTime.now(),
+            senderPerson,
+          ),
+        ],
+      );
+    } else {
+      styleInformation = BigTextStyleInformation(
+        body,
+        contentTitle: title,
+        summaryText: 'CaseFlow',
+      );
+    }
+
     final androidDetails = AndroidNotificationDetails(
       channelId,
       channelName,
@@ -263,12 +292,13 @@ class FcmService {
       priority: Priority.max,
       playSound: true,
       enableVibration: true,
-      styleInformation: BigTextStyleInformation(
-        body,
-        contentTitle: title,
-        summaryText: isDm ? 'Direct Message' : (isChat ? 'Digital Chambers' : 'CaseFlow'),
-      ),
+      styleInformation: styleInformation,
       icon: '@mipmap/ic_launcher',
+      color: const Color(0xFF00A884),
+      category: AndroidNotificationCategory.message,
+      groupKey: isDm
+          ? 'dm_${data['conversation_id']}'
+          : (isChat ? 'chat_${data['firm_id']}' : null),
     );
 
     final details = NotificationDetails(android: androidDetails);

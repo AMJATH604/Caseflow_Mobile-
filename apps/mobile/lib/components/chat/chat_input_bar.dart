@@ -21,6 +21,7 @@ class ChatInputBar extends StatelessWidget {
   final VoidCallback? onSend;
   final VoidCallback? onAttach;
   final VoidCallback? onCamera;
+  final VoidCallback? onEmoji;
   final VoidCallback? onStartRecording;
   final VoidCallback? onStopRecording;
   final VoidCallback? onCancelRecording;
@@ -36,6 +37,7 @@ class ChatInputBar extends StatelessWidget {
     this.onSend,
     this.onAttach,
     this.onCamera,
+    this.onEmoji,
     this.onStartRecording,
     this.onStopRecording,
     this.onCancelRecording,
@@ -186,7 +188,7 @@ class ChatInputBar extends StatelessWidget {
                         size: 24.sp,
                         color: iconColor,
                       ),
-                      onPressed: null, // Reserved for emoji picker
+                      onPressed: onEmoji,
                       padding: EdgeInsets.zero,
                       constraints: BoxConstraints(
                         minWidth: 36.w,

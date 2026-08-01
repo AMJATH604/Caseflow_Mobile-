@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS strategy_tasks (
                     CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
     due_date        DATE,
     linked_hearing_id UUID REFERENCES hearings(id) ON DELETE SET NULL,
-    firm_id         TEXT,
+    firm_id         UUID,
     is_auto_generated BOOLEAN DEFAULT false,
     completed_at    TIMESTAMPTZ,
     deleted_at      TIMESTAMPTZ,
@@ -110,7 +110,7 @@ CREATE POLICY "strategy_tasks_select" ON strategy_tasks
     FOR SELECT USING (
         created_by = auth.uid()
         OR assigned_to = auth.uid()
-        OR firm_id = auth.uid()::text
+        OR firm_id = auth.uid()
         OR firm_id = (SELECT firm_id FROM profiles WHERE id = auth.uid())
     );
 
@@ -123,14 +123,14 @@ CREATE POLICY "strategy_tasks_update" ON strategy_tasks
     FOR UPDATE USING (
         created_by = auth.uid()
         OR assigned_to = auth.uid()
-        OR firm_id = auth.uid()::text
+        OR firm_id = auth.uid()
     );
 
 -- Strategy Tasks: DELETE
 CREATE POLICY "strategy_tasks_delete" ON strategy_tasks
     FOR DELETE USING (
         created_by = auth.uid()
-        OR firm_id = auth.uid()::text
+        OR firm_id = auth.uid()
     );
 
 -- Task Comments: SELECT (visible if task is visible)

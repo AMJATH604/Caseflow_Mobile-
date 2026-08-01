@@ -20,6 +20,7 @@ import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../components/profile_avatar.dart';
 import '../components/chat/chat_widgets.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DmChatScreen extends ConsumerStatefulWidget {
@@ -42,6 +43,8 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
 
   DirectMessage? _replyingTo;
   List<DirectMessage> _currentMessagesList = [];
+  int _lastMessageCount = 0;
+  bool _showEmoji = false;
 
   // Local caching tracking
   final Map<String, bool> _localFilesExist = {};
@@ -1023,9 +1026,12 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (mounted) _checkLocalFiles(messages);
                 });
-                WidgetsBinding.instance.addPostFrameCallback(
-                  (_) => _scrollToBottom(),
-                );
+                if (messages.length > _lastMessageCount) {
+                  _lastMessageCount = messages.length;
+                  WidgetsBinding.instance.addPostFrameCallback(
+                    (_) => _scrollToBottom(),
+                  );
+                }
 
                 return ListView.builder(
                   controller: _scrollController,
@@ -1235,14 +1241,41 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
               onSelect: (type) => _sendAttachment(type: type),
             ),
             onCamera: () => _sendAttachment(type: 'camera'),
+            onEmoji: () {
+              if (_showEmoji) {
+                setState(() => _showEmoji = false);
+              } else {
+                FocusScope.of(context).unfocus();
+                setState(() => _showEmoji = true);
+              }
+            },
             onStartRecording: _startRecording,
             onStopRecording: _stopAndSendRecording,
             onCancelRecording: _cancelRecording,
             onTextChanged: (val) {
+              if (_showEmoji) setState(() => _showEmoji = false);
               _onTextChanged(val);
               setState(() {});
             },
           ),
+          if (_showEmoji)
+            SizedBox(
+              height: 250.h,
+              child: EmojiPicker(
+                textEditingController: _msgController,
+                config: Config(
+                  height: 250.h,
+                  checkPlatformCompatibility: true,
+                  emojiViewConfig: EmojiViewConfig(
+                    backgroundColor: isDark
+                        ? const Color(0xFF111B21)
+                        : const Color(0xFFF0F2F5),
+                    columns: 7,
+                    emojiSizeMax: 28 * (Platform.isIOS ? 1.2 : 1.0),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );

@@ -20,6 +20,7 @@ import '../services/providers.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../components/chat/chat_widgets.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Full-screen WhatsApp-style chambers chat.
@@ -39,6 +40,8 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
   final List<CaseComment> _optimisticNotices = [];
   CaseComment? _replyingTo;
   List<CaseComment> _currentMessagesList = [];
+  int _lastMessageCount = 0;
+  bool _showEmoji = false;
 
   // Local caching tracking
   final Map<String, bool> _localFilesExist = {};
@@ -886,9 +889,12 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       if (mounted) _checkLocalFiles(combined);
                     });
-                    WidgetsBinding.instance.addPostFrameCallback(
-                      (_) => _scrollToBottom(),
-                    );
+                    if (combined.length > _lastMessageCount) {
+                      _lastMessageCount = combined.length;
+                      WidgetsBinding.instance.addPostFrameCallback(
+                        (_) => _scrollToBottom(),
+                      );
+                    }
 
                     return ListView.builder(
                       controller: _scrollController,
@@ -1099,14 +1105,41 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
               onSelect: (type) => _sendAttachment(type: type),
             ),
             onCamera: () => _sendAttachment(type: 'camera'),
+            onEmoji: () {
+              if (_showEmoji) {
+                setState(() => _showEmoji = false);
+              } else {
+                FocusScope.of(context).unfocus();
+                setState(() => _showEmoji = true);
+              }
+            },
             onStartRecording: _startRecording,
             onStopRecording: _stopAndSendRecording,
             onCancelRecording: _cancelRecording,
             onTextChanged: (val) {
+              if (_showEmoji) setState(() => _showEmoji = false);
               _onTextChanged(val);
               setState(() {});
             },
           ),
+          if (_showEmoji)
+            SizedBox(
+              height: 250.h,
+              child: EmojiPicker(
+                textEditingController: _msgController,
+                config: Config(
+                  height: 250.h,
+                  checkPlatformCompatibility: true,
+                  emojiViewConfig: EmojiViewConfig(
+                    backgroundColor: isDark
+                        ? const Color(0xFF111B21)
+                        : const Color(0xFFF0F2F5),
+                    columns: 7,
+                    emojiSizeMax: 28 * (Platform.isIOS ? 1.2 : 1.0),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
