@@ -153,7 +153,7 @@ Deno.serve(async (req: Request) => {
             android: {
               priority: "high",
               notification: {
-                channel_id: "dm_messages",
+                channel_id: "dm_messages_v2",
                 sound: "default",
                 click_action: "FLUTTER_NOTIFICATION_CLICK",
                 tag: `dm_${conversationId}`,

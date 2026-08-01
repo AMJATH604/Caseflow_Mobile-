@@ -22,11 +22,11 @@ class FcmService {
   bool _localNotificationsInitialized = false;
 
   // ─── Notification Channel IDs ──────────────────────────
-  static const _chamberChannelId = 'chat_messages';
-  static const _chamberChannelName = 'Chat Messages';
-  static const _dmChannelId = 'dm_messages';
+  static const _chamberChannelId = 'chat_messages_v2';
+  static const _chamberChannelName = 'Digital Chambers Messages';
+  static const _dmChannelId = 'dm_messages_v2';
   static const _dmChannelName = 'Direct Messages';
-  static const _hearingChannelId = 'hearing_reminders';
+  static const _hearingChannelId = 'hearing_reminders_v2';
   static const _hearingChannelName = 'Hearing Reminders';
 
   /// Initialize FCM: request permission, get token, store in Supabase.
@@ -61,6 +61,7 @@ class FcmService {
     await _localNotifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTap,
+      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
 
     _localNotificationsInitialized = true;
@@ -285,6 +286,27 @@ class FcmService {
       );
     }
 
+    List<AndroidNotificationAction>? actions;
+    if (isDm || isChat) {
+      actions = [
+        const AndroidNotificationAction(
+          'action_reply',
+          'Reply',
+          inputs: [
+            AndroidNotificationActionInput(
+              label: 'Type a reply...',
+            ),
+          ],
+          showsUserInterface: false,
+        ),
+        const AndroidNotificationAction(
+          'action_mark_read',
+          'Mark as Read',
+          showsUserInterface: false,
+        ),
+      ];
+    }
+
     final androidDetails = AndroidNotificationDetails(
       channelId,
       channelName,
@@ -296,6 +318,7 @@ class FcmService {
       icon: '@mipmap/ic_launcher',
       color: const Color(0xFF00A884),
       category: AndroidNotificationCategory.message,
+      actions: actions,
       groupKey: isDm
           ? 'dm_${data['conversation_id']}'
           : (isChat ? 'chat_${data['firm_id']}' : null),
@@ -321,17 +344,61 @@ class FcmService {
 
   // ─── Notification Actions ──────────────────────────────────
 
-  /// Handle notification tap — deep-link to chat screen.
-  static void _onNotificationTap(NotificationResponse response) {
-    debugPrint('FCM: Notification tapped. Payload: ${response.payload}');
+  /// Handle notification tap & quick actions — inline reply / mark read / deep-link.
+  static void _onNotificationTap(NotificationResponse response) async {
+    debugPrint('FCM: Notification action/tap received: ${response.actionId}, payload: ${response.payload}');
 
     if (response.payload == null) return;
 
     try {
       final data = jsonDecode(response.payload!) as Map<String, dynamic>;
+      final type = data['type'] ?? '';
+
+      // Handle Quick Reply Action
+      if (response.actionId == 'action_reply' &&
+          response.input != null &&
+          response.input!.trim().isNotEmpty) {
+        final replyText = response.input!.trim();
+        if (type == 'dm_message') {
+          final conversationId = data['conversation_id'];
+          if (conversationId != null) {
+            await SupabaseService.sendDirectMessage(conversationId, replyText);
+            debugPrint('FCM: Quick reply sent to DM $conversationId');
+          }
+        } else if (type == 'chat_message') {
+          final firmId = data['firm_id'];
+          final profile = await SupabaseService.fetchProfile();
+          if (firmId != null) {
+            await SupabaseService.postDiscussion({
+              'firm_id': firmId,
+              'message': replyText,
+              'case_id': data['case_id'] != null && data['case_id'].toString().isNotEmpty
+                  ? data['case_id']
+                  : null,
+              'sender_name': profile?.fullName ?? 'Team Member',
+            });
+            debugPrint('FCM: Quick reply sent to Chambers $firmId');
+          }
+        }
+        return; // Quick reply handled, do not navigate
+      }
+
+      // Handle Mark as Read Action
+      if (response.actionId == 'action_mark_read') {
+        if (type == 'dm_message') {
+          final conversationId = data['conversation_id'];
+          if (conversationId != null) {
+            await SupabaseService.markDirectMessagesRead(conversationId);
+            debugPrint('FCM: Marked conversation $conversationId as read');
+          }
+        }
+        return; // Mark as read handled, do not navigate
+      }
+
+      // Body tap: Navigate to target chat screen
       _navigateToChat(data);
     } catch (e) {
-      debugPrint('FCM: Error parsing notification payload: $e');
+      debugPrint('FCM: Error handling notification tap: $e');
     }
   }
 
@@ -615,5 +682,57 @@ class _NotificationBannerState extends State<_NotificationBanner>
         ),
       ),
     );
+  }
+}
+
+/// Top-level callback for handling notification action buttons (Reply / Mark Read)
+/// in background or terminated state. Must be marked @pragma('vm:entry-point').
+@pragma('vm:entry-point')
+void notificationTapBackground(NotificationResponse response) async {
+  debugPrint('FCM: Background notification action: ${response.actionId}, input: ${response.input}');
+
+  if (response.payload == null) return;
+
+  try {
+    final data = jsonDecode(response.payload!) as Map<String, dynamic>;
+    final type = data['type'] ?? '';
+
+    if (response.actionId == 'action_reply' &&
+        response.input != null &&
+        response.input!.trim().isNotEmpty) {
+      final replyText = response.input!.trim();
+
+      if (type == 'dm_message') {
+        final conversationId = data['conversation_id'];
+        if (conversationId != null) {
+          await SupabaseService.sendDirectMessage(conversationId, replyText);
+          debugPrint('FCM: Background quick reply sent to DM $conversationId');
+        }
+      } else if (type == 'chat_message') {
+        final firmId = data['firm_id'];
+        final profile = await SupabaseService.fetchProfile();
+        if (firmId != null) {
+          await SupabaseService.postDiscussion({
+            'firm_id': firmId,
+            'message': replyText,
+            'case_id': data['case_id'] != null && data['case_id'].toString().isNotEmpty
+                ? data['case_id']
+                : null,
+            'sender_name': profile?.fullName ?? 'Team Member',
+          });
+          debugPrint('FCM: Background quick reply sent to Chambers $firmId');
+        }
+      }
+    } else if (response.actionId == 'action_mark_read') {
+      if (type == 'dm_message') {
+        final conversationId = data['conversation_id'];
+        if (conversationId != null) {
+          await SupabaseService.markDirectMessagesRead(conversationId);
+          debugPrint('FCM: Marked DM conversation $conversationId as read in background');
+        }
+      }
+    }
+  } catch (e) {
+    debugPrint('FCM: Error handling background notification response: $e');
   }
 }
