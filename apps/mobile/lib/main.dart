@@ -25,6 +25,15 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   debugPrint('FCM: Background message received: ${message.data}');
+
+  // If FCM payload contains a system notification block (message.notification != null),
+  // Android OS FCM SDK automatically displays it. Showing another local notification
+  // here causes a duplicate 2nd notification banner.
+  if (message.notification != null) {
+    debugPrint('FCM: System notification already handled by Android FCM SDK — skipping manual display.');
+    return;
+  }
+
   final fcm = FcmService();
   await fcm.initLocalNotifications();
   await fcm.showRichNotification(message);
