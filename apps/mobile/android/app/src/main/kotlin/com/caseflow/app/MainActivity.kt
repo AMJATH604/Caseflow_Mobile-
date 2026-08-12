@@ -1,4 +1,4 @@
-package com.example.caseflow
+package com.caseflow.app
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
