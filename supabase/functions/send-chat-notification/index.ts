@@ -11,10 +11,15 @@
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { getAccessToken, cleanupInvalidToken } from "../_shared/fcm_utils.ts";
+import { verifyWebhookAuth } from "../_shared/auth_guard.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // ─── Main Handler ────────────────────────────────────────────
 Deno.serve(async (req: Request) => {
+  // ─── Auth Guard: Verify webhook caller ─────────────────────
+  const authError = verifyWebhookAuth(req);
+  if (authError) return authError;
+
   const executionId = crypto.randomUUID().substring(0, 8);
   console.log(`[${executionId}] Chat notification triggered`);
 
@@ -197,13 +202,12 @@ Deno.serve(async (req: Request) => {
       try {
         const isAndroid = t.device_info === "TargetPlatform.android";
 
+        // Data-only message: no `notification` block so Android OS won't
+        // auto-display a system notification. The Flutter app's
+        // showRichNotification() handles all display (WhatsApp-style).
         const fcmPayload: any = {
           message: {
             token: t.token,
-            notification: {
-              title: title,
-              body: notificationBody,
-            },
             data: {
               type: "chat_message",
               title: title,
@@ -216,18 +220,11 @@ Deno.serve(async (req: Request) => {
             },
             android: {
               priority: "HIGH",
-              notification: {
-                channel_id: "chat_messages_v2",
-                sound: "default",
-                click_action: "FLUTTER_NOTIFICATION_CLICK",
-                tag: `chat_${firmId}_${caseId || "firm"}`,
-                color: "#00A884",
-                icon: "ic_launcher",
-              },
             },
             apns: {
               payload: {
                 aps: {
+                  "content-available": 1,
                   sound: "default",
                   badge: 1,
                 },

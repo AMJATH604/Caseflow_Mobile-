@@ -10,9 +10,11 @@
     <!-- Phase 2: Voice-to-Text & Witness Audio -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <application
-        android:label="caseflow"
+        android:label="CaseFlow"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:usesCleartextTraffic="false">
         <activity
             android:name=".MainActivity"
             android:exported="true"

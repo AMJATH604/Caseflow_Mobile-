@@ -22,6 +22,7 @@ import '../theme/app_theme.dart';
 import '../components/chat/chat_widgets.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart' as emoji;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../services/fcm_service.dart';
 
 /// Full-screen WhatsApp-style chambers chat.
 class ChambersChatScreen extends ConsumerStatefulWidget {
@@ -86,12 +87,16 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
   @override
   void initState() {
     super.initState();
+    // Suppress notifications while user is viewing chambers chat
+    FcmService().isInChambersChat = true;
     _loadProfile();
     _initAudioPlayerListeners();
   }
 
   @override
   void dispose() {
+    // Clear chambers chat tracking
+    FcmService().isInChambersChat = false;
     _msgController.dispose();
     _scrollController.dispose();
     _searchController.dispose();

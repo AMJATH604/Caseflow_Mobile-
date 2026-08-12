@@ -23,6 +23,15 @@ class FcmService {
   bool _listenersRegistered = false;
   bool _localNotificationsInitialized = false;
 
+  // ─── Active Chat Tracking (suppress notifications when viewing that chat) ─
+  /// Set this to the current conversation ID when the user opens a DM chat.
+  /// Clear it (set to null) when the user leaves the DM chat.
+  String? activeConversationId;
+
+  /// Set to true when the user is viewing the Digital Chambers chat screen.
+  /// Set to false when they leave.
+  bool isInChambersChat = false;
+
   // ─── Notification Channel IDs ──────────────────────────
   static const _chamberChannelId = 'chat_messages_v2';
   static const _chamberChannelName = 'Digital Chambers Messages';
@@ -133,9 +142,29 @@ class FcmService {
       debugPrint('FCM: ✅ Token refreshed and stored');
     });
 
-    // Handle foreground messages — show rich notification
+    // Handle foreground messages — show rich notification or in-app banner
     FirebaseMessaging.onMessage.listen((message) {
-      debugPrint('FCM: Foreground message: ${message.notification?.title}');
+      final data = message.data;
+      final type = data['type'] ?? '';
+      final title = data['title'] ?? message.notification?.title ?? 'CaseFlow';
+      final body = data['body'] ?? message.notification?.body ?? '';
+      debugPrint('FCM: Foreground message: type=$type, title=$title');
+
+      // ── Active chat suppression (WhatsApp-style) ──────────────
+      // If the user is currently viewing the same conversation,
+      // don't show a notification — the message already appears in the chat.
+      if (type == 'dm_message' &&
+          activeConversationId != null &&
+          data['conversation_id'] == activeConversationId) {
+        debugPrint('FCM: Suppressed — user is in this DM conversation');
+        return;
+      }
+      if (type == 'chat_message' && isInChambersChat) {
+        debugPrint('FCM: Suppressed — user is in Chambers chat');
+        return;
+      }
+
+      // Show the rich local notification (notification tray)
       showRichNotification(message);
     });
 
@@ -238,8 +267,10 @@ class FcmService {
   Future<void> showRichNotification(RemoteMessage message) async {
     final data = message.data;
     final type = data['type'] ?? '';
-    final title = message.notification?.title ?? data['title'] ?? 'CaseFlow';
-    final body = message.notification?.body ?? data['body'] ?? '';
+    // Data-only messages: read title/body from the data block.
+    // Fallback to notification block for legacy/iOS compatibility.
+    final title = data['title'] ?? message.notification?.title ?? 'CaseFlow';
+    final body = data['body'] ?? message.notification?.body ?? '';
 
     final isDm = type == 'dm_message';
     final isChat = type == 'chat_message';

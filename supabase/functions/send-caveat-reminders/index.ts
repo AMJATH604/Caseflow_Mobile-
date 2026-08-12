@@ -6,9 +6,14 @@
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { getAccessToken } from "../_shared/fcm_utils.ts";
+import { verifyWebhookAuth } from "../_shared/auth_guard.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 Deno.serve(async (req: Request) => {
+  // ─── Auth Guard: Verify webhook/cron caller ────────────────
+  const authError = verifyWebhookAuth(req);
+  if (authError) return authError;
+
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;

@@ -22,6 +22,7 @@ import '../components/profile_avatar.dart';
 import '../components/chat/chat_widgets.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart' as emoji;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../services/fcm_service.dart';
 
 class DmChatScreen extends ConsumerStatefulWidget {
   final String conversationId;
@@ -80,12 +81,16 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
   @override
   void initState() {
     super.initState();
+    // Suppress notifications for this conversation while user is viewing it
+    FcmService().activeConversationId = widget.conversationId;
     _loadChatDetails();
     _initAudioPlayerListeners();
   }
 
   @override
   void dispose() {
+    // Clear active conversation tracking
+    FcmService().activeConversationId = null;
     _msgController.dispose();
     _scrollController.dispose();
     _audioPlayer.dispose();
