@@ -7,28 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:284424778298:android:3f6c4394881d289ec4fb03",
-        "android_client_info": {
-          "package_name": "com.caseflow.app"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyA7i3yO9LAFZ5l9cyTuRjH5JbpFj_WDPbU"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:284424778298:android:64e8a3d0173cf171c4fb03",
         "android_client_info": {
-          "package_name": "com.example.caseflow"
+          "package_name": "com.caseflow.app"
         }
       },
       "oauth_client": [],
