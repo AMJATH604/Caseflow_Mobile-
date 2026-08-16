@@ -244,32 +244,92 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify service role authorization
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.includes(SUPABASE_SERVICE_ROLE_KEY)) {
-      // Also accept the anon key for manual triggering
-      console.log("Running embedding pipeline...");
-    }
-
     if (!GEMINI_API_KEY) {
       return new Response(
-        JSON.stringify({ error: "GEMINI_API_KEY not configured" }),
+        JSON.stringify({ error: "GEMINI_API_KEY not configured in environment" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
+    const { target = "all", act_id = null } = body;
 
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const startTime = Date.now();
 
-    // Process all data sources
-    const bareActCount = await processBareActs(supabase);
-    const templateCount = await processLegalTemplates(supabase);
+    let bareActCount = 0;
+    let templateCount = 0;
+
+    if (target === "all" || target === "acts") {
+      // Fetch specific act or all acts
+      let query = supabase.from("bare_acts").select("id, title, short_title").eq("is_active", true);
+      if (act_id) {
+        query = query.eq("id", act_id);
+      }
+      const { data: acts } = await query;
+
+      if (acts) {
+        for (const act of acts) {
+          const { data: sections } = await supabase
+            .from("bare_act_sections")
+            .select("id, section_number, section_title, section_text")
+            .eq("act_id", act.id)
+            .order("sequence_order", { ascending: true });
+
+          if (!sections) continue;
+
+          for (const section of sections) {
+            const fullText = section.section_text || "";
+            if (!fullText || fullText.length < 20) continue;
+
+            const sectionLabel = `${act.short_title || act.title} — Section ${section.section_number}: ${section.section_title || ""}`;
+            const contentForEmbedding = `${sectionLabel}\n\n${fullText}`;
+            const chunks = chunkText(contentForEmbedding);
+
+            for (let i = 0; i < chunks.length; i++) {
+              const chunk = chunks[i];
+              const sourceRef = chunks.length > 1
+                ? `${act.short_title || act.title} — Section ${section.section_number} (Part ${i + 1}/${chunks.length})`
+                : `${act.short_title || act.title} — Section ${section.section_number}`;
+
+              try {
+                const embedding = await generateEmbedding(chunk);
+                await supabase.from("legal_embeddings").delete().eq("source_type", "bare_act").eq("source_ref", sourceRef);
+                await supabase.from("legal_embeddings").insert({
+                  content: chunk,
+                  source_type: "bare_act",
+                  source_ref: sourceRef,
+                  act_id: act.id,
+                  section_id: section.id,
+                  metadata: {
+                    act_title: act.title,
+                    short_title: act.short_title,
+                    section_number: section.section_number,
+                    section_title: section.section_title,
+                    chunk_index: i,
+                    total_chunks: chunks.length,
+                  },
+                  embedding: embedding,
+                });
+                bareActCount++;
+              } catch (e) {
+                console.error(`Failed to embed ${sourceRef}:`, e);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (target === "all" || target === "templates") {
+      templateCount = await processLegalTemplates(supabase);
+    }
 
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 
     const summary = {
       success: true,
+      target,
       embedded: {
         bare_acts: bareActCount,
         templates: templateCount,
@@ -278,17 +338,12 @@ Deno.serve(async (req) => {
       elapsed_seconds: parseFloat(elapsed),
     };
 
-    console.log("✅ Embedding pipeline complete:", JSON.stringify(summary));
+    console.log("✅ Embedding batch complete:", JSON.stringify(summary));
+    return new Response(JSON.stringify(summary), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-    return new Response(
-      JSON.stringify(summary),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
   } catch (e) {
     console.error("Pipeline error:", e);
-    return new Response(
-      JSON.stringify({ error: e.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });
+

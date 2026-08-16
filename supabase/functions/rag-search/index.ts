@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     const { data: results, error } = await supabase.rpc("match_legal_documents", {
-      query_embedding: `[${queryEmbedding.join(",")}]`,
+      query_embedding: queryEmbedding,
       match_threshold: match_threshold,
       match_count: match_count,
       filter_source_type: source_type,
