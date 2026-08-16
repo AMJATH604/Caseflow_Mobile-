@@ -60,6 +60,7 @@ jobs:
         working-directory: apps/mobile
         run: |
           flutter build apk --release --split-per-abi \
+            --android-skip-build-dependency-validation \
             --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
             --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
 
@@ -67,6 +68,7 @@ jobs:
         working-directory: apps/mobile
         run: |
           flutter build apk --release \
+            --android-skip-build-dependency-validation \
             --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
             --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
 
