@@ -213,6 +213,42 @@ Deno.serve(async (req: Request) => {
 
     console.log(`[AI] ${useStream ? 'stream' : 'standard'} | user: ${user.id.substring(0, 8)}... | remaining: ${rateCheck.remaining}`);
 
+    // ─── RAG: Retrieve Legal Context ─────────────────────────
+    let ragSources: any[] = [];
+    let ragContext = "";
+
+    if (prompt && prompt.length > 10) {
+      try {
+        const ragUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/rag-search`;
+        const ragResponse = await fetch(ragUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+          },
+          body: JSON.stringify({ query: prompt, match_count: 5, match_threshold: 0.35 }),
+        });
+
+        if (ragResponse.ok) {
+          const ragData = await ragResponse.json();
+          ragSources = ragData.sources || [];
+
+          if (ragSources.length > 0) {
+            ragContext = "\n\n───── RETRIEVED LEGAL CONTEXT (ground your answer in these sources) ─────\n" +
+              ragSources.map((s: any, i: number) =>
+                `[Source ${i + 1}] ${s.source_ref} (relevance: ${Math.round(s.similarity * 100)}%)\n${s.content}`
+              ).join("\n\n") +
+              "\n───── END LEGAL CONTEXT ─────\n" +
+              "IMPORTANT: Cite the above sources by their [Source N] tags when using them. " +
+              "After your answer, add a '## Sources' section listing only the sources you actually cited.\n";
+          }
+        }
+      } catch (ragError) {
+        console.warn("[RAG] Context retrieval failed (non-blocking):", ragError);
+        // Non-blocking — if RAG fails, Gemini still answers from training data
+      }
+    }
+
     // Build the request contents
     const contents = [...(history || [])];
 
@@ -227,7 +263,12 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    currentParts.push({ text: prompt || "Analyze this image" });
+    // Inject RAG context into the user prompt
+    const enrichedPrompt = ragContext
+      ? `${prompt}${ragContext}`
+      : (prompt || "Analyze this image");
+
+    currentParts.push({ text: enrichedPrompt });
     contents.push({ role: "user", parts: currentParts });
 
     const requestBody = JSON.stringify({ 
@@ -236,7 +277,7 @@ Deno.serve(async (req: Request) => {
         temperature: 0.15,
         topP: 0.95,
         topK: 40,
-        maxOutputTokens: 4096,  // Increased from 2048 for detailed legal analysis
+        maxOutputTokens: 4096,
       } 
     });
 
@@ -266,6 +307,11 @@ Deno.serve(async (req: Request) => {
           "Cache-Control": "no-cache",
           "Connection": "keep-alive",
           "X-RateLimit-Remaining": String(rateCheck.remaining),
+          "X-RAG-Sources": JSON.stringify(ragSources.map((s: any) => ({
+            ref: s.source_ref,
+            type: s.source_type,
+            similarity: s.similarity,
+          }))),
         },
       });
     }
@@ -298,6 +344,12 @@ Deno.serve(async (req: Request) => {
         model: GEMINI_MODEL,
         usage: data.usageMetadata,
         rateLimitRemaining: rateCheck.remaining,
+        sources: ragSources.map((s: any) => ({
+          ref: s.source_ref,
+          type: s.source_type,
+          similarity: s.similarity,
+          metadata: s.metadata,
+        })),
       }),
       { 
         headers: { 

@@ -14,6 +14,7 @@ class ChatMessage {
   final String? imagePath; // Local file path for user-sent images
   final String? imageBase64; // Base64 encoded image data
   final String? dbId; // Database ID for persistence
+  final List<Map<String, dynamic>> ragSources; // RAG citation sources
 
   ChatMessage({
     required this.role,
@@ -23,9 +24,11 @@ class ChatMessage {
     this.imagePath,
     this.imageBase64,
     this.dbId,
+    this.ragSources = const [],
   }) : timestamp = timestamp ?? DateTime.now();
 
   bool get hasImage => imagePath != null || imageBase64 != null;
+  bool get hasSources => ragSources.isNotEmpty;
 }
 
 /// Represents a chat session (conversation thread).
@@ -525,9 +528,20 @@ Guidelines:
           response.data?['text'] ??
           'I apologize, I could not generate a response. Please try again.';
 
+      // Parse RAG sources from response
+      final rawSources = response.data?['sources'] as List<dynamic>? ?? [];
+      final sources = rawSources
+          .map((s) => Map<String, dynamic>.from(s as Map))
+          .toList();
+
       // Replace loading message with actual response
       _history.removeLast();
-      final modelMsg = ChatMessage(role: 'model', text: text, isLoading: false);
+      final modelMsg = ChatMessage(
+        role: 'model',
+        text: text,
+        isLoading: false,
+        ragSources: sources,
+      );
       _history.add(modelMsg);
 
       // Persist model response
