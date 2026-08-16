@@ -20,6 +20,10 @@ final authStateProvider = StreamProvider<AuthState>((ref) {
   return Supabase.instance.client.auth.onAuthStateChange;
 });
 
+final connectivityStreamProvider = StreamProvider<bool>((ref) {
+  return OfflineCacheService.connectivityStream;
+});
+
 final sessionProvider = Provider<Session?>((ref) {
   ref.watch(authStateProvider);
   return Supabase.instance.client.auth.currentSession;

@@ -204,6 +204,33 @@ class _AppShellState extends ConsumerState<AppShell> {
             Expanded(
               child: Column(
                 children: [
+                  // ── Offline Banner ──────────────────────────────────
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final isOnline = ref.watch(connectivityStreamProvider).value ?? true;
+                      if (isOnline) return const SizedBox.shrink();
+                      return Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 16.w),
+                        color: const Color(0xFFF59E0B), // Amber 500
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.wifi_off_rounded, size: 14.sp, color: Colors.white),
+                            SizedBox(width: 8.w),
+                            Text(
+                              'Offline Mode — Showing cached data',
+                              style: GoogleFonts.inter(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                   if (!isMobile)
                     Container(
                       height: 64.h,
