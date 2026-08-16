@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // ─── Security: API Key from environment ONLY (no fallback) ──────────
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-const GEMINI_MODEL = "gemini-2.5-flash";
+const GEMINI_MODEL = "gemini-3.5-flash-lite";
 
 // ─── Rate Limiting: Hybrid in-memory + DB-backed ────────────────────
 // In-memory cache for fast-path checks (avoids DB round-trip on every request).
@@ -254,7 +254,7 @@ Deno.serve(async (req: Request) => {
         const errText = await geminiResponse.text();
         console.error(`Gemini Stream API Error: ${geminiResponse.status} - ${errText}`);
         return new Response(
-          JSON.stringify({ error: "AI service temporarily unavailable", details: errText }), 
+          JSON.stringify({ error: "AI service temporarily unavailable" }), 
           { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -284,7 +284,7 @@ Deno.serve(async (req: Request) => {
       const errText = await response.text();
       console.error(`Gemini API Error: ${response.status} - ${errText}`);
       return new Response(
-        JSON.stringify({ error: "AI service temporarily unavailable", details: errText }), 
+        JSON.stringify({ error: "AI service temporarily unavailable" }), 
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
