@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/app_constants.dart';
 import '../services/onboarding_service.dart';
+import '../services/force_update_service.dart';
 import '../utils/responsive.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -205,6 +206,15 @@ class _SplashScreenState extends State<SplashScreen>
     // Navigate to Onboarding / Dashboard after intro has finished showing
     Timer(const Duration(milliseconds: 5600), () async {
       if (!mounted) return;
+
+      // ── Force Update Check ──
+      final needsUpdate = await ForceUpdateService.isUpdateRequired();
+      if (!mounted) return;
+      if (needsUpdate) {
+        ForceUpdateService.showUpdateDialog(context);
+        return; // Block navigation — user must update
+      }
+
       final onboardingDone = await OnboardingService.isOnboardingComplete();
       if (!mounted) return;
       if (onboardingDone) {
