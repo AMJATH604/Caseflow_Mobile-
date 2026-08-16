@@ -15,7 +15,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const EMBEDDING_MODEL = "text-embedding-004";
+const EMBEDDING_MODEL = "embedding-001";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -105,7 +105,7 @@ Deno.serve(async (req) => {
   } catch (e) {
     console.error("RAG search error:", e);
     return new Response(
-      JSON.stringify({ error: e.message }),
+      JSON.stringify({ error: e.message, stack: e.stack }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
