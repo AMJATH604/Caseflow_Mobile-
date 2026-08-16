@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS legal_embeddings (
   act_id UUID,                      -- Reference to bare_acts table (nullable for non-act sources)
   section_id TEXT,                  -- Section identifier
   metadata JSONB DEFAULT '{}',     -- { act_title, section_number, chapter, category, ... }
-  embedding VECTOR(768),           -- text-embedding-004 outputs 768 dimensions
+  embedding VECTOR(3072),          -- gemini-embedding-001 outputs 3072 dimensions
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -49,7 +49,7 @@ CREATE POLICY "Allow service_role delete on legal_embeddings"
 
 -- 6) Helper function for similarity search (called by rag-search Edge Function)
 CREATE OR REPLACE FUNCTION match_legal_documents(
-  query_embedding VECTOR(768),
+  query_embedding VECTOR(3072),
   match_threshold FLOAT DEFAULT 0.3,
   match_count INT DEFAULT 5,
   filter_source_type TEXT DEFAULT NULL
