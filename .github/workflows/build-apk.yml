@@ -37,39 +37,7 @@ jobs:
           elif [ -f apps/mobile/android/app/google-services.json ]; then
             echo "✅ google-services.json already exists in repo"
           else
-            echo "Creating default google-services.json for build..."
-            cat << 'EOF' > apps/mobile/android/app/google-services.json
-{
-  "project_info": {
-    "project_number": "284424778298",
-    "project_id": "caseflow-fd48d",
-    "storage_bucket": "caseflow-fd48d.firebasestorage.app"
-  },
-  "client": [
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:284424778298:android:3f6c4394881d289ec4fb03",
-        "android_client_info": {
-          "package_name": "com.caseflow.app"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyA7i3yO9LAFZ5l9cyTuRjH5JbpFj_WDPbU"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    }
-  ],
-  "configuration_version": "1"
-}
-EOF
-            echo "✅ Default google-services.json generated for release build"
+            echo "⚠️ google-services.json not found!"
           fi
 
       - name: Get dependencies
