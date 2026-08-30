@@ -17,6 +17,7 @@ Thumbs.db
 **/**.env.staging
 # Firebase credentials
 **/google-services.json
+!apps/mobile/android/app/google-services.json
 **/GoogleService-Info.plist
 **/firebase_credentials.json
 # Supabase
