@@ -15,14 +15,15 @@ CREATE TABLE IF NOT EXISTS legal_embeddings (
   act_id UUID,                      -- Reference to bare_acts table (nullable for non-act sources)
   section_id TEXT,                  -- Section identifier
   metadata JSONB DEFAULT '{}',     -- { act_title, section_number, chapter, category, ... }
-  embedding VECTOR(3072),          -- gemini-embedding-001 outputs 3072 dimensions
+  embedding VECTOR(768),           -- gemini-embedding-001 reduced to 768 dims (Supabase pgvector index limit: 2000)
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3) Similarity search index (IVFFlat for fast approximate nearest neighbor)
+-- 3) Similarity search index (HNSW for approximate nearest neighbor)
+--    Supabase pgvector limits indexes to 2000 dimensions, so we use 768-dim embeddings
 CREATE INDEX IF NOT EXISTS legal_embeddings_vector_idx
   ON legal_embeddings
-  USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+  USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 64);
 
 -- 4) Index for filtering by source type
 CREATE INDEX IF NOT EXISTS legal_embeddings_source_type_idx
@@ -31,25 +32,29 @@ CREATE INDEX IF NOT EXISTS legal_embeddings_source_type_idx
 -- 5) RLS: public read (needed for RAG search without auth), service_role write
 ALTER TABLE legal_embeddings ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Allow public read on legal_embeddings" ON legal_embeddings;
 CREATE POLICY "Allow public read on legal_embeddings"
   ON legal_embeddings FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "Allow service_role insert on legal_embeddings" ON legal_embeddings;
 CREATE POLICY "Allow service_role insert on legal_embeddings"
   ON legal_embeddings FOR INSERT
   WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow service_role update on legal_embeddings" ON legal_embeddings;
 CREATE POLICY "Allow service_role update on legal_embeddings"
   ON legal_embeddings FOR UPDATE
   USING (true);
 
+DROP POLICY IF EXISTS "Allow service_role delete on legal_embeddings" ON legal_embeddings;
 CREATE POLICY "Allow service_role delete on legal_embeddings"
   ON legal_embeddings FOR DELETE
   USING (true);
 
 -- 6) Helper function for similarity search (called by rag-search Edge Function)
 CREATE OR REPLACE FUNCTION match_legal_documents(
-  query_embedding VECTOR(3072),
+  query_embedding VECTOR(768),
   match_threshold FLOAT DEFAULT 0.3,
   match_count INT DEFAULT 5,
   filter_source_type TEXT DEFAULT NULL

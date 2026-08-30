@@ -8,7 +8,13 @@ import '../services/paginated_providers.dart';
 import '../services/paginated_notifier.dart';
 import '../services/supabase_service.dart';
 import '../components/error_state_widget.dart';
+import '../components/cf_shimmer_loader.dart';
+import '../components/cf_empty_state.dart';
 import '../theme/app_theme.dart';
+import '../theme/cf_colors.dart';
+import '../theme/cf_spacing.dart';
+import '../theme/cf_typography.dart';
+import '../theme/cf_decorations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HearingsScreen extends ConsumerStatefulWidget {
@@ -64,11 +70,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
               SizedBox(height: 24.h),
               Expanded(
                 child: paginatedState.isLoading && hearings.isEmpty
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          color: AppTheme.accent,
-                        ),
-                      )
+                    ? CfShimmerLoader.list()
                     : paginatedState.error != null && hearings.isEmpty
                         ? ErrorStateWidget(
                             error: paginatedState.error!,
@@ -77,7 +79,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                         : _view == 'calendar'
                             ? _buildCalendarView(isMobile, isDark, hearings)
                             : RefreshIndicator(
-                                color: AppTheme.accent,
+                                color: CfColors.brand,
                                 onRefresh: () => ref.read(paginatedHearingsProvider.notifier).refresh(),
                                 child: _buildListView(isMobile, isDark, hearings, paginatedState),
                               ),

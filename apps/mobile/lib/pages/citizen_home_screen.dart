@@ -4,6 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/providers.dart';
+import '../theme/cf_colors.dart';
+import '../theme/cf_spacing.dart';
+import '../theme/cf_typography.dart';
+import '../theme/cf_decorations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CitizenHomeScreen extends ConsumerStatefulWidget {

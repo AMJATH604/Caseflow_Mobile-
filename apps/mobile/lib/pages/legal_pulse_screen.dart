@@ -4,6 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
+import '../theme/cf_colors.dart';
+import '../theme/cf_spacing.dart';
+import '../theme/cf_typography.dart';
+import '../theme/cf_decorations.dart';
 import '../services/legal_news_service.dart';
 import '../components/error_state_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -80,7 +84,7 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: CfColors.of(context).background,
       body: SafeArea(
         child: Column(
           children: [

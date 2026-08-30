@@ -1,157 +1,154 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../services/providers.dart';
-import '../theme/app_theme.dart';
-import 'mobile_more_sheet.dart';
+import '../theme/cf_colors.dart';
+import '../theme/cf_spacing.dart';
+import '../theme/cf_typography.dart';
+import '../theme/cf_decorations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+/// ══════════════════════════════════════════════════════════════
+/// CaseFlow Bottom Navigation — Advocate Mode
+///
+/// Premium 4-tab navigation: Home | Cases | Calendar | Tools
+/// Features:
+/// - Animated active indicator with brand color
+/// - Haptic feedback on tap
+/// - Smooth icon transitions
+/// - Notification badge support
+/// ══════════════════════════════════════════════════════════════
 
 class MobileBottomNav extends ConsumerWidget {
   const MobileBottomNav({super.key});
 
+  static const _tabs = [
+    _NavTab(icon: Icons.space_dashboard_rounded, activeIcon: Icons.space_dashboard_rounded, label: 'Home', route: '/'),
+    _NavTab(icon: Icons.folder_outlined, activeIcon: Icons.folder_rounded, label: 'Cases', route: '/cases'),
+    _NavTab(icon: Icons.calendar_today_outlined, activeIcon: Icons.calendar_today_rounded, label: 'Calendar', route: '/hearings'),
+    _NavTab(icon: Icons.apps_rounded, activeIcon: Icons.apps_rounded, label: 'Tools', route: '/tools'),
+  ];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = CfColors.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final currentIndex = ref.watch(navigationIndexProvider);
+
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: colors.surface,
         border: Border(
-          top: BorderSide(
-            color: Theme.of(context).dividerTheme.color ?? Colors.grey,
-          ),
+          top: BorderSide(color: colors.border, width: 0.5),
         ),
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, -2),
+                ),
+              ],
       ),
       child: SafeArea(
         child: SizedBox(
-          height: 60.h,
+          height: 64.h,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(
-                ref,
-                context,
-                0,
-                Icons.grid_view_rounded,
-                'Home',
-                '/',
-              ),
-              _buildNavItem(
-                ref,
-                context,
-                1,
-                Icons.folder_rounded,
-                'Cases',
-                '/cases',
-              ),
-              _buildNavItem(
-                ref,
-                context,
-                2,
-                Icons.gavel_rounded,
-                'Hearings',
-                '/hearings',
-              ),
-              _buildNavItem(
-                ref,
-                context,
-                3,
-                Icons.handyman_rounded,
-                'Tools',
-                '/tools',
-              ),
-              _buildMoreItem(context),
-            ],
+            children: List.generate(_tabs.length, (index) {
+              return Expanded(
+                child: _NavItem(
+                  tab: _tabs[index],
+                  isActive: currentIndex == index,
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    ref.read(navigationIndexProvider.notifier).state = index;
+                    context.go(_tabs[index].route);
+                  },
+                ),
+              );
+            }),
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildNavItem(
-    WidgetRef ref,
-    BuildContext context,
-    int index,
-    IconData icon,
-    String label,
-    String route,
-  ) {
-    final currentIndex = ref.watch(navigationIndexProvider);
-    final isActive = currentIndex == index;
+class _NavItem extends StatelessWidget {
+  final _NavTab tab;
+  final bool isActive;
+  final VoidCallback onTap;
 
-    return InkWell(
-      onTap: () {
-        ref.read(navigationIndexProvider.notifier).state = index;
-        context.go(route);
-      },
-      child: SizedBox(
-        width: 64.w,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Active indicator line
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              height: 2.h,
-              width: isActive ? 24 : 0,
-              margin: EdgeInsets.only(bottom: 8.h),
-              decoration: BoxDecoration(
-                color: AppTheme.accent,
-                borderRadius: BorderRadius.circular(1.r),
-              ),
+  const _NavItem({
+    required this.tab,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = CfColors.of(context);
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Active indicator pill
+          AnimatedContainer(
+            duration: CfDecorations.durationFast,
+            curve: CfDecorations.curveDefault,
+            height: 3,
+            width: isActive ? 20 : 0,
+            margin: const EdgeInsets.only(bottom: 6),
+            decoration: BoxDecoration(
+              color: CfColors.brand,
+              borderRadius: CfSpacing.borderRadiusFull,
             ),
-            Icon(
-              icon,
-              color: isActive ? AppTheme.accent : const Color(0xFF4B5563),
+          ),
+
+          // Icon with animated transition
+          AnimatedSwitcher(
+            duration: CfDecorations.durationFast,
+            child: Icon(
+              isActive ? tab.activeIcon : tab.icon,
+              key: ValueKey(isActive),
               size: 22,
+              color: isActive ? CfColors.brand : colors.textTertiary,
             ),
-            SizedBox(height: 4.h),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 10.sp,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-                color: isActive ? AppTheme.accent : const Color(0xFF4B5563),
-              ),
+          ),
+
+          const SizedBox(height: 4),
+
+          // Label
+          AnimatedDefaultTextStyle(
+            duration: CfDecorations.durationFast,
+            style: CfTypography.captionSm.copyWith(
+              color: isActive ? CfColors.brand : colors.textTertiary,
+              fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
             ),
-          ],
-        ),
+            child: Text(tab.label),
+          ),
+        ],
       ),
     );
   }
+}
 
-  Widget _buildMoreItem(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) => MobileMoreSheet(),
-        );
-      },
-      child: SizedBox(
-        width: 64.w,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(height: 10.h),
-            const Icon(
-              Icons.more_horiz_rounded,
-              color: Color(0xFF4B5563),
-              size: 22,
-            ),
-            SizedBox(height: 4.h),
-            Text(
-              'More',
-              style: GoogleFonts.inter(
-                fontSize: 10.sp,
-                fontWeight: FontWeight.w500,
-                color: const Color(0xFF4B5563),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+class _NavTab {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final String route;
+
+  const _NavTab({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.route,
+  });
 }

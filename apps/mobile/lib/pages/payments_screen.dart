@@ -7,7 +7,12 @@ import '../services/providers.dart';
 import '../services/paginated_providers.dart';
 import '../services/supabase_service.dart';
 import '../components/error_state_widget.dart';
+import '../components/cf_shimmer_loader.dart';
 import '../theme/app_theme.dart';
+import '../theme/cf_colors.dart';
+import '../theme/cf_spacing.dart';
+import '../theme/cf_typography.dart';
+import '../theme/cf_decorations.dart';
 import '../components/dialogs/log_payment_dialog.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -48,26 +53,24 @@ class _PaymentsScreenState extends ConsumerState<PaymentsScreen> {
     final isMobile = MediaQuery.of(context).size.width < 768;
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: CfColors.of(context).background,
       body: SafeArea(
         child: paginatedState.isLoading && payments.isEmpty
-            ? const Center(
-                child: CircularProgressIndicator(color: AppTheme.accent),
-              )
+            ? CfShimmerLoader.list()
             : paginatedState.error != null && payments.isEmpty
                 ? ErrorStateWidget(
                     error: paginatedState.error!,
                     onRetry: () => ref.read(paginatedPaymentsProvider.notifier).refresh(),
                   )
                 : RefreshIndicator(
-                    color: AppTheme.accent,
+                    color: CfColors.brand,
                     onRefresh: () => ref.read(paginatedPaymentsProvider.notifier).refresh(),
                     child: _buildContent(context, ref, isMobile, payments, paginatedState),
                   ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddPaymentDialog(context),
-        backgroundColor: AppTheme.accent,
+        backgroundColor: CfColors.brand,
         foregroundColor: Colors.white,
         elevation: 4,
         icon: const Icon(Icons.add_rounded),

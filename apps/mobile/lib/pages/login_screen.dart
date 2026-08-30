@@ -9,6 +9,10 @@ import '../services/providers.dart';
 import '../services/fcm_service.dart';
 import '../models/geo_data.dart';
 import '../utils/responsive.dart';
+import '../theme/cf_colors.dart';
+import '../theme/cf_spacing.dart';
+import '../theme/cf_typography.dart';
+import '../theme/cf_decorations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -109,16 +113,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     Color color;
     if (strength <= 0.25) {
       label = 'Weak';
-      color = const Color(0xFFEF4444);
+      color = CfColors.error;
     } else if (strength <= 0.5) {
       label = 'Fair';
-      color = const Color(0xFFF59E0B);
+      color = CfColors.warning;
     } else if (strength <= 0.75) {
       label = 'Good';
-      color = const Color(0xFF3B82F6);
+      color = CfColors.info;
     } else {
       label = 'Strong';
-      color = const Color(0xFF059669);
+      color = CfColors.success;
     }
 
     setState(() {

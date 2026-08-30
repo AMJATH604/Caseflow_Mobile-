@@ -9,8 +9,15 @@ import '../services/paginated_providers.dart';
 import '../models/models.dart';
 import '../services/supabase_service.dart';
 import '../components/error_state_widget.dart';
+import '../components/cf_shimmer_loader.dart';
+import '../components/cf_search_bar.dart';
+import '../components/cf_empty_state.dart';
 import '../components/dialogs/new_case_dialog.dart';
 import '../theme/app_theme.dart';
+import '../theme/cf_colors.dart';
+import '../theme/cf_spacing.dart';
+import '../theme/cf_typography.dart';
+import '../theme/cf_decorations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Ultra-Modern Silicon Valley Grade Case Archive & Legal Intelligence Repository Screen.
@@ -60,22 +67,17 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
     // Filter & Sort
     final filteredCases = _getFilteredAndSortedCases(rawCases);
 
+    final colors = CfColors.of(context);
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF090D16) : const Color(0xFFF6F8FC),
+      backgroundColor: colors.background,
       floatingActionButton: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30.r),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.accent.withValues(alpha: 0.4),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
+          boxShadow: CfDecorations.glowShadow(CfColors.brand),
         ),
         child: FloatingActionButton.extended(
           onPressed: () => _showNewCaseDialog(context),
-          backgroundColor: AppTheme.accent,
+          backgroundColor: CfColors.brand,
           foregroundColor: Colors.white,
           elevation: 0,
           highlightElevation: 0,
@@ -116,7 +118,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
             ),
           ],
           body: paginatedState.isLoading && rawCases.isEmpty
-              ? _buildModernShimmerLoading(isDark)
+              ? CfShimmerLoader.casesList()
               : paginatedState.error != null && rawCases.isEmpty
                   ? ErrorStateWidget(
                       error: paginatedState.error!,
@@ -124,11 +126,13 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                           ref.read(paginatedCasesProvider.notifier).refresh(),
                     )
                   : RefreshIndicator(
-                      color: AppTheme.accent,
+                      color: CfColors.brand,
                       onRefresh: () =>
                           ref.read(paginatedCasesProvider.notifier).refresh(),
                       child: filteredCases.isEmpty
-                          ? _buildModernEmptyState(isDark)
+                          ? CfEmptyState.noCases(
+                              onAdd: () => _showNewCaseDialog(context),
+                            )
                           : _isGridView
                               ? _buildModernCasesGrid(
                                   isDark,

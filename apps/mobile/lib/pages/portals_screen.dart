@@ -7,6 +7,11 @@ import '../services/supabase_service.dart';
 import '../components/epay_court_fee_sheet.dart';
 import '../services/analytics_service.dart';
 import '../theme/app_theme.dart';
+import '../theme/cf_colors.dart';
+import '../theme/cf_spacing.dart';
+import '../theme/cf_typography.dart';
+import '../theme/cf_decorations.dart';
+import '../components/cf_shimmer_loader.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PortalsScreen extends StatefulWidget {
@@ -127,13 +132,13 @@ class _PortalsScreenState extends State<PortalsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final colors = CfColors.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: colors.background,
       body:
           _isLoading
-              ? const Center(
-                child: CircularProgressIndicator(color: AppTheme.accent),
-              )
+              ? SafeArea(child: CfShimmerLoader.dashboard())
               : CustomScrollView(
                 slivers: [
                   // Premium Header

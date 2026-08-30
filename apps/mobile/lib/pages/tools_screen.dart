@@ -3,6 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/analytics_service.dart';
 import '../theme/app_theme.dart';
+import '../theme/cf_colors.dart';
+import '../theme/cf_spacing.dart';
+import '../theme/cf_typography.dart';
+import '../theme/cf_decorations.dart';
 import 'package:go_router/go_router.dart';
 import '../components/epay_court_fee_sheet.dart';
 import 'tools/court_fee_calculator.dart';
@@ -283,7 +287,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       'title': 'Legal Templates',
       'desc': 'PDF & Word Drafts',
       'icon': Icons.description_rounded,
-      'color': AppTheme.accent,
+      'color': CfColors.brand,
       'plan': 'free',
     },
     {
@@ -302,7 +306,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       'title': 'Digital Chambers',
       'desc': 'Connect with Firm',
       'icon': Icons.hub_rounded,
-      'color': AppTheme.accent,
+      'color': CfColors.brand,
       'plan': 'business',
     },
     {
@@ -310,7 +314,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       'title': 'Recruit Associate',
       'desc': 'Manage Talent',
       'icon': Icons.people_alt_rounded,
-      'color': AppTheme.accentViolet,
+      'color': const Color(0xFF8B5CF6),
       'plan': 'business',
     },
   ];

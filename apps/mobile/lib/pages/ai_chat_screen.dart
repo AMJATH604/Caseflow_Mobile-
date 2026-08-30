@@ -5,6 +5,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as p;
 import '../theme/app_theme.dart';
+import '../theme/cf_colors.dart';
+import '../theme/cf_spacing.dart';
+import '../theme/cf_typography.dart';
+import '../theme/cf_decorations.dart';
 import '../services/gemini_service.dart';
 import '../services/analytics_service.dart';
 import '../components/ai_chat/ai_chat_widgets.dart';
@@ -274,10 +278,11 @@ class _AiChatScreenState extends State<AiChatScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final messages = _gemini.history;
 
+    final colors = CfColors.of(context);
+
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor:
-          isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF8FAFC),
+      backgroundColor: colors.background,
       drawer: AiChatDrawer(
         isDark: isDark,
         sessions: _gemini.sessions,
