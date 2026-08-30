@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+      FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
 
     steps:
       - name: Checkout code
@@ -85,7 +86,7 @@ jobs:
           generate_release_notes: true
 
       - name: Upload to Firebase App Distribution
-        if: env.FIREBASE_APP_ID != '' && secrets.FIREBASE_CREDENTIALS != ''
+        if: env.FIREBASE_APP_ID != '' && env.FIREBASE_CREDENTIALS != ''
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         continue-on-error: true
         with:
