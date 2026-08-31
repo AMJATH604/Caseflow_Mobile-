@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../theme/app_theme.dart';
 
 /// A premium KPI card with frosted glass effect, colored accent bar,
 /// animated counter, and optional pulse indicator.
@@ -31,7 +32,9 @@ class KpiCard extends StatefulWidget {
 class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
   late AnimationController _countController;
   late AnimationController _pulseController;
+  late AnimationController _tapController;
   late Animation<double> _countAnimation;
+  late Animation<double> _tapScale;
 
   @override
   void initState() {
@@ -50,6 +53,15 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat(reverse: true);
+
+    // Spring-physics scale for tap feedback
+    _tapController = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _tapScale = Tween<double>(begin: 1.0, end: 0.96).animate(
+      CurvedAnimation(parent: _tapController, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -65,6 +77,7 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
   void dispose() {
     _countController.dispose();
     _pulseController.dispose();
+    _tapController.dispose();
     super.dispose();
   }
 
@@ -73,33 +86,26 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final numValue = int.tryParse(widget.value) ?? 0;
 
-    return InkWell(
-      onTap: widget.onTap,
-      borderRadius: BorderRadius.circular(20.r),
-      child: Container(
-        padding: EdgeInsets.all(20.r),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E2030) : Colors.white,
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(
-            color:
-                isDark
-                    ? widget.accentColor.withValues(alpha: 0.15)
-                    : const Color(0xFFE2E8F0),
+    return AnimatedBuilder(
+      animation: _tapScale,
+      builder: (context, child) => Transform.scale(
+        scale: _tapScale.value,
+        child: child,
+      ),
+      child: GestureDetector(
+        onTapDown: (_) => _tapController.forward(),
+        onTapUp: (_) {
+          _tapController.reverse();
+          widget.onTap?.call();
+        },
+        onTapCancel: () => _tapController.reverse(),
+        child: Container(
+          padding: EdgeInsets.all(20.r),
+          decoration: AppTheme.accentCardDecoration(
+            accentColor: widget.accentColor,
+            isDark: isDark,
+            radius: 20.r,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: widget.accentColor.withValues(alpha: 0.06),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
         child: Row(
           children: [
             // Colored accent bar
@@ -223,6 +229,7 @@ class _KpiCardState extends State<KpiCard> with TickerProviderStateMixin {
           ],
         ),
       ),
+      ),
     );
   }
 }
@@ -251,9 +258,10 @@ class StatChip extends StatelessWidget {
         color:
             isDark
                 ? color.withValues(alpha: 0.08)
-                : color.withValues(alpha: 0.04),
+                : Colors.white,
         borderRadius: BorderRadius.circular(14.r),
         border: Border.all(color: color.withValues(alpha: 0.12)),
+        boxShadow: isDark ? null : AppTheme.shadowSm,
       ),
       child: Column(
         children: [

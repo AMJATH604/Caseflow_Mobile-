@@ -9,12 +9,7 @@ import '../services/supabase_service.dart';
 import '../services/fcm_service.dart';
 import '../components/profile_avatar.dart';
 import '../components/profile_detail_sheet.dart';
-import '../components/cf_shimmer_loader.dart';
 import '../theme/app_theme.dart';
-import '../theme/cf_colors.dart';
-import '../theme/cf_spacing.dart';
-import '../theme/cf_typography.dart';
-import '../theme/cf_decorations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Premium Settings Screen — Silicon-level design.
@@ -100,19 +95,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colors = CfColors.of(context);
     final profileAsync = ref.watch(userProfileProvider);
     final profile = profileAsync.valueOrNull;
 
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: colors.background,
-        body: CfShimmerLoader.list(),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: const Center(
+          child: CircularProgressIndicator(color: AppTheme.accent),
+        ),
       );
     }
 
     return Scaffold(
-      backgroundColor: colors.background,
+      backgroundColor: isDark ? const Color(0xFF0B0F1A) : const Color(0xFFF8FAFC),
       body: FadeTransition(
         opacity: _fadeIn,
         child: CustomScrollView(
@@ -409,9 +405,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
       margin: const EdgeInsets.fromLTRB(20, 8, 20, 8),
       padding: EdgeInsets.all(24.r),
       decoration: BoxDecoration(
-        gradient: CfColors.heroGradient,
-        borderRadius: BorderRadius.circular(CfSpacing.radiusXxl),
-        boxShadow: CfDecorations.glowShadow(CfColors.brandDark),
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xFF0F172A),
+            Color(0xFF1E3A5F),
+            Color(0xFF312E81),
+          ],
+          stops: [0.0, 0.5, 1.0],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(28.r),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF312E81).withValues(alpha: 0.3),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: Row(
         children: [

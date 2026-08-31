@@ -4,13 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../models/caveat_models.dart';
 import '../services/providers.dart';
+
 import '../theme/app_theme.dart';
-import '../theme/cf_colors.dart';
-import '../theme/cf_spacing.dart';
-import '../theme/cf_typography.dart';
-import '../theme/cf_decorations.dart';
-import '../components/cf_shimmer_loader.dart';
-import '../components/cf_empty_state.dart';
 import 'dialogs/caveat_form_sheet.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -64,8 +59,8 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
               isScrollable: true,
               tabAlignment: TabAlignment.start,
               onTap: (_) => setState(() {}),
-              indicatorColor: CfColors.brand,
-              labelColor: CfColors.brand,
+              indicatorColor: AppTheme.accent,
+              labelColor: AppTheme.accent,
               unselectedLabelColor: isDark ? Colors.white38 : Colors.black38,
               labelStyle: GoogleFonts.inter(
                 fontSize: 13.sp,
@@ -101,7 +96,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
                     },
                   );
                 },
-                loading: () => CfShimmerLoader.list(),
+                loading: () => const Center(child: CircularProgressIndicator()),
                 error:
                     (e, _) => Center(
                       child: Column(
@@ -130,7 +125,7 @@ class _CaveatsScreenState extends ConsumerState<CaveatsScreen>
         onPressed: () => _showCaveatForm(context),
         icon: const Icon(Icons.add_rounded),
         label: const Text('File Caveat'),
-        backgroundColor: CfColors.brand,
+        backgroundColor: AppTheme.accent,
         foregroundColor: Colors.white,
       ),
     );

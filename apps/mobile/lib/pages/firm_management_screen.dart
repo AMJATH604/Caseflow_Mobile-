@@ -10,11 +10,6 @@ import '../services/supabase_service.dart';
 import '../services/repositories/discussion_repository.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
-import '../theme/cf_colors.dart';
-import '../theme/cf_spacing.dart';
-import '../theme/cf_typography.dart';
-import '../theme/cf_decorations.dart';
-import '../components/cf_shimmer_loader.dart';
 import '../components/profile_avatar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -319,26 +314,20 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = CfColors.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     if (_isLoading && _profile == null) {
-      return Scaffold(
-        backgroundColor: colors.background,
-        body: SafeArea(child: CfShimmerLoader.dashboard()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
-      backgroundColor: colors.background,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(context, colors),
+            _buildHeader(context),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: _loadInitialData,
-                color: CfColors.brand,
+                color: AppTheme.accent,
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.symmetric(
@@ -389,15 +378,15 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
     );
   }
 
-  Widget _buildHeader(BuildContext context, CfColorScheme colors) {
+  Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Row(
         children: [
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_ios_new_rounded,
-              color: colors.textPrimary,
+              color: Color(0xFF1E293B),
               size: 20,
             ),
             onPressed: () => context.go('/'),
@@ -405,8 +394,11 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
           SizedBox(width: 4.w),
           Text(
             'Firm Operating System',
-            style: CfTypography.headingLg.copyWith(
-              color: colors.textPrimary,
+            style: GoogleFonts.inter(
+              fontSize: 22.sp,
+              fontWeight: FontWeight.w900,
+              color: const Color(0xFF1E293B),
+              letterSpacing: -0.5,
             ),
           ),
         ],
@@ -414,7 +406,7 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title, [CfColorScheme? colors]) {
+  Widget _buildSectionHeader(String title) {
     return Padding(
       padding: EdgeInsets.only(bottom: 16.h),
       child: Row(
@@ -423,17 +415,18 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
             width: 4.w,
             height: 18.h,
             decoration: BoxDecoration(
-              color: CfColors.brand,
+              color: AppTheme.accent,
               borderRadius: BorderRadius.circular(2.r),
             ),
           ),
           SizedBox(width: 12.w),
           Text(
             title.toUpperCase(),
-            style: CfTypography.labelMd.copyWith(
-              color: colors?.textPrimary ?? const Color(0xFF1E293B),
-              letterSpacing: 1.5,
-              fontWeight: FontWeight.w800,
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF1E293B),
+              letterSpacing: 2,
             ),
           ),
         ],

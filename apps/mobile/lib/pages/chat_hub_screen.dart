@@ -8,11 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
-import '../theme/cf_colors.dart';
-import '../theme/cf_spacing.dart';
-import '../theme/cf_typography.dart';
-import '../theme/cf_decorations.dart';
-import '../components/cf_shimmer_loader.dart';
 import '../components/profile_avatar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

@@ -1,58 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../services/providers.dart';
 import '../models/models.dart';
-import '../theme/cf_colors.dart';
-import '../theme/cf_spacing.dart';
-import '../theme/cf_typography.dart';
-import '../theme/cf_decorations.dart';
-import '../components/cf_shimmer_loader.dart';
-import '../components/cf_empty_state.dart';
-import '../components/cf_section_header.dart';
+import '../theme/app_theme.dart';
+import '../components/empty_state_widget.dart';
 import '../components/error_state_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// ══════════════════════════════════════════════════════════════
-/// Notifications / Updates Screen — Sprint 3 Redesign
-///
-/// Shows recent activity across the user's practice.
-/// Uses new design tokens, CfEmptyState, and CfShimmerLoader.
-/// ══════════════════════════════════════════════════════════════
-
 class NotificationsScreen extends ConsumerWidget {
-  const NotificationsScreen({super.key});
+  NotificationsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final casesAsync = ref.watch(casesProvider);
-    final colors = CfColors.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isMobile = MediaQuery.of(context).size.width < 768;
 
     return Scaffold(
-      backgroundColor: colors.background,
+      backgroundColor: AppTheme.background,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-            child: CfSectionHeader(
-              title: 'Updates',
-              icon: Icons.notifications_active_rounded,
-              trailing: 'Recent activity',
+            padding: EdgeInsets.only(bottom: 24.h),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Updates',
+                      style: GoogleFonts.outfit(
+                        fontSize: isMobile ? 24.sp : 28.sp,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF0F172A),
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      'Recent activity across your practice',
+                      style: GoogleFonts.inter(
+                        fontSize: 13.sp,
+                        color: const Color(0xFF94A3B8),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-
-          // Content
           Expanded(
             child: casesAsync.when(
-              data: (cases) => _buildActivityFeed(context, cases, colors, isDark),
-              loading: () => CfShimmerLoader.list(),
-              error: (err, stack) => ErrorStateWidget(
-                error: err,
-                onRetry: () => ref.invalidate(casesProvider),
+              data: (cases) => _buildActivityFeed(cases),
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: AppTheme.accent),
               ),
+              error:
+                  (err, stack) => ErrorStateWidget(
+                    error: err,
+                    onRetry: () => ref.invalidate(casesProvider),
+                  ),
             ),
           ),
         ],
@@ -60,106 +71,99 @@ class NotificationsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildActivityFeed(
-    BuildContext context,
-    List<CaseModel> items,
-    CfColorScheme colors,
-    bool isDark,
-  ) {
+  Widget _buildActivityFeed(List<CaseModel> items) {
     if (items.isEmpty) {
-      return const CfEmptyState(
-        icon: Icons.notifications_off_outlined,
+      return EmptyStateWidget(
+        icon: Icons.notifications_none,
         title: 'No Recent Updates',
-        description: 'Activity from cases, clients, and payments will appear here.',
+        message:
+            'When your cases, clients, or payments are modified, the activity log will appear here.',
       );
     }
 
     return ListView.builder(
-      padding: CfSpacing.pageHorizontal,
+      padding: EdgeInsets.only(bottom: 80.h),
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
-        final statusInfo = _statusInfo(item.status);
-
         return Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.all(14),
+          margin: EdgeInsets.only(bottom: 10.h),
           decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: CfSpacing.borderRadiusLg,
-            border: Border.all(color: colors.border, width: 1),
-            boxShadow: CfDecorations.shadowSm(isDark),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: const Color(0xFFE2E8F0).withValues(alpha: 0.6),
+            ),
+            boxShadow: AppTheme.shadowSm,
           ),
-          child: Row(
-            children: [
-              // Status icon
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: statusInfo.color.withValues(alpha: 0.10),
-                  borderRadius: CfSpacing.borderRadiusMd,
-                ),
-                child: Icon(statusInfo.icon, color: statusInfo.color, size: 20),
+          child: ListTile(
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 16.w,
+              vertical: 6.h,
+            ),
+            leading: _buildIcon(item.status),
+            title: Text(
+              item.caseTitle,
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w600,
+                fontSize: 14.sp,
+                color: const Color(0xFF0F172A),
               ),
-              const SizedBox(width: 12),
-
-              // Content
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.caseTitle,
-                      style: CfTypography.labelLg.copyWith(
-                        color: colors.textPrimary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Updated to ${item.status.name}',
-                      style: CfTypography.caption.copyWith(
-                        color: colors.textSecondary,
-                      ),
-                    ),
-                  ],
+            ),
+            subtitle: Padding(
+              padding: EdgeInsets.only(top: 4.h),
+              child: Text(
+                'Updated to ${item.status.name}',
+                style: GoogleFonts.inter(
+                  fontSize: 12.sp,
+                  color: const Color(0xFF94A3B8),
                 ),
               ),
-
-              // Time
-              Text(
-                DateFormat('HH:mm').format(DateTime.now()),
-                style: CfTypography.captionSm.copyWith(
-                  color: colors.textTertiary,
-                ),
+            ),
+            trailing: Text(
+              DateFormat('HH:mm').format(DateTime.now()),
+              style: GoogleFonts.inter(
+                fontSize: 10.sp,
+                color: const Color(0xFFCBD5E1),
+                fontWeight: FontWeight.w500,
               ),
-            ],
+            ),
           ),
         );
       },
     );
   }
 
-  _StatusInfo _statusInfo(CaseStatus status) {
-    final name = status.toString().split('.').last;
-    switch (name) {
-      case 'active':
-        return _StatusInfo(Icons.gavel_rounded, CfColors.warning);
-      case 'closed':
-      case 'disposed':
-        return _StatusInfo(Icons.check_circle_rounded, CfColors.success);
-      case 'dismissed':
-        return _StatusInfo(Icons.cancel_rounded, const Color(0xFF64748B));
-      default:
-        return _StatusInfo(Icons.info_outline_rounded, CfColors.info);
-    }
-  }
-}
+  Widget _buildIcon(CaseStatus status) {
+    IconData icon = Icons.info_outline_rounded;
+    Color color = AppTheme.accent;
+    final String statusStr = status.toString().split('.').last;
 
-class _StatusInfo {
-  final IconData icon;
-  final Color color;
-  const _StatusInfo(this.icon, this.color);
+    if (statusStr == 'active') {
+      icon = Icons.gavel_rounded;
+      color = AppTheme.warning;
+    } else if (statusStr == 'closed') {
+      icon = Icons.check_circle_rounded;
+      color = AppTheme.success;
+    }
+
+    return Container(
+      padding: EdgeInsets.all(10.r),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            color.withValues(alpha: 0.12),
+            color.withValues(alpha: 0.04),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(
+          color: color.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Icon(icon, color: color, size: 20),
+    );
+  }
 }

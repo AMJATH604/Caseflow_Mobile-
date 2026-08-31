@@ -7,12 +7,7 @@ import '../services/paginated_providers.dart';
 import '../services/supabase_service.dart';
 import '../components/dialogs/add_client_dialog.dart';
 import '../components/dialogs/client_detail_sheet.dart';
-import '../components/cf_shimmer_loader.dart';
 import '../theme/app_theme.dart';
-import '../theme/cf_colors.dart';
-import '../theme/cf_spacing.dart';
-import '../theme/cf_typography.dart';
-import '../theme/cf_decorations.dart';
 import '../models/models.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -70,7 +65,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: CfColors.of(context).background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +76,9 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
             SizedBox(height: 16.h),
             Expanded(
               child: paginatedState.isLoading && clients.isEmpty
-                  ? CfShimmerLoader.list()
+                  ? const Center(
+                      child: CircularProgressIndicator(color: AppTheme.accent),
+                    )
                   : paginatedState.error != null && clients.isEmpty
                       ? Center(
                           child: Padding(
@@ -120,7 +117,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                           ),
                         )
                       : RefreshIndicator(
-                          color: CfColors.brand,
+                          color: AppTheme.accent,
                           onRefresh: () => ref.read(paginatedClientsProvider.notifier).refresh(),
                           child: _buildClientsList(isMobile, isDark, clients, paginatedState),
                         ),

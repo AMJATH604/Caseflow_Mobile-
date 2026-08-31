@@ -7,12 +7,6 @@ import '../models/commission_models.dart';
 import '../services/commission_service.dart';
 import '../services/providers.dart';
 import '../theme/app_theme.dart';
-import '../theme/cf_colors.dart';
-import '../theme/cf_spacing.dart';
-import '../theme/cf_typography.dart';
-import '../theme/cf_decorations.dart';
-import '../components/cf_shimmer_loader.dart';
-import '../components/cf_empty_state.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 final commissionsProvider = FutureProvider<List<Commission>>((ref) async {
@@ -80,12 +74,12 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
   }
 
   Color _statusColor(CommissionStatus s) => switch (s) {
-    CommissionStatus.pending => CfColors.warning,
-    CommissionStatus.inProgress => CfColors.info,
-    CommissionStatus.visitCompleted => CfColors.success,
-    CommissionStatus.reportDrafting => const Color(0xFF8B5CF6),
-    CommissionStatus.submitted => CfColors.success,
-    CommissionStatus.objections => CfColors.error,
+    CommissionStatus.pending => AppTheme.warning,
+    CommissionStatus.inProgress => AppTheme.info,
+    CommissionStatus.visitCompleted => const Color(0xFF10B981),
+    CommissionStatus.reportDrafting => AppTheme.accentViolet,
+    CommissionStatus.submitted => AppTheme.success,
+    CommissionStatus.objections => AppTheme.error,
     CommissionStatus.closed => const Color(0xFF64748B),
   };
   IconData _typeIcon(CommissionType t) => switch (t) {
@@ -113,8 +107,8 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
               isScrollable: true,
               tabAlignment: TabAlignment.start,
               onTap: (_) => setState(() {}),
-              indicatorColor: CfColors.brand,
-              labelColor: CfColors.brand,
+              indicatorColor: AppTheme.accent,
+              labelColor: AppTheme.accent,
               unselectedLabelColor: dk ? Colors.white38 : Colors.black38,
               labelStyle: GoogleFonts.inter(
                 fontSize: 12.sp,
@@ -143,7 +137,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
                         );
                       },
                     ),
-                loading: () => CfShimmerLoader.list(),
+                loading: () => const Center(child: CircularProgressIndicator()),
                 error:
                     (e, _) => Center(
                       child: Column(
@@ -173,7 +167,7 @@ class _CommissionsScreenState extends ConsumerState<CommissionsScreen>
         onPressed: () => _showCreate(context),
         icon: const Icon(Icons.add_rounded),
         label: const Text('New Commission'),
-        backgroundColor: CfColors.brand,
+        backgroundColor: AppTheme.accent,
         foregroundColor: Colors.white,
       ),
     );

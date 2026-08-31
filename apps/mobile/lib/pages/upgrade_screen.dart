@@ -1,18 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/cf_colors.dart';
-import '../theme/cf_spacing.dart';
-import '../theme/cf_typography.dart';
-import '../theme/cf_decorations.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// ══════════════════════════════════════════════════════════════
-/// Upgrade / Plan Screen — Sprint 3 Redesign
-///
-/// Communicates beta period with all features unlocked.
-/// Uses premium gradient hero and token-based styling.
-/// ══════════════════════════════════════════════════════════════
+import '../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class UpgradeScreen extends ConsumerStatefulWidget {
   const UpgradeScreen({super.key});
@@ -24,89 +15,97 @@ class UpgradeScreen extends ConsumerStatefulWidget {
 class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
   @override
   Widget build(BuildContext context) {
-    final colors = CfColors.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
-      backgroundColor: colors.background,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: Text(
           'Plan Information',
-          style: CfTypography.headingSm.copyWith(color: colors.textPrimary),
+          style: GoogleFonts.outfit(
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.3,
+          ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: IconThemeData(color: colors.textPrimary),
       ),
       body: Center(
         child: SingleChildScrollView(
-          padding: CfSpacing.pagePadding,
+          padding: EdgeInsets.all(32.r),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // ─── Hero Icon with Gradient Glow ────────
+              // Premium gradient icon container
               Container(
-                padding: const EdgeInsets.all(28),
+                padding: EdgeInsets.all(28.r),
                 decoration: BoxDecoration(
-                  gradient: RadialGradient(
+                  gradient: LinearGradient(
                     colors: [
-                      CfColors.brand.withValues(alpha: 0.15),
-                      CfColors.brand.withValues(alpha: 0.03),
+                      AppTheme.accent.withValues(alpha: 0.12),
+                      AppTheme.accentViolet.withValues(alpha: 0.08),
                     ],
-                    radius: 0.8,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
                   shape: BoxShape.circle,
+                  boxShadow: AppTheme.coloredShadow(AppTheme.accent),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.rocket_launch_rounded,
                   size: 64,
-                  color: CfColors.brand,
+                  color: AppTheme.accent,
                 ),
               ),
-              const SizedBox(height: 28),
-
-              // ─── Title ──────────────────────────────
+              SizedBox(height: 32.h),
               Text(
                 'All Features Unlocked!',
-                style: CfTypography.headingLg.copyWith(
-                  color: colors.textPrimary,
-                  letterSpacing: -0.5,
+                style: GoogleFonts.outfit(
+                  fontSize: 28.sp,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF0F172A),
+                  letterSpacing: -0.8,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12),
-
-              // ─── Subtitle ──────────────────────────
+              SizedBox(height: 12.h),
               Text(
-                'Welcome to the CaseFlow Beta Phase. All Professional and Business features are free for all users during this period.',
-                style: CfTypography.bodyMd.copyWith(
-                  color: colors.textSecondary,
-                  height: 1.5,
+                'Welcome to the CaseFlow Beta Phase. We have decided to make all Professional and Business features free for all users during this period.',
+                style: GoogleFonts.inter(
+                  fontSize: 15.sp,
+                  color: const Color(0xFF64748B),
+                  height: 1.55,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 28),
-
-              // ─── Features List Card ────────────────
-              _buildBetaFeatureList(colors, isDark),
-              const SizedBox(height: 36),
-
-              // ─── CTA Button ────────────────────────
-              SizedBox(
-                width: double.infinity,
+              SizedBox(height: 32.h),
+              _buildBetaFeatureList(),
+              SizedBox(height: 48.h),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16.r),
+                  gradient: AppTheme.primaryGradient,
+                  boxShadow: AppTheme.coloredShadow(AppTheme.accent),
+                ),
                 child: ElevatedButton.icon(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back_rounded, size: 18),
-                  label: const Text('Go to Dashboard'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: CfColors.brand,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(CfSpacing.radiusLg),
+                  icon: const Icon(Icons.arrow_back_rounded),
+                  label: Text(
+                    'Go to Dashboard',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15.sp,
                     ),
-                    elevation: 0,
-                    textStyle: CfTypography.labelLg,
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    shadowColor: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
                   ),
                 ),
               ),
@@ -117,7 +116,7 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
     );
   }
 
-  Widget _buildBetaFeatureList(CfColorScheme colors, bool isDark) {
+  Widget _buildBetaFeatureList() {
     final features = [
       'Unlimited Case Management',
       'Full OCR & PDF Document Tools',
@@ -129,44 +128,49 @@ class _UpgradeScreenState extends ConsumerState<UpgradeScreen> {
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 400),
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(24.r),
       decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: CfSpacing.borderRadiusXl,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24.r),
         border: Border.all(
-          color: CfColors.brand.withValues(alpha: 0.15),
+          color: AppTheme.accent.withValues(alpha: 0.1),
         ),
-        boxShadow: CfDecorations.shadowSm(isDark),
+        boxShadow: AppTheme.shadowMd,
       ),
       child: Column(
-        children: features.map((f) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: CfColors.success.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.check_rounded,
-                  color: CfColors.success,
-                  size: 14,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                f,
-                style: CfTypography.bodyMd.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        )).toList(),
+        children:
+            features
+                .map(
+                  (f) => Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10.h),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(4.r),
+                          decoration: BoxDecoration(
+                            color: AppTheme.success.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.check_rounded,
+                            color: AppTheme.success,
+                            size: 16,
+                          ),
+                        ),
+                        SizedBox(width: 14.w),
+                        Text(
+                          f,
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14.sp,
+                            color: const Color(0xFF334155),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+                .toList(),
       ),
     );
   }

@@ -9,11 +9,6 @@ import '../components/error_state_widget.dart';
 import '../components/dialogs/log_cc_dialog.dart';
 import '../components/dialogs/payment_capture_overlay.dart';
 import '../theme/app_theme.dart';
-import '../theme/cf_colors.dart';
-import '../theme/cf_spacing.dart';
-import '../theme/cf_typography.dart';
-import '../theme/cf_decorations.dart';
-import '../components/cf_shimmer_loader.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CertifiedCopiesScreen extends ConsumerWidget {
@@ -25,10 +20,13 @@ class CertifiedCopiesScreen extends ConsumerWidget {
     final isMobile = MediaQuery.of(context).size.width < 768;
 
     return Scaffold(
-      backgroundColor: CfColors.of(context).background,
+      backgroundColor: AppTheme.background,
       body: copiesAsync.when(
         data: (copies) => _buildBody(context, ref, isMobile, copies),
-        loading: () => SafeArea(child: CfShimmerLoader.list()),
+        loading:
+            () => const Center(
+              child: CircularProgressIndicator(color: AppTheme.accent),
+            ),
         error:
             (err, stack) => ErrorStateWidget(
               error: err,
@@ -37,7 +35,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddCCDialog(context),
-        backgroundColor: CfColors.brand,
+        backgroundColor: AppTheme.accent,
         foregroundColor: Colors.white,
         elevation: 4,
         icon: const Icon(Icons.add_rounded),

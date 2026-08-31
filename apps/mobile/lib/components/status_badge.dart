@@ -13,17 +13,31 @@ class StatusBadge extends StatelessWidget {
     final config = _getConfig(status.toLowerCase());
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
       decoration: BoxDecoration(
-        color: config.color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(6.r),
+        gradient: LinearGradient(
+          colors: [
+            config.color.withValues(alpha: 0.10),
+            config.color.withValues(alpha: 0.04),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20.r),
         border: Border.all(color: config.color.withValues(alpha: 0.12)),
+        boxShadow: [
+          BoxShadow(
+            color: config.color.withValues(alpha: 0.06),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(config.icon, size: 10, color: config.color),
-          SizedBox(width: 6.w),
+          SizedBox(width: 5.w),
           Text(
             status.isEmpty ? 'UNKNOWN' : status.toUpperCase(),
             style: GoogleFonts.inter(
