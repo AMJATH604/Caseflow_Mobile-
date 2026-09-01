@@ -16,10 +16,22 @@ class _DelayCalculatorState extends State<DelayCalculator> {
   DateTime? _dateOfOrder;
   DateTime? _dateOfFiling;
 
+  // Section 12 — Certified Copy exclusion dates
+  DateTime? _dateCopyApplied;
+  DateTime? _dateCopyReceived;
+  bool _useCopyExclusion = false;
+
+
   String? _selectedPreset;
 
   // Expanded legal-specific presets with statutory references
   final List<Map<String, dynamic>> _presets = [
+    {
+      'days': 30,
+      'label': '30 days',
+      'desc': 'DVC Appeal (DVC Act §29)',
+      'icon': Icons.gavel,
+    },
     {
       'days': 30,
       'label': '30 days',
@@ -31,6 +43,12 @@ class _DelayCalculatorState extends State<DelayCalculator> {
       'label': '30 days',
       'desc': 'NI Act §138 Complaint',
       'icon': Icons.credit_card,
+    },
+    {
+      'days': 30,
+      'label': '30 days',
+      'desc': 'CrLMP / Criminal Appeal',
+      'icon': Icons.balance,
     },
     {
       'days': 60,
@@ -70,7 +88,25 @@ class _DelayCalculatorState extends State<DelayCalculator> {
       limitationDays = int.parse(parts[0]);
     }
 
-    final dueDate = _dateOfOrder!.add(Duration(days: limitationDays));
+    // Section 12 — Exclude time taken to obtain certified copy
+    int sec12ExcludedDays = 0;
+    String sec12Note = '';
+    if (_useCopyExclusion &&
+        _dateCopyApplied != null &&
+        _dateCopyReceived != null) {
+      sec12ExcludedDays =
+          _dateCopyReceived!.difference(_dateCopyApplied!).inDays;
+      if (sec12ExcludedDays < 0) sec12ExcludedDays = 0;
+      sec12Note =
+          '\n\nSection 12 Exclusion: ${sec12ExcludedDays} day${sec12ExcludedDays != 1 ? "s" : ""} excluded '
+          '(copy applied: ${DateFormat("dd-MM-yyyy").format(_dateCopyApplied!)} '
+          'to copy received: ${DateFormat("dd-MM-yyyy").format(_dateCopyReceived!)})';
+    }
+
+    // Adjusted due date = order date + limitation + Section 12 excluded days
+    final dueDate = _dateOfOrder!.add(
+      Duration(days: limitationDays + sec12ExcludedDays),
+    );
     final delay = _dateOfFiling!.difference(dueDate).inDays;
     final totalDays = _dateOfFiling!.difference(_dateOfOrder!).inDays;
 
@@ -98,6 +134,16 @@ class _DelayCalculatorState extends State<DelayCalculator> {
               (p) => "${p['days']}|${p['desc']}" == _selectedPreset,
             )['desc']
             : 'prescribed period';
+
+    final sec12Para = (_useCopyExclusion && sec12ExcludedDays > 0)
+        ? '\n\n3. The petitioner applied for a certified copy of the impugned order/judgment on ${DateFormat("dd-MM-yyyy").format(_dateCopyApplied!)} and the same was made ready/received on ${DateFormat("dd-MM-yyyy").format(_dateCopyReceived!)}. The time of $sec12ExcludedDays day${sec12ExcludedDays != 1 ? "s" : ""} spent in obtaining the certified copy is liable to be excluded under Section 12 of the Limitation Act, 1963.\n\n4. After excluding the said $sec12ExcludedDays day${sec12ExcludedDays != 1 ? "s" : ""} under Section 12, the adjusted last date for filing was $fmtDue.'
+        : '';
+
+    final actualDelay = delay > 0 ? delay : 0;
+    final delayParaNum = (_useCopyExclusion && sec12ExcludedDays > 0) ? '5' : '3';
+    final causeParaNum = (_useCopyExclusion && sec12ExcludedDays > 0) ? '6' : '4';
+    final bonaFideNum = (_useCopyExclusion && sec12ExcludedDays > 0) ? '7' : '5';
+
     final affidavitText =
         """AFFIDAVIT IN SUPPORT OF APPLICATION U/S 5 OF THE LIMITATION ACT, 1963
 
@@ -105,31 +151,33 @@ I, _____________ S/o/D/o/W/o _____________, aged about ___ years, residing at __
 
 1. The impugned order/judgment was passed on $fmtOrder.
 
-2. The limitation for filing the appeal/petition ($presetLabel) expired on $fmtDue.
+2. The limitation for filing the appeal/petition ($presetLabel) is ${limitationDays} days.$sec12Para
 
-3. The present appeal/petition is being filed on $fmtFiling, i.e., after a delay of ${delay > 0 ? delay : 0} day${delay != 1 ? 's' : ''}.
+$delayParaNum. The present appeal/petition is being filed on $fmtFiling, i.e., after a delay of $actualDelay day${actualDelay != 1 ? 's' : ''}.
 
-4. The delay of ${delay > 0 ? delay : 0} day${delay != 1 ? 's' : ''} in filing the present appeal/petition was due to _____________ [state sufficient cause].
+$causeParaNum. The delay of $actualDelay day${actualDelay != 1 ? 's' : ''} in filing the present appeal/petition was occasioned due to _____________ [state sufficient cause, e.g., bonafide belief, illness, legal advice, etc.].
 
-5. The delay was not intentional or deliberate and the petitioner had a bona fide intention to file the appeal/petition within the prescribed time.
+$bonaFideNum. The delay was neither intentional nor deliberate. The petitioner had a bona fide intention to file the appeal/petition within the prescribed time and there was sufficient cause for not filing it within the limitation period.
 
-PRAYER: The petitioner therefore prays that this Honourable Court may be pleased to condone the delay of ${delay > 0 ? delay : 0} day${delay != 1 ? 's' : ''} in filing the present appeal/petition and admit the same for adjudication on merits.
+PRAYER: The petitioner therefore most humbly prays that this Honourable Court may be pleased to condone the delay of $actualDelay day${actualDelay != 1 ? 's' : ''} in filing the present appeal/petition in the interest of justice and admit the same for adjudication on merits.
 
-VERIFICATION: Verified at _____________ on this the ___ day of _____________ that the contents of the above affidavit are true and correct to the best of my knowledge and belief.
+VERIFICATION: Verified at _____________ on this the ___ day of _____________ that the contents of the above affidavit are true and correct to the best of my knowledge and belief and nothing material has been concealed therefrom.
 
 DEPONENT""";
 
     setState(() {
       _result = {
-        'delay': delay > 0 ? delay : 0,
+        'delay': actualDelay,
         'totalDays': totalDays,
         'limitationDays': limitationDays,
+        'sec12Days': sec12ExcludedDays,
         'dueDate': fmtDue,
         'status': status,
         'statusColor': statusColor,
         'statusIcon': statusIcon,
         'isDelayed': delay > 0,
         'affidavitText': affidavitText,
+        'sec12Note': sec12Note,
       };
     });
   }
@@ -281,8 +329,138 @@ DEPONENT""";
                 ],
               ),
 
+              // ─── Section 12 Exclusion Toggle ──
+              SizedBox(height: 20.h),
+              Container(
+                padding: EdgeInsets.all(14.r),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.indigo.withValues(alpha: 0.08)
+                      : const Color(0xFFF0F0FF),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(
+                    color: Colors.indigo.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.description_rounded,
+                          size: 18,
+                          color: Colors.indigo[400],
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: Text(
+                            'Section 12 — Certified Copy Exclusion',
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white : Colors.indigo[900],
+                            ),
+                          ),
+                        ),
+                        Transform.scale(
+                          scale: 0.85,
+                          child: Switch(
+                            value: _useCopyExclusion,
+                            activeColor: AppTheme.accent,
+                            onChanged: (v) {
+                              setState(() {
+                                _useCopyExclusion = v;
+                                if (!v) {
+                                  _dateCopyApplied = null;
+                                  _dateCopyReceived = null;
+                                }
+                              });
+                              _calculate();
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (!_useCopyExclusion)
+                      Padding(
+                        padding: EdgeInsets.only(top: 4.h),
+                        child: Text(
+                          'Enable to exclude time spent obtaining certified copy (Sec 12, Limitation Act)',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                      ),
+                    if (_useCopyExclusion) ...[
+                      SizedBox(height: 12.h),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildDatePicker(
+                              'Copy Applied On',
+                              _dateCopyApplied,
+                              isDark,
+                              (d) => setState(() {
+                                _dateCopyApplied = d;
+                                _calculate();
+                              }),
+                            ),
+                          ),
+                          SizedBox(width: 12.w),
+                          Expanded(
+                            child: _buildDatePicker(
+                              'Copy Received On',
+                              _dateCopyReceived,
+                              isDark,
+                              (d) => setState(() {
+                                _dateCopyReceived = d;
+                                _calculate();
+                              }),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (_dateCopyApplied != null && _dateCopyReceived != null)
+                        Padding(
+                          padding: EdgeInsets.only(top: 8.h),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10.w,
+                              vertical: 6.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.check_circle_outline,
+                                  size: 14,
+                                  color: Colors.green[700],
+                                ),
+                                SizedBox(width: 6.w),
+                                Text(
+                                  '${_dateCopyReceived!.difference(_dateCopyApplied!).inDays} days will be excluded under Sec 12',
+                                  style: TextStyle(
+                                    fontSize: 11.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.green[700],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ],
+                ),
+              ),
+
               // Section 4 note
-              SizedBox(height: 16.h),
+              SizedBox(height: 12.h),
               Container(
                 padding: EdgeInsets.all(12.r),
                 decoration: BoxDecoration(
@@ -303,7 +481,7 @@ DEPONENT""";
                     SizedBox(width: 8.w),
                     Expanded(
                       child: Text(
-                        'If the due date falls on a day when the court is closed, the period is extended to the next working day under §4, Limitation Act.',
+                        'Sec 4: If due date falls on a court holiday, period extends to next working day.\nSec 12: Time spent obtaining certified copy is excluded from limitation.',
                         style: TextStyle(
                           fontSize: 11.sp,
                           color: Colors.amber[800],
@@ -384,6 +562,17 @@ DEPONENT""";
                     isDark,
                   ),
                 ),
+                if ((_result!['sec12Days'] as int) > 0) ...[
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: _buildStatBlock(
+                      'Sec 12',
+                      "${_result!['sec12Days']} days",
+                      Colors.indigo,
+                      isDark,
+                    ),
+                  ),
+                ],
                 SizedBox(width: 8.w),
                 Expanded(
                   child: _buildStatBlock(
