@@ -10,6 +10,7 @@ import '../services/fcm_service.dart';
 import '../models/geo_data.dart';
 import '../utils/responsive.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../components/password_reset_sheet.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   final String initialRole;
@@ -532,24 +533,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }
 
   Future<void> _handleForgotPassword() async {
-    final email = _emailController.text.trim();
-    if (email.isEmpty ||
-        !RegExp(r'^[\w\.\-]+@[\w\.\-]+\.\w{2,}$').hasMatch(email)) {
-      _showError(
-        'Enter your email address above first, then tap Forgot Password.',
-      );
-      return;
-    }
-    setState(() => _isLoading = true);
-    try {
-      await SupabaseService.client.auth.resetPasswordForEmail(email);
-      if (mounted) {
-        _showSuccess('Password reset link sent to $email. Check your inbox.');
-      }
-    } catch (e) {
-      if (mounted) _showError('Failed to send reset email. Try again.');
-    }
-    if (mounted) setState(() => _isLoading = false);
+    await PasswordResetSheet.show(
+      context,
+      initialEmail: _emailController.text.trim(),
+    );
   }
 
   void _showError(String msg, {bool isWarning = false}) {
@@ -944,19 +931,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           ),
 
           SizedBox(height: 10.h),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: _handleForgotPassword,
-              child: Text(
-                'Forgot Password?',
-                style: GoogleFonts.inter(
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF2563EB),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton(
+                onPressed: () => PasswordResetSheet.show(
+                  context,
+                  initialEmail: _emailController.text.trim(),
+                ),
+                child: Text(
+                  'Need Help?',
+                  style: GoogleFonts.inter(
+                    fontSize: 12.sp,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
               ),
-            ),
+              TextButton(
+                onPressed: _handleForgotPassword,
+                child: Text(
+                  'Forgot Password?',
+                  style: GoogleFonts.inter(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF2563EB),
+                  ),
+                ),
+              ),
+            ],
           ),
 
           SizedBox(height: 8.h),
