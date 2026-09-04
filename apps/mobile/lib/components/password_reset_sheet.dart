@@ -119,8 +119,8 @@ class _PasswordResetSheetState extends State<PasswordResetSheet> {
     final newPassword = _passwordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
 
-    if (code.length < 6) {
-      setState(() => _errorMessage = 'Please enter the full 6-digit code.');
+    if (code.length < 6 || code.length > 8) {
+      setState(() => _errorMessage = 'Please enter the verification code (6 to 8 digits).');
       return;
     }
 
@@ -281,7 +281,7 @@ class _PasswordResetSheetState extends State<PasswordResetSheet> {
                   ),
                   SizedBox(height: 2.h),
                   Text(
-                    'Receive a 6-digit code in your email',
+                    'Receive a verification code in your email',
                     style: GoogleFonts.inter(
                       fontSize: 12.sp,
                       color: isDark ? Colors.white60 : Colors.grey.shade600,
@@ -295,7 +295,7 @@ class _PasswordResetSheetState extends State<PasswordResetSheet> {
         SizedBox(height: 24.h),
 
         Text(
-          'Enter your registered email address. We will send you a 6-digit code to set a new password directly in the app.',
+          'Enter your registered email address. We will send you a verification code to set a new password directly in the app.',
           style: GoogleFonts.inter(
             fontSize: 13.sp,
             color: isDark ? Colors.white70 : Colors.grey.shade700,
@@ -353,7 +353,7 @@ class _PasswordResetSheetState extends State<PasswordResetSheet> {
                   child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                 )
               : Text(
-                  'Send 6-Digit Code',
+                  'Send Verification Code',
                   style: GoogleFonts.inter(fontSize: 15.sp, fontWeight: FontWeight.w600),
                 ),
         ),
@@ -428,26 +428,26 @@ class _PasswordResetSheetState extends State<PasswordResetSheet> {
         ),
         SizedBox(height: 20.h),
 
-        // 6-digit code input
+        // Verification code input (supports 6 to 8 digits)
         TextField(
           controller: _codeController,
           keyboardType: TextInputType.number,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(6),
+            LengthLimitingTextInputFormatter(8),
           ],
           textAlign: TextAlign.center,
           style: GoogleFonts.robotoMono(
-            fontSize: 24.sp,
+            fontSize: 20.sp,
             fontWeight: FontWeight.w700,
-            letterSpacing: 8,
+            letterSpacing: 5,
             color: const Color(0xFF1E3A8A),
           ),
           decoration: InputDecoration(
-            labelText: '6-Digit Code',
-            hintText: '000000',
+            labelText: 'Verification Code (OTP)',
+            hintText: '••••••••',
             hintStyle: GoogleFonts.robotoMono(
-              letterSpacing: 8,
+              letterSpacing: 5,
               color: Colors.grey.shade400,
             ),
             prefixIcon: const Icon(Icons.pin_rounded),
