@@ -11,6 +11,7 @@ import '../components/profile_avatar.dart';
 import '../components/profile_detail_sheet.dart';
 import '../theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../components/feedback_sheet.dart';
 
 /// Premium Settings Screen — Silicon-level design.
 ///
@@ -292,6 +293,46 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                     ref.read(dataRefreshProvider.notifier).state++;
                     _showSnack('Data refreshed successfully');
                   },
+                ),
+              ]),
+            ),
+
+            // ─── Help & Feedback ───────────────────────────────
+            SliverToBoxAdapter(
+              child: _buildSectionHeader(
+                isDark,
+                icon: Icons.feedback_rounded,
+                title: 'Help & Feedback',
+                color: const Color(0xFF6366F1),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: _buildSettingsCard(isDark, children: [
+                _buildActionTile(
+                  isDark,
+                  icon: Icons.send_rounded,
+                  title: 'Send Feedback',
+                  subtitle: 'Share suggestions, ideas or general feedback',
+                  color: const Color(0xFF3B82F6),
+                  onTap: () => FeedbackSheet.show(context, screenName: 'Settings'),
+                ),
+                _buildDivider(isDark),
+                _buildActionTile(
+                  isDark,
+                  icon: Icons.bug_report_rounded,
+                  title: 'Report a Bug',
+                  subtitle: 'Found something broken? Let us know',
+                  color: const Color(0xFFEF4444),
+                  onTap: () => FeedbackSheet.show(context, screenName: 'Settings'),
+                ),
+                _buildDivider(isDark),
+                _buildActionTile(
+                  isDark,
+                  icon: Icons.help_outline_rounded,
+                  title: 'Help Center',
+                  subtitle: 'FAQs and getting started guide',
+                  color: const Color(0xFF10B981),
+                  onTap: () => _showSnack('Coming soon'),
                 ),
               ]),
             ),
