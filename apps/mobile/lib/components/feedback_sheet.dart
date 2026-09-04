@@ -19,6 +19,7 @@ class FeedbackSheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      useSafeArea: true,
       builder: (_) => FeedbackSheet(currentScreen: screenName),
     );
   }
@@ -123,24 +124,32 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return Container(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.88,
+    return AnimatedPadding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOut,
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF0F172A) : Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 30,
+              offset: const Offset(0, -8),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          top: false,
+          child: _isSubmitted
+              ? _buildSuccessView(isDark)
+              : _buildFormView(isDark),
+        ),
       ),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A) : Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28.r)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 30,
-            offset: const Offset(0, -8),
-          ),
-        ],
-      ),
-      child: _isSubmitted
-          ? _buildSuccessView(isDark)
-          : _buildFormView(isDark, bottomInset),
     );
   }
 
@@ -187,11 +196,11 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
     );
   }
 
-  Widget _buildFormView(bool isDark, double bottomInset) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: bottomInset),
-      child: SingleChildScrollView(
-        child: Column(
+  Widget _buildFormView(bool isDark) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -515,6 +524,9 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
     return TextField(
       controller: controller,
       maxLines: maxLines,
+      keyboardType: maxLines > 1 ? TextInputType.multiline : TextInputType.text,
+      textInputAction: maxLines > 1 ? TextInputAction.newline : TextInputAction.next,
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       style: TextStyle(
         fontSize: 14.sp,
         color: isDark ? Colors.white : const Color(0xFF0F172A),
