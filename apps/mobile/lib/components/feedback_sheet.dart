@@ -499,8 +499,7 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildLabel(String text, bool isDark) {
