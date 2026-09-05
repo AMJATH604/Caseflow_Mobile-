@@ -314,7 +314,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   title: 'Send Feedback',
                   subtitle: 'Share suggestions, ideas or general feedback',
                   color: const Color(0xFF3B82F6),
-                  onTap: () => FeedbackSheet.show(context, screenName: 'Settings'),
+                  onTap: _openFeedbackSheet,
                 ),
                 _buildDivider(isDark),
                 _buildActionTile(
@@ -323,7 +323,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   title: 'Report a Bug',
                   subtitle: 'Found something broken? Let us know',
                   color: const Color(0xFFEF4444),
-                  onTap: () => FeedbackSheet.show(context, screenName: 'Settings'),
+                  onTap: _openFeedbackSheet,
                 ),
                 _buildDivider(isDark),
                 _buildActionTile(
@@ -1043,6 +1043,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
         ),
       ),
     );
+  }
+
+  void _openFeedbackSheet() {
+    try {
+      FeedbackSheet.show(context, screenName: 'Settings');
+    } catch (e) {
+      debugPrint('Failed to open feedback sheet: $e');
+    }
   }
 
   void _showSnack(String message) {
