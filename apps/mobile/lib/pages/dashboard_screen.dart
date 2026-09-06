@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/providers.dart';
+import '../services/app_localizations.dart';
+import '../utils/app_fonts.dart';
 import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
 import '../models/models.dart';
@@ -112,6 +114,7 @@ class DashboardScreen extends ConsumerWidget {
     AsyncValue<UserProfile> profileAsync,
   ) {
     final todayHearings = stats['todayHearings'] as List<Hearing>? ?? [];
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,7 +166,7 @@ class DashboardScreen extends ConsumerWidget {
                               color: Colors.white.withValues(alpha: 0.6),
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w500,
-                            ),
+                            ).indicSafe,
                           ),
                         ],
                       ),
@@ -194,13 +197,13 @@ class DashboardScreen extends ConsumerWidget {
                           ),
                           SizedBox(width: 6.w),
                           Text(
-                            'ONLINE',
+                            l10n.get('online').toUpperCase(),
                             style: GoogleFonts.inter(
                               fontSize: 8.sp,
                               fontWeight: FontWeight.w800,
                               color: const Color(0xFF10B981),
                               letterSpacing: 1,
-                            ),
+                            ).indicSafe,
                           ),
                         ],
                       ),
@@ -226,7 +229,7 @@ class DashboardScreen extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: KpiCard(
-                      title: 'Active Cases',
+                      title: l10n.get('active_cases'),
                       value: "${stats['activeCasesCount'] ?? 0}",
                       icon: Icons.folder_open_rounded,
                       accentColor: const Color(0xFF6366F1),
@@ -236,7 +239,7 @@ class DashboardScreen extends ConsumerWidget {
                   SizedBox(width: 12.w),
                   Expanded(
                     child: KpiCard(
-                      title: "Today's Hearings",
+                      title: l10n.get('todays_hearings'),
                       value: '${todayHearings.length}',
                       icon: Icons.gavel_rounded,
                       accentColor: const Color(0xFFF59E0B),
@@ -251,7 +254,7 @@ class DashboardScreen extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: KpiCard(
-                      title: 'Upcoming Hearings',
+                      title: l10n.get('upcoming_hearings'),
                       value: "${stats['upcomingHearingsCount'] ?? 0}",
                       icon: Icons.calendar_month_rounded,
                       accentColor: const Color(0xFF0EA5E9),
@@ -261,7 +264,7 @@ class DashboardScreen extends ConsumerWidget {
                   SizedBox(width: 12.w),
                   Expanded(
                     child: KpiCard(
-                      title: 'Total Clients',
+                      title: l10n.get('total_clients'),
                       value: "${stats['clientsCount'] ?? 0}",
                       icon: Icons.people_rounded,
                       accentColor: const Color(0xFF10B981),
@@ -281,7 +284,7 @@ class DashboardScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: StatChip(
-                  label: 'Disposed',
+                  label: l10n.get('disposed'),
                   value: stats['disposedCasesCount'] ?? 0,
                   color: const Color(0xFF14B8A6),
                   icon: Icons.done_all_rounded,
@@ -290,7 +293,7 @@ class DashboardScreen extends ConsumerWidget {
               SizedBox(width: 8.w),
               Expanded(
                 child: StatChip(
-                  label: 'Dismissed',
+                  label: l10n.get('dismissed'),
                   value: stats['dismissedCasesCount'] ?? 0,
                   color: const Color(0xFF64748B),
                   icon: Icons.cancel_rounded,
@@ -301,7 +304,7 @@ class DashboardScreen extends ConsumerWidget {
                 child: GestureDetector(
                   onTap: () => context.go('/payments'),
                   child: StatChip(
-                    label: 'Payments',
+                    label: l10n.get('payments'),
                     value: stats['pendingPaymentsCount'] ?? 0,
                     color: const Color(0xFFF97316),
                     icon: Icons.account_balance_wallet_rounded,
@@ -320,7 +323,7 @@ class DashboardScreen extends ConsumerWidget {
               DailyBoardWidget(),
               SizedBox(height: 32.h),
               Text(
-                'Jump To',
+                l10n.get('jump_to'),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                   color: const Color(0xFF94A3B8),
@@ -361,7 +364,7 @@ class DashboardScreen extends ConsumerWidget {
                   _buildFeatureCard(
                     context,
                     Icons.credit_card_rounded,
-                    'Payments',
+                    l10n.get('payments'),
                     const Color(0xFF0EA5E9),
                     () {
                       context.go('/payments');
@@ -371,7 +374,7 @@ class DashboardScreen extends ConsumerWidget {
               ),
               SizedBox(height: 32.h),
               Text(
-                'Quick Actions',
+                l10n.get('quick_actions'),
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                   color: const Color(0xFF94A3B8),
@@ -385,7 +388,7 @@ class DashboardScreen extends ConsumerWidget {
                   _buildActionButton(
                     context,
                     Icons.add_rounded,
-                    'New Case',
+                    l10n.get('new_case'),
                     const Color(0xFF3B82F6),
                     () {
                       showDialog(
@@ -397,7 +400,7 @@ class DashboardScreen extends ConsumerWidget {
                   _buildActionButton(
                     context,
                     Icons.person_add_rounded,
-                    'New Client',
+                    l10n.get('new_client'),
                     const Color(0xFF4ADE80),
                     () {
                       showDialog(
@@ -409,7 +412,7 @@ class DashboardScreen extends ConsumerWidget {
                   _buildActionButton(
                     context,
                     Icons.event_available_rounded,
-                    'New Hearing',
+                    l10n.get('new_hearing'),
                     const Color(0xFFF59E0B),
                     () {
                       showDialog(
@@ -439,7 +442,7 @@ class DashboardScreen extends ConsumerWidget {
                   _buildActionButton(
                     context,
                     Icons.mail_rounded,
-                    'Invitations',
+                    l10n.get('invitations'),
                     Colors.purple,
                     () {
                       context.push('/collaborator-invitations');
@@ -521,7 +524,7 @@ class DashboardScreen extends ConsumerWidget {
                     style: GoogleFonts.inter(
                       fontSize: 11.sp,
                       color: const Color(0xFF64748B),
-                    ),
+                    ).indicSafe,
                   ),
                 ],
               ),
@@ -544,7 +547,7 @@ class DashboardScreen extends ConsumerWidget {
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
-                    ),
+                    ).indicSafe,
                   ),
                 ),
               ),
@@ -660,7 +663,7 @@ class DashboardScreen extends ConsumerWidget {
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
                 color: color,
-              ),
+              ).indicSafe,
             ),
           ],
         ),
@@ -703,7 +706,7 @@ class DashboardScreen extends ConsumerWidget {
                 SizedBox(width: 12.w),
                 Text(
                   'Uploading photo...',
-                  style: GoogleFonts.inter(fontSize: 13.sp),
+                  style: GoogleFonts.inter(fontSize: 13.sp).indicSafe,
                 ),
               ],
             ),
@@ -736,7 +739,7 @@ class DashboardScreen extends ConsumerWidget {
                 SizedBox(width: 10.w),
                 Text(
                   'Profile photo updated!',
-                  style: GoogleFonts.inter(fontSize: 13.sp),
+                  style: GoogleFonts.inter(fontSize: 13.sp).indicSafe,
                 ),
               ],
             ),
@@ -763,7 +766,7 @@ class DashboardScreen extends ConsumerWidget {
                 SizedBox(width: 10.w),
                 Text(
                   'Failed to upload photo. Try again.',
-                  style: GoogleFonts.inter(fontSize: 13.sp),
+                  style: GoogleFonts.inter(fontSize: 13.sp).indicSafe,
                 ),
               ],
             ),
@@ -822,6 +825,7 @@ class DashboardScreen extends ConsumerWidget {
     AsyncValue<UserProfile> profileAsync,
   ) {
     final todayHearings = stats['todayHearings'] as List<Hearing>? ?? [];
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -852,7 +856,7 @@ class DashboardScreen extends ConsumerWidget {
                         fontWeight: FontWeight.w800,
                         color: AppTheme.accent,
                         letterSpacing: 1,
-                      ),
+                      ).indicSafe,
                     ),
                   ),
               loading: () => const SizedBox(),
@@ -869,7 +873,7 @@ class DashboardScreen extends ConsumerWidget {
             SizedBox(
               width: 280.w,
               child: KpiCard(
-                title: 'Active Cases',
+                title: l10n.get('active_cases'),
                 value: "${stats['activeCasesCount']}",
                 icon: Icons.folder_open_rounded,
                 accentColor: const Color(0xFF6366F1),
@@ -879,7 +883,7 @@ class DashboardScreen extends ConsumerWidget {
             SizedBox(
               width: 280.w,
               child: KpiCard(
-                title: "Today's Hearings",
+                title: l10n.get('todays_hearings'),
                 value: '${todayHearings.length}',
                 icon: Icons.gavel_rounded,
                 accentColor: const Color(0xFFF59E0B),
@@ -890,7 +894,7 @@ class DashboardScreen extends ConsumerWidget {
             SizedBox(
               width: 280.w,
               child: KpiCard(
-                title: 'Upcoming Hearings',
+                title: l10n.get('upcoming_hearings'),
                 value: "${stats['upcomingHearingsCount']}",
                 icon: Icons.calendar_month_rounded,
                 accentColor: const Color(0xFF0EA5E9),
@@ -900,7 +904,7 @@ class DashboardScreen extends ConsumerWidget {
             SizedBox(
               width: 280.w,
               child: KpiCard(
-                title: 'Total Clients',
+                title: l10n.get('total_clients'),
                 value: "${stats['clientsCount']}",
                 icon: Icons.people_rounded,
                 accentColor: const Color(0xFF10B981),
@@ -915,7 +919,7 @@ class DashboardScreen extends ConsumerWidget {
           children: [
             Expanded(
               child: StatChip(
-                label: 'Disposed',
+                label: l10n.get('disposed'),
                 value: stats['disposedCasesCount'] ?? 0,
                 color: const Color(0xFF14B8A6),
                 icon: Icons.done_all_rounded,
@@ -924,7 +928,7 @@ class DashboardScreen extends ConsumerWidget {
             SizedBox(width: 10.w),
             Expanded(
               child: StatChip(
-                label: 'Dismissed',
+                label: l10n.get('dismissed'),
                 value: stats['dismissedCasesCount'] ?? 0,
                 color: const Color(0xFF64748B),
                 icon: Icons.cancel_rounded,
@@ -935,7 +939,7 @@ class DashboardScreen extends ConsumerWidget {
               child: GestureDetector(
                 onTap: () => context.go('/payments'),
                 child: StatChip(
-                  label: 'Payments',
+                  label: l10n.get('payments'),
                   value: stats['pendingPaymentsCount'] ?? 0,
                   color: const Color(0xFFF97316),
                   icon: Icons.account_balance_wallet_rounded,
@@ -1060,7 +1064,7 @@ class DashboardScreen extends ConsumerWidget {
                 color: const Color(0xFF64748B),
                 fontSize: 11.sp,
                 fontWeight: FontWeight.w600,
-              ),
+              ).indicSafe,
             ),
           ],
         ],

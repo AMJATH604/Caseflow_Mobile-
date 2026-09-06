@@ -6,6 +6,7 @@ import '../services/supabase_service.dart';
 import '../services/providers.dart';
 import '../theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../services/app_localizations.dart';
 
 class TaskWidget extends ConsumerStatefulWidget {
   const TaskWidget({super.key});
@@ -93,7 +94,7 @@ class _TaskWidgetState extends ConsumerState<TaskWidget>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Daily Tasks',
+                            AppLocalizations.of(context).get('daily_tasks'),
                             style: GoogleFonts.inter(
                               fontSize: 18.sp,
                               fontWeight: FontWeight.w700,
@@ -520,7 +521,11 @@ class _TaskWidgetState extends ConsumerState<TaskWidget>
   }
 
   Widget _buildEmptyState(bool isDark) {
-    final labels = ['No tasks yet', 'All done! 🎉', 'Nothing completed yet'];
+    final labels = [
+      AppLocalizations.of(context).get('no_tasks_yet'),
+      'All done! 🎉',
+      'Nothing completed yet',
+    ];
     final icons = [
       Icons.task_alt_rounded,
       Icons.celebration_rounded,

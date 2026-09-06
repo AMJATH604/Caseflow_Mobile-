@@ -16,6 +16,7 @@ import 'components/dialogs/payment_capture_overlay.dart';
 import 'theme/app_theme.dart';
 import 'router/app_router.dart';
 import 'services/app_localizations.dart';
+import 'services/locale_service.dart';
 import 'services/realtime_sync_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -100,8 +101,17 @@ void main() async {
     ),
   );
 
+  // Load the saved display language before the first frame, so the app opens
+  // directly in the user's language instead of rendering English and then
+  // visibly switching.
+  final savedLocale = await LocaleService.load();
+
   // Create a ProviderContainer so we can wire RealtimeSyncService callback
-  final container = ProviderContainer();
+  final container = ProviderContainer(
+    overrides: [
+      localeProvider.overrideWith((ref) => LocaleNotifier(savedLocale)),
+    ],
+  );
 
   // Wire the Realtime callback for table-specific Riverpod invalidations
   RealtimeSyncService().onTableChanged = (table) {
@@ -214,6 +224,7 @@ class _CaseFlowAppState extends ConsumerState<CaseFlowApp>
   @override
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
+    final locale = ref.watch(localeProvider);
 
     // ScreenUtilInit: design baseline = 390×844 (iPhone 14 / mid-range Android).
     // All R.sp(), R.w(), R.h() values scale proportionally on every device.
@@ -228,6 +239,9 @@ class _CaseFlowAppState extends ConsumerState<CaseFlowApp>
         darkTheme: AppTheme.darkTheme,
         themeMode: themeMode,
         routerConfig: appRouter,
+        // Driven by the user's choice in Settings, not the device locale —
+        // an advocate may run their phone in English but want CaseFlow in Tamil.
+        locale: locale,
         supportedLocales: AppLocalizations.supportedLocales,
         localizationsDelegates: const [
           AppLocalizations.delegate,

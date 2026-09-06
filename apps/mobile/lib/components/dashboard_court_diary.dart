@@ -9,6 +9,7 @@ import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../components/status_badge.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../services/app_localizations.dart';
 
 class DashboardCourtDiary extends ConsumerStatefulWidget {
   DashboardCourtDiary({super.key});
@@ -39,7 +40,7 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Court Diary',
+              AppLocalizations.of(context).get('court_diary'),
               style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16.h),

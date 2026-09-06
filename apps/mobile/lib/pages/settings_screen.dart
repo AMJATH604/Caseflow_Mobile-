@@ -12,6 +12,9 @@ import '../components/profile_detail_sheet.dart';
 import '../theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../components/feedback_sheet.dart';
+import '../services/app_localizations.dart';
+import '../services/locale_service.dart';
+import '../utils/app_fonts.dart';
 
 /// Premium Settings Screen — Silicon-level design.
 ///
@@ -98,6 +101,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final profileAsync = ref.watch(userProfileProvider);
     final profile = profileAsync.valueOrNull;
+    final l10n = AppLocalizations.of(context);
 
     if (_isLoading) {
       return Scaffold(
@@ -125,7 +129,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               child: _buildSectionHeader(
                 isDark,
                 icon: Icons.notifications_active_rounded,
-                title: 'Notifications',
+                title: l10n.get('section_notifications'),
                 color: const Color(0xFF3B82F6),
               ),
             ),
@@ -134,8 +138,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 _buildToggleTile(
                   isDark,
                   icon: Icons.chat_bubble_rounded,
-                  title: 'Direct Messages',
-                  subtitle: 'Get notified for new DM conversations',
+                  title: l10n.get('direct_messages'),
+                  subtitle: l10n.get('direct_messages_sub'),
                   value: _dmNotifications,
                   color: const Color(0xFF6366F1),
                   onChanged: (v) {
@@ -147,8 +151,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 _buildToggleTile(
                   isDark,
                   icon: Icons.forum_rounded,
-                  title: 'Chamber Messages',
-                  subtitle: 'Notifications for firm chamber discussions',
+                  title: l10n.get('chamber_messages'),
+                  subtitle: l10n.get('chamber_messages_sub'),
                   value: _chamberNotifications,
                   color: const Color(0xFF0EA5E9),
                   onChanged: (v) {
@@ -160,8 +164,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 _buildToggleTile(
                   isDark,
                   icon: Icons.event_rounded,
-                  title: 'Hearing Reminders',
-                  subtitle: 'Receive reminders before upcoming hearings',
+                  title: l10n.get('hearing_reminders'),
+                  subtitle: l10n.get('hearing_reminders_sub'),
                   value: _hearingReminders,
                   color: const Color(0xFFF59E0B),
                   onChanged: (v) {
@@ -173,8 +177,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 _buildToggleTile(
                   isDark,
                   icon: Icons.volume_up_rounded,
-                  title: 'Notification Sound',
-                  subtitle: 'Play a sound for incoming notifications',
+                  title: l10n.get('notification_sound'),
+                  subtitle: l10n.get('notification_sound_sub'),
                   value: _notifSound,
                   color: const Color(0xFF10B981),
                   onChanged: (v) {
@@ -186,8 +190,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 _buildToggleTile(
                   isDark,
                   icon: Icons.vibration_rounded,
-                  title: 'Vibration',
-                  subtitle: 'Vibrate on notification',
+                  title: l10n.get('vibration'),
+                  subtitle: l10n.get('vibration_sub'),
                   value: _notifVibration,
                   color: const Color(0xFF8B5CF6),
                   onChanged: (v) {
@@ -203,7 +207,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               child: _buildSectionHeader(
                 isDark,
                 icon: Icons.palette_rounded,
-                title: 'Appearance',
+                title: l10n.get('section_appearance'),
                 color: const Color(0xFF8B5CF6),
               ),
             ),
@@ -211,13 +215,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               child: _buildSettingsCard(isDark, children: [
                 _buildDarkModeToggle(isDark),
                 _buildDivider(isDark),
-                _buildInfoTile(
-                  isDark,
-                  icon: Icons.language_rounded,
-                  title: 'Language',
-                  trailing: 'English',
-                  color: const Color(0xFF0EA5E9),
-                ),
+                _buildLanguageTile(isDark),
               ]),
             ),
 
@@ -226,7 +224,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               child: _buildSectionHeader(
                 isDark,
                 icon: Icons.shield_rounded,
-                title: 'Privacy',
+                title: l10n.get('section_privacy'),
                 color: const Color(0xFF10B981),
               ),
             ),
@@ -235,8 +233,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 _buildToggleTile(
                   isDark,
                   icon: Icons.public_rounded,
-                  title: 'Public Directory',
-                  subtitle: 'Show your profile in the advocate directory',
+                  title: l10n.get('public_directory'),
+                  subtitle: l10n.get('public_directory_sub'),
                   value: _publicDirectory,
                   color: const Color(0xFF10B981),
                   onChanged: (v) async {
@@ -263,7 +261,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               child: _buildSectionHeader(
                 isDark,
                 icon: Icons.storage_rounded,
-                title: 'Data & Storage',
+                title: l10n.get('section_data'),
                 color: const Color(0xFFF59E0B),
               ),
             ),
@@ -272,8 +270,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 _buildActionTile(
                   isDark,
                   icon: Icons.cached_rounded,
-                  title: 'Clear Image Cache',
-                  subtitle: 'Free up space by clearing cached images',
+                  title: l10n.get('clear_image_cache'),
+                  subtitle: l10n.get('clear_image_cache_sub'),
                   color: const Color(0xFFF59E0B),
                   onTap: () {
                     PaintingBinding.instance.imageCache.clear();
@@ -285,8 +283,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 _buildActionTile(
                   isDark,
                   icon: Icons.refresh_rounded,
-                  title: 'Refresh All Data',
-                  subtitle: 'Force re-sync all data from server',
+                  title: l10n.get('refresh_all_data'),
+                  subtitle: l10n.get('refresh_all_data_sub'),
                   color: const Color(0xFF3B82F6),
                   onTap: () {
                     ref.invalidate(userProfileProvider);
@@ -302,7 +300,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               child: _buildSectionHeader(
                 isDark,
                 icon: Icons.feedback_rounded,
-                title: 'Help & Feedback',
+                title: l10n.get('section_help'),
                 color: const Color(0xFF6366F1),
               ),
             ),
@@ -311,8 +309,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 _buildActionTile(
                   isDark,
                   icon: Icons.send_rounded,
-                  title: 'Send Feedback',
-                  subtitle: 'Share suggestions, ideas or general feedback',
+                  title: l10n.get('send_feedback'),
+                  subtitle: l10n.get('send_feedback_sub'),
                   color: const Color(0xFF3B82F6),
                   onTap: _openFeedbackSheet,
                 ),
@@ -320,8 +318,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 _buildActionTile(
                   isDark,
                   icon: Icons.bug_report_rounded,
-                  title: 'Report a Bug',
-                  subtitle: 'Found something broken? Let us know',
+                  title: l10n.get('report_bug'),
+                  subtitle: l10n.get('report_bug_sub'),
                   color: const Color(0xFFEF4444),
                   onTap: _openFeedbackSheet,
                 ),
@@ -329,8 +327,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 _buildActionTile(
                   isDark,
                   icon: Icons.help_outline_rounded,
-                  title: 'Help Center',
-                  subtitle: 'FAQs and getting started guide',
+                  title: l10n.get('help_center'),
+                  subtitle: l10n.get('help_center_sub'),
                   color: const Color(0xFF10B981),
                   onTap: () => _showSnack('Coming soon'),
                 ),
@@ -342,7 +340,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               child: _buildSectionHeader(
                 isDark,
                 icon: Icons.info_rounded,
-                title: 'About',
+                title: l10n.get('section_about'),
                 color: const Color(0xFF64748B),
               ),
             ),
@@ -351,7 +349,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 _buildInfoTile(
                   isDark,
                   icon: Icons.apps_rounded,
-                  title: 'App Version',
+                  title: l10n.get('app_version'),
                   trailing: '2.0.0',
                   color: const Color(0xFF6366F1),
                 ),
@@ -359,8 +357,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 _buildActionTile(
                   isDark,
                   icon: Icons.description_rounded,
-                  title: 'Terms & Conditions',
-                  subtitle: 'Read our terms of service',
+                  title: l10n.get('terms'),
+                  subtitle: l10n.get('terms_sub'),
                   color: const Color(0xFF64748B),
                   onTap: () => _showSnack('Coming soon'),
                 ),
@@ -368,8 +366,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 _buildActionTile(
                   isDark,
                   icon: Icons.privacy_tip_rounded,
-                  title: 'Privacy Policy',
-                  subtitle: 'Read our privacy policy',
+                  title: l10n.get('privacy_policy'),
+                  subtitle: l10n.get('privacy_policy_sub'),
                   color: const Color(0xFF64748B),
                   onTap: () => _showSnack('Coming soon'),
                 ),
@@ -377,8 +375,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 _buildActionTile(
                   isDark,
                   icon: Icons.star_rounded,
-                  title: 'Rate CaseFlow',
-                  subtitle: 'Help us improve with your feedback',
+                  title: l10n.get('rate_app'),
+                  subtitle: l10n.get('rate_app_sub'),
                   color: const Color(0xFFF59E0B),
                   onTap: () => _showSnack('Coming soon'),
                 ),
@@ -420,7 +418,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                               ? Colors.white12
                               : const Color(0xFFE2E8F0),
                           letterSpacing: 0.5,
-                        ),
+                        ).indicSafe,
                       ),
                     ],
                   ),
@@ -516,7 +514,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                     fontSize: 12.sp,
                     color: Colors.white.withValues(alpha: 0.5),
                     fontWeight: FontWeight.w500,
-                  ),
+                  ).indicSafe,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -552,7 +550,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                           fontWeight: FontWeight.w800,
                           color: Colors.white.withValues(alpha: 0.7),
                           letterSpacing: 1,
-                        ),
+                        ).indicSafe,
                       ),
                     ],
                   ),
@@ -610,7 +608,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               fontWeight: FontWeight.w800,
               color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
               letterSpacing: 1.5,
-            ),
+            ).indicSafe,
           ),
         ],
       ),
@@ -671,7 +669,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : const Color(0xFF1E293B),
-                  ),
+                  ).indicSafe,
                 ),
                 SizedBox(height: 2.h),
                 Text(
@@ -681,7 +679,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                     color: isDark
                         ? const Color(0xFF64748B)
                         : const Color(0xFF94A3B8),
-                  ),
+                  ).indicSafe,
                 ),
               ],
             ),
@@ -751,6 +749,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   }
 
   Widget _buildDarkModeToggle(bool isDark) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       child: Row(
@@ -780,24 +779,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isDark ? 'Dark Mode' : 'Light Mode',
+                  isDark ? l10n.get('dark_mode') : l10n.get('light_mode'),
                   style: GoogleFonts.inter(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: isDark ? Colors.white : const Color(0xFF1E293B),
-                  ),
+                  ).indicSafe,
                 ),
                 SizedBox(height: 2.h),
                 Text(
                   isDark
-                      ? 'Switch to light theme'
-                      : 'Switch to dark theme',
+                      ? l10n.get('dark_mode_sub')
+                      : l10n.get('light_mode_sub'),
                   style: GoogleFonts.inter(
                     fontSize: 11.sp,
                     color: isDark
                         ? const Color(0xFF64748B)
                         : const Color(0xFF94A3B8),
-                  ),
+                  ).indicSafe,
                 ),
               ],
             ),
@@ -857,7 +856,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                         fontWeight: FontWeight.w600,
                         color:
                             isDark ? Colors.white : const Color(0xFF1E293B),
-                      ),
+                      ).indicSafe,
                     ),
                     SizedBox(height: 2.h),
                     Text(
@@ -867,7 +866,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                         color: isDark
                             ? const Color(0xFF64748B)
                             : const Color(0xFF94A3B8),
-                      ),
+                      ).indicSafe,
                     ),
                   ],
                 ),
@@ -877,6 +876,220 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 color: isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1),
                 size: 20,
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ─── Language ────────────────────────────────────────────
+  // Tappable version of the info tile. The trailing chip shows the active
+  // language in its own script, so a user who cannot read English can still
+  // recognise the current setting and find their way back here.
+  Widget _buildLanguageTile(bool isDark) {
+    final l10n = AppLocalizations.of(context);
+    final current = LocaleService.languageFor(ref.watch(localeProvider));
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _showLanguagePicker,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          child: Row(
+            children: [
+              Container(
+                width: 40.w,
+                height: 40.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0EA5E9).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: const Icon(
+                  Icons.language_rounded,
+                  color: Color(0xFF0EA5E9),
+                  size: 18,
+                ),
+              ),
+              SizedBox(width: 14.w),
+              Expanded(
+                child: Text(
+                  l10n.get('language'),
+                  style: GoogleFonts.inter(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                  ).indicSafe.indicSafe,
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color:
+                      isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Text(
+                  current.label,
+                  style: GoogleFonts.inter(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
+                  ).indicSafe.indicSafe,
+                ),
+              ),
+              SizedBox(width: 6.w),
+              Icon(
+                Icons.chevron_right_rounded,
+                color:
+                    isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1),
+                size: 20,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showLanguagePicker() async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context);
+
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 20.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40.w,
+                    height: 4.h,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF475569)
+                          : const Color(0xFFE2E8F0),
+                      borderRadius: BorderRadius.circular(2.r),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 18.h),
+                Text(
+                  l10n.get('choose_language'),
+                  style: GoogleFonts.inter(
+                    fontSize: 17.sp,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                  ).indicSafe.indicSafe,
+                ),
+                SizedBox(height: 6.h),
+                Text(
+                  l10n.get('language_sheet_note'),
+                  style: GoogleFonts.inter(
+                    fontSize: 12.sp,
+                    height: 1.45,
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
+                  ).indicSafe.indicSafe,
+                ),
+                SizedBox(height: 16.h),
+                ...LocaleService.supported.map(
+                  (lang) => _buildLanguageOption(sheetContext, isDark, lang),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLanguageOption(
+    BuildContext sheetContext,
+    bool isDark,
+    AppLanguage lang,
+  ) {
+    // `read`, not `watch`: this runs inside the modal route's builder, which
+    // is outside this widget's build. Watching there would not rebuild the
+    // sheet anyway, and the sheet is popped as soon as a language is picked.
+    final selected = ref.read(localeProvider).languageCode == lang.code;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12.r),
+        onTap: () async {
+          await ref.read(localeProvider.notifier).setLocale(lang.locale);
+          if (sheetContext.mounted) Navigator.of(sheetContext).pop();
+        },
+        child: Container(
+          margin: EdgeInsets.only(bottom: 8.h),
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 13.h),
+          decoration: BoxDecoration(
+            color: selected
+                ? const Color(0xFF0EA5E9).withValues(alpha: 0.08)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12.r),
+            border: Border.all(
+              color: selected
+                  ? const Color(0xFF0EA5E9)
+                  : (isDark
+                      ? const Color(0xFF334155)
+                      : const Color(0xFFE2E8F0)),
+              width: selected ? 1.5 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Native script first — this is the line a user who cannot
+                    // read English needs to recognise.
+                    Text(
+                      lang.label,
+                      style: GoogleFonts.inter(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w600,
+                        color:
+                            isDark ? Colors.white : const Color(0xFF1E293B),
+                      ).indicSafe.indicSafe,
+                    ),
+                    if (lang.label != lang.englishName) ...[
+                      SizedBox(height: 2.h),
+                      Text(
+                        lang.englishName,
+                        style: GoogleFonts.inter(
+                          fontSize: 11.sp,
+                          color: isDark
+                              ? const Color(0xFF64748B)
+                              : const Color(0xFF94A3B8),
+                        ).indicSafe,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (selected)
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: Color(0xFF0EA5E9),
+                  size: 22,
+                ),
             ],
           ),
         ),
@@ -912,7 +1125,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
                 color: isDark ? Colors.white : const Color(0xFF1E293B),
-              ),
+              ).indicSafe,
             ),
           ),
           Container(
@@ -929,7 +1142,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 color: isDark
                     ? const Color(0xFF94A3B8)
                     : const Color(0xFF64748B),
-              ),
+              ).indicSafe,
             ),
           ),
         ],
@@ -948,6 +1161,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   }
 
   Widget _buildSignOutButton(bool isDark) {
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -961,7 +1175,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 borderRadius: BorderRadius.circular(20.r),
               ),
               title: Text(
-                'Sign Out',
+                l10n.get('sign_out'),
                 style: GoogleFonts.outfit(
                   fontWeight: FontWeight.w700,
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
@@ -974,27 +1188,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   color: isDark
                       ? const Color(0xFF94A3B8)
                       : const Color(0xFF64748B),
-                ),
+                ).indicSafe,
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
                   child: Text(
-                    'Cancel',
+                    l10n.get('cancel'),
                     style: GoogleFonts.inter(
                       fontWeight: FontWeight.w600,
                       color: const Color(0xFF64748B),
-                    ),
+                    ).indicSafe,
                   ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, true),
                   child: Text(
-                    'Sign Out',
+                    l10n.get('sign_out'),
                     style: GoogleFonts.inter(
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFFEF4444),
-                    ),
+                    ).indicSafe,
                   ),
                 ),
               ],
@@ -1031,12 +1245,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               ),
               SizedBox(width: 12.w),
               Text(
-                'Sign Out',
+                l10n.get('sign_out'),
                 style: GoogleFonts.inter(
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFFEF4444),
-                ),
+                ).indicSafe,
               ),
             ],
           ),
@@ -1060,7 +1274,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
           children: [
             Icon(Icons.check_circle_rounded, color: Colors.white, size: 16),
             SizedBox(width: 8.w),
-            Text(message, style: GoogleFonts.inter(fontSize: 13.sp)),
+            Text(message, style: GoogleFonts.inter(fontSize: 13.sp).indicSafe),
           ],
         ),
         duration: const Duration(seconds: 2),

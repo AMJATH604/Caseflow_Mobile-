@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/providers.dart';
+import '../services/app_localizations.dart';
+import '../utils/app_fonts.dart';
 import '../theme/app_theme.dart';
 import 'mobile_more_sheet.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,6 +15,7 @@ class MobileBottomNav extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return ClipRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
@@ -44,7 +47,7 @@ class MobileBottomNav extends ConsumerWidget {
                     context,
                     0,
                     Icons.grid_view_rounded,
-                    'Home',
+                    l10n.get('nav_home'),
                     '/',
                   ),
                   _buildNavItem(
@@ -52,7 +55,7 @@ class MobileBottomNav extends ConsumerWidget {
                     context,
                     1,
                     Icons.folder_rounded,
-                    'Cases',
+                    l10n.get('nav_cases'),
                     '/cases',
                   ),
                   _buildNavItem(
@@ -60,7 +63,7 @@ class MobileBottomNav extends ConsumerWidget {
                     context,
                     2,
                     Icons.gavel_rounded,
-                    'Hearings',
+                    l10n.get('nav_hearings'),
                     '/hearings',
                   ),
                   _buildNavItem(
@@ -68,7 +71,7 @@ class MobileBottomNav extends ConsumerWidget {
                     context,
                     3,
                     Icons.handyman_rounded,
-                    'Tools',
+                    l10n.get('nav_tools'),
                     '/tools',
                   ),
                   _buildMoreItem(context),
@@ -148,7 +151,7 @@ class MobileBottomNav extends ConsumerWidget {
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                 color: isActive ? AppTheme.accent : const Color(0xFF94A3B8),
                 letterSpacing: isActive ? 0.2 : 0,
-              ),
+              ).indicSafe,
               child: Text(label),
             ),
           ],
@@ -182,12 +185,12 @@ class MobileBottomNav extends ConsumerWidget {
             ),
             SizedBox(height: 3.h),
             Text(
-              'More',
+              AppLocalizations.of(context).get('nav_more'),
               style: GoogleFonts.inter(
                 fontSize: 10.sp,
                 fontWeight: FontWeight.w500,
                 color: const Color(0xFF94A3B8),
-              ),
+              ).indicSafe,
             ),
           ],
         ),
