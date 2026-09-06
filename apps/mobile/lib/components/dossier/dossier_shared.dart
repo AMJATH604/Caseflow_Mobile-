@@ -2,34 +2,6 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// Marks a subtree as being rendered *inside* a container that already
-/// supplies its own title and chrome — currently the dossier detail sheets.
-///
-/// Every dossier section widget returns a [DossierSection] internally. Without
-/// this, opening one in a bottom sheet would nest a collapsed accordion inside
-/// a sheet that already has a header. Wrapping the sheet body in this scope
-/// makes [DossierSection] render its children directly, so the six section
-/// widgets are reused with no changes of their own.
-class DossierEmbedScope extends InheritedWidget {
-  final bool embedded;
-
-  const DossierEmbedScope({
-    super.key,
-    this.embedded = true,
-    required super.child,
-  });
-
-  static bool of(BuildContext context) =>
-      context
-          .dependOnInheritedWidgetOfExactType<DossierEmbedScope>()
-          ?.embedded ??
-      false;
-
-  @override
-  bool updateShouldNotify(DossierEmbedScope oldWidget) =>
-      embedded != oldWidget.embedded;
-}
-
 // ─── REUSABLE COLLAPSIBLE SECTION WIDGET ──────────────
 
 class DossierSection extends StatelessWidget {
@@ -56,23 +28,6 @@ class DossierSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Embedded in a detail sheet: the sheet owns the title and the card, so
-    // drop the accordion and render the content directly. The trailing action
-    // (usually "+ Add") is kept — losing it would remove the only way to add
-    // an act, IA or interim order.
-    if (DossierEmbedScope.of(context)) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (trailing != null)
-            Align(alignment: Alignment.centerRight, child: trailing!),
-          if (trailing != null) SizedBox(height: 8.h),
-          ...children,
-        ],
-      );
-    }
-
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.darkCard,
