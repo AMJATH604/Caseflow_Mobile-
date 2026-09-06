@@ -12,6 +12,7 @@ import '../models/case_dossier_models.dart';
 import '../models/caveat_models.dart';
 import '../models/strategy_models.dart';
 import 'caveat_service.dart';
+import 'locale_service.dart';
 import 'repositories/strategy_repository.dart';
 
 // ─── Auth State ─────────────────────────────────────
@@ -290,6 +291,32 @@ final caveatsProvider = FutureProvider<List<Caveat>>((ref) async {
 final navigationIndexProvider = StateProvider<int>((ref) => 0);
 final pageTitleProvider = StateProvider<String>((ref) => 'CaseFlow');
 final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.light);
+
+// ─── Display Language ────────────────────────────────
+
+/// Holds the active display language and persists every change.
+///
+/// The initial value is seeded in `main()` from [LocaleService.load] via a
+/// provider override, so the app opens directly in the saved language rather
+/// than rendering English for a frame and then switching.
+class LocaleNotifier extends StateNotifier<Locale> {
+  LocaleNotifier(super.initial);
+
+  /// Switches the app's language and writes it to disk.
+  ///
+  /// State is updated first so the UI switches immediately; persistence
+  /// failures are swallowed inside [LocaleService.save].
+  Future<void> setLocale(Locale locale) async {
+    if (locale.languageCode == state.languageCode) return;
+    state = locale;
+    await LocaleService.save(locale);
+  }
+}
+
+/// The app's current display language. Watched by `MaterialApp.router`.
+final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>(
+  (ref) => LocaleNotifier(LocaleService.fallback),
+);
 
 // ─── Carousel Slides ──────────────────────────────────
 final carouselSlidesProvider = FutureProvider<List<Map<String, dynamic>>>((
