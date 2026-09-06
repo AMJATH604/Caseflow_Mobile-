@@ -2,6 +2,8 @@
 /// Acts & Sections, Interlocutory Applications, Interim Orders
 library;
 
+import '../utils/safe_date.dart';
+
 class CaseAct {
   final String id;
   final String caseId;
@@ -25,9 +27,7 @@ class CaseAct {
     actName: json['act_name'] ?? '',
     sectionNumber: json['section_number'],
     createdBy: json['created_by'] ?? '',
-    createdAt: DateTime.parse(
-      json['created_at'] ?? DateTime.now().toIso8601String(),
-    ),
+    createdAt: parseDateOr(json['created_at'], DateTime.now()),
   );
 }
 
@@ -64,18 +64,12 @@ class CaseIAApplication {
         classification: json['classification'],
         party: json['party'],
         filingDate:
-            json['filing_date'] != null
-                ? DateTime.parse(json['filing_date'])
-                : null,
+            parseDateOrNull(json['filing_date']),
         nextDate:
-            json['next_date'] != null
-                ? DateTime.parse(json['next_date'])
-                : null,
+            parseDateOrNull(json['next_date']),
         iaStatus: json['ia_status'] ?? 'pending',
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String(),
-        ),
+        createdAt: parseDateOr(json['created_at'], DateTime.now()),
       );
 }
 
@@ -107,15 +101,11 @@ class CaseInterimOrder {
         id: json['id'] ?? '',
         caseId: json['case_id'] ?? '',
         orderNumber: json['order_number'],
-        orderDate: DateTime.parse(
-          json['order_date'] ?? DateTime.now().toIso8601String(),
-        ),
+        orderDate: parseDateOr(json['order_date'], DateTime.now()),
         orderType: json['order_type'] ?? 'deposition',
         orderSummary: json['order_summary'],
         documentUrl: json['document_url'],
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String(),
-        ),
+        createdAt: parseDateOr(json['created_at'], DateTime.now()),
       );
 }

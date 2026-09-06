@@ -6,6 +6,8 @@
 /// - Immutable fields with named constructor parameters
 library;
 
+import '../utils/safe_date.dart';
+
 class BarAssociation {
   final String id;
   final String name;
@@ -45,12 +47,8 @@ class BarAssociation {
     annualFee: (json['annual_fee'] ?? 500.0).toDouble(),
     inviteCode: json['invite_code'] ?? '',
     subscriptionPlan: json['subscription_plan'] ?? 'starter',
-    subscriptionExpiresAt: json['subscription_expires_at'] != null
-        ? DateTime.parse(json['subscription_expires_at'])
-        : null,
-    createdAt: DateTime.parse(
-      json['created_at'] ?? DateTime.now().toIso8601String(),
-    ),
+    subscriptionExpiresAt: parseDateOrNull(json['subscription_expires_at']),
+    createdAt: parseDateOr(json['created_at'], DateTime.now()),
     memberCount: json['member_count'],
   );
 
@@ -134,9 +132,7 @@ class BarMember {
     joinedYear: json['joined_year'],
     feePaidUntil: json['fee_paid_until'],
     isCaseflowUser: json['is_caseflow_user'] ?? false,
-    createdAt: DateTime.parse(
-      json['created_at'] ?? DateTime.now().toIso8601String(),
-    ),
+    createdAt: parseDateOr(json['created_at'], DateTime.now()),
   );
 
   Map<String, dynamic> toJson() => {
@@ -212,17 +208,11 @@ class BarNotice {
         category: json['category'] ?? 'general',
         isPinned: json['is_pinned'] ?? false,
         publishedBy: json['published_by'],
-        publishedAt: DateTime.parse(
-          json['published_at'] ?? DateTime.now().toIso8601String(),
-        ),
-        scheduledFor: json['scheduled_for'] != null
-            ? DateTime.parse(json['scheduled_for'])
-            : null,
+        publishedAt: parseDateOr(json['published_at'], DateTime.now()),
+        scheduledFor: parseDateOrNull(json['scheduled_for']),
         fcmSent: json['fcm_sent'] ?? false,
         readCount: json['read_count'] ?? 0,
-        createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String(),
-        ),
+        createdAt: parseDateOr(json['created_at'], DateTime.now()),
         isRead: isRead,
       );
 
@@ -279,10 +269,8 @@ class BarFeePayment {
     razorpayPaymentId: json['razorpay_payment_id'],
     status: json['status'] ?? 'pending',
     receiptNumber: json['receipt_number'],
-    paidAt: json['paid_at'] != null ? DateTime.parse(json['paid_at']) : null,
-    createdAt: DateTime.parse(
-      json['created_at'] ?? DateTime.now().toIso8601String(),
-    ),
+    paidAt: parseDateOrNull(json['paid_at']),
+    createdAt: parseDateOr(json['created_at'], DateTime.now()),
   );
 
   Map<String, dynamic> toJson() => {
@@ -364,15 +352,13 @@ class BarElection {
     associationId: json['association_id'] ?? '',
     title: json['title'] ?? '',
     description: json['description'],
-    nominationStart: DateTime.parse(json['nomination_start']),
-    nominationEnd: DateTime.parse(json['nomination_end']),
-    votingStart: DateTime.parse(json['voting_start']),
-    votingEnd: DateTime.parse(json['voting_end']),
+    nominationStart: parseDateOr(json['nomination_start'], DateTime.now()),
+    nominationEnd: parseDateOr(json['nomination_end'], DateTime.now()),
+    votingStart: parseDateOr(json['voting_start'], DateTime.now()),
+    votingEnd: parseDateOr(json['voting_end'], DateTime.now()),
     status: json['status'] ?? 'draft',
     resultsPublished: json['results_published'] ?? false,
-    createdAt: DateTime.parse(
-      json['created_at'] ?? DateTime.now().toIso8601String(),
-    ),
+    createdAt: parseDateOr(json['created_at'], DateTime.now()),
   );
 
   Map<String, dynamic> toJson() => {
@@ -409,9 +395,7 @@ class BarElectionPost {
         electionId: json['election_id'] ?? '',
         postName: json['post_name'] ?? '',
         maxWinners: json['max_winners'] ?? 1,
-        createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String(),
-        ),
+        createdAt: parseDateOr(json['created_at'], DateTime.now()),
       );
 
   Map<String, dynamic> toJson() => {
@@ -464,9 +448,7 @@ class BarNomination {
     status: json['status'] ?? 'pending',
     bio: json['bio'],
     photoUrl: json['photo_url'],
-    createdAt: DateTime.parse(
-      json['created_at'] ?? DateTime.now().toIso8601String(),
-    ),
+    createdAt: parseDateOr(json['created_at'], DateTime.now()),
     nomineeName: json['nominee']?['name'],
     proposerName: json['proposer']?['name'],
     seconderName: json['seconder']?['name'],
@@ -504,9 +486,7 @@ class BarVoterParticipation {
         id: json['id'] ?? '',
         electionId: json['election_id'] ?? '',
         memberId: json['member_id'] ?? '',
-        votedAt: DateTime.parse(
-          json['voted_at'] ?? DateTime.now().toIso8601String(),
-        ),
+        votedAt: parseDateOr(json['voted_at'], DateTime.now()),
         otpVerified: json['otp_verified'] ?? false,
       );
 }
@@ -562,16 +542,14 @@ class BarEvent {
     associationId: json['association_id'] ?? '',
     title: json['title'] ?? '',
     description: json['description'],
-    eventDate: DateTime.parse(json['event_date']),
+    eventDate: parseDateOr(json['event_date'], DateTime.now()),
     startTime: json['start_time'],
     endTime: json['end_time'],
     location: json['location'],
     agenda: json['agenda'],
     category: json['category'] ?? 'meeting',
     createdBy: json['created_by'],
-    createdAt: DateTime.parse(
-      json['created_at'] ?? DateTime.now().toIso8601String(),
-    ),
+    createdAt: parseDateOr(json['created_at'], DateTime.now()),
   );
 
   Map<String, dynamic> toJson() => {

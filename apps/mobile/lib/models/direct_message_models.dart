@@ -1,3 +1,4 @@
+import '../utils/safe_date.dart';
 import 'models.dart';
 import '../components/chat/chat_message_data.dart';
 
@@ -27,12 +28,8 @@ class DirectConversation {
       id: json['id'] ?? '',
       participant1: json['participant_1'] ?? '',
       participant2: json['participant_2'] ?? '',
-      lastMessageAt: DateTime.parse(
-        json['last_message_at'] ?? DateTime.now().toIso8601String(),
-      ),
-      createdAt: DateTime.parse(
-        json['created_at'] ?? DateTime.now().toIso8601String(),
-      ),
+      lastMessageAt: parseDateOr(json['last_message_at'], DateTime.now()),
+      createdAt: parseDateOr(json['created_at'], DateTime.now()),
       partner: json['partner'] != null ? UserProfile.fromJson(json['partner']) : null,
       lastMessage: json['last_message'] != null ? DirectMessage.fromJson(json['last_message']) : null,
       unreadCount: json['unread_count'] ?? 0,
@@ -77,9 +74,7 @@ class DirectMessage with ChatMessageData {
         attachmentUrl: json['attachment_url'],
         attachmentType: json['attachment_type'],
         isRead: json['is_read'] ?? false,
-        createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String(),
-        ),
+        createdAt: parseDateOr(json['created_at'], DateTime.now()),
         replyToId: json['reply_to_id'],
         replyToMessage: json['reply_to_message'],
         replyToSender: json['reply_to_sender'],

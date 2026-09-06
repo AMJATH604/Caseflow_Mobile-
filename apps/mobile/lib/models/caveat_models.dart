@@ -1,3 +1,5 @@
+import '../utils/safe_date.dart';
+
 class Caveat {
   final String id;
   final String userId;
@@ -41,18 +43,14 @@ class Caveat {
       opponentName: json['opponent_name'],
       subjectMatter: json['subject_matter'],
       caveatNumber: json['caveat_number'],
-      filingDate: DateTime.parse(json['filing_date']),
-      expiryDate: DateTime.parse(json['expiry_date']),
+      filingDate: parseDateOr(json['filing_date'], DateTime.now()),
+      expiryDate: parseDateOr(json['expiry_date'], DateTime.now()),
       status: json['status'] ?? 'active',
       notes: json['notes'],
       createdAt:
-          json['created_at'] != null
-              ? DateTime.parse(json['created_at'])
-              : null,
+          parseDateOrNull(json['created_at']),
       updatedAt:
-          json['updated_at'] != null
-              ? DateTime.parse(json['updated_at'])
-              : null,
+          parseDateOrNull(json['updated_at']),
     );
   }
 

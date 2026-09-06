@@ -556,25 +556,48 @@ class CaseImportService {
         });
       }
 
-      // Import payments
+      // Import payments. Unlike a hearing, a payment is still worth keeping
+      // when its date is unusable — the amount is the point — so normalise the
+      // date and fall back to null rather than dropping the whole record.
+      //
+      // Normalising here is not cosmetic: an unnormalised date reaches the DB
+      // as written, and `Payment.fromJson` would then throw while parsing it,
+      // which fails the entire payments query rather than the single row.
       for (var p in paymentsData) {
+        final paidDate = BaseRepository.normalizeDateStr(
+          p['paid_date']?.toString(),
+        );
+        if (paidDate == null && p['paid_date'] != null) {
+          debugPrint(
+            'Restore: dropping unusable payment date "${p['paid_date']}"',
+          );
+        }
         await SupabaseService.createPayment({
           'case_id': caseId,
           'total_fee': p['total_fee'] ?? 0,
           'paid_amount': p['paid_amount'] ?? 0,
           'balance_amount': p['balance_amount'] ?? 0,
-          'paid_date': p['paid_date'],
+          'paid_date': paidDate,
           'payment_mode': p['payment_mode'],
         });
       }
 
-      // Import e-filing records
+      // Import e-filing records. Same reasoning as payments: keep the record,
+      // drop only a date that cannot be stored safely.
       for (var r in efilingsData) {
+        final filingDate = BaseRepository.normalizeDateStr(
+          r['filing_date']?.toString(),
+        );
+        if (filingDate == null && r['filing_date'] != null) {
+          debugPrint(
+            'Restore: dropping unusable filing date "${r['filing_date']}"',
+          );
+        }
         await SupabaseService.createEfilingRecord({
           'case_id': caseId,
           'document_type': r['document_type'] ?? 'other',
           'status': r['status'] ?? 'drafting',
-          'filing_date': r['filing_date'],
+          'filing_date': filingDate,
         });
       }
 

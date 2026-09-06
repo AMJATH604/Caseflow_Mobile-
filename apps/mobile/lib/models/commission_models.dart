@@ -1,3 +1,5 @@
+import '../utils/safe_date.dart';
+
 // ─── Advocate Commissioner Module — Data Models ───────────────
 
 // ─── Enums ────────────────────────────────────────────────────
@@ -292,17 +294,11 @@ class Commission {
       json['commission_type'] ?? 'local_investigation',
     ),
     warrantDate:
-        json['warrant_date'] != null
-            ? DateTime.parse(json['warrant_date'])
-            : null,
+        parseDateOrNull(json['warrant_date']),
     executionDate:
-        json['execution_date'] != null
-            ? DateTime.parse(json['execution_date'])
-            : null,
+        parseDateOrNull(json['execution_date']),
     deadlineDate:
-        json['deadline_date'] != null
-            ? DateTime.parse(json['deadline_date'])
-            : null,
+        parseDateOrNull(json['deadline_date']),
     status: CommissionStatus.fromString(json['status'] ?? 'pending'),
     scopeOfWork: json['scope_of_work'],
     propertyDescription: json['property_description'],
@@ -318,9 +314,7 @@ class Commission {
     notes: json['notes'],
     createdBy: json['created_by'] ?? '',
     firmId: json['firm_id'],
-    createdAt: DateTime.parse(
-      json['created_at'] ?? DateTime.now().toIso8601String(),
-    ),
+    createdAt: parseDateOr(json['created_at'], DateTime.now()),
     caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
   );
 
@@ -392,17 +386,11 @@ class CommissionVisit {
       CommissionVisit(
         id: json['id'] ?? '',
         commissionId: json['commission_id'] ?? '',
-        visitDate: DateTime.parse(
-          json['visit_date'] ?? DateTime.now().toIso8601String(),
-        ),
+        visitDate: parseDateOr(json['visit_date'], DateTime.now()),
         checkinTime:
-            json['checkin_time'] != null
-                ? DateTime.parse(json['checkin_time'])
-                : null,
+            parseDateOrNull(json['checkin_time']),
         checkoutTime:
-            json['checkout_time'] != null
-                ? DateTime.parse(json['checkout_time'])
-                : null,
+            parseDateOrNull(json['checkout_time']),
         checkinLat: json['checkin_lat']?.toDouble(),
         checkinLng: json['checkin_lng']?.toDouble(),
         checkoutLat: json['checkout_lat']?.toDouble(),
@@ -414,9 +402,7 @@ class CommissionVisit {
         weatherConditions: json['weather_conditions'],
         personsPresent: json['persons_present'],
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String(),
-        ),
+        createdAt: parseDateOr(json['created_at'], DateTime.now()),
       );
 
   bool get isActive => visitStatus == VisitStatus.checkedIn;
@@ -465,9 +451,7 @@ class CommissionObservation {
         sequenceOrder: json['sequence_order'] ?? 0,
         tags: List<String>.from(json['tags'] ?? []),
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String(),
-        ),
+        createdAt: parseDateOr(json['created_at'], DateTime.now()),
       );
 }
 
@@ -519,9 +503,7 @@ class CommissionEvidence {
         sha256Hash: json['sha256_hash'],
         sequenceNumber: json['sequence_number'] ?? 0,
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String(),
-        ),
+        createdAt: parseDateOr(json['created_at'], DateTime.now()),
       );
 
   String get locationText {
@@ -562,14 +544,10 @@ class CommissionExpense {
         expenseType: ExpenseType.fromString(json['expense_type'] ?? 'travel'),
         amount: (json['amount'] ?? 0).toDouble(),
         description: json['description'],
-        expenseDate: DateTime.parse(
-          json['expense_date'] ?? DateTime.now().toIso8601String(),
-        ),
+        expenseDate: parseDateOr(json['expense_date'], DateTime.now()),
         receiptUrl: json['receipt_url'],
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String(),
-        ),
+        createdAt: parseDateOr(json['created_at'], DateTime.now()),
       );
 }
 
@@ -604,14 +582,10 @@ class CommissionReport {
         reportContent: json['report_content'],
         pdfUrl: json['pdf_url'],
         submittedDate:
-            json['submitted_date'] != null
-                ? DateTime.parse(json['submitted_date'])
-                : null,
+            parseDateOrNull(json['submitted_date']),
         status: json['status'] ?? 'draft',
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String(),
-        ),
+        createdAt: parseDateOr(json['created_at'], DateTime.now()),
       );
 }
 
@@ -665,9 +639,7 @@ class CommissionWitness {
         latitude: json['latitude']?.toDouble(),
         longitude: json['longitude']?.toDouble(),
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String(),
-        ),
+        createdAt: parseDateOr(json['created_at'], DateTime.now()),
       );
 
   String get idLabel {
@@ -744,12 +716,8 @@ class CommissionSketch {
                 : [],
         northAngle: (json['north_angle'] ?? 0).toDouble(),
         createdBy: json['created_by'] ?? '',
-        createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String(),
-        ),
-        updatedAt: DateTime.parse(
-          json['updated_at'] ?? DateTime.now().toIso8601String(),
-        ),
+        createdAt: parseDateOr(json['created_at'], DateTime.now()),
+        updatedAt: parseDateOr(json['updated_at'], DateTime.now()),
       );
 
   String get sketchTypeLabel {

@@ -1,3 +1,4 @@
+import '../utils/safe_date.dart';
 import 'enums.dart';
 import '../components/chat/chat_message_data.dart';
 export 'enums.dart';
@@ -69,17 +70,11 @@ class CaseModel {
     status: CaseStatus.fromString(json['status'] ?? 'active'),
     stage: CaseStage.fromString(json['stage'] ?? 'filing'),
     filingDate:
-        json['filing_date'] != null
-            ? DateTime.parse(json['filing_date'])
-            : null,
+        parseDateOrNull(json['filing_date']),
     nextHearingDate:
-        json['next_hearing_date'] != null
-            ? DateTime.parse(json['next_hearing_date'])
-            : null,
+        parseDateOrNull(json['next_hearing_date']),
     createdBy: json['created_by'] ?? '',
-    createdAt: DateTime.parse(
-      json['created_at'] ?? DateTime.now().toIso8601String(),
-    ),
+    createdAt: parseDateOr(json['created_at'], DateTime.now()),
     clientName: json['clients'] != null ? json['clients']['name'] : null,
     state: json['state'],
     district: json['district'],
@@ -171,9 +166,7 @@ class ClientModel {
     state: json['state'],
     district: json['district'],
     createdBy: json['created_by'] ?? '',
-    createdAt: DateTime.parse(
-      json['created_at'] ?? DateTime.now().toIso8601String(),
-    ),
+    createdAt: parseDateOr(json['created_at'], DateTime.now()),
     firmId: json['firm_id'],
     caseCount:
         json['case_count'] is int
@@ -238,9 +231,7 @@ class Hearing {
   factory Hearing.fromJson(Map<String, dynamic> json) => Hearing(
     id: json['id'] ?? '',
     caseId: json['case_id'] ?? '',
-    hearingDate: DateTime.parse(
-      json['hearing_date'] ?? DateTime.now().toIso8601String(),
-    ),
+    hearingDate: parseDateOr(json['hearing_date'], DateTime.now()),
     stage: json['stage'],
     notes: json['notes'],
     nextAction: json['next_action'],
@@ -253,7 +244,7 @@ class Hearing {
     firmId: json['cases'] != null ? json['cases']['firm_id'] : null,
     judgeName: json['judge_name'],
     nextDate:
-        json['next_date'] != null ? DateTime.parse(json['next_date']) : null,
+        parseDateOrNull(json['next_date']),
     businessDone: json['business_done'],
   );
 
@@ -311,9 +302,7 @@ class EFilingRecord {
     documentType: json['document_type'] ?? '',
     status: FilingStatus.fromString(json['status'] ?? 'drafting'),
     filingDate:
-        json['filing_date'] != null
-            ? DateTime.parse(json['filing_date'])
-            : null,
+        parseDateOrNull(json['filing_date']),
     createdBy: json['created_by'] ?? '',
     caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
     defectNotes: json['defect_notes'],
@@ -359,7 +348,7 @@ class Payment {
     paidAmount: (json['paid_amount'] ?? 0).toDouble(),
     balanceAmount: (json['balance_amount'] ?? 0).toDouble(),
     paidDate:
-        json['paid_date'] != null ? DateTime.parse(json['paid_date']) : null,
+        parseDateOrNull(json['paid_date']),
     paymentMode: json['payment_mode'],
     createdBy: json['created_by'] ?? '',
     caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
@@ -407,17 +396,13 @@ class CertifiedCopy {
     caseId: json['case_id'] ?? '',
     caNumber: json['ca_number'],
     boxDropDate:
-        json['box_drop_date'] != null
-            ? DateTime.parse(json['box_drop_date'])
-            : null,
+        parseDateOrNull(json['box_drop_date']),
     memoDate:
-        json['memo_date'] != null ? DateTime.parse(json['memo_date']) : null,
+        parseDateOrNull(json['memo_date']),
     readyDate:
-        json['ready_date'] != null ? DateTime.parse(json['ready_date']) : null,
+        parseDateOrNull(json['ready_date']),
     collectedDate:
-        json['collected_date'] != null
-            ? DateTime.parse(json['collected_date'])
-            : null,
+        parseDateOrNull(json['collected_date']),
     status: json['status'] ?? 'box_drop',
     createdBy: json['created_by'] ?? '',
     caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
@@ -477,9 +462,7 @@ class EvidenceChecklist {
         itemType: json['item_type'] ?? 'pending',
         itemName: json['item_name'] ?? '',
         isCompleted: json['is_completed'] ?? false,
-        createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String(),
-        ),
+        createdAt: parseDateOr(json['created_at'], DateTime.now()),
       );
 }
 
@@ -506,9 +489,7 @@ class WitnessNote {
     witnessTag: json['witness_tag'] ?? '',
     witnessName: json['witness_name'] ?? '',
     notes: json['notes'],
-    createdAt: DateTime.parse(
-      json['created_at'] ?? DateTime.now().toIso8601String(),
-    ),
+    createdAt: parseDateOr(json['created_at'], DateTime.now()),
   );
 }
 
@@ -535,9 +516,7 @@ class EvidencePhoto {
     photoUrl: json['file_url'] ?? json['photo_url'] ?? '',
     description: json['description'],
     tags: List<String>.from(json['tags'] ?? []),
-    createdAt: DateTime.parse(
-      json['created_at'] ?? DateTime.now().toIso8601String(),
-    ),
+    createdAt: parseDateOr(json['created_at'], DateTime.now()),
   );
 }
 
@@ -584,13 +563,9 @@ class UserProfile {
     subscriptionTier: json['subscription_tier'] ?? 'free',
     userRole: json['user_role'] ?? 'advocate',
     trialEndsAt:
-        json['trial_ends_at'] != null
-            ? DateTime.parse(json['trial_ends_at'])
-            : null,
+        parseDateOrNull(json['trial_ends_at']),
     currentPeriodEnd:
-        json['current_period_end'] != null
-            ? DateTime.parse(json['current_period_end'])
-            : null,
+        parseDateOrNull(json['current_period_end']),
     firmId: json['firm_id'],
     email: json['email'],
     avatarUrl: json['avatar_url'],
@@ -703,9 +678,7 @@ class FirmMember {
     memberId: json['member_id'],
     role: json['role'] ?? 'member',
     status: json['status'] ?? 'pending',
-    createdAt: DateTime.parse(
-      json['created_at'] ?? DateTime.now().toIso8601String(),
-    ),
+    createdAt: parseDateOr(json['created_at'], DateTime.now()),
     memberName: json['profiles'] != null ? json['profiles']['full_name'] : null,
     ownerName: json['profiles'] != null ? json['profiles']['full_name'] : null,
   );
@@ -763,8 +736,9 @@ class CaseComment with ChatMessageData {
   // hasAttachment, isImage, isVideo, hasReply are inherited from ChatMessageData
 
   static DateTime _parseUtc(dynamic value) {
-    if (value == null) return DateTime.now().toUtc();
-    final dt = DateTime.parse(value.toString());
+    // Already fell back on a missing value; a malformed one now falls back
+    // too, instead of throwing and failing the whole message query.
+    final dt = parseDateOrNull(value) ?? DateTime.now();
     return dt.isUtc ? dt : dt.toUtc();
   }
 }
@@ -795,9 +769,7 @@ class CaseCollaboration {
         collaboratorId: json['collaborator_id'],
         collaboratorEmail: json['collaborator_email'] ?? '',
         status: json['status'] ?? 'pending',
-        createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String(),
-        ),
+        createdAt: parseDateOr(json['created_at'], DateTime.now()),
         caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
       );
 }
