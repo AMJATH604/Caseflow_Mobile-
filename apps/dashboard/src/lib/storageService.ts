@@ -25,11 +25,18 @@ export async function uploadFile(
 
   const timestamp = Date.now();
   const sanitizedName = file.name.replace(/[^a-zA-Z0-9_.-]/g, "_");
-  const key = subPath
+  const storageKey = subPath
     ? `${subPath.replace(/\/$/, "")}/${timestamp}_${sanitizedName}`
     : `${category}/${timestamp}_${sanitizedName}`;
 
   if (useR2) {
+    // Cloudflare R2 has no row-level security, so the r2-storage Edge
+    // Function authorizes private objects by requiring them to sit under the
+    // uploader's own prefix. Build the key to match, or the upload is
+    // rejected. Shared libraries keep their flat category prefix and are
+    // gated on the admin role server-side instead.
+    const key = await buildR2Key(category, subPath, timestamp, sanitizedName);
+
     // 1. Get presigned PUT URL from r2-storage Edge Function
     const { data: uploadData, error: fnError } = await supabase.functions.invoke("r2-storage", {
       body: {
@@ -66,8 +73,37 @@ export async function uploadFile(
       url,
     };
   } else {
-    return uploadToSupabase(file, category, key);
+    return uploadToSupabase(file, category, storageKey);
   }
+}
+
+/** Prefixes holding shared reference content, curated by administrators. */
+const SHARED_LIBRARY_CATEGORIES: StorageCategory[] = ["bare_acts", "legal_templates"];
+
+/**
+ * Builds the R2 object key for an upload.
+ *
+ * Private files are namespaced under the signed-in user's id because that
+ * prefix is what the r2-storage Edge Function checks — it is the boundary
+ * that stops one advocate reading or overwriting another's case documents.
+ */
+async function buildR2Key(
+  category: StorageCategory,
+  subPath: string,
+  timestamp: number,
+  sanitizedName: string
+): Promise<string> {
+  if (SHARED_LIBRARY_CATEGORIES.includes(category)) {
+    return `${category}/${timestamp}_${sanitizedName}`;
+  }
+
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data?.user) {
+    throw new Error("You must be signed in to upload files.");
+  }
+
+  const nested = subPath ? `${subPath.replace(/^\/+|\/+$/g, "")}/` : "";
+  return `legal-documents/${data.user.id}/${nested}${timestamp}_${sanitizedName}`;
 }
 
 async function uploadToSupabase(
