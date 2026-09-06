@@ -154,7 +154,17 @@ class BaseRepository {
 
   // ─── Date Normalization ────────────────────────────────
 
-  /// Normalizes date strings: DD-MM-YYYY or DD/MM/YYYY → YYYY-MM-DD
+  /// Normalizes a date string to `YYYY-MM-DD`, or null if unrecognised.
+  ///
+  /// Accepts the three shapes that actually reach us:
+  /// - `YYYY-MM-DD` — already correct, passed through
+  /// - `DD-MM-YYYY` / `DD/MM/YYYY` — the eCourts export format
+  /// - `YYYY-MM-DDTHH:MM:SS...` — Dart's `toIso8601String()`, which is what
+  ///   CaseFlow's own backup files contain; the time portion is dropped
+  ///
+  /// Returning null (rather than the input) is deliberate: callers must decide
+  /// whether to skip the record or store nothing, instead of silently writing
+  /// a value the database or `DateTime.parse` will later reject.
   static String? normalizeDateStr(String? dateStr) {
     if (dateStr == null || dateStr.trim().isEmpty) return null;
     final s = dateStr.trim();
@@ -162,10 +172,16 @@ class BaseRepository {
     // Already YYYY-MM-DD
     if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(s)) return s;
 
+    // Full ISO-8601 timestamp — keep the date part only.
+    final isoMatch = RegExp(r'^(\d{4}-\d{2}-\d{2})[T ]').firstMatch(s);
+    if (isoMatch != null) return isoMatch.group(1);
+
     // DD-MM-YYYY or DD/MM/YYYY
-    final match = RegExp(r'^(\d{2})[-/](\d{2})[-/](\d{4})$').firstMatch(s);
+    final match = RegExp(r'^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$').firstMatch(s);
     if (match != null) {
-      return '${match.group(3)}-${match.group(2)}-${match.group(1)}';
+      final day = match.group(1)!.padLeft(2, '0');
+      final month = match.group(2)!.padLeft(2, '0');
+      return '${match.group(3)}-$month-$day';
     }
 
     return null;

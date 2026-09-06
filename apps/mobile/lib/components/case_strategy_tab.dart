@@ -28,6 +28,15 @@ class _CaseStrategyTabState extends ConsumerState<CaseStrategyTab> {
   List<Map<String, dynamic>> _firmMembers = [];
   bool _membersLoaded = false;
 
+  /// Moves that have been made on screen but not yet confirmed by the server.
+  ///
+  /// Without this the card visibly snapped back to its original column and
+  /// only jumped after the round-trip completed, which read as "the board
+  /// isn't updating". Keyed by task id → the stage the user dropped it in.
+  /// Entries are cleared once the refetch returns (success) or immediately on
+  /// failure, which lets the card fall back to its real stage.
+  final Map<String, TaskStage> _pendingMoves = {};
+
   @override
   void initState() {
     super.initState();
@@ -66,15 +75,23 @@ class _CaseStrategyTabState extends ConsumerState<CaseStrategyTab> {
 
   Future<void> _onDragAccept(StrategyTask task, TaskStage newStage) async {
     if (task.stage == newStage) return;
+
+    // Show the move immediately, then reconcile with the server.
+    setState(() => _pendingMoves[task.id] = newStage);
+
     try {
       await StrategyRepository.moveTask(task.id, newStage.dbValue, 0);
+      if (!mounted) return;
+      // Refetch, then drop the optimistic entry so the server's answer wins.
       _refresh();
+      setState(() => _pendingMoves.remove(task.id));
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error moving task: $e')),
-        );
-      }
+      if (!mounted) return;
+      // Roll back — the card returns to the column it came from.
+      setState(() => _pendingMoves.remove(task.id));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error moving task: $e')),
+      );
     }
   }
 
@@ -101,12 +118,18 @@ class _CaseStrategyTabState extends ConsumerState<CaseStrategyTab> {
     );
   }
 
+  /// The stage a task should be drawn in — the optimistic one if a move is
+  /// still in flight, otherwise the stage the server reported.
+  TaskStage _effectiveStage(StrategyTask task) =>
+      _pendingMoves[task.id] ?? task.stage;
+
   Widget _buildBoard(List<StrategyTask> tasks) {
-    // Group tasks by stage
+    // Group tasks by stage, honouring any in-flight moves so the board
+    // reflects what the user just did rather than the last server response.
     final grouped = <TaskStage, List<StrategyTask>>{};
     for (final stage in TaskStage.values) {
       grouped[stage] = tasks
-          .where((t) => t.stage == stage)
+          .where((t) => _effectiveStage(t) == stage)
           .toList()
         ..sort((a, b) => a.position.compareTo(b.position));
     }

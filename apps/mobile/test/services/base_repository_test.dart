@@ -45,6 +45,55 @@ void main() {
     test('handles 31/12/2025 edge case', () {
       expect(BaseRepository.normalizeDateStr('31/12/2025'), '2025-12-31');
     });
+
+    // ── Formats that reach us from imports ──
+    // A null here is not cosmetic: the eCourts importer skips hearing
+    // creation when the date will not parse, which is what left imported
+    // cases with an empty Court Diary.
+
+    test('drops the time part of an ISO-8601 timestamp', () {
+      // CaseFlow's own backup files store dates via toIso8601String().
+      expect(
+        BaseRepository.normalizeDateStr('2026-01-30T00:00:00.000'),
+        '2026-01-30',
+      );
+      expect(
+        BaseRepository.normalizeDateStr('2026-01-30T14:22:05.123Z'),
+        '2026-01-30',
+      );
+    });
+
+    test('handles a space-separated timestamp', () {
+      expect(
+        BaseRepository.normalizeDateStr('2026-01-30 14:22:05'),
+        '2026-01-30',
+      );
+    });
+
+    test('accepts single-digit day and month from eCourts', () {
+      expect(BaseRepository.normalizeDateStr('5-4-2026'), '2026-04-05');
+      expect(BaseRepository.normalizeDateStr('5/4/2026'), '2026-04-05');
+    });
+
+    test('every accepted output is parseable by DateTime.parse', () {
+      const inputs = [
+        '2026-04-15',
+        '15-04-2026',
+        '15/04/2026',
+        '5-4-2026',
+        '2026-01-30T14:22:05.123Z',
+        '2026-01-30 14:22:05',
+      ];
+      for (final input in inputs) {
+        final normalized = BaseRepository.normalizeDateStr(input);
+        expect(normalized, isNotNull, reason: 'failed to normalize "$input"');
+        expect(
+          () => DateTime.parse(normalized!),
+          returnsNormally,
+          reason: '"$input" normalized to unparseable "$normalized"',
+        );
+      }
+    });
   });
 
   group('BaseRepository.buildVisibilityFilter', () {
