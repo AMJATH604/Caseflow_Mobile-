@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaseFlow — Project Documentation Dashboard</title>
+    <meta name="description" content="CaseFlow v2.6 — Enterprise-grade legal case management platform for Indian advocates and law firms.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span class="brand-icon">⚖️</span>
+                <span class="brand-text">CaseFlow</span>
+                <span class="brand-version">v2.7</span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="#overview" class="nav-link active">Overview</a>
+                <a href="#architecture" class="nav-link">Architecture</a>
+                <a href="#tech-stack" class="nav-link">Tech Stack</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#notifications" class="nav-link">Notifications</a>
+                <a href="#database" class="nav-link">Database</a>
+                <a href="#security" class="nav-link">Security</a>
+                <a href="#versions" class="nav-link">Versions</a>
+            </div>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="overview">
+        <div class="hero-bg">
+            <div class="hero-orb hero-orb-1"></div>
+            <div class="hero-orb hero-orb-2"></div>
+            <div class="hero-orb hero-orb-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">PROJECT DOCUMENTATION</div>
+            <h1 class="hero-title">
+                <span class="hero-icon">⚖️</span> CaseFlow
+            </h1>
+            <p class="hero-subtitle">Enterprise-grade Legal Case Management Platform</p>
+            <p class="hero-description">Empowering Indian Advocates with technology. From case filing to judgment — digitize your entire legal workflow.</p>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <div class="stat-number" data-target="6">0</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-target="49">0</div>
+                    <div class="stat-label">Cases Managed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-target="3">0</div>
+                    <div class="stat-label">Daily Notification Cycles</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-target="18">0</div>
+                    <div class="stat-label">App Screens</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem & Solution -->
+    <section class="section" id="problem-solution">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">WHY CASEFLOW?</span>
+                <h2 class="section-title">The Problem We Solve</h2>
+            </div>
+            <div class="ps-grid">
+                <div class="ps-card ps-problem">
+                    <div class="ps-icon">😰</div>
+                    <h3>The Problem</h3>
+                    <p>Indian advocates manage hundreds of active cases across multiple courts. Tracking hearing dates, managing documents, coordinating with junior lawyers, and maintaining client payment records is done <strong>manually through paper diaries</strong>.</p>
+                    <ul class="ps-list">
+                        <li><span class="ps-x">✗</span> Missed court hearings</li>
+                        <li><span class="ps-x">✗</span> Lost case documents</li>
+                        <li><span class="ps-x">✗</span> Revenue leakage from unpaid fees</li>
+                        <li><span class="ps-x">✗</span> No team coordination</li>
+                    </ul>
+                </div>
+                <div class="ps-card ps-solution">
+                    <div class="ps-icon">🚀</div>
+                    <h3>Our Solution</h3>
+                    <p>CaseFlow provides a <strong>unified digital workspace</strong> that automates the entire legal workflow — from case filing to judgment — with real-time collaboration and automated reminders.</p>
+                    <ul class="ps-list">
+                        <li><span class="ps-check">✓</span> Automated hearing reminders</li>
+                        <li><span class="ps-check">✓</span> Cloud document vault</li>
+                        <li><span class="ps-check">✓</span> Fee tracking & payment ledger</li>
+                        <li><span class="ps-check">✓</span> Firm-level collaboration</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture -->
+    <section class="section section-dark" id="architecture">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">SYSTEM DESIGN</span>
+                <h2 class="section-title">Architecture Overview</h2>
+            </div>
+            <div class="arch-diagram">
+                <div class="arch-row">
+                    <div class="arch-group">
+                        <div class="arch-label">Client Layer</div>
+                        <div class="arch-nodes">
+                            <div class="arch-node arch-flutter">
+                                <span class="arch-emoji">📱</span>
+                                <strong>Flutter Mobile</strong>
+                                <small>Android / v2.6</small>
+                            </div>
+                            <div class="arch-node arch-react">
+                                <span class="arch-emoji">🌐</span>
+                                <strong>React Web</strong>
+                                <small>Vite + TailwindCSS</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="arch-row">
+                    <div class="arch-group arch-group-wide">
+                        <div class="arch-label">Intelligence & Field Layer</div>
+                        <div class="arch-nodes arch-nodes-wrap">
+                            <div class="arch-node arch-intel"><span class="arch-emoji">🧠</span><strong>AI Hub</strong><small>ML Kit OCR + Speech</small></div>
+                            <div class="arch-node arch-intel"><span class="arch-emoji">🛰️</span><strong>GPS/GIS</strong><small>Site Visit Tracking</small></div>
+                            <div class="arch-node arch-intel"><span class="arch-emoji">🎙️</span><strong>Witness Lab</strong><small>Audio Processing</small></div>
+                            <div class="arch-node arch-intel"><span class="arch-emoji">📊</span><strong>Calculators</strong><small>MACT + Maintenance</small></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="arch-connectors">
+                    <div class="arch-line"></div>
+                </div>
+                <div class="arch-row">
+                    <div class="arch-group arch-group-wide">
+                        <div class="arch-label">Supabase Cloud</div>
+                        <div class="arch-nodes arch-nodes-wrap">
+                            <div class="arch-node arch-supa"><span class="arch-emoji">🔐</span><strong>Auth & RBAC</strong><small>GoTrue + is_admin Flag</small></div>
+                            <div class="arch-node arch-supa"><span class="arch-emoji">🗄️</span><strong>PostgreSQL</strong><small>14+ Tables</small></div>
+                            <div class="arch-node arch-supa"><span class="arch-emoji">📦</span><strong>Storage</strong><small>Document Buckets</small></div>
+                            <div class="arch-node arch-supa"><span class="arch-emoji">⚡</span><strong>Edge Functions</strong><small>Deno Runtime</small></div>
+                            <div class="arch-node arch-supa"><span class="arch-emoji">⏰</span><strong>pg_cron</strong><small>3 Daily Jobs</small></div>
+                            <div class="arch-node arch-supa"><span class="arch-emoji">🔄</span><strong>Realtime</strong><small>WebSockets</small></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="arch-connectors">
+                    <div class="arch-line"></div>
+                </div>
+                <div class="arch-row">
+                    <div class="arch-group">
+                        <div class="arch-label">External Services</div>
+                        <div class="arch-nodes">
+                            <div class="arch-node arch-ext"><span class="arch-emoji">🔔</span><strong>Firebase FCM</strong><small>Push Notifications</small></div>
+                            <div class="arch-node arch-ext"><span class="arch-emoji">☁️</span><strong>Google OAuth2</strong><small>Service Account</small></div>
+                            <div class="arch-node arch-ext"><span class="arch-emoji">💳</span><strong>Razorpay</strong><small>INR Payments</small></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="section" id="tech-stack">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">TECHNOLOGIES</span>
+                <h2 class="section-title">Tech Stack</h2>
+            </div>
+            <div class="tech-grid">
+                <div class="tech-category">
+                    <h3 class="tech-cat-title"><span>📱</span> Mobile Application</h3>
+                    <div class="tech-items">
+                        <div class="tech-item"><div class="tech-name">Flutter</div><div class="tech-ver">3.29.0+</div></div>
+                        <div class="tech-item"><div class="tech-name">Dart</div><div class="tech-ver">SDK ^3.7.0</div></div>
+                        <div class="tech-item"><div class="tech-name">Riverpod</div><div class="tech-ver">2.6.1</div></div>
+                        <div class="tech-item"><div class="tech-name">GoRouter</div><div class="tech-ver">14.8.1</div></div>
+                        <div class="tech-item"><div class="tech-name">Firebase Messaging</div><div class="tech-ver">15.2.5</div></div>
+                        <div class="tech-item"><div class="tech-name">Razorpay</div><div class="tech-ver">1.4.1</div></div>
+                        <div class="tech-item"><div class="tech-name">Google ML Kit OCR</div><div class="tech-ver">0.14.0</div></div>
+                        <div class="tech-item"><div class="tech-name">Speech to Text</div><div class="tech-ver">7.0.0</div></div>
+                    </div>
+                </div>
+                <div class="tech-category">
+                    <h3 class="tech-cat-title"><span>🌐</span> Web Dashboard</h3>
+                    <div class="tech-items">
+                        <div class="tech-item"><div class="tech-name">React</div><div class="tech-ver">18.x</div></div>
+                        <div class="tech-item"><div class="tech-name">Vite</div><div class="tech-ver">Latest</div></div>
+                        <div class="tech-item"><div class="tech-name">TypeScript</div><div class="tech-ver">5.x</div></div>
+                        <div class="tech-item"><div class="tech-name">TailwindCSS</div><div class="tech-ver">3.x</div></div>
+                        <div class="tech-item"><div class="tech-name">shadcn/ui</div><div class="tech-ver">Latest</div></div>
+                        <div class="tech-item"><div class="tech-name">Playwright</div><div class="tech-ver">E2E Tests</div></div>
+                    </div>
+                </div>
+                <div class="tech-category">
+                    <h3 class="tech-cat-title"><span>☁️</span> Backend & Cloud</h3>
+                    <div class="tech-items">
+                        <div class="tech-item"><div class="tech-name">Supabase</div><div class="tech-ver">PostgreSQL</div></div>
+                        <div class="tech-item"><div class="tech-name">Edge Functions</div><div class="tech-ver">Deno Runtime</div></div>
+                        <div class="tech-item"><div class="tech-name">GoTrue Auth</div><div class="tech-ver">Email + PKCE</div></div>
+                        <div class="tech-item"><div class="tech-name">pg_cron</div><div class="tech-ver">Scheduler</div></div>
+                        <div class="tech-item"><div class="tech-name">Firebase FCM</div><div class="tech-ver">v1 API</div></div>
+                        <div class="tech-item"><div class="tech-name">Supabase Storage</div><div class="tech-ver">Buckets</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section section-dark" id="features">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">CAPABILITIES</span>
+                <h2 class="section-title">Feature Matrix</h2>
+            </div>
+            <div class="features-category-header">
+                <span class="category-icon">📋</span>
+                <h3 class="category-title">Core Legal Management</h3>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card"><div class="feature-icon">📋</div><h4>Case Management</h4><p>Full CRUD with status tracking, stages, and complex filing history.</p><div class="feature-platforms"><span class="platform mobile">📱 Mobile</span><span class="platform web">🌐 Web</span></div></div>
+                <div class="feature-card"><div class="feature-icon">📅</div><h4>Court Diary</h4><p>Calendar view with hearing dates, adjournment history, and reminders.</p><div class="feature-platforms"><span class="platform mobile">📱 Mobile</span><span class="platform web">🌐 Web</span></div></div>
+                <div class="feature-card"><div class="feature-icon">💰</div><h4>Payment Ledger</h4><p>Fee balance tracking across UPI, Cash, and Multi-Bank transfers.</p><div class="feature-platforms"><span class="platform mobile">📱 Mobile</span><span class="platform web">🌐 Web</span></div></div>
+                <div class="feature-card"><div class="feature-icon">👥</div><h4>Firm & Team Hub</h4><p>Team assignments, member invitations, and collaborator roles.</p><div class="feature-platforms"><span class="platform mobile">📱 Mobile</span></div></div>
+            </div>
+
+            <div class="features-category-header">
+                <span class="category-icon">🛰️</span>
+                <h3 class="category-title">Field Intelligence & Commissioner Hub</h3>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card"><div class="feature-icon">📍</div><h4>Site Visit GPS</h4><p>Real-time location capture and GPS tracking for field visits.</p><div class="feature-platforms"><span class="platform mobile">📱 Mobile</span></div></div>
+                <div class="feature-card"><div class="feature-icon">🎙️</div><h4>Witness statements</h4><p>On-site audio recording and voice-to-text observation logging.</p><div class="feature-platforms"><span class="platform mobile">📱 Mobile</span></div></div>
+                <div class="feature-card"><div class="feature-icon">🎨</div><h4>Sketch Pad</h4><p>Digital site sketches and field drawing tools for inspection reports.</p><div class="feature-platforms"><span class="platform mobile">📱 Mobile</span></div></div>
+                <div class="feature-card"><div class="feature-icon">📊</div><h4>Report Engine</h4><p>Instant PDF report generation with embedded photos and signatures.</p><div class="feature-platforms"><span class="platform mobile">📱 Mobile</span><span class="platform web">🌐 Web</span></div></div>
+            </div>
+
+            <div class="features-category-header">
+                <span class="category-icon">🧠</span>
+                <h3 class="category-title">Intelligence Hub (Calculators & Tools)</h3>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card"><div class="feature-icon">🔢</div><h4>MACT & Maintenance</h4><p>Automated Motor Accident and Maintenance award calculators.</p><div class="feature-platforms"><span class="platform mobile">📱 Mobile</span><span class="platform web">🌐 Web</span></div></div>
+                <div class="feature-card"><div class="feature-icon">🏘️</div><h4>Partition & Stamp</h4><p>Legal calculators for property partition and stamp duty value check.</p><div class="feature-platforms"><span class="platform mobile">📱 Mobile</span><span class="platform web">🌐 Web</span></div></div>
+                <div class="feature-card"><div class="feature-icon">🕒</div><h4>Delay & Limitation</h4><p>Calculates filing delays and limitation periods based on court rules.</p><div class="feature-platforms"><span class="platform mobile">📱 Mobile</span></div></div>
+                <div class="feature-card"><div class="feature-icon">📜</div><h4>Bare Acts Library</h4><p>Searchable library of IPC, CRPC, Evidence Act, and personal laws.</p><div class="feature-platforms"><span class="platform web">🌐 Web</span><span class="platform mobile">📱 Mobile</span></div></div>
+            </div>
+
+            <div class="features-category-header">
+                <span class="category-icon">📄</span>
+                <h3 class="category-title">Document & Evidence Lab</h3>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card"><div class="feature-icon">🔍</div><h4>OCR & Extraction</h4><p>Extract legal text from images and documents using ML Kit.</p><div class="feature-platforms"><span class="platform mobile">📱 Mobile</span></div></div>
+                <div class="feature-card"><div class="feature-icon">🔬</div><h4>Evidence Photo Lab</h4><p>Tag and organize evidence with metadata and automated checklists.</p><div class="feature-platforms"><span class="platform mobile">📱 Mobile</span></div></div>
+                <div class="feature-card"><div class="feature-icon">📑</div><h4>E-Filing Tracker</h4><p>Track filing status through the scrutiny and accept stages.</p><div class="feature-platforms"><span class="platform mobile">📱 Mobile</span><span class="platform web">🌐 Web</span></div></div>
+                <div class="feature-card"><div class="feature-icon">🏢</div><h4>Portals Hub</h4><p>Integrated access to e-Courts and regional legal portals.</p><div class="feature-platforms"><span class="platform mobile">📱 Mobile</span></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Notification System -->
+    <section class="section" id="notifications">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">AUTOMATION</span>
+                <h2 class="section-title">Push Notification System</h2>
+            </div>
+            <div class="notif-flow">
+                <div class="notif-step">
+                    <div class="notif-num">1</div>
+                    <div class="notif-content">
+                        <div class="notif-icon">⏰</div>
+                        <h4>pg_cron Triggers</h4>
+                        <p>Database clock fires at <strong>7 PM</strong>, <strong>9 PM</strong>, and <strong>9 AM</strong> IST daily</p>
+                    </div>
+                </div>
+                <div class="notif-arrow">→</div>
+                <div class="notif-step">
+                    <div class="notif-num">2</div>
+                    <div class="notif-content">
+                        <div class="notif-icon">⚡</div>
+                        <h4>Edge Function</h4>
+                        <p>Finds hearings for target date and resolves all stakeholders</p>
+                    </div>
+                </div>
+                <div class="notif-arrow">→</div>
+                <div class="notif-step">
+                    <div class="notif-num">3</div>
+                    <div class="notif-content">
+                        <div class="notif-icon">👥</div>
+                        <h4>Audience Builder</h4>
+                        <p>Maps owners, assignees, firm members, and collaborators</p>
+                    </div>
+                </div>
+                <div class="notif-arrow">→</div>
+                <div class="notif-step">
+                    <div class="notif-num">4</div>
+                    <div class="notif-content">
+                        <div class="notif-icon">🔐</div>
+                        <h4>Google Auth</h4>
+                        <p>Generates OAuth2 token via Firebase service account</p>
+                    </div>
+                </div>
+                <div class="notif-arrow">→</div>
+                <div class="notif-step">
+                    <div class="notif-num">5</div>
+                    <div class="notif-content">
+                        <div class="notif-icon">🔔</div>
+                        <h4>FCM Delivery</h4>
+                        <p>Push notification beamed to each device — even when app is closed</p>
+                    </div>
+                </div>
+            </div>
+            <div class="notif-schedule">
+                <div class="schedule-card">
+                    <div class="schedule-time">7:00 PM</div>
+                    <div class="schedule-desc">Evening Preview</div>
+                    <div class="schedule-target">Tomorrow's Hearings</div>
+                </div>
+                <div class="schedule-card">
+                    <div class="schedule-time">9:00 PM</div>
+                    <div class="schedule-desc">Night Reminder</div>
+                    <div class="schedule-target">Tomorrow's Hearings</div>
+                </div>
+                <div class="schedule-card schedule-card-morning">
+                    <div class="schedule-time">9:00 AM</div>
+                    <div class="schedule-desc">Morning Alert</div>
+                    <div class="schedule-target">Today's Hearings</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Database -->
+    <section class="section section-dark" id="database">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">DATA LAYER</span>
+                <h2 class="section-title">Database Schema</h2>
+            </div>
+            <div class="db-grid">
+                <div class="db-table"><div class="db-icon">⚖️</div><div class="db-name">bare_acts</div><div class="db-desc">Bare Act library & sections</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">🕵️</div><div class="db-name">commissions</div><div class="db-desc">Commissioner hub master data</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">📍</div><div class="db-name">commission_visits</div><div class="db-desc">GPS tracked site visit logs</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">👥</div><div class="db-name">profiles</div><div class="db-desc">User accounts with RBAC</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">📋</div><div class="db-name">cases</div><div class="db-desc">Case records & metadata</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">👨‍💼</div><div class="db-name">clients</div><div class="db-desc">Client contact information</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">📅</div><div class="db-name">hearings</div><div class="db-desc">Court hearing dates & notes</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">💰</div><div class="db-name">payments</div><div class="db-desc">Fee & payment ledger</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">📄</div><div class="db-name">e_filing</div><div class="db-desc">Electronic filing records</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">📖</div><div class="db-name">dictionary</div><div class="db-desc">Legal dictionary library</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">📑</div><div class="db-name">certified_copies</div><div class="db-desc">CA tracking workflow</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">🔬</div><div class="db-name">evidence_checklists</div><div class="db-desc">Evidence tracking items</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">👁️</div><div class="db-name">witness_notes</div><div class="db-desc">Witness interview notes</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">📷</div><div class="db-name">evidence_photos</div><div class="db-desc">Evidence photo gallery</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">💬</div><div class="db-name">case_comments</div><div class="db-desc">Firm discussion threads</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">🎨</div><div class="db-name">sketches</div><div class="db-desc">Commissioner site sketches</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">🤝</div><div class="db-name">case_collaborations</div><div class="db-desc">Cross-firm case sharing</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">🔔</div><div class="db-name">fcm_tokens</div><div class="db-desc">Push notification tokens</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">✅</div><div class="db-name">tasks</div><div class="db-desc">Personal to-do items</div><div class="db-rls">🔐 RLS</div></div>
+                <div class="db-table"><div class="db-icon">📜</div><div class="db-name">legal_templates</div><div class="db-desc">Document templates</div><div class="db-rls">🔐 RLS</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security -->
+    <section class="section" id="security">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">SECURITY</span>
+                <h2 class="section-title">Data Isolation & Access Control</h2>
+            </div>
+            <div class="security-table-wrap">
+                <table class="security-table">
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Own Data</th>
+                            <th>Global Data (Web)</th>
+                            <th>Mobile Access</th>
+                            <th>Dashboard Access</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Super-Admin</strong></td>
+                            <td><span class="access-full">✅ Full</span></td>
+                            <td><span class="access-full">✅ Global</span></td>
+                            <td><span class="access-full">✅ Yes</span></td>
+                            <td><span class="access-full">✅ Full</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Solo Advocate</strong></td>
+                            <td><span class="access-full">✅ Full</span></td>
+                            <td><span class="access-none">❌ Blocked</span></td>
+                            <td><span class="access-full">✅ Yes</span></td>
+                            <td><span class="access-none">❌ Blocked</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Firm Owner</strong></td>
+                            <td><span class="access-full">✅ Full Access</span></td>
+                            <td><span class="access-full">✅ Full Access</span></td>
+                            <td><span class="access-read">📖 Read-only</span></td>
+                            <td><span class="access-full">✅ All Firm Hearings</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Firm Member</strong></td>
+                            <td><span class="access-full">✅ Full Access</span></td>
+                            <td><span class="access-read">📖 Read-only</span></td>
+                            <td><span class="access-read">📖 Read-only</span></td>
+                            <td><span class="access-full">✅ All Firm Hearings</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Collaborator</strong></td>
+                            <td><span class="access-none">—</span></td>
+                            <td><span class="access-none">—</span></td>
+                            <td><span class="access-read">📖 Read-only</span></td>
+                            <td><span class="access-full">✅ Shared Hearings</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Version History -->
+    <section class="section section-dark" id="versions">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">CHANGELOG</span>
+                <h2 class="section-title">Version History</h2>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item current">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-ver">v2.7 <span class="timeline-tag">CURRENT</span></div>
+                        <div class="timeline-date">April 2026</div>
+                        <p>Admin Panel Security & Role-Based Access Control (RBAC). Implemented is_admin restrictions and Unauthorized page redirects.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-ver">v2.6</div>
+                        <div class="timeline-date">March 2026</div>
+                        <p>Automated Hearing Reminders (pg_cron + FCM) + Multi-Stakeholder Notifications</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-ver">v2.5</div>
+                        <div class="timeline-date">March 2026</div>
+                        <p>Document Vault upload fix + Push Notification infrastructure</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-ver">v2.4</div>
+                        <div class="timeline-date">March 2026</div>
+                        <p>Case Sharing via Email Invitations with Accept/Reject flow</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-ver">v2.3</div>
+                        <div class="timeline-date">February 2026</div>
+                        <p>Firm Management & Team Collaboration</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-ver">v2.2</div>
+                        <div class="timeline-date">February 2026</div>
+                        <p>Document Tools — PDF conversion, OCR, Speech-to-Text</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-ver">v2.1</div>
+                        <div class="timeline-date">February 2026</div>
+                        <p>Mobile UI overhaul with card-based portrait layouts</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-ver">v2.0</div>
+                        <div class="timeline-date">February 2026</div>
+                        <p>Web Dashboard, E-Filing, Certified Copies, Evidence Lab</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-ver">v1.0</div>
+                        <div class="timeline-date">February 2026</div>
+                        <p>Initial release — Cases, Clients, Hearings, Payments</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <span class="brand-icon">⚖️</span>
+                <span class="brand-text">CaseFlow</span>
+            </div>
+            <p class="footer-tagline">Empowering Indian Advocates with Technology</p>
+            <div class="footer-meta">
+                <span>Build 1.3.0+6</span>
+                <span>•</span>
+                <span>Supabase: asrjqsnyezvcakvkokcl</span>
+                <span>•</span>
+                <span>© 2026 CaseFlow</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

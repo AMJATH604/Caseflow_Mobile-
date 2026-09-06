@@ -1,0 +1,74 @@
+# ─── General ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+*.bak
+*.tmp
+*.temp
+
+# ─── Environment & Secrets (CRITICAL — never commit these) ───
+.env
+.env.*
+!.env.example
+**/**.env
+**/**.env.local
+**/**.env.production
+**/**.env.staging
+# Firebase credentials
+**/google-services.json
+!apps/mobile/android/app/google-services.json
+**/GoogleService-Info.plist
+**/firebase_credentials.json
+# Supabase
+supabase/.temp/
+# ─── IDE ──────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+
+# ─── Flutter / Dart ───────────────────────────────────────────
+**/build/
+**/.dart_tool/
+.packages
+.pub-cache/
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+**/generated/
+
+# ─── Android ──────────────────────────────────────────────────
+*.keystore
+*.jks
+**/key.properties
+**/local.properties
+**/.gradle/
+
+# ─── iOS ──────────────────────────────────────────────────────
+ios/.generated/
+ios/Pods/
+ios/Runner/GeneratedPluginRegistrant.*
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+
+# ─── Node / React ─────────────────────────────────────────────
+node_modules/
+dist/
+coverage/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── Build Artifacts ──────────────────────────────────────────
+*.apk
+*.aab
+*.ipa
+
+# ─── Project Clutter (never commit these) ─────────────────────
+/temp/
+/scratch/
+/releases/
+/caseflow_flutter/

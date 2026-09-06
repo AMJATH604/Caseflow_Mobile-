@@ -1,0 +1,97 @@
+name: Build CaseFlow APK
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+      FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      # ── Configure google-services.json ──
+      - name: Configure google-services.json
+        run: |
+          if [ -n "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
+            echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 -d > apps/mobile/android/app/google-services.json
+            echo "✅ google-services.json decoded from secret"
+          elif [ -f apps/mobile/android/app/google-services.json ]; then
+            echo "✅ google-services.json already exists in repo"
+          else
+            echo "⚠️ google-services.json not found!"
+          fi
+
+      - name: Get dependencies
+        working-directory: apps/mobile
+        run: flutter pub get
+
+      - name: Analyze code
+        working-directory: apps/mobile
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings || true
+
+      - name: Configure Gradle Memory
+        working-directory: apps/mobile/android
+        run: |
+          rm -rf ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx3072m -XX:MaxMetaspaceSize=1024m -Dfile.encoding=UTF-8" >> gradle.properties
+          echo "android.useAndroidX=true" >> gradle.properties
+          echo "android.enableJetifier=true" >> gradle.properties
+
+      - name: Build Release APKs (split per ABI + fat)
+        working-directory: apps/mobile
+        run: |
+          flutter build apk --release --split-per-abi \
+            --android-skip-build-dependency-validation \
+            --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
+            --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+
+      - name: Collect Release APKs
+        run: |
+          mkdir -p release-apks
+          cp apps/mobile/build/app/outputs/flutter-apk/*.apk release-apks/ || true
+          ls -la release-apks/
+
+      - name: Upload APK Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: CaseFlow-Release-APKs
+          path: release-apks/*.apk
+          retention-days: 30
+
+      - name: Create Release (on tag push)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-apks/*.apk
+          generate_release_notes: true
+
+      - name: Upload to Firebase App Distribution
+        if: env.FIREBASE_APP_ID != '' && env.FIREBASE_CREDENTIALS != ''
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        continue-on-error: true
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_CREDENTIALS }}
+          groups: testers
+          file: release-apks/app-release.apk
+

@@ -1,0 +1,165 @@
+[
+  {
+    "section_number": "S1",
+    "section_title": "Short title and extent",
+    "section_text": "This Act may be called the Muslim Personal Law (Shariat) Application Act, 1937. It extends to the whole of India. (Post-2019, it is uniformly applicable).",
+    "chapter_number": "CH1_SHARIAT_ACT_1937",
+    "chapter_title": "Muslim Personal Law (Shariat) Application Act, 1937",
+    "sequence_order": 1
+  },
+  {
+    "section_number": "S2",
+    "section_title": "Application of Personal Law to Muslims",
+    "section_text": "Notwithstanding any custom or usage to the contrary, in all questions regarding intestate succession, special property of females, marriage, dissolution of marriage (talaq, ila, zihar, lian, khula and mubaraat), maintenance, dower, guardianship, gifts, trusts, and wakfs, the rule of decision in cases where the parties are Muslims shall be the Muslim Personal Law (Shariat).",
+    "chapter_number": "CH1_SHARIAT_ACT_1937",
+    "chapter_title": "Muslim Personal Law (Shariat) Application Act, 1937",
+    "sequence_order": 2
+  },
+  {
+    "section_number": "S3",
+    "section_title": "Power to make declaration",
+    "section_text": "Any Muslim competent to contract may declare before the prescribed authority that he desires to obtain the benefit of this section, and thereafter Shariat shall also apply to adoption, wills, and legacies.",
+    "chapter_number": "CH1_SHARIAT_ACT_1937",
+    "chapter_title": "Muslim Personal Law (Shariat) Application Act, 1937",
+    "sequence_order": 3
+  },
+
+  {
+    "section_number": "D2",
+    "section_title": "Grounds for decree for dissolution of marriage",
+    "section_text": "A woman married under Muslim law shall be entitled to obtain a decree for the dissolution of her marriage on grounds including:\n(i) Whereabouts of husband unknown for 4 years.\n(ii) Failure to provide maintenance for 2 years.\n(iii) Husband sentenced to imprisonment for 7 years or more.\n(iv) Failure to perform marital obligations for 3 years.\n(v) Husband's impotence at marriage and continuing.\n(vi) Insanity for 2 years or leprosy/venereal disease.\n(vii) Option of Puberty: Marriage before 15, repudiated before 18 (provided not consummated).\n(viii) Cruelty (Habitual assault, infamous life, forced immorality, property interference, religious obstruction, or inequitable treatment among wives).",
+    "chapter_number": "CH2_DISSOLUTION_1939",
+    "chapter_title": "Dissolution of Muslim Marriages Act, 1939",
+    "sequence_order": 4
+  },
+  {
+    "section_number": "D4",
+    "section_title": "Effect of conversion to another faith",
+    "section_text": "The renunciation of Islam by a married Muslim woman or her conversion to a faith other than Islam shall not by itself operate to dissolve her marriage. However, she remains entitled to seek divorce on the grounds mentioned in Section 2.",
+    "chapter_number": "CH2_DISSOLUTION_1939",
+    "chapter_title": "Dissolution of Muslim Marriages Act, 1939",
+    "sequence_order": 5
+  },
+
+  {
+    "section_number": "T3",
+    "section_title": "Talaq (Triple Talaq) to be void and illegal",
+    "section_text": "Any pronouncement of talaq by a Muslim husband upon his wife, by words, either spoken or written, or in electronic form (Talaq-e-Biddat) shall be void and illegal.\n\nKey Case: Shayara Bano v. Union of India (2017) SC: Declared Triple Talaq unconstitutional as it violated fundamental rights. The 2019 Act provides criminal punishment for this practice.",
+    "chapter_number": "CH3_TRIPLE_TALAQ_2019",
+    "chapter_title": "Muslim Women (Protection of Rights on Marriage) Act, 2019",
+    "sequence_order": 6
+  },
+  {
+    "section_number": "T4",
+    "section_title": "Punishment for pronouncing triple talaq",
+    "section_text": "Any Muslim husband who pronounces triple talaq shall be punished with imprisonment for a term which may extend to three years, and shall also be liable to fine. The offence is cognizable, compoundable at the instance of the wife, and non-bailable (Magistrate can grant bail after hearing the wife).",
+    "chapter_number": "CH3_TRIPLE_TALAQ_2019",
+    "chapter_title": "Muslim Women (Protection of Rights on Marriage) Act, 2019",
+    "sequence_order": 7
+  },
+
+  {
+    "section_number": "P3",
+    "section_title": "Mahr and maintenance at time of divorce",
+    "section_text": "A divorced woman is entitled to:\n(a) A reasonable and fair provision and maintenance within the iddat period.\n(b) Maintenance for children for 2 years from birth.\n(c) Payment of Mahr (Dower) agreed at marriage.\n(d) Return of all properties given at or after marriage.\n\nKey Case: Danial Latifi v. Union of India (2001) SC: Held that the provision made during iddat must be sufficient to maintain the wife for her entire remaining life or until remarriage.",
+    "chapter_number": "CH4_DIVORCE_PROTECTION_1986",
+    "chapter_title": "Muslim Women (Protection of Rights on Divorce) Act, 1986",
+    "sequence_order": 8
+  },
+  {
+    "section_number": "P4",
+    "section_title": "Order for payment of maintenance by relatives or Wakf Board",
+    "section_text": "If a divorced woman is unable to maintain herself after iddat, the Magistrate may order her relatives (who would inherit from her) to pay maintenance. If no such relatives exist or they lack means, the State Wakf Board shall be directed to pay.",
+    "chapter_number": "CH4_DIVORCE_PROTECTION_1986",
+    "chapter_title": "Muslim Women (Protection of Rights on Divorce) Act, 1986",
+    "sequence_order": 9
+  },
+
+  {
+    "section_number": "M1",
+    "section_title": "Nature of Nikah (Marriage)",
+    "section_text": "Nikah is a civil contract. Essentials:\n1. Proposal (Ijab) and Acceptance (Qubul) in one sitting.\n2. Capacity (Sound mind, Puberty).\n3. Presence of Witnesses (2 males or 1 male + 2 females for Sunnis; None for Shias).\n4. Free Consent.\n\nClassification: Valid (Sahih), Void (Batil - e.g., marriage within prohibited degrees), Irregular (Fasid - e.g., 5th wife, marriage without witnesses).",
+    "chapter_number": "CH5_MARRIAGE_NIKAH",
+    "chapter_title": "Principles of Marriage (Nikah)",
+    "sequence_order": 10
+  },
+  {
+    "section_number": "M2",
+    "section_title": "Prohibited degrees of relationship",
+    "section_text": "1. Consanguinity (Blood): Mother, Daughter, Sister, Aunt, Niece.\n2. Affinity (Marriage): Mother-in-law, Step-daughter (if marriage consummated), Son's wife.\n3. Fosterage (Milk relationship): Generally same prohibitions as blood relationship.\n4. Unlawful Conjunction: Cannot marry two sisters simultaneously.",
+    "chapter_number": "CH5_MARRIAGE_NIKAH",
+    "chapter_title": "Principles of Marriage (Nikah)",
+    "sequence_order": 11
+  },
+
+  {
+    "section_number": "MH1",
+    "section_title": "Dower (Mahr)",
+    "section_text": "Mahr is sum of money/property the wife is entitled to receive from husband as mark of respect. Types:\n1. Prompt (Mu'ajjal): Payable on demand. Wife can refuse conjugal rights until paid.\n2. Deferred (Muwajjal): Payable on death or divorce.\n\nNote: If not specified, courts treat a portion or whole as Prompt based on local custom.",
+    "chapter_number": "CH6_DOWER_MAHR",
+    "chapter_title": "Principles of Dower (Mahr)",
+    "sequence_order": 12
+  },
+
+  {
+    "section_number": "DV1",
+    "section_title": "Modes of Divorce (Talaq, Khula, Mubarat)",
+    "section_text": "1. Talaq Ahsan: Single pronouncement in purity period (Tuhr) followed by 3 months abstinence. Most approved form; revocable during Iddat.\n2. Talaq Hasan: Three pronouncements in three successive Tuhrs.\n3. Talaq-e-Tafweez: Husband delegates power of divorce to wife.\n4. Khula: Divorce at wife's instance for consideration (Returning dower).\n5. Mubarat: Mutual consent divorce.",
+    "chapter_number": "CH7_DIVORCE_TALAQ",
+    "chapter_title": "Principles of Divorce",
+    "sequence_order": 13
+  },
+  {
+    "section_number": "DV5",
+    "section_title": "Iddat (Waiting Period)",
+    "section_text": "Mandatory waiting period after divorce/death:\n- Divorce: 3 menstrual cycles (or 3 months if not menstruating).\n- Death of husband: 4 months and 10 days.\n- Pregnancy: Until delivery.\n\nPurpose: To ascertain pregnancy and prevent confusion of parentage.",
+    "chapter_number": "CH7_DIVORCE_TALAQ",
+    "chapter_title": "Principles of Divorce",
+    "sequence_order": 14
+  },
+
+  {
+    "section_number": "G1",
+    "section_title": "Guardianship (Hizanat)",
+    "section_text": "1. Custody (Hizanat): Mother has right to custody of son until 7 and daughter until puberty (Sunni). Disqualified if she remarries a stranger.\n2. Property Guardian: Father is natural guardian. Mother is not natural guardian of property.\n3. Marriage Guardian (Jabar): Father/Grandfather can contract minor in marriage (Option of Puberty available at 18).",
+    "chapter_number": "CH8_GUARDIANSHIP",
+    "chapter_title": "Principles of Guardianship",
+    "sequence_order": 15
+  },
+
+  {
+    "section_number": "I1",
+    "section_title": "Inheritance (Succession)",
+    "section_text": "Key Principles:\n- No concept of ancestral property; all property is self-acquired.\n- Male gets double share of female in same degree.\n- Murderer of deceased cannot inherit.\n\nSharers (Fixed Heirs):\n1. Husband: 1/4 (with children), 1/2 (without).\n2. Wife: 1/8 (with children), 1/4 (without).\n3. Daughter: 1/2 (if single), 2/3 (if 2+), Residuary (with son).\n4. Father/Mother: 1/6 each (with children).",
+    "chapter_number": "CH9_INHERITANCE",
+    "chapter_title": "Principles of Inheritance",
+    "sequence_order": 16
+  },
+
+  {
+    "section_number": "GF1",
+    "section_title": "Gifts (Hiba)",
+    "section_text": "Essentials of valid Hiba:\n1. Declaration (Ijab) by donor.\n2. Acceptance (Qubul) by donee.\n3. Delivery of Possession (Qabza).\n\nNote: Writing and registration are NOT mandatory for a valid Muslim gift (unlike TPA). Oral gift is legally valid.",
+    "chapter_number": "CH10_GIFTS_HIBA",
+    "chapter_title": "Principles of Gifts (Hiba)",
+    "sequence_order": 17
+  },
+
+  {
+    "section_number": "W1",
+    "section_title": "Wills (Wasiyat)",
+    "section_text": "Limit: A Muslim can only bequeath up to 1/3 (one-third) of his estate by will. Anything more requires consent of all heirs after testator's death. Bequest to an heir is void under Sunni law unless other heirs consent.",
+    "chapter_number": "CH11_WILLS_WASIYAT",
+    "chapter_title": "Principles of Wills",
+    "sequence_order": 18
+  },
+
+  {
+    "section_number": "WK1",
+    "section_title": "Wakf (Charitable Trust)",
+    "section_text": "Definition: Permanent dedication of property for religious/charitable purposes. Property vests in God. Once created, it is irrevocable. Managed by a Mutawalli.",
+    "chapter_number": "CH12_WAKF",
+    "chapter_title": "Principles of Wakf",
+    "sequence_order": 19
+  }
+]

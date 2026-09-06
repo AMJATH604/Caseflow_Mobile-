@@ -1,0 +1,114 @@
+[
+  {
+    "section_number": "GWA-1",
+    "section_title": "Title, extent and commencement",
+    "section_text": "This Act may be called the Guardians and Wards Act, 1890. It extends to the whole of India.",
+    "chapter_number": "CH1_PRELIMINARY",
+    "chapter_title": "Preliminary",
+    "sequence_order": 1
+  },
+  {
+    "section_number": "GWA-4",
+    "section_title": "Definitions",
+    "section_text": "In this Act, unless there is something repugnant in the subject or context:\n(1) 'minor' means a person who has not attained the age of eighteen years;\n(2) 'guardian' means a person having the care of the person of a minor or of his property or of both;\n(3) 'ward' means a minor for whose person or property or both there is a guardian;\n(5) 'court' means the district court having jurisdiction.",
+    "chapter_number": "CH1_PRELIMINARY",
+    "chapter_title": "Preliminary",
+    "sequence_order": 2
+  },
+  {
+    "section_number": "GWA-7",
+    "section_title": "Power of the Court to make order as to guardianship",
+    "section_text": "Where the Court is satisfied that it is for the welfare of a minor that an order should be made appointing a guardian of his person or property or both, or declaring a person to be such a guardian, the Court may make an order accordingly.",
+    "chapter_number": "CH2_APPOINTMENT",
+    "chapter_title": "Appointment and Declaration of Guardians",
+    "sequence_order": 3
+  },
+  {
+    "section_number": "GWA-9",
+    "section_title": "Court having jurisdiction to entertain application",
+    "section_text": "If the application is with respect to the guardianship of the person of the minor, it shall be made to the district court having jurisdiction in the place where the minor ordinarily resides.\n\nNote: 'Ordinarily resides' is a key legal term. It refers to a permanent or settled place of residence of the minor, not a temporary visit.",
+    "chapter_number": "CH2_APPOINTMENT",
+    "chapter_title": "Appointment and Declaration of Guardians",
+    "sequence_order": 4
+  },
+  {
+    "section_number": "GWA-12",
+    "section_title": "Power to make interlocutory order for production of minor",
+    "section_text": "The Court may direct that the person having the custody of the minor shall produce him or cause him to be produced at such place and time as the Court appoints. The Court may also make such order for the interim protection of the person or property of the minor as it thinks fit.\n\nNote: This is often used for interim custody and visitation during pendency of the main case.",
+    "chapter_number": "CH2_APPOINTMENT",
+    "chapter_title": "Appointment and Declaration of Guardians",
+    "sequence_order": 5
+  },
+  {
+    "section_number": "GWA-17",
+    "section_title": "Matters to be considered by the Court in appointing guardian",
+    "section_text": "In appointing or declaring the guardian of a minor, the Court shall, subject to the provisions of this section, be guided by what, consistently with the law to which the minor is subject, appears in the circumstances to be for the welfare of the minor.\n\nIn considering what will be for the welfare of the minor, the Court shall have regard to the age, sex and religion of the minor, the character and capacity of the proposed guardian and his nearness of kin to the minor, the wishes, if any, of a deceased parent, and any existing or previous relations of the proposed guardian with the minor or his property. If the minor is old enough to form an intelligent preference, the Court may consider that preference.",
+    "chapter_number": "CH2_APPOINTMENT",
+    "chapter_title": "Appointment and Declaration of Guardians",
+    "sequence_order": 6
+  },
+  {
+    "section_number": "GWA-19",
+    "section_title": "Guardian not to be appointed by the Court in certain cases",
+    "section_text": "Nothing in this Chapter shall authorize the Court to appoint or declare a guardian of the person of a minor:\n(a) who is a married female and whose husband is not, in the opinion of the Court, unfit to be guardian of her person; or\n(b) of a minor whose father is living and is not, in the opinion of the Court, unfit to be guardian of the person of the minor.",
+    "chapter_number": "CH2_APPOINTMENT",
+    "chapter_title": "Appointment and Declaration of Guardians",
+    "sequence_order": 7
+  },
+  {
+    "section_number": "GWA-20",
+    "section_title": "Fiduciary relation of guardian to ward",
+    "section_text": "A guardian stands in a fiduciary relation to his ward, and, save as provided by the will or other instrument, if any, by which he was appointed, or by this Act, he must not make any profit out of his office.",
+    "chapter_number": "CH3_DUTIES",
+    "chapter_title": "Duties, Rights and Liabilities of Guardians",
+    "sequence_order": 8
+  },
+  {
+    "section_number": "GWA-24",
+    "section_title": "Duties of guardian of the person",
+    "section_text": "A guardian of the person of a ward is charged with the custody of the ward and must look to his support, health and education, and such other matters as the law to which the ward is subject requires.",
+    "chapter_number": "CH3_DUTIES",
+    "chapter_title": "Duties, Rights and Liabilities of Guardians",
+    "sequence_order": 9
+  },
+  {
+    "section_number": "GWA-25",
+    "section_title": "Title of guardian to custody of ward",
+    "section_text": "If a ward leaves or is removed from the custody of a guardian of his person, the Court, if it is of opinion that it will be for the welfare of the ward that he should be returned to the custody of his guardian, may make an order for his return, and for the purpose of enforcing the order may cause the ward to be arrested and to be delivered into the custody of the guardian.",
+    "chapter_number": "CH3_DUTIES",
+    "chapter_title": "Duties, Rights and Liabilities of Guardians",
+    "sequence_order": 10
+  },
+  {
+    "section_number": "GWA-27",
+    "section_title": "Duties of guardian of property",
+    "section_text": "A guardian of the property of a ward is bound to deal therewith as carefully as a man of ordinary prudence would deal with it if it were his own, and, subject to the provisions of this Chapter, he may do all acts which are reasonable and proper for the realization, protection or benefit of the property.",
+    "chapter_number": "CH3_DUTIES",
+    "chapter_title": "Duties, Rights and Liabilities of Guardians",
+    "sequence_order": 11
+  },
+  {
+    "section_number": "GWA-29",
+    "section_title": "Limitation of powers of guardian of property appointed by Court",
+    "section_text": "Where a person other than a collector, or than a guardian appointed by will or other instrument, has been appointed or declared by the Court to be guardian of the property of a ward, he shall not, without the previous permission of the Court:\n(a) mortgage or charge, or transfer by sale, gift, exchange or otherwise, any part of the immovable property of his ward; or\n(b) lease any part of that property for a term exceeding five years or for any term extending more than one year beyond the date on which the ward will cease to be a minor.",
+    "chapter_number": "CH3_DUTIES",
+    "chapter_title": "Duties, Rights and Liabilities of Guardians",
+    "sequence_order": 12
+  },
+  {
+    "section_number": "GWA-39",
+    "section_title": "Removal of guardian",
+    "section_text": "The Court may, on the application of any person interested or of its own motion, remove a guardian appointed or declared by the Court, or a guardian appointed by will or other instrument, for any of the following causes, namely:\n(a) for abuse of his trust;\n(b) for continued failure to perform the duties of his office;\n(c) for incapacity to perform the duties of his office;\n(d) for ill-treatment, or neglect to take proper care, of his ward;\n(e) for contumacious disregard of any provision of this Act or of any order of the Court;\n(f) for conviction of an offence implying, in the opinion of the Court, a defect of character which unfits him to be the guardian of his ward.",
+    "chapter_number": "CH3_DUTIES",
+    "chapter_title": "Duties, Rights and Liabilities of Guardians",
+    "sequence_order": 13
+  },
+  {
+    "section_number": "GWA-41",
+    "section_title": "Cessation of authority of guardian",
+    "section_text": "The powers of a guardian of the person or property cease:\n(a) by his death, removal or discharge;\n(b) by the Court of Wards assuming superintendence of the person or property of the ward;\n(c) by the ward ceasing to be a minor;\n(d) in the case of a female ward, by her marriage to a person whose husband is not unfit to be guardian of her person.",
+    "chapter_number": "CH3_DUTIES",
+    "chapter_title": "Duties, Rights and Liabilities of Guardians",
+    "sequence_order": 14
+  }
+]

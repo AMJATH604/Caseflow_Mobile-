@@ -1,0 +1,19 @@
+# ─── CaseFlow Android Release Signing ──────────────────────
+# This file is referenced by build.gradle.kts for release signing.
+# NEVER commit this file to git (it's in .gitignore).
+#
+# Steps to set up:
+# 1. Generate a keystore:
+#    keytool -genkey -v -keystore caseflow-release.keystore \
+#      -alias caseflow -keyalg RSA -keysize 2048 -validity 10000
+#
+# 2. Fill in the values below:
+#    storePassword=<your-keystore-password>
+#    keyPassword=<your-key-password>
+#    keyAlias=caseflow
+#    storeFile=<path-to-keystore>/caseflow-release.keystore
+#
+# 3. Update build.gradle.kts to use this signing config for release builds.
+#
+# ⚠️ IMPORTANT: Back up your keystore file securely!
+#    If you lose it, you cannot update your app on the Play Store.

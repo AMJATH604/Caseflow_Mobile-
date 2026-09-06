@@ -1,0 +1,214 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:caseflow/services/repositories/base_repository.dart';
+import 'package:caseflow/models/models.dart';
+
+/// Unit tests for BaseRepository shared utilities.
+/// Tests profile caching, visibility filter building, and date normalization.
+void main() {
+  group('BaseRepository.normalizeDateStr', () {
+    test('returns null for null input', () {
+      expect(BaseRepository.normalizeDateStr(null), isNull);
+    });
+
+    test('returns null for empty string', () {
+      expect(BaseRepository.normalizeDateStr(''), isNull);
+    });
+
+    test('returns null for whitespace', () {
+      expect(BaseRepository.normalizeDateStr('   '), isNull);
+    });
+
+    test('passes through already-formatted YYYY-MM-DD', () {
+      expect(BaseRepository.normalizeDateStr('2026-04-15'), '2026-04-15');
+    });
+
+    test('converts DD-MM-YYYY to YYYY-MM-DD', () {
+      expect(BaseRepository.normalizeDateStr('15-04-2026'), '2026-04-15');
+    });
+
+    test('converts DD/MM/YYYY to YYYY-MM-DD', () {
+      expect(BaseRepository.normalizeDateStr('15/04/2026'), '2026-04-15');
+    });
+
+    test('handles leading/trailing whitespace', () {
+      expect(BaseRepository.normalizeDateStr('  15-04-2026  '), '2026-04-15');
+    });
+
+    test('returns null for unrecognized format', () {
+      expect(BaseRepository.normalizeDateStr('April 15, 2026'), isNull);
+    });
+
+    test('handles 01-01-2025 edge case', () {
+      expect(BaseRepository.normalizeDateStr('01-01-2025'), '2025-01-01');
+    });
+
+    test('handles 31/12/2025 edge case', () {
+      expect(BaseRepository.normalizeDateStr('31/12/2025'), '2025-12-31');
+    });
+  });
+
+  group('BaseRepository.buildVisibilityFilter', () {
+    test('solo user gets only own records', () {
+      final profile = UserProfile.fromJson({
+        'id': 'user-1',
+        'firm_id': null,
+      });
+      final filter = BaseRepository.buildVisibilityFilter(profile, 'user-1');
+      // Solo user is firm owner (firmId == null), so they should get
+      // their own records AND records where firm_id matches their userId
+      expect(filter, contains('assigned_to.eq.user-1'));
+      expect(filter, contains('firm_id.eq.user-1'));
+    });
+
+    test('firm member gets own + firm records', () {
+      final profile = UserProfile.fromJson({
+        'id': 'member-1',
+        'firm_id': 'owner-1',
+      });
+      final filter =
+          BaseRepository.buildVisibilityFilter(profile, 'member-1');
+      expect(filter, contains('assigned_to.eq.member-1'));
+      expect(filter, contains('firm_id.eq.owner-1'));
+    });
+
+    test('custom userField is used', () {
+      final profile = UserProfile.fromJson({
+        'id': 'user-1',
+        'firm_id': null,
+      });
+      final filter = BaseRepository.buildVisibilityFilter(
+        profile,
+        'user-1',
+        userField: 'created_by',
+      );
+      expect(filter, contains('created_by.eq.user-1'));
+    });
+  });
+
+  group('BaseRepository.getTargetFirmId', () {
+    test('returns firmId for firm member', () {
+      final member = UserProfile.fromJson({
+        'id': 'member-1',
+        'firm_id': 'owner-1',
+      });
+      expect(BaseRepository.getTargetFirmId(member, 'member-1'), 'owner-1');
+    });
+
+    test('returns userId for solo user', () {
+      final solo = UserProfile.fromJson({
+        'id': 'user-1',
+        'firm_id': null,
+      });
+      expect(BaseRepository.getTargetFirmId(solo, 'user-1'), 'user-1');
+    });
+  });
+
+  group('BaseRepository.profileCache', () {
+    test('invalidateProfileCache clears cache without error', () {
+      // Should not throw even when cache is already empty
+      BaseRepository.invalidateProfileCache();
+      BaseRepository.invalidateProfileCache();
+    });
+  });
+
+  group('BaseRepository.syncedNow', () {
+    test('returns a DateTime close to now', () {
+      final now = DateTime.now();
+      final synced = BaseRepository.syncedNow;
+      expect(synced.difference(now).abs().inSeconds, lessThan(5));
+    });
+
+    test('updateOffset adjusts syncedNow', () {
+      // Simulate server being 10 seconds ahead
+      final serverTime = DateTime.now().toUtc().add(const Duration(seconds: 10));
+      BaseRepository.updateOffset(serverTime);
+      final synced = BaseRepository.syncedNow;
+      final diff = synced.difference(DateTime.now()).inSeconds;
+      expect(diff, greaterThanOrEqualTo(8)); // Within 2s tolerance
+      expect(diff, lessThanOrEqualTo(12));
+
+      // Reset
+      BaseRepository.updateOffset(DateTime.now().toUtc());
+    });
+  });
+
+  group('BaseRepository.validateRequired', () {
+    test('passes when all required fields are present', () {
+      expect(
+        () => BaseRepository.validateRequired(
+          {'name': 'John', 'email': 'john@test.com'},
+          ['name', 'email'],
+        ),
+        returnsNormally,
+      );
+    });
+
+    test('throws when a required field is missing', () {
+      expect(
+        () => BaseRepository.validateRequired(
+          {'name': 'John'},
+          ['name', 'email'],
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('throws when a required field is empty string', () {
+      expect(
+        () => BaseRepository.validateRequired(
+          {'name': 'John', 'email': '  '},
+          ['name', 'email'],
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('throws when a required field is null', () {
+      expect(
+        () => BaseRepository.validateRequired(
+          {'name': 'John', 'email': null},
+          ['name', 'email'],
+        ),
+        throwsArgumentError,
+      );
+    });
+  });
+
+  group('BaseRepository.validateStringLength', () {
+    test('returns null for null input', () {
+      expect(
+        BaseRepository.validateStringLength(null, 'test'),
+        isNull,
+      );
+    });
+
+    test('returns trimmed value for valid input', () {
+      expect(
+        BaseRepository.validateStringLength('  hello  ', 'test'),
+        'hello',
+      );
+    });
+
+    test('throws for input exceeding max length', () {
+      expect(
+        () => BaseRepository.validateStringLength(
+          'a' * 501,
+          'test',
+          maxLength: 500,
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('passes for input at exactly max length', () {
+      expect(
+        () => BaseRepository.validateStringLength(
+          'a' * 500,
+          'test',
+          maxLength: 500,
+        ),
+        returnsNormally,
+      );
+    });
+  });
+}

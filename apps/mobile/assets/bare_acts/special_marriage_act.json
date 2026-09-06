@@ -1,0 +1,162 @@
+[
+  {
+    "section_number": "SMA-1",
+    "section_title": "Short title, extent and commencement",
+    "section_text": "This Act may be called the Special Marriage Act, 1954. It extends to the whole of India and applies to all citizens of India, whether residing in the territories to whom this Act extends or not.",
+    "chapter_number": "CH1_PRELIMINARY",
+    "chapter_title": "Preliminary",
+    "sequence_order": 1
+  },
+  {
+    "section_number": "SMA-4",
+    "section_title": "Conditions relating to solemnization of special marriages",
+    "section_text": "Conditions for a valid marriage:\n(a) Neither party has a spouse living.\n(b) Neither party is incapable of giving valid consent due to unsoundness of mind.\n(c) Male must be 21 years old; female must be 18 years old.\n(d) Parties are not within degrees of prohibited relationship.\n(e) In case of citizens abroad, parties to be domiciled in India.",
+    "chapter_number": "CH1_PRELIMINARY",
+    "chapter_title": "Preliminary",
+    "sequence_order": 2
+  },
+  {
+    "section_number": "SMA-5",
+    "section_title": "Notice of intended marriage",
+    "section_text": "When a marriage is intended to be solemnized under this Act, the parties to the marriage shall give notice thereof in writing in the form specified in the Second Schedule to the Marriage Officer of the district in which at least one of the parties to the marriage has resided for a period of not less than thirty days immediately preceding the date on which such notice is given.",
+    "chapter_number": "CH2_SOLEMNIZATION",
+    "chapter_title": "Solemnization of Special Marriages",
+    "sequence_order": 3
+  },
+  {
+    "section_number": "SMA-6",
+    "section_title": "Marriage Notice Book and publication",
+    "section_text": "The Marriage Officer shall keep all notices and shall enter a true copy of every such notice into the Marriage Notice Book. This book shall be open for inspection at all reasonable times. A copy of the notice shall be published in the Marriage Officer's office.",
+    "chapter_number": "CH2_SOLEMNIZATION",
+    "chapter_title": "Solemnization of Special Marriages",
+    "sequence_order": 4
+  },
+  {
+    "section_number": "SMA-7",
+    "section_title": "Objection to marriage",
+    "section_text": "Any person may, before the expiration of thirty days from the date on which the notice has been published, object to the marriage on the ground that it would contravene one or more of the conditions specified in section 4.",
+    "chapter_number": "CH2_SOLEMNIZATION",
+    "chapter_title": "Solemnization of Special Marriages",
+    "sequence_order": 5
+  },
+  {
+    "section_number": "SMA-12",
+    "section_title": "Place and form of solemnization",
+    "section_text": "The marriage may be solemnized at the office of the Marriage Officer or at such other place within a reasonable distance therefrom as the parties may desire. The marriage may be solemnized in any form which the parties may choose to adopt. However, it shall not be complete and binding unless each party says to the other in the presence of the Marriage Officer and the three witnesses and in any language understood by the parties — 'I, (A), take thee (B), to be my lawful wife (or husband)'.",
+    "chapter_number": "CH2_SOLEMNIZATION",
+    "chapter_title": "Solemnization of Special Marriages",
+    "sequence_order": 6
+  },
+  {
+    "section_number": "SMA-13",
+    "section_title": "Certificate of marriage",
+    "section_text": "After the solemnization of the marriage, the Marriage Officer shall enter a certificate thereof in the form specified in the Fourth Schedule in a book to be kept by him for that purpose and to be called the Marriage Certificate Book and such certificate shall be signed by the parties to the marriage and the three witnesses. The certificate shall be deemed to be conclusive evidence of the fact that a marriage under this Act has been solemnized and that all formalities respecting the signatures of witnesses have been complied with.",
+    "chapter_number": "CH2_SOLEMNIZATION",
+    "chapter_title": "Solemnization of Special Marriages",
+    "sequence_order": 7
+  },
+  {
+    "section_number": "SMA-15",
+    "section_title": "Registration of marriages celebrated in other forms",
+    "section_text": "Any marriage celebrated in any other form (religious or customary) may be registered under this Chapter if:\n(a) the parties have been living together as husband and wife.\n(b) neither party has more than one spouse living.\n(c) neither party is of unsound mind.\n(d) parties attained ages specified in Section 4.\n(e) parties are not within degrees of prohibited relationship.",
+    "chapter_number": "CH3_REGISTRATION",
+    "chapter_title": "Registration of Marriages celebrated in other forms",
+    "sequence_order": 8
+  },
+  {
+    "section_number": "SMA-19",
+    "section_title": "Effect of marriage on joint family",
+    "section_text": "The marriage solemnized under this Act of any member of an undivided family who professes the Hindu, Buddhist, Sikh or Jaina religion shall be deemed to effect his severance from such family.\n\nNote: This section is controversial and unique to SMA. It triggers an automatic partition from the Joint Hindu Family.",
+    "chapter_number": "CH4_CONSEQUENCES",
+    "chapter_title": "Consequences of Marriage under this Act",
+    "sequence_order": 9
+  },
+  {
+    "section_number": "SMA-21",
+    "section_title": "Succession to property of parties married under Act",
+    "section_text": "Notwithstanding any restrictions contained in any other law, succession to the property of any person whose marriage is solemnized under this Act, and to the property of the issue of such marriage, shall be regulated by the provisions of the Indian Succession Act, 1925, and not by the personal law of the parties.",
+    "chapter_number": "CH4_CONSEQUENCES",
+    "chapter_title": "Consequences of Marriage under this Act",
+    "sequence_order": 10
+  },
+  {
+    "section_number": "SMA-22",
+    "section_title": "Restitution of conjugal rights",
+    "section_text": "When either the husband or the wife has, without reasonable excuse, withdrawn from the society of the other, the aggrieved party may apply for restitution of conjugal rights to the district court.",
+    "chapter_number": "CH5_RESTITUTION_AND_SEPARATION",
+    "chapter_title": "Restitution of Conjugal Rights and Judicial Separation",
+    "sequence_order": 11
+  },
+  {
+    "section_number": "SMA-23",
+    "section_title": "Judicial separation",
+    "section_text": "A petition for judicial separation may be presented to the district court by either the husband or the wife on any of the grounds specified in sub-section (1) of section 27.",
+    "chapter_number": "CH5_RESTITUTION_AND_SEPARATION",
+    "chapter_title": "Restitution of Conjugal Rights and Judicial Separation",
+    "sequence_order": 12
+  },
+  {
+    "section_number": "SMA-24",
+    "section_title": "Void marriages",
+    "section_text": "Any marriage solemnized under this Act shall be null and void and may, on a petition presented by either party thereto against the other party, be so declared by a decree of nullity if any of the conditions specified in clauses (a), (b), (c) and (d) of section 4 has not been fulfilled.",
+    "chapter_number": "CH6_NULLITY_AND_DIVORCE",
+    "chapter_title": "Nullity of Marriage and Divorce",
+    "sequence_order": 13
+  },
+  {
+    "section_number": "SMA-25",
+    "section_title": "Voidable marriages",
+    "section_text": "Any marriage solemnized under this Act shall be voidable and may be annulled by a decree of nullity if:\n(i) the marriage has not been consummated owing to the wilful refusal of the respondent;\n(ii) respondent was pregnant by person other than petitioner;\n(iii) consent was obtained by coercion or fraud.",
+    "chapter_number": "CH6_NULLITY_AND_DIVORCE",
+    "chapter_title": "Nullity of Marriage and Divorce",
+    "sequence_order": 14
+  },
+  {
+    "section_number": "SMA-27",
+    "section_title": "Divorce — Grounds",
+    "section_text": "Either husband or wife can petition for divorce on grounds of:\n(a) Voluntary sexual intercourse with others (Adultery).\n(b) Cruelty.\n(c) Desertion for 2 years.\n(d) Imprisonment for 7 years or more.\n(e) Unsound mind or mental disorder.\n(f) Venereal disease in communicable form.\n(g) Leprosy (virulent and incurable).\n(h) Not been heard of as being alive for 7 years.",
+    "chapter_number": "CH6_NULLITY_AND_DIVORCE",
+    "chapter_title": "Nullity of Marriage and Divorce",
+    "sequence_order": 15
+  },
+  {
+    "section_number": "SMA-28",
+    "section_title": "Divorce by mutual consent",
+    "section_text": "Both parties together can petition the district court for divorce on the ground that they have been living separately for a period of one year or more, and have not been able to live together, and have mutually agreed to dissolve marriage.",
+    "chapter_number": "CH6_NULLITY_AND_DIVORCE",
+    "chapter_title": "Nullity of Marriage and Divorce",
+    "sequence_order": 16
+  },
+  {
+    "section_number": "SMA-31",
+    "section_title": "Court to which petition should be made",
+    "section_text": "Every petition shall be presented to the district court within the local limits of whose jurisdiction:\n(i) the marriage was solemnized; or\n(ii) the respondent, at the time of the presentation of the petition, resides; or\n(iii) the parties to the marriage last resided together.",
+    "chapter_number": "CH7_JURISDICTION_AND_PROCEDURE",
+    "chapter_title": "Jurisdiction and Procedure",
+    "sequence_order": 17
+  },
+  {
+    "section_number": "SMA-36",
+    "section_title": "Alimony pendente lite",
+    "section_text": "The court may order the husband to pay to the wife the expenses of the proceeding and maintenance during the pendency of the proceeding if she has no independent income.",
+    "chapter_number": "CH7_JURISDICTION_AND_PROCEDURE",
+    "chapter_title": "Jurisdiction and Procedure",
+    "sequence_order": 18
+  },
+  {
+    "section_number": "SMA-37",
+    "section_title": "Permanent alimony and maintenance",
+    "section_text": "The court may order permanent maintenance to the wife at the time of passing any decree or subsequently.",
+    "chapter_number": "CH7_JURISDICTION_AND_PROCEDURE",
+    "chapter_title": "Jurisdiction and Procedure",
+    "sequence_order": 19
+  },
+  {
+    "section_number": "SMA-38",
+    "section_title": "Custody of children",
+    "section_text": "In any proceeding under this Act, the court may from time to time pass interim orders and make such provisions in the decree as it may deem just and proper with respect to the custody, maintenance, and education of minor children.",
+    "chapter_number": "CH7_JURISDICTION_AND_PROCEDURE",
+    "chapter_title": "Jurisdiction and Procedure",
+    "sequence_order": 20
+  }
+]

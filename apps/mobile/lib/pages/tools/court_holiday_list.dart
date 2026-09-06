@@ -1,0 +1,180 @@
+import 'package:flutter/material.dart';
+import '../../theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+class CourtHolidayList extends StatelessWidget {
+  const CourtHolidayList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Static data for 2026 major court holidays (General Indian/TN pattern)
+    final List<Map<String, dynamic>> holidays = [
+      {
+        'month': 'January',
+        'days': [
+          {'name': "New Year's Day", 'date': 'Jan 1'},
+          {'name': 'Pongal / Sankranti', 'date': 'Jan 14-16'},
+          {'name': 'Republic Day', 'date': 'Jan 26'},
+        ],
+      },
+      {
+        'month': 'February',
+        'days': [
+          {'name': 'Maha Shivaratri', 'date': 'Feb 15'},
+        ],
+      },
+      {
+        'month': 'March',
+        'days': [
+          {'name': 'Holi', 'date': 'Mar 4'},
+          {'name': 'Eid-ul-Fitr (Approx)', 'date': 'Mar 31'},
+        ],
+      },
+      {
+        'month': 'April',
+        'days': [
+          {'name': 'Good Friday', 'date': 'Apr 3'},
+          {'name': 'Tamil New Year / Vishu', 'date': 'Apr 14'},
+        ],
+      },
+      {
+        'month': 'May',
+        'days': [
+          {
+            'name': 'Summer Vacation',
+            'date': 'May 1 - May 31',
+            'type': 'vacation',
+          },
+        ],
+      },
+      {
+        'month': 'August',
+        'days': [
+          {'name': 'Independence Day', 'date': 'Aug 15'},
+        ],
+      },
+      {
+        'month': 'October',
+        'days': [
+          {'name': 'Gandhi Jayanti', 'date': 'Oct 2'},
+          {'name': 'Vijayadashami / Dussehra', 'date': 'Oct 21'},
+        ],
+      },
+      {
+        'month': 'November',
+        'days': [
+          {'name': 'Diwali / Deepavali', 'date': 'Nov 8'},
+        ],
+      },
+      {
+        'month': 'December',
+        'days': [
+          {
+            'name': 'Winter Vacation',
+            'date': 'Dec 24 - Dec 31',
+            'type': 'vacation',
+          },
+        ],
+      },
+    ];
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: ListView.builder(
+        itemCount: holidays.length,
+        itemBuilder: (context, index) {
+          final month = holidays[index];
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 8,
+                ),
+                child: Text(
+                  month['month'].toUpperCase(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                    color: AppTheme.primary,
+                    fontSize: 12.sp,
+                  ),
+                ),
+              ),
+              ...((month['days'] as List).map((day) => _buildHolidayCard(day))),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildHolidayCard(Map<String, dynamic> day) {
+    final isVacation = day['type'] == 'vacation';
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 8.h),
+      padding: EdgeInsets.all(16.r),
+      decoration: BoxDecoration(
+        color:
+            isVacation ? Colors.orange.withValues(alpha: 0.05) : Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(
+          color:
+              isVacation
+                  ? Colors.orange.withValues(alpha: 0.2)
+                  : AppTheme.border,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10.r),
+            decoration: BoxDecoration(
+              color:
+                  isVacation
+                      ? Colors.orange.withValues(alpha: 0.1)
+                      : AppTheme.primary.withValues(alpha: 0.05),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isVacation
+                  ? Icons.beach_access_rounded
+                  : Icons.event_available_rounded,
+              color: isVacation ? Colors.orange : AppTheme.primary,
+              size: 20,
+            ),
+          ),
+          SizedBox(width: 16.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  day['name'],
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14.sp,
+                  ),
+                ),
+                Text(
+                  isVacation ? 'Court Vacation' : 'Public Holiday',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 11.sp),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            day['date'],
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              fontSize: 13.sp,
+              color: AppTheme.primary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
