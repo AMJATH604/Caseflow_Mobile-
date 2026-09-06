@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { verifyWebhookAuth } from "../_shared/auth_guard.ts";
 
 // ═══════════════════════════════════════════════════════════
 // CaseFlow RAG: Semantic Search
@@ -50,6 +51,13 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+
+  // This function builds a service-role client and bills embedding calls to
+  // the project's Gemini quota, so it is not open to anonymous callers. Its
+  // only caller is gemini-proxy, which presents the service-role key and has
+  // already authenticated and rate-limited the end user.
+  const authError = await verifyWebhookAuth(req);
+  if (authError) return authError;
 
   try {
     const { query, match_count = 5, match_threshold = 0.3, source_type = null } = await req.json();

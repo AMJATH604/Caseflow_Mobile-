@@ -224,7 +224,11 @@ Deno.serve(async (req: Request) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+            // Internal server-to-server hop. rag-search runs with a
+            // service-role client and is no longer callable anonymously, so
+            // present a privileged credential rather than the anon key —
+            // which any client could also send.
+            "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
           },
           body: JSON.stringify({ query: prompt, match_count: 5, match_threshold: 0.35 }),
         });

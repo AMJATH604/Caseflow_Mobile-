@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { verifyWebhookAuth } from "../_shared/auth_guard.ts";
 
 // ═══════════════════════════════════════════════════════════
 // CaseFlow RAG: Embedding Pipeline
@@ -243,6 +244,13 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+
+  // Admin/cron operation: builds a service-role client and runs deletes and
+  // inserts against legal_embeddings driven by the request body, while
+  // billing embedding calls to the project's Gemini quota. The header claimed
+  // "Requires service_role key" long before anything enforced it.
+  const authError = await verifyWebhookAuth(req);
+  if (authError) return authError;
 
   try {
     if (!GEMINI_API_KEY) {
