@@ -13,7 +13,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 Deno.serve(async (req: Request) => {
   // ─── Auth Guard: Verify webhook/cron caller ────────────────
-  const authError = verifyWebhookAuth(req);
+  const authError = await verifyWebhookAuth(req);
   if (authError) return authError;
 
   const url = new URL(req.url);

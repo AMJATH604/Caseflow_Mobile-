@@ -169,7 +169,11 @@ Deno.serve(async (req: Request) => {
   }
 
   // ─── Auth Guard: Verify webhook/cron caller ────────────────
-  const authError = verifyWebhookAuth(req);
+  // Invoked two ways: by cron to refresh the feed, and by users via
+  // pull-to-refresh on the Legal Pulse screen. allowUserJwt lets a
+  // verified end-user token through; it is validated against Supabase
+  // Auth, not merely shape-checked.
+  const authError = await verifyWebhookAuth(req, { allowUserJwt: true });
   if (authError) return authError;
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;

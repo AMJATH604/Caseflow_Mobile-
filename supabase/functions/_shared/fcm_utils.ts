@@ -5,13 +5,26 @@
 // Usage:
 //   import { getAccessToken, cleanupInvalidToken } from "../_shared/fcm_utils.ts";
 
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // ─── Google OAuth for FCM v1 API ─────────────────────────────
 // Generates a short-lived OAuth2 access token from a Firebase service account
 // using the JWT Bearer grant flow. Token is valid for 1 hour.
 
+// Google's OAuth tokens are valid for an hour, but this was previously
+// re-minted (RS256 sign + network round-trip to oauth2.googleapis.com) on
+// every single invocation. Cache it in module scope — Deno keeps the isolate
+// warm between requests, so a batch of reminders now signs once, not N times.
+// Refreshed 5 minutes early to avoid using a token that expires mid-flight.
+let cachedToken: { token: string; expiresAt: number } | null = null;
+const TOKEN_REFRESH_MARGIN_MS = 5 * 60 * 1000;
+
 export async function getAccessToken(serviceAccount: any): Promise<string> {
+  if (cachedToken && Date.now() < cachedToken.expiresAt - TOKEN_REFRESH_MARGIN_MS) {
+    return cachedToken.token;
+  }
+
   const now = Math.floor(Date.now() / 1000);
 
   const base64UrlEncode = (str: string) =>
@@ -71,6 +84,14 @@ export async function getAccessToken(serviceAccount: any): Promise<string> {
   if (!tokenData.access_token) {
     throw new Error(`Failed to get OAuth token: ${JSON.stringify(tokenData)}`);
   }
+
+  // Google returns expires_in as seconds remaining; fall back to 1 hour.
+  const expiresInMs = (tokenData.expires_in ?? 3600) * 1000;
+  cachedToken = {
+    token: tokenData.access_token,
+    expiresAt: Date.now() + expiresInMs,
+  };
+
   return tokenData.access_token;
 }
 

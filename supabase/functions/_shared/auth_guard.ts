@@ -1,96 +1,149 @@
 // ─── Shared Auth Guard for Supabase Edge Functions ─────────────────
 // Validates that webhook/cron requests are authorized before processing.
 //
-// Two authentication modes:
-// 1. **Webhook mode** (database triggers): Validates the Supabase webhook signature
-//    using the SUPABASE_SERVICE_ROLE_KEY from the Authorization header.
-// 2. **Cron/manual mode**: Validates a shared CRON_SECRET bearer token.
+// These functions all construct a SERVICE-ROLE Supabase client, which
+// bypasses RLS entirely. This guard is the only thing standing between an
+// anonymous caller and that client, so it fails CLOSED: if no shared secret
+// is configured, every request is rejected.
+//
+// Accepted credentials (in order of preference):
+//   1. `Authorization: Bearer <SUPABASE_SERVICE_ROLE_KEY>` — Supabase database
+//      webhooks and pg_net/pg_cron jobs send this.
+//   2. `Authorization: Bearer <CRON_SECRET>` — external schedulers, manual
+//      admin triggers.
+//   3. `x-supabase-webhook-secret: <WEBHOOK_SECRET>` — custom webhook configs.
+//   4. A verified end-user JWT — ONLY when the caller passes
+//      `{ allowUserJwt: true }`, and only after the token is actually
+//      validated against Supabase Auth.
 //
 // Usage:
 //   import { verifyWebhookAuth } from "../_shared/auth_guard.ts";
 //
-//   // At the top of your handler:
-//   const authError = verifyWebhookAuth(req);
+//   const authError = await verifyWebhookAuth(req);
 //   if (authError) return authError;
+
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+/**
+ * Length-safe, constant-time string comparison.
+ *
+ * A plain `a === b` on a secret leaks length and prefix information through
+ * timing. This compares every byte regardless of where the first mismatch is.
+ */
+function timingSafeEqual(a: string | null | undefined, b: string | null | undefined): boolean {
+  if (!a || !b) return false;
+
+  const encoder = new TextEncoder();
+  const aBytes = encoder.encode(a);
+  const bBytes = encoder.encode(b);
+
+  // Mismatched lengths can never be equal, but keep comparing so the
+  // duration does not depend on where the difference is.
+  let diff = aBytes.length ^ bBytes.length;
+  const max = Math.max(aBytes.length, bBytes.length);
+  for (let i = 0; i < max; i++) {
+    diff |= (aBytes[i] ?? 0) ^ (bBytes[i] ?? 0);
+  }
+  return diff === 0;
+}
+
+function bearerToken(authHeader: string | null): string | null {
+  if (!authHeader) return null;
+  const match = /^Bearer\s+(.+)$/i.exec(authHeader.trim());
+  return match ? match[1].trim() : null;
+}
+
+function unauthorized(reason: string): Response {
+  console.error(`AUTH_GUARD: rejected — ${reason}`);
+  return new Response(
+    JSON.stringify({
+      error: "Unauthorized",
+      message:
+        "This endpoint requires a valid service-role key, CRON_SECRET bearer token, or webhook secret.",
+    }),
+    { status: 401, headers: { "Content-Type": "application/json" } },
+  );
+}
+
+export interface AuthGuardOptions {
+  /**
+   * Allow a verified end-user JWT to pass the guard.
+   *
+   * Defaults to `false`. Only enable this for functions that are genuinely
+   * meant to be invoked by the app on a user's behalf AND that scope every
+   * query to `user.id`. Cron/webhook functions must leave this off — they run
+   * with the service-role key and have no per-user scoping.
+   */
+  allowUserJwt?: boolean;
+}
 
 /**
  * Verifies that the incoming request is from an authorized source.
- * 
- * Accepts:
- * - Supabase webhook calls (Authorization header contains the service_role key or anon key)
- * - Cron jobs with a CRON_SECRET bearer token
- * - Supabase internal calls (x-supabase-webhook-secret header)
- * 
- * Returns null if authorized, or a 401 Response if unauthorized.
+ *
+ * Returns `null` if authorized, or a `Response` (401/503) to return directly.
  */
-export function verifyWebhookAuth(req: Request): Response | null {
+export async function verifyWebhookAuth(
+  req: Request,
+  options: AuthGuardOptions = {},
+): Promise<Response | null> {
+  const { allowUserJwt = false } = options;
+
   const authHeader = req.headers.get("Authorization");
-  const webhookSecret = req.headers.get("x-supabase-webhook-secret");
+  const token = bearerToken(authHeader);
+  const webhookSecretHeader = req.headers.get("x-supabase-webhook-secret");
 
-  // ─── Mode 1: Supabase database webhook ──────────────────────
-  // Supabase webhooks send the service_role key in the Authorization header.
-  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (supabaseServiceKey && authHeader) {
-    const token = authHeader.replace("Bearer ", "");
-    if (token === supabaseServiceKey) {
-      return null; // Authorized
-    }
-  }
-
-  // ─── Mode 2: Supabase webhook secret header ─────────────────
-  // Some Supabase webhook configurations send a custom secret header.
-  const expectedWebhookSecret = Deno.env.get("WEBHOOK_SECRET");
-  if (expectedWebhookSecret && webhookSecret === expectedWebhookSecret) {
-    return null; // Authorized
-  }
-
-  // ─── Mode 3: CRON_SECRET bearer token ───────────────────────
-  // For scheduled cron jobs or manual admin triggers.
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   const cronSecret = Deno.env.get("CRON_SECRET");
-  if (cronSecret && authHeader === `Bearer ${cronSecret}`) {
-    return null; // Authorized
-  }
+  const webhookSecret = Deno.env.get("WEBHOOK_SECRET");
 
-  // ─── Mode 4: Supabase internal invocation ───────────────────
-  // When functions are invoked via supabase.functions.invoke() from
-  // the client, they include the user's JWT. We allow this as well
-  // since the function logic handles its own data-level auth via RLS.
-  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-  if (supabaseAnonKey && authHeader) {
-    const token = authHeader.replace("Bearer ", "");
-    if (token === supabaseAnonKey) {
-      return null; // Authorized (client invocation with anon key)
-    }
-    // Also allow any JWT-based auth (user token) — the JWT will be validated
-    // downstream by Supabase when the function creates a client with it.
-    if (token.split(".").length === 3) {
-      return null; // Looks like a JWT, allow through
-    }
-  }
-
-  // ─── Fallback: No CRON_SECRET configured = legacy mode ──────
-  // If neither CRON_SECRET nor WEBHOOK_SECRET is configured,
-  // allow requests to maintain backward compatibility.
-  // Once you set CRON_SECRET in Supabase secrets, auth will be enforced.
-  if (!cronSecret && !expectedWebhookSecret) {
-    console.warn(
-      "⚠️  AUTH_GUARD: No CRON_SECRET or WEBHOOK_SECRET configured. " +
-      "Set 'supabase secrets set CRON_SECRET=<random>' to enforce auth. " +
-      "Allowing request for backward compatibility."
+  // ─── Fail closed: refuse to run without a configured credential ─────
+  // Previously this branch allowed the request through "for backward
+  // compatibility", which meant an unconfigured deployment was fully open.
+  if (!serviceRoleKey && !cronSecret && !webhookSecret) {
+    console.error(
+      "AUTH_GUARD: no SUPABASE_SERVICE_ROLE_KEY, CRON_SECRET, or WEBHOOK_SECRET " +
+        "is configured. Refusing all requests. Set one with: " +
+        "supabase secrets set CRON_SECRET=<random>",
     );
-    return null;
+    return new Response(
+      JSON.stringify({
+        error: "Service misconfigured",
+        message: "No authentication secret is configured for this function.",
+      }),
+      { status: 503, headers: { "Content-Type": "application/json" } },
+    );
   }
 
-  // ─── Unauthorized ───────────────────────────────────────────
-  console.error("AUTH_GUARD: Unauthorized request rejected");
-  return new Response(
-    JSON.stringify({ 
-      error: "Unauthorized", 
-      message: "Valid Authorization header required. Use Bearer <CRON_SECRET> for cron jobs." 
-    }),
-    { 
-      status: 401, 
-      headers: { "Content-Type": "application/json" } 
+  // ─── Mode 1: Supabase service-role key ──────────────────────────────
+  if (timingSafeEqual(token, serviceRoleKey)) return null;
+
+  // ─── Mode 2: CRON_SECRET bearer token ───────────────────────────────
+  if (timingSafeEqual(token, cronSecret)) return null;
+
+  // ─── Mode 3: Custom webhook secret header ───────────────────────────
+  if (timingSafeEqual(webhookSecretHeader, webhookSecret)) return null;
+
+  // ─── Mode 4: Verified end-user JWT (opt-in only) ────────────────────
+  // The old guard accepted anything shaped like `a.b.c` here without ever
+  // checking a signature. We now validate the token against Supabase Auth.
+  if (allowUserJwt && token) {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return unauthorized("allowUserJwt set but SUPABASE_URL/ANON_KEY missing");
     }
-  );
+
+    try {
+      const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      const { data, error } = await supabase.auth.getUser(token);
+      if (!error && data?.user) return null;
+      return unauthorized("user JWT failed verification");
+    } catch (e) {
+      return unauthorized(`user JWT verification threw: ${(e as Error).message}`);
+    }
+  }
+
+  return unauthorized("no matching credential");
 }

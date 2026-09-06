@@ -35,9 +35,12 @@ class CaseRepository {
     if (collaborationCaseIds.isEmpty) {
       query = query.or(orFilter);
     } else {
-      final List<String> inClause =
-          collaborationCaseIds.map((id) => 'id.eq.$id').toList();
-      final String fullFilter = '$orFilter,${inClause.join(',')}';
+      // Use a single `in.(...)` term rather than one `id.eq.` term per
+      // collaboration. The old form produced a filter string that grew
+      // linearly with the number of shared cases — a user on 500 shared
+      // cases sent a 500-term OR filter on every list load.
+      final String fullFilter =
+          '$orFilter,id.in.(${collaborationCaseIds.join(',')})';
       query = query.or(fullFilter);
     }
 
@@ -294,15 +297,20 @@ class CaseRepository {
   // ─── Global Search ─────────────────────────────────────
 
   static Future<Map<String, List<dynamic>>> searchAll(String query) async {
+    // Raw input cannot go straight into an .or() filter — a comma or paren
+    // would inject an extra filter term and widen visibility.
+    final safe = BaseRepository.sanitizeFilterValue(query);
+    if (safe.isEmpty) return {'cases': [], 'clients': []};
+
     final cases = await _client
         .from('cases')
         .select('id, case_title, case_number')
-        .or('case_title.ilike.%$query%,case_number.ilike.%$query%')
+        .or('case_title.ilike.%$safe%,case_number.ilike.%$safe%')
         .limit(5);
     final clients = await _client
         .from('clients')
         .select('id, name')
-        .ilike('name', '%$query%')
+        .ilike('name', '%$safe%')
         .limit(5);
 
     return {'cases': cases as List, 'clients': clients as List};

@@ -46,7 +46,7 @@ Deno.serve(async (req: Request) => {
   }
 
   // ─── Auth Guard: Verify webhook/cron caller ────────────────
-  const authGuardError = verifyWebhookAuth(req);
+  const authGuardError = await verifyWebhookAuth(req);
   if (authGuardError) return authGuardError;
 
   try {

@@ -8,9 +8,14 @@
 // 4. Point to: https://<project-ref>.supabase.co/functions/v1/feedback-telegram
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { verifyWebhookAuth } from "../_shared/auth_guard.ts";
 
-const TELEGRAM_BOT_TOKEN = "8386224785:AAFDG5HLN_tR4weudG0MeUVVZLG5Z3rueYo";
-const ADMIN_CHAT_ID = "824120234";
+// ─── Secrets ────────────────────────────────────────────────
+// Set these before deploying:
+//   supabase secrets set TELEGRAM_BOT_TOKEN=<token from BotFather>
+//   supabase secrets set TELEGRAM_ADMIN_CHAT_ID=<numeric chat id>
+const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN");
+const ADMIN_CHAT_ID = Deno.env.get("TELEGRAM_ADMIN_CHAT_ID");
 
 // Emoji map for feedback types
 const TYPE_EMOJI: Record<string, string> = {
@@ -37,6 +42,20 @@ const SEVERITY_EMOJI: Record<string, string> = {
 };
 
 serve(async (req: Request) => {
+  // ─── Auth Guard: this endpoint is a database webhook target ──
+  const authError = await verifyWebhookAuth(req);
+  if (authError) return authError;
+
+  if (!TELEGRAM_BOT_TOKEN || !ADMIN_CHAT_ID) {
+    console.error(
+      "feedback-telegram: TELEGRAM_BOT_TOKEN / TELEGRAM_ADMIN_CHAT_ID not configured",
+    );
+    return new Response(
+      JSON.stringify({ success: false, error: "Telegram notifier not configured" }),
+      { status: 503, headers: { "Content-Type": "application/json" } },
+    );
+  }
+
   try {
     const payload = await req.json();
 

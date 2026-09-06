@@ -37,7 +37,7 @@ jobs:
         run: dart format --set-exit-if-changed lib/ test/ || echo "::warning::Formatting issues found in codebase. Run 'dart format lib/ test/' to resolve."
 
       - name: Analyze code
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings || echo "::warning::Analysis warnings found in codebase."
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Run tests
         run: flutter test
@@ -129,7 +129,7 @@ jobs:
         run: |
           # Search for common API key patterns in source code (excluding lock files and node_modules)
           if grep -rn --include="*.ts" --include="*.dart" --include="*.tsx" --include="*.js" \
-            -E '(AIzaSy|sk-[a-zA-Z0-9]{20,}|AKIA[0-9A-Z]{16})' \
+            -E '(AIzaSy|sk-[a-zA-Z0-9]{20,}|AKIA[0-9A-Z]{16}|[0-9]{8,10}:AA[A-Za-z0-9_-]{30,}|xox[baprs]-[A-Za-z0-9-]{10,})' \
             --exclude-dir=node_modules --exclude-dir=build --exclude-dir=.dart_tool .; then
             echo "::error::Potential hardcoded API key detected in source code!"
             exit 1

@@ -211,4 +211,51 @@ void main() {
       );
     });
   });
+
+  group('BaseRepository.sanitizeFilterValue', () {
+    test('passes through an ordinary search term', () {
+      expect(BaseRepository.sanitizeFilterValue('Kumar'), 'Kumar');
+    });
+
+    test('strips commas that would inject an extra PostgREST filter term', () {
+      // The attack: a comma ends the ilike term and opens a new OR clause,
+      // widening results to rows the user may not be permitted to see.
+      final result = BaseRepository.sanitizeFilterValue(
+        'x,firm_id.eq.00000000-0000-0000-0000-000000000000',
+      );
+      expect(result, isNot(contains(',')));
+      expect(result, isNot(contains('.')));
+    });
+
+    test('strips parentheses used for filter grouping', () {
+      final result = BaseRepository.sanitizeFilterValue('a)or(b');
+      expect(result, isNot(contains('(')));
+      expect(result, isNot(contains(')')));
+    });
+
+    test('strips LIKE wildcards so they match literally', () {
+      final result = BaseRepository.sanitizeFilterValue('%%%_%');
+      expect(result, isNot(contains('%')));
+      expect(result, isNot(contains('_')));
+    });
+
+    test('collapses whitespace left behind by stripping', () {
+      expect(BaseRepository.sanitizeFilterValue('a,,,b'), 'a b');
+    });
+
+    test('truncates overlong input to the default max', () {
+      expect(BaseRepository.sanitizeFilterValue('a' * 500).length, 100);
+    });
+
+    test('respects a custom max length', () {
+      expect(
+        BaseRepository.sanitizeFilterValue('a' * 50, maxLength: 10).length,
+        10,
+      );
+    });
+
+    test('returns empty when input is only structural characters', () {
+      expect(BaseRepository.sanitizeFilterValue(',,,()...'), '');
+    });
+  });
 }

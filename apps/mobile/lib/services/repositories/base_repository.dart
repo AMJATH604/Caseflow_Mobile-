@@ -192,6 +192,34 @@ class BaseRepository {
     await client.from(table).update({'deleted_at': null}).eq('id', id);
   }
 
+  // ─── PostgREST Filter Sanitization ─────────────────────
+
+  /// Escapes a user-supplied value for safe use inside a PostgREST filter
+  /// string (`.or(...)`, `.ilike(...)`).
+  ///
+  /// Two distinct hazards are handled:
+  ///
+  /// 1. **Filter-structure injection.** PostgREST parses `,` as a term
+  ///    separator and `()` as grouping inside `.or()`. A search for
+  ///    `a,firm_id.eq.b` would otherwise inject an extra OR term and widen
+  ///    the result set beyond what the user may see. These characters — plus
+  ///    `.`, `"` and `\` which are also structural — are stripped.
+  ///
+  /// 2. **LIKE wildcard abuse.** `%` and `_` are wildcards in `ilike`. A query
+  ///    of `%%%%%` is a needless table scan. They are removed so the search
+  ///    matches them literally rather than as patterns.
+  ///
+  /// Returns at most [maxLength] characters.
+  static String sanitizeFilterValue(String value, {int maxLength = 100}) {
+    final cleaned = value
+        .replaceAll(RegExp(r'[,()"\\.%_*]'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+    return cleaned.length > maxLength
+        ? cleaned.substring(0, maxLength)
+        : cleaned;
+  }
+
   // ─── Input Validation Helpers ──────────────────────────
 
   /// Validates that required fields are present and non-empty in a data map.
