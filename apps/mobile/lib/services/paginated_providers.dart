@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import 'paginated_notifier.dart';
+import 'providers.dart';
 import 'repositories/case_repository.dart';
 import 'repositories/client_repository.dart';
 import 'repositories/hearing_repository.dart';
@@ -11,6 +12,17 @@ import 'repositories/payment_repository.dart';
 /// These wire up the existing [PaginatedNotifier] framework to the
 /// domain repositories, enabling infinite-scroll pagination on all
 /// main list screens.
+///
+/// **Refresh contract.** Every provider below watches [authStateProvider] and
+/// [dataRefreshProvider], mirroring what the `FutureProvider`s in
+/// `providers.dart` already do. Without this, a [PaginatedNotifier] — which
+/// holds no `Ref` — never saw a global refresh, so data written elsewhere
+/// (notably the eCourts import) only appeared after an app restart, because
+/// restarting was the only thing that recreated the notifier.
+///
+/// Watching here recreates the notifier, whose constructor calls
+/// `loadInitial()`. Pagination resetting to page 1 on a global refresh is the
+/// intended behaviour.
 
 // ─── Cases ──────────────────────────────────────────────
 
@@ -25,7 +37,11 @@ class CasesPaginatedNotifier extends PaginatedNotifier<CaseModel> {
 
 final paginatedCasesProvider =
     StateNotifierProvider<CasesPaginatedNotifier, PaginatedState<CaseModel>>(
-  (ref) => CasesPaginatedNotifier(),
+  (ref) {
+    ref.watch(authStateProvider);
+    ref.watch(dataRefreshProvider);
+    return CasesPaginatedNotifier();
+  },
 );
 
 // ─── Hearings ───────────────────────────────────────────
@@ -41,7 +57,11 @@ class HearingsPaginatedNotifier extends PaginatedNotifier<Hearing> {
 
 final paginatedHearingsProvider =
     StateNotifierProvider<HearingsPaginatedNotifier, PaginatedState<Hearing>>(
-  (ref) => HearingsPaginatedNotifier(),
+  (ref) {
+    ref.watch(authStateProvider);
+    ref.watch(dataRefreshProvider);
+    return HearingsPaginatedNotifier();
+  },
 );
 
 // ─── Payments ───────────────────────────────────────────
@@ -57,7 +77,11 @@ class PaymentsPaginatedNotifier extends PaginatedNotifier<Payment> {
 
 final paginatedPaymentsProvider =
     StateNotifierProvider<PaymentsPaginatedNotifier, PaginatedState<Payment>>(
-  (ref) => PaymentsPaginatedNotifier(),
+  (ref) {
+    ref.watch(authStateProvider);
+    ref.watch(dataRefreshProvider);
+    return PaymentsPaginatedNotifier();
+  },
 );
 
 // ─── Clients ────────────────────────────────────────────
@@ -73,5 +97,9 @@ class ClientsPaginatedNotifier extends PaginatedNotifier<ClientModel> {
 
 final paginatedClientsProvider =
     StateNotifierProvider<ClientsPaginatedNotifier, PaginatedState<ClientModel>>(
-  (ref) => ClientsPaginatedNotifier(),
+  (ref) {
+    ref.watch(authStateProvider);
+    ref.watch(dataRefreshProvider);
+    return ClientsPaginatedNotifier();
+  },
 );

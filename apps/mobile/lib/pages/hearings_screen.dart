@@ -75,7 +75,17 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                             onRetry: () => ref.read(paginatedHearingsProvider.notifier).refresh(),
                           )
                         : _view == 'calendar'
-                            ? _buildCalendarView(isMobile, isDark, hearings)
+                            ? RefreshIndicator(
+                                color: AppTheme.accent,
+                                onRefresh: () => ref
+                                    .read(paginatedHearingsProvider.notifier)
+                                    .refresh(),
+                                child: _buildCalendarView(
+                                  isMobile,
+                                  isDark,
+                                  hearings,
+                                ),
+                              )
                             : RefreshIndicator(
                                 color: AppTheme.accent,
                                 onRefresh: () => ref.read(paginatedHearingsProvider.notifier).refresh(),
@@ -163,57 +173,129 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
     bool isDark,
     List<dynamic> hearings,
   ) {
-    return Column(
-      children: [
-        _buildCalendarGrid(isDark, hearings),
-        SizedBox(height: 24.h),
-        // Hearings for the selected date
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w),
-          child: Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(10.r),
-                decoration: BoxDecoration(
-                  color: AppTheme.accent.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(
-                    color: AppTheme.accent.withValues(alpha: 0.1),
+    final dayHearings = _hearingsOn(_selectedDate, hearings);
+
+    // A scroll view rather than a Column: previously the six-row month grid
+    // took most of the screen and the day's hearings were squeezed into the
+    // leftover Expanded, so a date with several listed matters was unreadable.
+    // As slivers, the grid scrolls out of the way and the list can use the
+    // full viewport.
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: [
+        SliverToBoxAdapter(child: _buildCalendarGrid(isDark, hearings)),
+        SliverToBoxAdapter(child: SizedBox(height: 24.h)),
+        SliverToBoxAdapter(
+          child: _buildSelectedDateHeader(isDark, dayHearings.length),
+        ),
+        SliverToBoxAdapter(child: SizedBox(height: 16.h)),
+        if (dayHearings.isEmpty)
+          SliverToBoxAdapter(child: _buildNoHearingsForDay(isDark))
+        else
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => _buildHearingCard(dayHearings[index], isDark),
+              childCount: dayHearings.length,
+            ),
+          ),
+        SliverToBoxAdapter(child: SizedBox(height: 32.h)),
+      ],
+    );
+  }
+
+  /// Hearings listed on [date], in the order they were fetched.
+  List<dynamic> _hearingsOn(DateTime date, List<dynamic> hearings) => hearings
+      .where((h) => DateUtils.isSameDay(h.hearingDate, date))
+      .toList();
+
+  Widget _buildSelectedDateHeader(bool isDark, int count) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4.w),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10.r),
+            decoration: BoxDecoration(
+              color: AppTheme.accent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12.r),
+              border: Border.all(
+                color: AppTheme.accent.withValues(alpha: 0.1),
+              ),
+            ),
+            child: const Icon(
+              Icons.event_note_rounded,
+              size: 18,
+              color: AppTheme.accent,
+            ),
+          ),
+          SizedBox(width: 16.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  DateFormat('EEEE').format(_selectedDate).toUpperCase(),
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: isDark ? const Color(0xFFCBD5E1) : Colors.black38,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.5,
                   ),
                 ),
-                child: const Icon(
-                  Icons.event_note_rounded,
-                  size: 18,
+                Text(
+                  DateFormat('dd MMMM yyyy').format(_selectedDate),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 18.sp,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Count makes the day's load visible before scrolling — the point
+          // of the change: five hearings should announce themselves.
+          if (count > 0)
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+              decoration: BoxDecoration(
+                color: AppTheme.accent.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Text(
+                count == 1 ? '1 hearing' : '$count hearings',
+                style: GoogleFonts.inter(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w700,
                   color: AppTheme.accent,
                 ),
               ),
-              SizedBox(width: 16.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    DateFormat('EEEE').format(_selectedDate).toUpperCase(),
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: isDark ? const Color(0xFFCBD5E1) : Colors.black38,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                  Text(
-                    DateFormat('dd MMMM yyyy').format(_selectedDate),
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18.sp,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNoHearingsForDay(bool isDark) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 40.h),
+      child: Column(
+        children: [
+          Icon(
+            Icons.event_busy_rounded,
+            size: 40,
+            color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
           ),
-        ),
-        SizedBox(height: 16.h),
-        Expanded(child: _buildDayHearings(isDark, hearings)),
-      ],
+          SizedBox(height: 16.h),
+          Text(
+            'NO SCHEDULED HEARINGS',
+            style: GoogleFonts.inter(
+              color: const Color(0xFF4B5563),
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1,
+              fontSize: 11.sp,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -412,47 +494,9 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
     );
   }
 
-  // ─── DAY HEARINGS (Calendar View) ───────────────────
-  Widget _buildDayHearings(bool isDark, List<dynamic> hearings) {
-    final dayHearings =
-        hearings
-            .where((h) => DateUtils.isSameDay(h.hearingDate, _selectedDate))
-            .toList();
-
-    if (dayHearings.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.event_busy_rounded,
-              size: 40,
-              color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
-            ),
-            SizedBox(height: 16.h),
-            Text(
-              'NO SCHEDULED HEARINGS',
-              style: GoogleFonts.inter(
-                color: const Color(0xFF4B5563),
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1,
-                fontSize: 11.sp,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: EdgeInsets.only(bottom: 24.h),
-      itemCount: dayHearings.length,
-      itemBuilder: (context, index) {
-        final h = dayHearings[index];
-        return _buildHearingCard(h, isDark);
-      },
-    );
-  }
+  // Day hearings are now rendered as slivers inside _buildCalendarView, so
+  // the month grid can scroll away and the list gets the full viewport.
+  // See _hearingsOn, _buildSelectedDateHeader and _buildNoHearingsForDay.
 
   // ─── REUSABLE HEARING CARD ─────────────────────────
   Widget _buildHearingCard(dynamic h, bool isDark) {

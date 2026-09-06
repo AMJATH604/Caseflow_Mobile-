@@ -1,6 +1,40 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'supabase_service.dart';
+import 'repositories/base_repository.dart';
 import '../models/models.dart';
+
+/// Outcome of a batch import.
+///
+/// Hearing creation is reported separately from case creation because the two
+/// can diverge: a case may import cleanly while its hearing is rejected (an
+/// unparseable date, an RLS failure). That used to be swallowed silently,
+/// which is what made an empty Court Diary so hard to diagnose.
+class CaseImportResult {
+  final List<String> caseIds;
+  final int hearingsCreated;
+  final int hearingsSkipped;
+
+  const CaseImportResult({
+    required this.caseIds,
+    this.hearingsCreated = 0,
+    this.hearingsSkipped = 0,
+  });
+
+  int get caseCount => caseIds.length;
+
+  /// Human-readable summary for the completion SnackBar.
+  String get summary {
+    final buffer = StringBuffer('$caseCount case(s) imported/synced');
+    if (hearingsCreated > 0) {
+      buffer.write(' · $hearingsCreated hearing(s) added');
+    }
+    if (hearingsSkipped > 0) {
+      buffer.write(' · $hearingsSkipped hearing(s) skipped');
+    }
+    return buffer.toString();
+  }
+}
 
 class CaseImportService {
   // ─── eCOURTS TXT IMPORT ─────────────────────────────────
@@ -126,8 +160,24 @@ class CaseImportService {
     }
 
     // Dates
+    //
+    // eCourts sends dates as DD-MM-YYYY, which `DateTime.parse` rejects and
+    // Postgres may or may not coerce depending on DateStyle. Normalise once,
+    // here, so every downstream consumer (the cases row AND the hearings row)
+    // gets a valid ISO-8601 date. If the format is unrecognised the key is
+    // left unset rather than storing a value nothing can parse.
     if (data['date_next_list'] != null) {
-      result['next_hearing_date'] = data['date_next_list'].toString();
+      final normalized = BaseRepository.normalizeDateStr(
+        data['date_next_list'].toString(),
+      );
+      if (normalized != null) {
+        result['next_hearing_date'] = normalized;
+      } else {
+        debugPrint(
+          'Import: unrecognised next-hearing date format '
+          '"${data['date_next_list']}" — skipping date for this case',
+        );
+      }
     }
 
     // Title
@@ -245,7 +295,7 @@ class CaseImportService {
 
   /// BATCH Import: Pre-fetches all data ONCE, then imports all cases.
   /// This eliminates N+1 queries and makes importing 90+ cases near-instant.
-  static Future<List<String>> batchImportECourtsCases(
+  static Future<CaseImportResult> batchImportECourtsCases(
     List<Map<String, String>> parsedCases,
     Map<int, String> roles,
   ) async {
@@ -268,6 +318,8 @@ class CaseImportService {
     }
 
     final List<String> importedIds = [];
+    int hearingsCreated = 0;
+    int hearingsSkipped = 0;
 
     // 2. Process each case using cached data
     for (int i = 0; i < parsedCases.length; i++) {
@@ -346,16 +398,19 @@ class CaseImportService {
           }
         }
 
-        // Create Hearing if date exists
-        if (parsedCase['next_hearing_date'] != null) {
-          final hearingDate = DateTime.tryParse(
-            parsedCase['next_hearing_date']!,
-          );
-          if (hearingDate != null) {
+        // Create Hearing if a usable date exists.
+        //
+        // The date was normalised to ISO-8601 at extraction, so tryParse here
+        // is a validity check rather than a format conversion. Without the
+        // normalisation this branch never ran for DD-MM-YYYY dates, which is
+        // why imported cases appeared with an empty Court Diary.
+        final rawHearingDate = parsedCase['next_hearing_date'];
+        if (rawHearingDate != null && rawHearingDate.isNotEmpty) {
+          if (DateTime.tryParse(rawHearingDate) != null) {
             try {
               await SupabaseService.createHearing({
                 'case_id': caseId,
-                'hearing_date': parsedCase['next_hearing_date'],
+                'hearing_date': rawHearingDate,
                 'stage': parsedCase['status'] ?? 'Listed',
                 'purpose': 'Hearing',
                 'status': 'scheduled',
@@ -364,20 +419,36 @@ class CaseImportService {
                         ? 'Synced from eCourts Update'
                         : 'Imported from eCourts',
               });
-            } catch (_) {
-              // Hearing may already exist, safe to skip
+              hearingsCreated++;
+            } catch (e) {
+              // Most often a duplicate for an already-synced case, which is
+              // benign — but log it so a genuine failure is visible instead
+              // of vanishing.
+              hearingsSkipped++;
+              debugPrint('Import: hearing creation failed for case $caseId: $e');
             }
+          } else {
+            hearingsSkipped++;
+            debugPrint(
+              'Import: unparseable hearing date "$rawHearingDate" '
+              'for case $caseId',
+            );
           }
         }
 
         importedIds.add(caseId);
       } catch (e) {
         // Skip individual case errors, continue with the rest
+        debugPrint('Import: case ${i + 1} failed, continuing: $e');
         continue;
       }
     }
 
-    return importedIds;
+    return CaseImportResult(
+      caseIds: importedIds,
+      hearingsCreated: hearingsCreated,
+      hearingsSkipped: hearingsSkipped,
+    );
   }
 
   /// Import or Sync a single parsed eCourts case into CaseFlow
@@ -385,11 +456,11 @@ class CaseImportService {
     Map<String, String> parsedCase, {
     String representationType = 'petitioner',
   }) async {
-    final ids = await batchImportECourtsCases(
+    final result = await batchImportECourtsCases(
       [parsedCase],
       {0: representationType},
     );
-    return ids.isNotEmpty ? ids.first : null;
+    return result.caseIds.isNotEmpty ? result.caseIds.first : null;
   }
 
   // ─── CASEFLOW JSON IMPORT ──────────────────────────────
@@ -442,8 +513,12 @@ class CaseImportService {
         'client_id': clientId,
         'status': caseData['status'] ?? 'active',
         'stage': caseData['stage'] ?? 'filing',
-        'filing_date': caseData['filing_date'],
-        'next_hearing_date': caseData['next_hearing_date'],
+        'filing_date': BaseRepository.normalizeDateStr(
+          caseData['filing_date']?.toString(),
+        ),
+        'next_hearing_date': BaseRepository.normalizeDateStr(
+          caseData['next_hearing_date']?.toString(),
+        ),
         'state': caseData['state'],
         'district': caseData['district'],
         'cnr_number': caseData['cnr_number'],
@@ -457,11 +532,23 @@ class CaseImportService {
 
       final caseId = created.id;
 
-      // Import hearings
+      // Import hearings. A hearing row with no valid date is useless — it
+      // would never surface in the Court Diary or the Hearings calendar — so
+      // skip it rather than writing an unusable record.
       for (var h in hearingsData) {
+        final hearingDate = BaseRepository.normalizeDateStr(
+          h['hearing_date']?.toString(),
+        );
+        if (hearingDate == null) {
+          debugPrint(
+            'Restore: skipping hearing with unusable date '
+            '"${h['hearing_date']}"',
+          );
+          continue;
+        }
         await SupabaseService.createHearing({
           'case_id': caseId,
-          'hearing_date': h['hearing_date'],
+          'hearing_date': hearingDate,
           'stage': h['stage'],
           'purpose': h['purpose'],
           'status': h['status'] ?? 'scheduled',

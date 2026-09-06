@@ -566,22 +566,25 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
             selectedCases.add(cases[entry.key]);
           }
           // Use BATCH import — fetches all data ONCE instead of per-case
-          final importedIds = await CaseImportService.batchImportECourtsCases(
+          final result = await CaseImportService.batchImportECourtsCases(
             selectedCases,
             selectedRoles,
           );
 
-          // Data refresh will trigger UI update
+          // Bumping this rebuilds every provider that watches it — the
+          // dashboard stats, the court diary, and (since they now watch it
+          // too) the paginated hearings/cases/payments/clients lists.
           ref.read(dataRefreshProvider.notifier).state++;
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(
-                  '${importedIds.length} case(s) imported/synced! Redirecting to Dashboard...',
+                content: Text('${result.summary} — opening Dashboard...'),
+                backgroundColor:
+                    result.hearingsSkipped > 0 ? Colors.orange : Colors.green,
+                duration: Duration(
+                  seconds: result.hearingsSkipped > 0 ? 4 : 2,
                 ),
-                backgroundColor: Colors.green,
-                duration: const Duration(seconds: 2),
               ),
             );
             await Future.delayed(const Duration(milliseconds: 300));

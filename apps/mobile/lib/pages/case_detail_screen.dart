@@ -28,7 +28,10 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 7, vsync: this);
+    // Five tabs: Evidence and Witnesses were removed from the case view.
+    // Both features remain intact — the Evidence Lab is still reachable from
+    // Tools, and no data or database table was touched.
+    _tabController = TabController(length: 5, vsync: this);
   }
 
   @override
@@ -56,7 +59,12 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
                 onBack: () => Navigator.pop(context),
               ),
               SizedBox(height: 16.h),
-              _buildTabBar(),
+              Row(
+                children: [
+                  Expanded(child: _buildTabBar()),
+                  _buildOverflowMenu(),
+                ],
+              ),
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
@@ -69,8 +77,6 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
                     ),
                     CaseDocumentsTab(caseId: widget.id),
                     CasePaymentsTab(caseId: widget.id),
-                    EvidenceLabScreen(caseId: widget.id),
-                    CaseWitnessesTab(caseId: widget.id),
                   ],
                 ),
               ),
@@ -95,7 +101,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
   // ─── TAB BAR ─────────────────────────────────────────
   Widget _buildTabBar() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      margin: EdgeInsets.only(left: 16.w),
       height: 44.h,
       decoration: BoxDecoration(
         color: AppTheme.darkCard,
@@ -128,8 +134,77 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
           Tab(text: 'DISCUSSION'),
           Tab(text: 'DOCUMENTS'),
           Tab(text: 'PAYMENTS'),
-          Tab(text: 'EVIDENCE'),
-          Tab(text: 'WITNESSES'),
+        ],
+      ),
+    );
+  }
+
+  /// Evidence Lab and Witnesses moved off the tab bar to keep the case view
+  /// focused, but both are per-case screens with no other entry point in the
+  /// app — so they live here rather than being orphaned.
+  Widget _buildOverflowMenu() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 8.w),
+      height: 44.h,
+      width: 44.w,
+      decoration: BoxDecoration(
+        color: AppTheme.darkCard,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: AppTheme.darkBorder),
+      ),
+      child: PopupMenuButton<String>(
+        icon: const Icon(
+          Icons.more_vert_rounded,
+          size: 20,
+          color: Color(0xFF64748B),
+        ),
+        tooltip: 'More case tools',
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        onSelected: (value) {
+          final page = value == 'evidence'
+              ? EvidenceLabScreen(caseId: widget.id)
+              : CaseWitnessesTab(caseId: widget.id);
+          final title = value == 'evidence' ? 'Evidence Lab' : 'Witnesses';
+
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => Scaffold(
+                backgroundColor: AppTheme.primaryLight,
+                appBar: AppBar(
+                  title: Text(title),
+                  backgroundColor: AppTheme.darkCard,
+                  foregroundColor: const Color(0xFF1E293B),
+                  elevation: 0,
+                ),
+                body: page,
+              ),
+            ),
+          );
+        },
+        itemBuilder: (context) => const [
+          PopupMenuItem(
+            value: 'evidence',
+            child: Row(
+              children: [
+                Icon(Icons.science_rounded, size: 18, color: Color(0xFF64748B)),
+                SizedBox(width: 12),
+                Text('Evidence Lab'),
+              ],
+            ),
+          ),
+          PopupMenuItem(
+            value: 'witnesses',
+            child: Row(
+              children: [
+                Icon(Icons.record_voice_over_rounded,
+                    size: 18, color: Color(0xFF64748B)),
+                SizedBox(width: 12),
+                Text('Witnesses'),
+              ],
+            ),
+          ),
         ],
       ),
     );
