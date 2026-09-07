@@ -21,36 +21,33 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 /**
- * Resolves whether a user holds the admin role.
+ * Resolves whether a user is an administrator.
  *
- * Two sources exist in this schema, so try both: `has_role` is a
- * security-definer function over `user_roles`, and older rows carry the role
- * on `profiles` instead. A deployment may have only one of them.
+ * Admin status lives in `profiles.is_admin`. Note this does NOT match
+ * `integrations/supabase/types.ts`, which describes a `profiles.role` column
+ * plus a `user_roles` table and a `has_role()` function — none of which exist
+ * on the live database. Those generated types were produced from a different,
+ * older schema, which is why the query is cast rather than typed.
  *
- * Fails closed. If neither source can answer, the user is not an admin — the
- * previous implementation defaulted to `true`, which meant anyone who loaded
- * the page passed the admin gate.
+ * Regenerating the types is the real fix:
+ *   supabase gen types typescript --project-id <id> > src/integrations/supabase/types.ts
+ *
+ * Fails closed. The previous implementation defaulted to `true`, so anyone who
+ * loaded the page cleared the admin gate.
  */
 async function resolveIsAdmin(userId: string | undefined): Promise<boolean> {
   if (!userId) return false;
 
-  const { data, error } = await supabase.rpc("has_role", {
-    _user_id: userId,
-    _role: "admin",
-  });
-  if (!error) return data === true;
-
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("role")
+  const { data, error } = await (supabase.from as (t: string) => any)("profiles")
+    .select("is_admin")
     .eq("id", userId)
     .maybeSingle();
 
-  if (profileError) {
-    console.error("Could not determine admin status:", profileError.message);
+  if (error) {
+    console.error("Could not determine admin status:", error.message);
     return false;
   }
-  return profile?.role === "admin";
+  return data?.is_admin === true;
 }
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
