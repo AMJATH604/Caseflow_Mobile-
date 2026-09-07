@@ -52,7 +52,16 @@ export function KpiCard({
       : "text-destructive";
 
   return (
-    <div className={cn("kpi-card", className)}>
+    <div
+      className={cn(
+        // Styles are inline rather than using the .kpi-card utility so this
+        // component can be shared between apps without carrying a CSS
+        // dependency along with it.
+        "rounded-2xl border border-border/50 bg-card p-6 shadow-sm transition-all duration-300",
+        "hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg",
+        className,
+      )}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-sm text-muted-foreground">{title}</p>

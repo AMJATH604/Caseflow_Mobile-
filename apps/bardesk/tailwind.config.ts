@@ -1,32 +1,14 @@
-/** @type {import('tailwindcss').Config} */
+import type { Config } from "tailwindcss";
+import designSystem from "../../packages/design-system/tailwind.preset";
+
+/**
+ * BarDesk shares CaseFlow's visual language. Colours, typography, radius,
+ * shadows and animation all come from the design system preset — the cyan
+ * "brand" palette that used to live here was unrelated to the rest of the
+ * product and could not respond to a theme.
+ */
 export default {
-  darkMode: ["class"],
+  presets: [designSystem],
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
-  theme: {
-    extend: {
-      fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-      },
-      colors: {
-        brand: {
-          50: '#ecfeff',
-          100: '#cffafe',
-          200: '#a5f3fc',
-          300: '#67e8f9',
-          400: '#22d3ee',
-          500: '#0891b2',
-          600: '#0e7490',
-          700: '#155e75',
-          800: '#164e63',
-          900: '#083344',
-        },
-      },
-      borderRadius: {
-        lg: "0.75rem",
-        md: "0.5rem",
-        sm: "0.375rem",
-      },
-    },
-  },
   plugins: [require("tailwindcss-animate")],
-};
+} satisfies Config;
