@@ -11,124 +11,117 @@ interface AuthContextType {
   refetchAdminStatus: () => Promise<boolean>;
 }
 
-const AuthContext = createContext<AuthContextType>({ 
-  session: null, 
-  user: null, 
-  isAdmin: false, 
-  loading: true, 
+const AuthContext = createContext<AuthContextType>({
+  session: null,
+  user: null,
+  isAdmin: false,
+  loading: true,
   signOut: async () => {},
   refetchAdminStatus: async () => false,
 });
 
+/**
+ * Resolves whether a user holds the admin role.
+ *
+ * Two sources exist in this schema, so try both: `has_role` is a
+ * security-definer function over `user_roles`, and older rows carry the role
+ * on `profiles` instead. A deployment may have only one of them.
+ *
+ * Fails closed. If neither source can answer, the user is not an admin — the
+ * previous implementation defaulted to `true`, which meant anyone who loaded
+ * the page passed the admin gate.
+ */
+async function resolveIsAdmin(userId: string | undefined): Promise<boolean> {
+  if (!userId) return false;
+
+  const { data, error } = await supabase.rpc("has_role", {
+    _user_id: userId,
+    _role: "admin",
+  });
+  if (!error) return data === true;
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (profileError) {
+    console.error("Could not determine admin status:", profileError.message);
+    return false;
+  }
+  return profile?.role === "admin";
+}
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
-  const [isAdmin, setIsAdmin] = useState(true); // Force admin to true by default to bypass redirect checks
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Background auto-login logic to maintain authenticated Supabase requests
-  const runAutoLogin = useCallback(async (isMounted: boolean) => {
-    try {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      
-      if (currentSession?.user?.email?.toLowerCase() === "amjath10now@gmail.com") {
-        if (isMounted) {
-          setSession(currentSession);
-          setIsAdmin(true);
-          setLoading(false);
-        }
-        return;
-      }
-
-      console.log("INFO: Bypassing login auth... Auto-logging in as admin.");
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: "amjath10now@gmail.com",
-        password: "Amjath21176@",
-      });
-
-      if (authError) {
-        console.error("Auto-login failed:", authError.message);
-      } else if (authData?.session && isMounted) {
-        setSession(authData.session);
-        setIsAdmin(true);
-      }
-    } catch (err) {
-      console.error("Unexpected error during auto-login:", err);
-    } finally {
-      if (isMounted) {
-        setIsAdmin(true);
-        setLoading(false);
-      }
-    }
-  }, []);
-
   const refetchAdminStatus = useCallback(async (): Promise<boolean> => {
-    setIsAdmin(true);
-    return true;
+    const {
+      data: { session: current },
+    } = await supabase.auth.getSession();
+    const admin = await resolveIsAdmin(current?.user?.id);
+    setIsAdmin(admin);
+    return admin;
   }, []);
 
   useEffect(() => {
     let isMounted = true;
 
-    runAutoLogin(isMounted);
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+    const applySession = async (next: Session | null) => {
       if (!isMounted) return;
+      setSession(next);
+      setIsAdmin(next ? await resolveIsAdmin(next.user?.id) : false);
+      if (isMounted) setLoading(false);
+    };
 
-      if (newSession?.user?.email?.toLowerCase() === "amjath10now@gmail.com") {
-        setSession(newSession);
-        setIsAdmin(true);
-        setLoading(false);
-      } else if (event === "SIGNED_OUT") {
-        // If logged out or token cleared, automatically run auto-login again
-        runAutoLogin(isMounted);
-      } else {
-        setSession(newSession);
-        setIsAdmin(true);
-        setLoading(false);
-      }
+    supabase.auth
+      .getSession()
+      .then(({ data: { session: current } }) => applySession(current))
+      .catch((err) => {
+        console.error("Failed to restore session:", err);
+        if (isMounted) setLoading(false);
+      });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      // Not awaited: onAuthStateChange must not block, and applySession
+      // guards its own writes against unmount.
+      void applySession(nextSession);
     });
-
-    const safetyTimer = setTimeout(() => {
-      if (isMounted) {
-        setIsAdmin(true);
-        setLoading(false);
-      }
-    }, 3000);
 
     return () => {
       isMounted = false;
       subscription.unsubscribe();
-      clearTimeout(safetyTimer);
     };
-  }, [runAutoLogin]);
+  }, []);
 
   const signOut = async () => {
     try {
-      console.log("Signing out and resetting session...");
       await supabase.auth.signOut();
     } catch (err) {
-      console.warn("SignOut error:", err);
-    } finally {
-      // Force clear local storage to ensure fresh auto-login
-      try {
-        for (let i = localStorage.length - 1; i >= 0; i--) {
-          const key = localStorage.key(i);
-          if (key && (key.includes("supabase") || key.includes("sb-") || key.includes("auth"))) {
-            localStorage.removeItem(key);
-          }
-        }
-      } catch (e) {
-        console.error("Failed clearing localStorage:", e);
-      }
-      setSession(null);
-      setIsAdmin(true);
-      setLoading(true);
-      runAutoLogin(true); // Restart auto-login
+      console.error("Sign out failed:", err);
     }
+    // onAuthStateChange clears the rest. Setting these here too keeps the UI
+    // honest if the listener is slow.
+    setSession(null);
+    setIsAdmin(false);
   };
 
   return (
-    <AuthContext.Provider value={{ session, user: session?.user ?? null, isAdmin, loading, signOut, refetchAdminStatus }}>
+    <AuthContext.Provider
+      value={{
+        session,
+        user: session?.user ?? null,
+        isAdmin,
+        loading,
+        signOut,
+        refetchAdminStatus,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
