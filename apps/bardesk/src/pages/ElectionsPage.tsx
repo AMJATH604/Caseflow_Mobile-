@@ -1,413 +1,528 @@
-import { useState } from 'react';
+import { useState } from "react";
+import { toast } from "sonner";
+import {
+  Plus, Play, Square, Trophy, Clock, Trash2, ChevronRight, ChevronLeft,
+  Award, Eye, Vote, Check,
+} from "lucide-react";
+
 import {
   useElections, useCreateElection, useUpdateElection, useDeleteElection,
   useElectionPosts, useCreateElectionPost, useDeleteElectionPost,
   useNominations, useCreateNomination, useDeleteNomination,
   useVoteCounts, useMembers, useCurrentAdmin,
-} from '@/hooks/useBarDesk';
-import { formatDate } from '@/lib/utils';
+} from "@/hooks/useBarDesk";
+import { formatDate, getInitials, cn } from "@/lib/utils";
+import { PageHeader } from "@/components/PageHeader";
+import { EmptyState, ErrorState } from "@/components/states";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
 import {
-  Plus, Play, Square, Trophy, X, Clock, Trash2,
-  ChevronRight, ChevronLeft, Users, Award, Eye, Vote,
-} from 'lucide-react';
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+
+const STATUS = {
+  draft: { label: "Draft", chip: "bg-muted text-muted-foreground", icon: Clock },
+  nominations: { label: "Nominations", chip: "bg-info/10 text-info", icon: Play },
+  voting: { label: "Voting", chip: "bg-accent/15 text-accent", icon: Vote },
+  completed: { label: "Completed", chip: "bg-success/10 text-success", icon: Trophy },
+  cancelled: { label: "Cancelled", chip: "bg-destructive/10 text-destructive", icon: Square },
+} as const;
+
+const statusOf = (s: string) => STATUS[s as keyof typeof STATUS] ?? STATUS.draft;
+
+/** A status change that needs confirming before it is applied. */
+type PendingChange =
+  | { kind: "status"; id: string; status: string; title: string }
+  | { kind: "delete"; id: string; title: string };
 
 export default function ElectionsPage() {
   const { data: admin } = useCurrentAdmin();
-  const associationId = admin?.association_id || '';
-  const { data: elections, isLoading } = useElections(associationId);
+  const associationId = admin?.association_id || "";
+  const { data: elections, isLoading, error, refetch } = useElections(associationId);
   const createElection = useCreateElection(associationId);
   const updateElection = useUpdateElection();
   const deleteElection = useDeleteElection();
 
   const [showWizard, setShowWizard] = useState(false);
   const [wizardStep, setWizardStep] = useState(1);
-  const [createdElectionId, setCreatedElectionId] = useState('');
-  const [viewingElection, setViewingElection] = useState<string | null>(null);
+  const [createdElectionId, setCreatedElectionId] = useState("");
+  const [viewing, setViewing] = useState<string | null>(null);
+  const [pending, setPending] = useState<PendingChange | null>(null);
   const [form, setForm] = useState({
-    title: '', description: '',
-    voting_start: '', voting_end: '',
+    title: "", description: "", voting_start: "", voting_end: "",
   });
-
-  const handleCreateElection = async () => {
-    const result = await createElection.mutateAsync({
-      ...form,
-      nomination_start: form.voting_start,
-      nomination_end: form.voting_start,
-      status: 'draft',
-    } as any);
-    setCreatedElectionId(result.id);
-    setWizardStep(2);
-  };
-
-  const handleStatusChange = async (id: string, newStatus: string) => {
-    const confirmed = window.confirm(`Change election status to "${newStatus}"?`);
-    if (!confirmed) return;
-    await updateElection.mutateAsync({ id, status: newStatus } as any);
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Delete this election? This action cannot be undone.')) return;
-    await deleteElection.mutateAsync(id);
-  };
 
   const resetWizard = () => {
     setShowWizard(false);
     setWizardStep(1);
-    setCreatedElectionId('');
-    setForm({ title: '', description: '', voting_start: '', voting_end: '' });
+    setCreatedElectionId("");
+    setForm({ title: "", description: "", voting_start: "", voting_end: "" });
   };
 
-  const getStatusBadge = (status: string) => {
-    const config: Record<string, { bg: string; text: string; icon: any }> = {
-      draft: { bg: 'bg-slate-100', text: 'text-slate-600', icon: Clock },
-      nominations: { bg: 'bg-blue-50', text: 'text-blue-700', icon: Play },
-      voting: { bg: 'bg-violet-50', text: 'text-violet-700', icon: Vote },
-      completed: { bg: 'bg-emerald-50', text: 'text-emerald-700', icon: Trophy },
-      cancelled: { bg: 'bg-red-50', text: 'text-red-600', icon: Square },
-    };
-    const c = config[status] || config.draft;
-    return (
-      <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg ${c.bg} ${c.text}`}>
-        <c.icon className="w-3 h-3" />
-        {status}
-      </span>
-    );
+  const handleCreateElection = async () => {
+    try {
+      const result = await createElection.mutateAsync({
+        ...form,
+        nomination_start: form.voting_start,
+        nomination_end: form.voting_start,
+        status: "draft",
+      } as any);
+      setCreatedElectionId(result.id);
+      setWizardStep(2);
+    } catch (err) {
+      toast.error("Could not create election", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
+    }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  const applyPending = async () => {
+    if (!pending) return;
+    try {
+      if (pending.kind === "delete") {
+        await deleteElection.mutateAsync(pending.id);
+        toast.success("Election deleted");
+      } else {
+        await updateElection.mutateAsync({ id: pending.id, status: pending.status } as any);
+        toast.success(
+          pending.status === "voting"
+            ? "Voting is open"
+            : pending.status === "completed"
+              ? "Results published"
+              : "Election cancelled",
+        );
+      }
+      setPending(null);
+    } catch (err) {
+      toast.error("Could not update election", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
+      throw err;
+    }
+  };
+
+  const list = elections || [];
+  const canCreate =
+    form.title.trim() && form.voting_start && form.voting_end && !createElection.isPending;
+
+  const confirmCopy = (): { title: string; description: string; label: string } => {
+    if (!pending) return { title: "", description: "", label: "" };
+    if (pending.kind === "delete") {
+      return {
+        title: "Delete this election?",
+        description: `${pending.title} and all its posts and candidates will be removed. This cannot be undone.`,
+        label: "Delete",
+      };
+    }
+    switch (pending.status) {
+      case "voting":
+        return {
+          title: "Open voting?",
+          description: `Members will be able to cast votes in ${pending.title}. Posts and candidates cannot be changed once voting is open.`,
+          label: "Open voting",
+        };
+      case "completed":
+        return {
+          title: "Close voting and publish results?",
+          description: `Voting in ${pending.title} will end and results become visible to members. This cannot be reopened.`,
+          label: "Publish results",
+        };
+      default:
+        return {
+          title: "Cancel this election?",
+          description: `${pending.title} will be marked cancelled. Any votes already cast are kept but no longer count.`,
+          label: "Cancel election",
+        };
+    }
+  };
+
+  const copy = confirmCopy();
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-extrabold text-slate-900">Elections</h1>
-          <p className="text-sm text-slate-500 mt-1">Manage association elections and voting</p>
+    <div className="max-w-5xl">
+      <PageHeader
+        title="Elections"
+        description="Set up posts, nominate candidates and publish results"
+        actions={
+          <Button className="gap-2" onClick={() => setShowWizard(true)}>
+            <Plus className="h-4 w-4" />
+            New election
+          </Button>
+        }
+      />
+
+      {error ? (
+        <ErrorState error={error} onRetry={() => void refetch()} />
+      ) : isLoading ? (
+        <div className="space-y-4">
+          {[0, 1].map((i) => (
+            <Skeleton key={i} className="h-44 rounded-xl" />
+          ))}
         </div>
-        <button
-          onClick={() => setShowWizard(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition shadow-sm shadow-violet-500/20"
-        >
-          <Plus className="w-4 h-4" /> New Election
-        </button>
-      </div>
-
-      {/* Election Cards */}
-      <div className="space-y-4">
-        {(elections || []).map((election) => (
-          <div key={election.id} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-xl">🗳️</span>
-                  <h3 className="text-lg font-bold text-slate-900">{election.title}</h3>
-                </div>
-                {election.description && (
-                  <p className="text-sm text-slate-500 ml-9">{election.description}</p>
-                )}
-              </div>
-              {getStatusBadge(election.status)}
-            </div>
-
-            {/* Timeline */}
-            <div className="grid grid-cols-2 gap-4 ml-9 mb-5">
-              <TimelineStep label="Voting Start" date={election.voting_start} />
-              <TimelineStep label="Voting End" date={election.voting_end} />
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-2 ml-9 flex-wrap">
-              {election.status === 'draft' && (
-                <>
-                  <button
-                    onClick={() => setViewingElection(election.id)}
-                    className="px-3 py-1.5 rounded-lg bg-slate-50 text-slate-700 text-xs font-semibold hover:bg-slate-100 transition flex items-center gap-1"
-                  >
-                    <Eye className="w-3 h-3" /> Manage Posts & Candidates
-                  </button>
-                  <button
-                    onClick={() => handleStatusChange(election.id, 'voting')}
-                    className="px-3 py-1.5 rounded-lg bg-violet-50 text-violet-700 text-xs font-semibold hover:bg-violet-100 transition"
-                  >
-                    🗳️ Open Voting
-                  </button>
-                </>
-              )}
-              {election.status === 'voting' && (
-                <>
-                  <button
-                    onClick={() => setViewingElection(election.id)}
-                    className="px-3 py-1.5 rounded-lg bg-slate-50 text-slate-700 text-xs font-semibold hover:bg-slate-100 transition flex items-center gap-1"
-                  >
-                    <Eye className="w-3 h-3" /> View Live Results
-                  </button>
-                  <button
-                    onClick={() => handleStatusChange(election.id, 'completed')}
-                    className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition"
-                  >
-                    🏆 Close & Publish Results
-                  </button>
-                </>
-              )}
-              {election.status === 'completed' && (
-                <button
-                  onClick={() => setViewingElection(election.id)}
-                  className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition flex items-center gap-1"
-                >
-                  <Trophy className="w-3 h-3" /> View Results
-                </button>
-              )}
-              {['draft', 'cancelled'].includes(election.status) && (
-                <button
-                  onClick={() => handleDelete(election.id)}
-                  className="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition flex items-center gap-1"
-                >
-                  <Trash2 className="w-3 h-3" /> Delete
-                </button>
-              )}
-              {['draft', 'voting'].includes(election.status) && (
-                <button
-                  onClick={() => handleStatusChange(election.id, 'cancelled')}
-                  className="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition"
-                >
-                  Cancel Election
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
-
-        {(elections || []).length === 0 && (
-          <div className="text-center py-16 text-slate-400">
-            <p className="text-3xl">🗳️</p>
-            <p className="mt-3 font-medium">No elections created</p>
-            <p className="text-sm mt-1">Click "New Election" to set up the first election</p>
-          </div>
-        )}
-      </div>
-
-      {/* ── Election Creation Wizard ── */}
-      {showWizard && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-            {/* Wizard Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">
-                  {wizardStep === 1 && 'Step 1 — Create Election'}
-                  {wizardStep === 2 && 'Step 2 — Add Posts'}
-                  {wizardStep === 3 && 'Step 3 — Add Candidates'}
-                </h3>
-                <div className="flex gap-2 mt-2">
-                  {[1, 2, 3].map((s) => (
-                    <div
-                      key={s}
-                      className={`h-1.5 rounded-full flex-1 transition-all ${
-                        s <= wizardStep ? 'bg-violet-500' : 'bg-slate-200'
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-              <button onClick={resetWizard} className="text-slate-400 hover:text-slate-600">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Step 1: Election Details */}
-            {wizardStep === 1 && (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Election Title *</label>
-                  <input
-                    type="text"
-                    value={form.title}
-                    onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none"
-                    placeholder="Annual Election 2026"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
-                  <textarea
-                    value={form.description}
-                    onChange={(e) => setForm({ ...form, description: e.target.value })}
-                    rows={2}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none resize-none"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Voting Start *</label>
-                    <input type="date" value={form.voting_start} onChange={(e) => setForm({ ...form, voting_start: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Voting End *</label>
-                    <input type="date" value={form.voting_end} onChange={(e) => setForm({ ...form, voting_end: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none" />
-                  </div>
-                </div>
-                <div className="flex gap-3 mt-6">
-                  <button onClick={resetWizard} className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</button>
-                  <button
-                    onClick={handleCreateElection}
-                    disabled={!form.title || !form.voting_start || !form.voting_end || createElection.isPending}
-                    className="flex-1 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
-                  >
-                    {createElection.isPending ? 'Creating...' : 'Next — Add Posts'}
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2: Add Posts */}
-            {wizardStep === 2 && <PostsStep electionId={createdElectionId} onNext={() => setWizardStep(3)} onBack={() => setWizardStep(1)} />}
-
-            {/* Step 3: Add Candidates */}
-            {wizardStep === 3 && <CandidatesStep electionId={createdElectionId} associationId={associationId} onDone={resetWizard} onBack={() => setWizardStep(2)} />}
-          </div>
-        </div>
-      )}
-
-      {/* ── Election Detail / Results View ── */}
-      {viewingElection && (
-        <ElectionDetailView
-          electionId={viewingElection}
-          associationId={associationId}
-          onClose={() => setViewingElection(null)}
+      ) : list.length === 0 ? (
+        <EmptyState
+          icon={Vote}
+          title="No elections yet"
+          description="Create an election to add posts, nominate candidates and collect votes from members."
+          action={
+            <Button className="gap-2" onClick={() => setShowWizard(true)}>
+              <Plus className="h-4 w-4" />
+              Create the first election
+            </Button>
+          }
         />
+      ) : (
+        <div className="space-y-4">
+          {list.map((election) => {
+            const status = statusOf(election.status);
+            const StatusIcon = status.icon;
+
+            return (
+              <Card key={election.id}>
+                <CardContent className="p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="font-display text-lg font-semibold text-foreground">
+                        {election.title}
+                      </h3>
+                      {election.description && (
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {election.description}
+                        </p>
+                      )}
+                    </div>
+                    <span
+                      className={cn(
+                        "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-2xs font-semibold",
+                        status.chip,
+                      )}
+                    >
+                      <StatusIcon className="h-3 w-3" />
+                      {status.label}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-4 rounded-lg border border-border bg-muted/30 p-3">
+                    <Timeline label="Voting opens" date={election.voting_start} />
+                    <Timeline label="Voting closes" date={election.voting_end} />
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {election.status === "draft" && (
+                      <>
+                        <Button variant="outline" size="sm" className="gap-1.5"
+                          onClick={() => setViewing(election.id)}>
+                          <Eye className="h-3.5 w-3.5" />
+                          Posts &amp; candidates
+                        </Button>
+                        <Button size="sm" className="gap-1.5"
+                          onClick={() => setPending({ kind: "status", id: election.id, status: "voting", title: election.title })}>
+                          <Vote className="h-3.5 w-3.5" />
+                          Open voting
+                        </Button>
+                      </>
+                    )}
+
+                    {election.status === "voting" && (
+                      <>
+                        <Button variant="outline" size="sm" className="gap-1.5"
+                          onClick={() => setViewing(election.id)}>
+                          <Eye className="h-3.5 w-3.5" />
+                          Live results
+                        </Button>
+                        <Button size="sm" className="gap-1.5"
+                          onClick={() => setPending({ kind: "status", id: election.id, status: "completed", title: election.title })}>
+                          <Trophy className="h-3.5 w-3.5" />
+                          Close &amp; publish
+                        </Button>
+                      </>
+                    )}
+
+                    {election.status === "completed" && (
+                      <Button variant="outline" size="sm" className="gap-1.5"
+                        onClick={() => setViewing(election.id)}>
+                        <Trophy className="h-3.5 w-3.5" />
+                        View results
+                      </Button>
+                    )}
+
+                    {["draft", "voting"].includes(election.status) && (
+                      <Button variant="ghost" size="sm"
+                        className="text-muted-foreground hover:text-destructive"
+                        onClick={() => setPending({ kind: "status", id: election.id, status: "cancelled", title: election.title })}>
+                        Cancel
+                      </Button>
+                    )}
+
+                    {["draft", "cancelled"].includes(election.status) && (
+                      <Button variant="ghost" size="sm"
+                        className="gap-1.5 text-destructive hover:text-destructive"
+                        onClick={() => setPending({ kind: "delete", id: election.id, title: election.title })}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       )}
+
+      {/* ── Wizard ───────────────────────────────────────────── */}
+      <Dialog open={showWizard} onOpenChange={(o) => !o && resetWizard()}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="font-display">
+              {wizardStep === 1 && "Create election"}
+              {wizardStep === 2 && "Add posts"}
+              {wizardStep === 3 && "Add candidates"}
+            </DialogTitle>
+            <div className="flex gap-1.5 pt-2" role="progressbar"
+              aria-valuenow={wizardStep} aria-valuemin={1} aria-valuemax={3}
+              aria-label={`Step ${wizardStep} of 3`}>
+              {[1, 2, 3].map((s) => (
+                <div key={s}
+                  className={cn(
+                    "h-1.5 flex-1 rounded-full transition-colors",
+                    s <= wizardStep ? "bg-accent" : "bg-muted",
+                  )}
+                />
+              ))}
+            </div>
+          </DialogHeader>
+
+          {wizardStep === 1 && (
+            <div className="space-y-4 py-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="election-title">
+                  Title <span className="text-destructive">*</span>
+                </Label>
+                <Input id="election-title" value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  placeholder="Annual election 2026" />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="election-description">Description</Label>
+                <Textarea id="election-description" rows={2} value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  className="resize-none" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="voting-start">
+                    Voting opens <span className="text-destructive">*</span>
+                  </Label>
+                  <Input id="voting-start" type="date" value={form.voting_start}
+                    onChange={(e) => setForm({ ...form, voting_start: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="voting-end">
+                    Voting closes <span className="text-destructive">*</span>
+                  </Label>
+                  <Input id="voting-end" type="date" value={form.voting_end}
+                    onChange={(e) => setForm({ ...form, voting_end: e.target.value })} />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" className="flex-1" onClick={resetWizard}>
+                  Cancel
+                </Button>
+                <Button className="flex-1 gap-1.5" onClick={() => void handleCreateElection()}
+                  disabled={!canCreate}>
+                  {createElection.isPending ? "Creating…" : "Next"}
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {wizardStep === 2 && (
+            <PostsStep electionId={createdElectionId}
+              onNext={() => setWizardStep(3)} onBack={() => setWizardStep(1)} />
+          )}
+
+          {wizardStep === 3 && (
+            <CandidatesStep electionId={createdElectionId} associationId={associationId}
+              onDone={resetWizard} onBack={() => setWizardStep(2)} />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Detail / results ─────────────────────────────────── */}
+      <Dialog open={viewing !== null} onOpenChange={(o) => !o && setViewing(null)}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-display">Posts &amp; results</DialogTitle>
+          </DialogHeader>
+          {viewing && <ElectionDetail electionId={viewing} />}
+        </DialogContent>
+      </Dialog>
+
+      <ConfirmDialog
+        open={pending !== null}
+        onOpenChange={(o) => !o && setPending(null)}
+        title={copy.title}
+        description={copy.description}
+        confirmLabel={copy.label}
+        destructive={pending?.kind === "delete" || pending?.status === "cancelled"}
+        onConfirm={applyPending}
+      />
     </div>
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// Step 2: Posts Step
-// ═══════════════════════════════════════════════════════════
-function PostsStep({ electionId, onNext, onBack }: { electionId: string; onNext: () => void; onBack: () => void }) {
+// ─── Step 2 ─────────────────────────────────────────────────
+
+function PostsStep({
+  electionId, onNext, onBack,
+}: { electionId: string; onNext: () => void; onBack: () => void }) {
   const { data: posts } = useElectionPosts(electionId);
   const createPost = useCreateElectionPost(electionId);
   const deletePost = useDeleteElectionPost(electionId);
-  const [postName, setPostName] = useState('');
+  const [postName, setPostName] = useState("");
 
-  const presets = ['President', 'Vice President', 'Secretary', 'Joint Secretary', 'Treasurer'];
-  const existingNames = (posts || []).map(p => p.post_name.toLowerCase());
+  const presets = ["President", "Vice President", "Secretary", "Joint Secretary", "Treasurer"];
+  const existing = (posts || []).map((p) => p.post_name.toLowerCase());
 
   const handleAdd = async (name: string) => {
-    if (!name.trim() || existingNames.includes(name.toLowerCase())) return;
-    await createPost.mutateAsync({ post_name: name.trim() });
-    setPostName('');
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    if (existing.includes(trimmed.toLowerCase())) {
+      toast.error(`"${trimmed}" has already been added`);
+      return;
+    }
+    try {
+      await createPost.mutateAsync({ post_name: trimmed });
+      setPostName("");
+    } catch (err) {
+      toast.error("Could not add post", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deletePost.mutateAsync(id);
+    } catch (err) {
+      toast.error("Could not remove post", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
+    }
   };
 
   return (
-    <div className="space-y-4">
-      <p className="text-sm text-slate-500">Add the positions members will vote for (e.g. President, Secretary).</p>
+    <div className="space-y-4 py-2">
+      <p className="text-sm text-muted-foreground">
+        Add the positions members will vote for.
+      </p>
 
-      {/* Quick Add Presets */}
       <div className="flex flex-wrap gap-2">
-        {presets.filter(p => !existingNames.includes(p.toLowerCase())).map((p) => (
-          <button
-            key={p}
-            onClick={() => handleAdd(p)}
-            className="px-3 py-1.5 rounded-lg border border-dashed border-slate-300 text-xs font-medium text-slate-600 hover:bg-violet-50 hover:border-violet-300 hover:text-violet-700 transition"
-          >
-            + {p}
-          </button>
-        ))}
-      </div>
-
-      {/* Custom Post Input */}
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={postName}
-          onChange={(e) => setPostName(e.target.value)}
-          placeholder="Custom post name..."
-          className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none"
-          onKeyDown={(e) => e.key === 'Enter' && handleAdd(postName)}
-        />
-        <button
-          onClick={() => handleAdd(postName)}
-          disabled={!postName.trim() || createPost.isPending}
-          className="px-4 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 disabled:opacity-50 transition"
-        >
-          Add
-        </button>
-      </div>
-
-      {/* Added Posts */}
-      <div className="space-y-2">
-        {(posts || []).map((post) => (
-          <div key={post.id} className="flex items-center justify-between bg-slate-50 rounded-xl px-4 py-3">
-            <div className="flex items-center gap-2">
-              <Award className="w-4 h-4 text-violet-500" />
-              <span className="text-sm font-semibold text-slate-800">{post.post_name}</span>
-            </div>
-            <button
-              onClick={() => deletePost.mutateAsync(post.id)}
-              className="text-slate-400 hover:text-red-500 transition"
-            >
-              <Trash2 className="w-4 h-4" />
+        {presets
+          .filter((p) => !existing.includes(p.toLowerCase()))
+          .map((p) => (
+            <button key={p} type="button" onClick={() => void handleAdd(p)}
+              className="rounded-lg border border-dashed border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-accent/50 hover:bg-accent/5 hover:text-accent">
+              + {p}
             </button>
-          </div>
-        ))}
+          ))}
       </div>
 
-      {(posts || []).length === 0 && (
-        <p className="text-center text-sm text-slate-400 py-4">No posts added yet. Add at least one post to continue.</p>
+      <div className="flex gap-2">
+        <Input value={postName} onChange={(e) => setPostName(e.target.value)}
+          placeholder="Custom post name"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              void handleAdd(postName);
+            }
+          }} />
+        <Button onClick={() => void handleAdd(postName)}
+          disabled={!postName.trim() || createPost.isPending}>
+          Add
+        </Button>
+      </div>
+
+      {(posts || []).length === 0 ? (
+        <p className="rounded-lg border border-dashed border-border py-6 text-center text-sm text-muted-foreground">
+          Add at least one post to continue.
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {(posts || []).map((post) => (
+            <div key={post.id}
+              className="flex items-center justify-between rounded-lg bg-muted/50 px-4 py-2.5">
+              <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <Award className="h-4 w-4 text-accent" />
+                {post.post_name}
+              </span>
+              <Button variant="ghost" size="icon"
+                className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                onClick={() => void handleDelete(post.id)}
+                aria-label={`Remove ${post.post_name}`}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ))}
+        </div>
       )}
 
-      <div className="flex gap-3 mt-6">
-        <button onClick={onBack} className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition flex items-center justify-center gap-1">
-          <ChevronLeft className="w-4 h-4" /> Back
-        </button>
-        <button
-          onClick={onNext}
-          disabled={(posts || []).length === 0}
-          className="flex-1 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
-        >
-          Next — Add Candidates <ChevronRight className="w-4 h-4" />
-        </button>
+      <div className="flex gap-3 pt-2">
+        <Button variant="outline" className="flex-1 gap-1.5" onClick={onBack}>
+          <ChevronLeft className="h-4 w-4" />
+          Back
+        </Button>
+        <Button className="flex-1 gap-1.5" onClick={onNext}
+          disabled={(posts || []).length === 0}>
+          Next
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// Step 3: Candidates Step
-// ═══════════════════════════════════════════════════════════
-function CandidatesStep({ electionId, associationId, onDone, onBack }: {
-  electionId: string; associationId: string; onDone: () => void; onBack: () => void;
-}) {
+// ─── Step 3 ─────────────────────────────────────────────────
+
+function CandidatesStep({
+  electionId, associationId, onDone, onBack,
+}: { electionId: string; associationId: string; onDone: () => void; onBack: () => void }) {
   const { data: posts } = useElectionPosts(electionId);
   const { data: members } = useMembers(associationId);
-  const activeMembers = (members || []).filter(m => m.status === 'active');
+  const activeMembers = (members || []).filter((m) => m.status === "active");
 
   return (
-    <div className="space-y-6">
-      <p className="text-sm text-slate-500">Select candidates from the member list for each post.</p>
+    <div className="space-y-4 py-2">
+      <p className="text-sm text-muted-foreground">
+        Nominate candidates for each post. Only active members can stand.
+      </p>
 
       {(posts || []).map((post) => (
         <PostCandidates key={post.id} post={post} members={activeMembers} />
       ))}
 
-      <div className="flex gap-3 mt-6">
-        <button onClick={onBack} className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition flex items-center justify-center gap-1">
-          <ChevronLeft className="w-4 h-4" /> Back
-        </button>
-        <button
-          onClick={onDone}
-          className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition flex items-center justify-center gap-2"
-        >
-          ✅ Done — Election Ready
-        </button>
+      <div className="flex gap-3 pt-2">
+        <Button variant="outline" className="flex-1 gap-1.5" onClick={onBack}>
+          <ChevronLeft className="h-4 w-4" />
+          Back
+        </Button>
+        <Button className="flex-1 gap-1.5" onClick={onDone}>
+          <Check className="h-4 w-4" />
+          Done
+        </Button>
       </div>
     </div>
   );
@@ -417,62 +532,83 @@ function PostCandidates({ post, members }: { post: any; members: any[] }) {
   const { data: nominations } = useNominations(post.id);
   const createNom = useCreateNomination(post.id);
   const deleteNom = useDeleteNomination(post.id);
-  const [selectedMember, setSelectedMember] = useState('');
+  const [selected, setSelected] = useState("");
 
   const nomineeIds = (nominations || []).map((n: any) => n.nominee_member_id);
-  const available = members.filter(m => !nomineeIds.includes(m.id));
+  const available = members.filter((m) => !nomineeIds.includes(m.id));
 
   const handleAdd = async () => {
-    if (!selectedMember) return;
-    await createNom.mutateAsync({ nominee_member_id: selectedMember });
-    setSelectedMember('');
+    if (!selected) return;
+    try {
+      await createNom.mutateAsync({ nominee_member_id: selected });
+      setSelected("");
+    } catch (err) {
+      toast.error("Could not add candidate", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
+    }
+  };
+
+  const handleRemove = async (id: string) => {
+    try {
+      await deleteNom.mutateAsync(id);
+    } catch (err) {
+      toast.error("Could not remove candidate", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
+    }
   };
 
   return (
-    <div className="bg-slate-50 rounded-2xl p-4">
-      <div className="flex items-center gap-2 mb-3">
-        <Award className="w-4 h-4 text-violet-500" />
-        <h4 className="text-sm font-bold text-slate-800">{post.post_name}</h4>
-        <span className="text-xs text-slate-400">({(nominations || []).length} candidates)</span>
+    <div className="rounded-xl border border-border bg-muted/30 p-4">
+      <div className="mb-3 flex items-center gap-2">
+        <Award className="h-4 w-4 text-accent" />
+        <h4 className="text-sm font-semibold text-foreground">{post.post_name}</h4>
+        <span data-numeric className="text-2xs text-muted-foreground">
+          {(nominations || []).length} standing
+        </span>
       </div>
 
-      {/* Add Candidate */}
-      <div className="flex gap-2 mb-3">
-        <select
-          value={selectedMember}
-          onChange={(e) => setSelectedMember(e.target.value)}
-          className="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none bg-white"
-        >
-          <option value="">Select a member...</option>
-          {available.map((m) => (
-            <option key={m.id} value={m.id}>{m.name} {m.enrollment_number ? `(${m.enrollment_number})` : ''}</option>
-          ))}
-        </select>
-        <button
-          onClick={handleAdd}
-          disabled={!selectedMember || createNom.isPending}
-          className="px-4 py-2 rounded-xl bg-violet-600 text-white text-xs font-semibold hover:bg-violet-700 disabled:opacity-50 transition"
-        >
+      <div className="mb-3 flex gap-2">
+        <Select value={selected} onValueChange={setSelected}>
+          <SelectTrigger className="flex-1 bg-card">
+            <SelectValue placeholder={
+              available.length === 0 ? "No members available" : "Select a member"
+            } />
+          </SelectTrigger>
+          <SelectContent>
+            {available.map((m) => (
+              <SelectItem key={m.id} value={m.id}>
+                {m.name}
+                {m.enrollment_number ? ` (${m.enrollment_number})` : ""}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button size="sm" onClick={() => void handleAdd()}
+          disabled={!selected || createNom.isPending}>
           Add
-        </button>
+        </Button>
       </div>
 
-      {/* Candidate List */}
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         {(nominations || []).map((nom: any) => (
-          <div key={nom.id} className="flex items-center justify-between bg-white rounded-xl px-3 py-2">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-700">
-                {(nom.nominee?.name || nom.nominee_member_id || 'U')[0].toUpperCase()}
-              </div>
-              <span className="text-sm font-medium text-slate-700">{nom.nominee?.name || 'Member'}</span>
-            </div>
-            <button
-              onClick={() => deleteNom.mutateAsync(nom.id)}
-              className="text-slate-400 hover:text-red-500 transition"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
+          <div key={nom.id}
+            className="flex items-center justify-between rounded-lg bg-card px-3 py-2">
+            <span className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/10 text-2xs font-semibold text-accent">
+                {getInitials(nom.nominee?.name || "?")}
+              </span>
+              <span className="text-sm text-foreground">
+                {nom.nominee?.name || "Member"}
+              </span>
+            </span>
+            <Button variant="ghost" size="icon"
+              className="h-7 w-7 text-muted-foreground hover:text-destructive"
+              onClick={() => void handleRemove(nom.id)}
+              aria-label="Remove candidate">
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
           </div>
         ))}
       </div>
@@ -480,102 +616,120 @@ function PostCandidates({ post, members }: { post: any; members: any[] }) {
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// Election Detail / Results View
-// ═══════════════════════════════════════════════════════════
-function ElectionDetailView({ electionId, associationId, onClose }: {
-  electionId: string; associationId: string; onClose: () => void;
-}) {
+// ─── Results ────────────────────────────────────────────────
+
+function ElectionDetail({ electionId }: { electionId: string }) {
   const { data: posts } = useElectionPosts(electionId);
 
+  if ((posts || []).length === 0) {
+    return (
+      <EmptyState
+        icon={Award}
+        title="No posts yet"
+        description="Add posts to this election before candidates can stand."
+        className="border-0"
+      />
+    );
+  }
+
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-2xl p-6 shadow-xl max-h-[85vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-bold text-slate-900">Election Posts & Results</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {(posts || []).length === 0 && (
-          <p className="text-center text-sm text-slate-400 py-8">No posts have been added to this election yet.</p>
-        )}
-
-        {(posts || []).map((post) => (
-          <PostResultCard key={post.id} post={post} />
-        ))}
-      </div>
+    <div className="space-y-4">
+      {(posts || []).map((post) => (
+        <PostResult key={post.id} post={post} />
+      ))}
     </div>
   );
 }
 
-function PostResultCard({ post }: { post: any }) {
+function PostResult({ post }: { post: any }) {
   const { data: nominations } = useNominations(post.id);
   const { data: voteCounts } = useVoteCounts(post.id);
 
-  const totalVotes = (voteCounts || []).reduce((s: number, v: any) => s + (v.vote_count || 0), 0);
+  const votesFor = (id: string) =>
+    (voteCounts || []).find((v: any) => v.nomination_id === id)?.vote_count || 0;
 
-  // Sort by vote count descending
-  const sorted = [...(nominations || [])].sort((a: any, b: any) => {
-    const aVotes = (voteCounts || []).find((v: any) => v.nomination_id === a.id)?.vote_count || 0;
-    const bVotes = (voteCounts || []).find((v: any) => v.nomination_id === b.id)?.vote_count || 0;
-    return bVotes - aVotes;
-  });
+  const total = (voteCounts || []).reduce(
+    (sum: number, v: any) => sum + (v.vote_count || 0), 0,
+  );
+
+  const sorted = [...(nominations || [])].sort(
+    (a: any, b: any) => votesFor(b.id) - votesFor(a.id),
+  );
 
   return (
-    <div className="mb-4 bg-slate-50 rounded-2xl overflow-hidden">
-      <div className="px-5 py-3 bg-violet-50 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Award className="w-4 h-4 text-violet-600" />
-          <span className="text-sm font-bold text-violet-700">{post.post_name}</span>
-        </div>
-        <span className="text-xs text-slate-400">{totalVotes} votes</span>
+    <div className="overflow-hidden rounded-xl border border-border">
+      <div className="flex items-center justify-between bg-muted/50 px-4 py-2.5">
+        <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <Award className="h-4 w-4 text-accent" />
+          {post.post_name}
+        </span>
+        <span data-numeric className="text-sm text-muted-foreground">
+          {total} {total === 1 ? "vote" : "votes"}
+        </span>
       </div>
-      <div className="p-4 space-y-3">
-        {sorted.map((nom: any, index: number) => {
-          const votes = (voteCounts || []).find((v: any) => v.nomination_id === nom.id)?.vote_count || 0;
-          const pct = totalVotes > 0 ? (votes / totalVotes) * 100 : 0;
-          const isWinner = index === 0 && totalVotes > 0;
 
-          return (
-            <div key={nom.id} className="flex items-center gap-3">
-              {isWinner ? <span className="text-lg">🏆</span> : <span className="w-[1.125rem]" />}
-              <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-700">
-                {(nom.nominee?.name || 'U')[0]}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-1">
-                  <span className={`text-sm ${isWinner ? 'font-bold' : 'font-medium'} text-slate-800`}>
-                    {nom.nominee?.name || 'Member'}
-                  </span>
-                  <span className={`text-sm ${isWinner ? 'font-bold text-emerald-600' : 'text-slate-500'}`}>
-                    {votes} ({pct.toFixed(0)}%)
-                  </span>
+      <div className="space-y-3 p-4">
+        {sorted.length === 0 ? (
+          <p className="py-2 text-center text-sm text-muted-foreground">
+            No candidates standing
+          </p>
+        ) : (
+          sorted.map((nom: any, index: number) => {
+            const votes = votesFor(nom.id);
+            const pct = total > 0 ? (votes / total) * 100 : 0;
+            // Only a lead with actual votes counts as leading — with no votes
+            // cast, first place is just list order.
+            const leading = index === 0 && total > 0;
+
+            return (
+              <div key={nom.id} className="flex items-center gap-3">
+                <span className="w-4 shrink-0">
+                  {leading && <Trophy className="h-4 w-4 text-accent" aria-label="Leading" />}
+                </span>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-2xs font-semibold text-muted-foreground">
+                  {getInitials(nom.nominee?.name || "?")}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <span className={cn(
+                      "truncate text-sm text-foreground",
+                      leading && "font-semibold",
+                    )}>
+                      {nom.nominee?.name || "Member"}
+                    </span>
+                    <span data-numeric className={cn(
+                      "shrink-0 text-sm",
+                      leading ? "font-semibold text-success" : "text-muted-foreground",
+                    )}>
+                      {votes} ({pct.toFixed(0)}%)
+                    </span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className={cn(
+                        "h-full rounded-full transition-all duration-500",
+                        leading ? "bg-success" : "bg-muted-foreground/40",
+                      )}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ${isWinner ? 'bg-emerald-500' : 'bg-slate-400'}`}
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
               </div>
-            </div>
-          );
-        })}
-        {(sorted || []).length === 0 && (
-          <p className="text-xs text-slate-400 text-center py-2">No candidates added</p>
+            );
+          })
         )}
       </div>
     </div>
   );
 }
 
-function TimelineStep({ label, date }: { label: string; date: string }) {
+function Timeline({ label, date }: { label: string; date: string }) {
   return (
-    <div className="text-center">
-      <p className="text-xs text-slate-400 mb-1">{label}</p>
-      <p className="text-sm font-semibold text-slate-700">{date ? formatDate(date) : '—'}</p>
+    <div>
+      <p className="text-2xs uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="mt-0.5 text-sm font-medium text-foreground">
+        {date ? formatDate(date) : "—"}
+      </p>
     </div>
   );
 }
