@@ -1,0 +1,168 @@
+/* ─────────────────────────────────────────────────────────────
+   CaseFlow Design System — token source of truth
+   Consumed by apps/dashboard and apps/bardesk.
+
+   Identity: deep navy, brass gold, warm cream. Carried over from the
+   mobile app's splash screen so the web surfaces read as the same
+   product. Deliberately not the indigo-on-white every admin panel
+   defaults to — navy and gold reads institutional, which is right for
+   a legal tool.
+
+   Every value is an HSL triplet without the hsl() wrapper so Tailwind
+   can compose alpha: hsl(var(--primary) / 0.1).
+   ───────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap');
+
+:root {
+  /* ── Surfaces ─────────────────────────────────────────── */
+  --background: 220 20% 97%;
+  --foreground: 220 30% 12%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 220 30% 12%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 30% 12%;
+
+  /* Raised surface for nested panels — sits between bg and card. */
+  --surface: 220 20% 99%;
+  --surface-foreground: 220 30% 12%;
+
+  /* ── Brand ────────────────────────────────────────────── */
+  --primary: 220 60% 20%;
+  --primary-foreground: 40 30% 95%;
+
+  --secondary: 40 50% 92%;
+  --secondary-foreground: 220 60% 20%;
+
+  --accent: 38 80% 55%;
+  --accent-foreground: 220 60% 12%;
+
+  --muted: 220 15% 93%;
+  --muted-foreground: 220 10% 45%;
+
+  /* ── Semantic ─────────────────────────────────────────── */
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 152 60% 40%;
+  --success-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 38 92% 15%;
+  --info: 210 80% 52%;
+  --info-foreground: 0 0% 100%;
+
+  /* ── Lines ────────────────────────────────────────────── */
+  --border: 220 15% 88%;
+  --input: 220 15% 88%;
+  --ring: 220 60% 20%;
+
+  --radius: 0.5rem;
+
+  /* ── Sidebar ──────────────────────────────────────────── */
+  --sidebar-background: 220 60% 15%;
+  --sidebar-foreground: 220 15% 85%;
+  --sidebar-primary: 38 80% 55%;
+  --sidebar-primary-foreground: 220 60% 12%;
+  --sidebar-accent: 220 50% 22%;
+  --sidebar-accent-foreground: 220 15% 90%;
+  --sidebar-border: 220 40% 22%;
+  --sidebar-ring: 38 80% 55%;
+
+  /* ── Elevation ────────────────────────────────────────────
+     Previously a single shadow-sm across the whole app, which left
+     nothing with hierarchy. Four steps, tinted with the foreground
+     hue rather than neutral black so shadows sit in the palette. */
+  --shadow-xs: 0 1px 2px 0 hsl(220 30% 12% / 0.05);
+  --shadow-sm: 0 1px 3px 0 hsl(220 30% 12% / 0.08), 0 1px 2px -1px hsl(220 30% 12% / 0.05);
+  --shadow-md: 0 4px 12px -2px hsl(220 30% 12% / 0.10), 0 2px 6px -2px hsl(220 30% 12% / 0.05);
+  --shadow-lg: 0 12px 28px -6px hsl(220 30% 12% / 0.13), 0 4px 10px -4px hsl(220 30% 12% / 0.07);
+
+  /* ── Charts ───────────────────────────────────────────────
+     Six categorical series derived from the navy/gold base so data
+     visualisation belongs to the same palette. Ordered by how often
+     a single-series chart needs them. */
+  --chart-1: 220 60% 32%;
+  --chart-2: 38 80% 52%;
+  --chart-3: 187 55% 38%;
+  --chart-4: 280 38% 52%;
+  --chart-5: 12 65% 55%;
+  --chart-6: 152 45% 40%;
+  --chart-grid: 220 15% 90%;
+}
+
+.dark {
+  /* ── Surfaces ─────────────────────────────────────────── */
+  --background: 220 30% 8%;
+  --foreground: 220 15% 90%;
+
+  --card: 220 30% 12%;
+  --card-foreground: 220 15% 90%;
+
+  --popover: 220 30% 12%;
+  --popover-foreground: 220 15% 90%;
+
+  --surface: 220 28% 15%;
+  --surface-foreground: 220 15% 90%;
+
+  /* ── Brand ────────────────────────────────────────────────
+     Navy cannot carry primary on a navy-black ground, so gold takes
+     over as the lead colour in dark. */
+  --primary: 38 80% 55%;
+  --primary-foreground: 220 60% 12%;
+
+  --secondary: 220 30% 18%;
+  --secondary-foreground: 220 15% 85%;
+
+  --accent: 38 80% 55%;
+  --accent-foreground: 220 60% 12%;
+
+  --muted: 220 25% 16%;
+  --muted-foreground: 220 10% 60%;
+
+  /* ── Semantic ─────────────────────────────────────────────
+     These were absent from the previous dark block, so success,
+     warning and info kept their light values on a dark ground and
+     failed contrast. Lightened and desaturated to sit on navy-black. */
+  --destructive: 0 62% 45%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 152 50% 52%;
+  --success-foreground: 152 60% 10%;
+  --warning: 38 85% 60%;
+  --warning-foreground: 38 92% 12%;
+  --info: 210 75% 62%;
+  --info-foreground: 210 80% 12%;
+
+  /* ── Lines ────────────────────────────────────────────── */
+  --border: 220 25% 20%;
+  --input: 220 25% 20%;
+  --ring: 38 80% 55%;
+
+  /* ── Sidebar ──────────────────────────────────────────── */
+  --sidebar-background: 220 40% 8%;
+  --sidebar-foreground: 220 15% 80%;
+  --sidebar-primary: 38 80% 55%;
+  --sidebar-primary-foreground: 220 60% 12%;
+  --sidebar-accent: 220 35% 15%;
+  --sidebar-accent-foreground: 220 15% 85%;
+  --sidebar-border: 220 30% 15%;
+  --sidebar-ring: 38 80% 55%;
+
+  /* ── Elevation ────────────────────────────────────────────
+     Shadow barely reads on a dark ground, so depth comes mostly from
+     the border. These stay subtle and exist to seat overlays, not to
+     imitate the light theme. */
+  --shadow-xs: 0 1px 2px 0 hsl(220 60% 2% / 0.40);
+  --shadow-sm: 0 1px 3px 0 hsl(220 60% 2% / 0.50), 0 1px 2px -1px hsl(220 60% 2% / 0.40);
+  --shadow-md: 0 4px 12px -2px hsl(220 60% 2% / 0.55), 0 2px 6px -2px hsl(220 60% 2% / 0.40);
+  --shadow-lg: 0 12px 28px -6px hsl(220 60% 2% / 0.65), 0 4px 10px -4px hsl(220 60% 2% / 0.45);
+
+  /* ── Charts ───────────────────────────────────────────── */
+  --chart-1: 217 70% 62%;
+  --chart-2: 38 85% 60%;
+  --chart-3: 187 60% 52%;
+  --chart-4: 280 50% 66%;
+  --chart-5: 12 70% 63%;
+  --chart-6: 152 50% 52%;
+  --chart-grid: 220 25% 20%;
+}
