@@ -68,6 +68,8 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
 
                 return Column(
                   children: [
+                    _buildTodayStrip(hearMap),
+                    SizedBox(height: 14.h),
                     _buildCalendar(hearMap),
                     SizedBox(height: 16.h),
                     Divider(),
@@ -85,6 +87,254 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                   ),
               error: (err, stack) => Center(child: Text('Error: $err')),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Answers "what am I in court for today?" without a tap.
+  ///
+  /// The calendar below is for planning the month; this is for this morning.
+  /// Both previously required selecting a date before they told you anything,
+  /// which left the app's most-asked question two taps deep.
+  ///
+  /// Deliberately shows no clock time: a hearing carries a date and no time of
+  /// day — there is no `hearing_time` column — and inventing one on a court
+  /// diary is the kind of error that costs an appearance.
+  Widget _buildTodayStrip(Map<DateTime, List<Hearing>> hearMap) {
+    final l10n = AppLocalizations.of(context);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final todays = hearMap[today] ?? const <Hearing>[];
+
+    if (todays.isNotEmpty) {
+      return _todayPanel(l10n, todays, today);
+    }
+
+    // Nothing today. The useful follow-up is when the next one actually is,
+    // so find the nearest future day that has hearings.
+    final upcoming =
+        hearMap.keys.where((d) => d.isAfter(today)).toList()..sort();
+
+    return _quietPanel(
+      icon: Icons.event_available_rounded,
+      title: l10n.get('no_hearings_today'),
+      subtitle:
+          upcoming.isEmpty
+              ? null
+              : '${l10n.get('next_hearing')}: '
+                  '${DateFormat('EEE, d MMM').format(upcoming.first)}'
+                  ' · ${hearMap[upcoming.first]!.length}',
+      onTap:
+          upcoming.isEmpty
+              ? null
+              : () => setState(() {
+                _selectedDate = upcoming.first;
+                _focusedDate = upcoming.first;
+              }),
+    );
+  }
+
+  Widget _todayPanel(
+    AppLocalizations l10n,
+    List<Hearing> todays,
+    DateTime today,
+  ) {
+    final first = todays.first;
+    final canAdjourn =
+        first.status != 'adjourned' &&
+        first.status != 'closed' &&
+        first.status != 'disposed';
+
+    return Container(
+      padding: EdgeInsets.all(14.r),
+      decoration: BoxDecoration(
+        color: AppTheme.accent.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: AppTheme.accent.withValues(alpha: 0.20)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 6.w,
+                height: 6.w,
+                decoration: const BoxDecoration(
+                  color: AppTheme.accent,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              SizedBox(width: 7.w),
+              Expanded(
+                child: Text(
+                  l10n.get('todays_hearings').toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.8,
+                    color: AppTheme.accent,
+                  ),
+                ),
+              ),
+              Text(
+                '${todays.length}',
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w900,
+                  color: AppTheme.accent,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          Text(
+            first.caseTitle ?? 'Untitled matter',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF1E293B),
+              letterSpacing: -0.2,
+            ),
+          ),
+          if ((first.courtName ?? '').isNotEmpty) ...[
+            SizedBox(height: 3.h),
+            Text(
+              first.courtName!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 11.sp, color: const Color(0xFF64748B)),
+            ),
+          ],
+          SizedBox(height: 10.h),
+          Row(
+            children: [
+              if (todays.length > 1)
+                InkWell(
+                  onTap:
+                      () => setState(() {
+                        _selectedDate = today;
+                        _focusedDate = today;
+                      }),
+                  borderRadius: BorderRadius.circular(6.r),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 4.w,
+                      vertical: 2.h,
+                    ),
+                    child: Text(
+                      '+${todays.length - 1} more',
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.accent,
+                      ),
+                    ),
+                  ),
+                ),
+              const Spacer(),
+              if (canAdjourn)
+                InkWell(
+                  onTap: () => _showAdjournDialog(context, first),
+                  borderRadius: BorderRadius.circular(8.r),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(8.r),
+                      border: Border.all(
+                        color: Colors.blue.withValues(alpha: 0.15),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.event_repeat_rounded,
+                          size: 13,
+                          color: Colors.blue,
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          'ADJOURN',
+                          style: TextStyle(
+                            fontSize: 9.sp,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Used when there is nothing today — quiet on purpose, so an empty diary
+  /// does not shout at a new user.
+  Widget _quietPanel({
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14.r),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: AppTheme.background,
+          borderRadius: BorderRadius.circular(14.r),
+          border: Border.all(color: AppTheme.darkBorder),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: const Color(0xFF94A3B8)),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF475569),
+                    ),
+                  ),
+                  if (subtitle != null) ...[
+                    SizedBox(height: 2.h),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        color: const Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (onTap != null)
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 18,
+                color: Color(0xFFCBD5E1),
+              ),
           ],
         ),
       ),
