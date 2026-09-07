@@ -7,7 +7,7 @@ import {
 import {
   Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
-import { addDays, format, isSameDay, isToday, isWithinInterval, parseISO, startOfDay } from "date-fns";
+import { addDays, format, isSameDay, isToday, isWithinInterval, parseISO, startOfDay, subDays } from "date-fns";
 
 import { fetchDashboardStats } from "@/lib/supabase-helpers";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,9 +35,16 @@ const inr = new Intl.NumberFormat("en-IN", {
  * Regenerating those types is the real fix; until then this keeps the drift
  * contained to one line instead of loosening the client everywhere.
  */
-async function countRows(table: string): Promise<number | null> {
-  const query = (supabase.from as (t: string) => any)(table);
-  const { count, error } = await query.select("id", { count: "exact" });
+async function countRows(
+  table: string,
+  refine?: (query: any) => any,
+): Promise<number | null> {
+  let query = (supabase.from as (t: string) => any)(table).select("id", {
+    count: "exact",
+  });
+  if (refine) query = refine(query);
+
+  const { count, error } = await query;
   if (error) {
     console.error(`Count failed for ${table}:`, error.message);
     return null;
@@ -60,7 +67,8 @@ export default function Dashboard() {
     clients: number | null;
     acts: number | null;
     advocates: number | null;
-  }>({ cases: null, clients: null, acts: null, advocates: null });
+    newAdvocates: number | null;
+  }>({ cases: null, clients: null, acts: null, advocates: null, newAdvocates: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown>(null);
   const navigate = useNavigate();
@@ -71,17 +79,22 @@ export default function Dashboard() {
       const data = await fetchDashboardStats();
       setStats(data);
 
-      const [cases, clients, acts, advocates] = await Promise.all([
+      // Registered advocates is the headline adoption number, so it also
+      // carries a 30-day figure — a total alone says nothing about growth.
+      const since = subDays(new Date(), 30).toISOString();
+
+      const [cases, clients, acts, advocates, newAdvocates] = await Promise.all([
         countRows("cases"),
         countRows("clients"),
         countRows("bare_acts"),
         countRows("profiles"),
+        countRows("profiles", (q) => q.gte("created_at", since)),
       ]);
 
       // Null rather than an invented number. This page previously fell back to
       // literals (|| 53, || 56, || 14) when a count came back empty, so the
       // landing screen showed figures that were never in the database.
-      setCounts({ cases, clients, acts, advocates });
+      setCounts({ cases, clients, acts, advocates, newAdvocates });
     } catch (err) {
       console.error("Dashboard load failed:", err);
       setError(err);
@@ -150,7 +163,7 @@ export default function Dashboard() {
     return (
       <div className="mx-auto max-w-7xl space-y-6 pb-12">
         <Skeleton className="h-9 w-48" />
-        <StatSkeleton />
+        <StatSkeleton count={5} />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           <Skeleton className="h-80 rounded-xl lg:col-span-8" />
           <Skeleton className="h-80 rounded-xl lg:col-span-4" />
@@ -177,7 +190,20 @@ export default function Dashboard() {
       ) : (
         <div className="space-y-6">
           {/* ── Headline figures ─────────────────────────────── */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            <KpiCard
+              title="Registered users"
+              value={counts.advocates ?? "—"}
+              icon={Users}
+              color="accent"
+              hint={
+                counts.newAdvocates === null
+                  ? "Advocates on CaseFlow"
+                  : counts.newAdvocates === 0
+                    ? "No new sign-ups in 30 days"
+                    : `+${counts.newAdvocates} in the last 30 days`
+              }
+            />
             <KpiCard
               title="Active cases"
               value={stats?.activeCases?.length ?? 0}
@@ -321,10 +347,11 @@ export default function Dashboard() {
                   <CardDescription className="text-sm">Records held across the platform</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-1">
+                  {/* Registered users is a headline KPI above, so it is not
+                      repeated here. */}
                   <CountRow icon={Briefcase} label="Cases" value={counts.cases} />
                   <CountRow icon={Users} label="Clients" value={counts.clients} />
                   <CountRow icon={BookOpen} label="Statutes" value={counts.acts} />
-                  <CountRow icon={Users} label="Advocates" value={counts.advocates} />
                 </CardContent>
               </Card>
             </div>

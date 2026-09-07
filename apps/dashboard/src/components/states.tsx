@@ -128,10 +128,21 @@ export function TableSkeleton({
   );
 }
 
-/** Placeholder for a KPI row. */
+/**
+ * Placeholder for a KPI row.
+ *
+ * The grid must mirror the real row's breakpoints, or the cards reflow when
+ * data arrives — which is the layout shift a skeleton exists to prevent.
+ */
 export function StatSkeleton({ count = 4 }: { count?: number }) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-busy="true">
+    <div
+      className={cn(
+        "grid grid-cols-1 gap-4 sm:grid-cols-2",
+        count >= 5 ? "lg:grid-cols-3 xl:grid-cols-5" : "lg:grid-cols-4",
+      )}
+      aria-busy="true"
+    >
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="rounded-2xl border border-border/50 bg-card p-6">
           <Skeleton className="h-3.5 w-20" />
