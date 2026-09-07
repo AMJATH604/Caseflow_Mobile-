@@ -16,6 +16,8 @@ interface KpiCardProps {
   invertDelta?: boolean;
   /** Secondary line under the value. */
   hint?: string;
+  /** Makes the whole card a button — used where a stat drills into a page. */
+  onClick?: () => void;
   className?: string;
 }
 
@@ -37,6 +39,7 @@ export function KpiCard({
   deltaLabel,
   invertDelta = false,
   hint,
+  onClick,
   className,
 }: KpiCardProps) {
   const hasDelta = typeof delta === "number" && Number.isFinite(delta);
@@ -51,14 +54,20 @@ export function KpiCard({
       ? "text-success"
       : "text-destructive";
 
+  // A card that navigates must be a button, so it is reachable by keyboard
+  // and announced as interactive.
+  const Wrapper = onClick ? "button" : "div";
+
   return (
-    <div
+    <Wrapper
+      {...(onClick ? { onClick, type: "button" as const } : {})}
       className={cn(
         // Styles are inline rather than using the .kpi-card utility so this
         // component can be shared between apps without carrying a CSS
         // dependency along with it.
         "rounded-2xl border border-border/50 bg-card p-6 shadow-sm transition-all duration-300",
         "hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lg",
+        onClick && "w-full cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
     >
@@ -107,6 +116,6 @@ export function KpiCard({
           <Icon className="h-5 w-5" />
         </div>
       </div>
-    </div>
+    </Wrapper>
   );
 }
