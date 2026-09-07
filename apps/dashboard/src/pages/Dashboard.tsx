@@ -1,71 +1,90 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Briefcase, Gavel, FileText, AlertTriangle, CreditCard, Users, 
-  ChevronRight, Clock, CalendarDays, TrendingUp, ArrowRight,
-  HardDrive, Activity, ShieldCheck, Database, FileStack, RefreshCw,
-  BookOpen
+import {
+  Briefcase, Gavel, FileText, AlertTriangle, Users, CalendarDays,
+  RefreshCw, BookOpen, ArrowRight,
 } from "lucide-react";
+import {
+  Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
+} from "recharts";
+import { addDays, format, isSameDay, isToday, isWithinInterval, parseISO, startOfDay } from "date-fns";
+
 import { fetchDashboardStats } from "@/lib/supabase-helpers";
-import { TaskWidget } from "@/components/TaskWidget";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { StatusBadge } from "@/components/StatusBadge";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { format, isWithinInterval, addDays, isToday, parseISO } from "date-fns";
-import { cn } from "@/lib/utils";
-import { Progress } from "@/components/ui/progress";
+import { TaskWidget } from "@/components/TaskWidget";
+import { PageHeader } from "@/components/PageHeader";
+import { KpiCard } from "@/components/KpiCard";
+import { StatusBadge } from "@/components/StatusBadge";
+import { EmptyState, ErrorState, StatSkeleton } from "@/components/states";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const inr = new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: "INR",
+  maximumFractionDigits: 0,
+});
+
+/**
+ * Row count for a table, or null when it cannot be read.
+ *
+ * The cast is deliberate and narrow. `bare_acts` exists in the database but
+ * not in `integrations/supabase/types.ts`, which was generated from an older
+ * schema knowing only eight tables — the same drift flagged during the audit.
+ * Regenerating those types is the real fix; until then this keeps the drift
+ * contained to one line instead of loosening the client everywhere.
+ */
+async function countRows(table: string): Promise<number | null> {
+  const query = (supabase.from as (t: string) => any)(table);
+  const { count, error } = await query.select("id", { count: "exact" });
+  if (error) {
+    console.error(`Count failed for ${table}:`, error.message);
+    return null;
+  }
+  return count ?? null;
+}
+
+interface DashboardStats {
+  activeCases: any[];
+  closedCases: any[];
+  upcomingHearings: any[];
+  efilingRecords: any[];
+  payments: any[];
+}
 
 export default function Dashboard() {
-  const [stats, setStats] = useState<any>(null);
-  const [dbCounts, setDbCounts] = useState({
-    cases: 0,
-    clients: 0,
-    acts: 0,
-    advocates: 0
-  });
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [counts, setCounts] = useState<{
+    cases: number | null;
+    clients: number | null;
+    acts: number | null;
+    advocates: number | null;
+  }>({ cases: null, clients: null, acts: null, advocates: null });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [userName, setUserName] = useState("");
+  const [error, setError] = useState<unknown>(null);
   const navigate = useNavigate();
 
   const loadStats = useCallback(async () => {
     try {
       setError(null);
-      
-      // Load standard dashboard stats
       const data = await fetchDashboardStats();
       setStats(data);
 
-      // Load DB counts efficiently using exact counts with fallback
-      const [casesCount, clientsCount, actsCount, advocatesCount] = await Promise.all([
-        supabase.from("cases").select("id", { count: "exact" }),
-        supabase.from("clients").select("id", { count: "exact" }),
-        supabase.from("bare_acts").select("id", { count: "exact" }),
-        supabase.from("profiles").select("id", { count: "exact" }),
+      const [cases, clients, acts, advocates] = await Promise.all([
+        countRows("cases"),
+        countRows("clients"),
+        countRows("bare_acts"),
+        countRows("profiles"),
       ]);
 
-      const totalCases = (casesCount.count && casesCount.count > 0) ? casesCount.count : ((data?.activeCases?.length || 0) + (data?.closedCases?.length || 0));
-      const totalClients = (clientsCount.count && clientsCount.count > 0) ? clientsCount.count : 56;
-      const totalActs = (actsCount.count && actsCount.count > 0) ? actsCount.count : 14;
-      const totalAdvocates = (advocatesCount.count && advocatesCount.count > 0) ? advocatesCount.count : 12;
-
-      setDbCounts({
-        cases: totalCases || 61,
-        clients: totalClients || 56,
-        acts: totalActs || 14,
-        advocates: totalAdvocates || 12
-      });
-
-    } catch (err: any) {
-      console.error(err);
-      setError(err?.message || "Failed to load dashboard statistics");
-      
-      setStats({
-        activeCases: [], closedCases: [], upcomingHearings: [],
-        efilingRecords: [], payments: [],
-      });
+      // Null rather than an invented number. This page previously fell back to
+      // literals (|| 53, || 56, || 14) when a count came back empty, so the
+      // landing screen showed figures that were never in the database.
+      setCounts({ cases, clients, acts, advocates });
+    } catch (err) {
+      console.error("Dashboard load failed:", err);
+      setError(err);
     } finally {
       setLoading(false);
     }
@@ -73,9 +92,6 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadStats();
-    supabase.auth.getUser().then(({ data }) => {
-      setUserName(data?.user?.email?.split("@")[0] || "Administrator");
-    });
 
     const channel = supabase
       .channel("dashboard-realtime-admin")
@@ -91,281 +107,301 @@ export default function Dashboard() {
     };
   }, [loadStats]);
 
-  if (loading) return (
-    <div className="space-y-6 max-w-7xl mx-auto animate-pulse">
-      <div className="h-10 bg-muted rounded-xl w-64" />
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[1, 2, 3, 4].map(i => (
-          <div key={i} className="h-28 bg-muted rounded-2xl" />
-        ))}
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-8 h-80 bg-muted rounded-2xl" />
-        <div className="lg:col-span-4 h-80 bg-muted rounded-2xl" />
-      </div>
-    </div>
-  );
+  const hearings = stats?.upcomingHearings ?? [];
+  const filings = stats?.efilingRecords ?? [];
+  const payments = stats?.payments ?? [];
 
-  const hearingsThisWeek = (stats?.upcomingHearings || []).filter((h: any) =>
-    h.hearing_date && isWithinInterval(new Date(h.hearing_date), { start: new Date(), end: addDays(new Date(), 7) })
+  const hearingsThisWeek = hearings.filter(
+    (h) =>
+      h.hearing_date &&
+      isWithinInterval(parseISO(h.hearing_date), {
+        start: startOfDay(new Date()),
+        end: addDays(new Date(), 7),
+      }),
   );
-  const todaysHearings = (stats?.upcomingHearings || []).filter((h: any) => h.hearing_date && isToday(parseISO(h.hearing_date)));
-  const pendingFilings = (stats?.efilingRecords || []).filter((e: any) => !["filed", "accepted"].includes(e.status));
-  const defectFilings = (stats?.efilingRecords || []).filter((e: any) => e.status === "defect");
-  const pendingPayments = (stats?.payments || []).filter((p: any) => p.balance_amount > 0);
+  const todaysHearings = hearings.filter((h) => h.hearing_date && isToday(parseISO(h.hearing_date)));
+  const pendingFilings = filings.filter((f) => !["filed", "accepted"].includes(f.status));
+  const defectFilings = filings.filter((f) => f.status === "defect");
+
+  const outstanding = payments.reduce(
+    (sum, p) => sum + (Number(p.balance_amount) > 0 ? Number(p.balance_amount) : 0),
+    0,
+  );
+  const pendingPaymentCount = payments.filter((p) => Number(p.balance_amount) > 0).length;
+
+  /** Hearing load for the next fortnight — the question this page exists to answer. */
+  const hearingLoad = useMemo(() => {
+    const today = startOfDay(new Date());
+    return Array.from({ length: 14 }, (_, offset) => {
+      const day = addDays(today, offset);
+      return {
+        label: format(day, "d MMM"),
+        short: format(day, "EEEEE"),
+        count: hearings.filter(
+          (h) => h.hearing_date && isSameDay(parseISO(h.hearing_date), day),
+        ).length,
+      };
+    });
+  }, [hearings]);
+
+  const hasHearingLoad = hearingLoad.some((d) => d.count > 0);
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-7xl space-y-6 pb-12">
+        <Skeleton className="h-9 w-48" />
+        <StatSkeleton />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <Skeleton className="h-80 rounded-xl lg:col-span-8" />
+          <Skeleton className="h-80 rounded-xl lg:col-span-4" />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
-      {/* GREETING BANNER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-slate-900 to-indigo-950 text-white shadow-lg relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 opacity-10 flex items-center justify-center pr-8 pointer-events-none">
-          <Database className="h-40 w-40" />
-        </div>
-        <div className="space-y-1 relative z-10">
-          <h1 className="text-2xl font-bold tracking-tight">System Status: Operational 🟢</h1>
-          <p className="text-xs text-indigo-200/90 max-w-xl">
-            Welcome back, admin. You are connected to CaseFlow Supabase cluster. All database metrics are synced in real time.
-          </p>
-        </div>
-        <div className="flex items-center gap-2 self-start md:self-center relative z-10">
-          <span className="text-xs bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 font-mono">
-            {format(new Date(), "EEEE, dd MMMM yyyy")}
-          </span>
-          <Button size="sm" variant="secondary" onClick={loadStats} className="h-8 text-xs font-semibold">
-            <RefreshCw className="h-3.5 w-3.5 mr-1" />
-            Sync Stats
+    <div className="mx-auto max-w-7xl pb-12">
+      <PageHeader
+        title="Overview"
+        description={format(new Date(), "EEEE, d MMMM yyyy")}
+        actions={
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => void loadStats()}>
+            <RefreshCw className="h-3.5 w-3.5" />
+            Refresh
           </Button>
-        </div>
-      </div>
+        }
+      />
 
-      {error && (
-        <div className="flex items-center justify-between bg-amber-50 border border-amber-100 text-amber-800 px-4 py-3 rounded-xl text-xs">
-          <span>{error}</span>
-          <button onClick={loadStats} className="font-bold underline ml-2">Retry</button>
-        </div>
-      )}
+      {error ? (
+        <ErrorState error={error} onRetry={() => void loadStats()} />
+      ) : (
+        <div className="space-y-6">
+          {/* ── Headline figures ─────────────────────────────── */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <KpiCard
+              title="Active cases"
+              value={stats?.activeCases?.length ?? 0}
+              icon={Briefcase}
+              hint={`${stats?.closedCases?.length ?? 0} closed`}
+            />
+            <KpiCard
+              title="Hearings this week"
+              value={hearingsThisWeek.length}
+              icon={Gavel}
+              color="info"
+              hint={`${todaysHearings.length} today`}
+            />
+            <KpiCard
+              title="E-filings pending"
+              value={pendingFilings.length}
+              icon={FileText}
+              color="warning"
+              hint="Awaiting review or signature"
+            />
+            <KpiCard
+              title="Defects reported"
+              value={defectFilings.length}
+              icon={AlertTriangle}
+              color={defectFilings.length > 0 ? "destructive" : "default"}
+              hint={defectFilings.length > 0 ? "Needs action" : "Nothing outstanding"}
+            />
+          </div>
 
-      {/* METRIC CARD GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard 
-          title="Active Litigations" 
-          count={(stats?.activeCases?.length && stats.activeCases.length > 0) ? stats.activeCases.length : (dbCounts.cases || 53)} 
-          subtitle="Cases currently in progress"
-          icon={Briefcase}
-          gradient="from-blue-500/10 to-indigo-500/10 border-blue-100"
-          iconColor="text-blue-600"
-        />
-        <StatCard 
-          title="Weekly Hearings" 
-          count={(hearingsThisWeek.length > 0) ? hearingsThisWeek.length : ((stats?.upcomingHearings?.length && stats.upcomingHearings.length > 0) ? stats.upcomingHearings.length : 59)} 
-          subtitle="Scheduled hearings"
-          icon={Gavel}
-          gradient="from-emerald-500/10 to-teal-500/10 border-emerald-100"
-          iconColor="text-emerald-600"
-        />
-        <StatCard 
-          title="E-Filings Pending" 
-          count={pendingFilings.length} 
-          subtitle="Needs review or signature"
-          icon={FileText}
-          gradient="from-amber-500/10 to-orange-500/10 border-amber-100"
-          iconColor="text-amber-600"
-        />
-        <StatCard 
-          title="Defects Reported" 
-          count={defectFilings.length} 
-          subtitle="Filings requiring action"
-          icon={AlertTriangle}
-          gradient={defectFilings.length > 0 ? "from-red-500/10 to-rose-500/10 border-red-200" : "from-slate-100 to-slate-200/50"}
-          iconColor={defectFilings.length > 0 ? "text-red-600 animate-pulse" : "text-slate-400"}
-        />
-      </div>
-
-      {/* TWO COLUMNS: Database Overview & Storage Metrics */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* LEFT COLUMN (cols-8): Database metrics & today's hearings */}
-        <div className="lg:col-span-8 space-y-6">
-          
-          {/* Database command counts */}
-          <Card className="shadow-sm border border-border">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base font-bold flex items-center gap-2">
-                <Database className="h-4.5 w-4.5 text-primary" />
-                Database Command Overview
-              </CardTitle>
-              <CardDescription className="text-xs">Summary of tables and rows stored in the cloud cluster.</CardDescription>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <DbCounterItem label="Law Cases" count={dbCounts.cases} icon={Briefcase} bg="bg-blue-50 text-blue-600" />
-                <DbCounterItem label="Clients" count={dbCounts.clients} icon={Users} bg="bg-purple-50 text-purple-600" />
-                <DbCounterItem label="Statutes (Acts)" count={dbCounts.acts} icon={BookOpen} bg="bg-emerald-50 text-emerald-600" />
-                <DbCounterItem label="Advocates" count={dbCounts.advocates} icon={Users} bg="bg-indigo-50 text-indigo-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Today's hearings list */}
-          <Card className="shadow-sm border border-border">
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <div>
-                <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <CalendarDays className="h-4.5 w-4.5 text-primary" />
-                  Today's Hearings ({todaysHearings.length})
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            {/* ── Hearing load ───────────────────────────────── */}
+            <Card className="lg:col-span-8">
+              <CardHeader className="pb-2">
+                <CardTitle className="font-display text-md font-semibold">
+                  Hearing load
                 </CardTitle>
-                <CardDescription className="text-xs">Schedule for {format(new Date(), "MMMM dd")}</CardDescription>
+                <CardDescription className="text-sm">
+                  Scheduled hearings over the next fortnight
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {hasHearingLoad ? (
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={hearingLoad} margin={{ top: 8, right: 8, bottom: 0, left: -20 }}>
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          vertical={false}
+                          stroke="hsl(var(--chart-grid))"
+                        />
+                        <XAxis
+                          dataKey="label"
+                          tickLine={false}
+                          axisLine={false}
+                          interval={1}
+                          tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                        />
+                        <YAxis
+                          allowDecimals={false}
+                          tickLine={false}
+                          axisLine={false}
+                          tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                        />
+                        <Tooltip
+                          cursor={{ fill: "hsl(var(--muted))" }}
+                          contentStyle={{
+                            background: "hsl(var(--popover))",
+                            border: "1px solid hsl(var(--border))",
+                            borderRadius: "var(--radius)",
+                            fontSize: 13,
+                            color: "hsl(var(--popover-foreground))",
+                            boxShadow: "var(--shadow-md)",
+                          }}
+                          labelStyle={{ color: "hsl(var(--popover-foreground))", fontWeight: 600 }}
+                          formatter={(value: number) => [
+                            `${value} hearing${value === 1 ? "" : "s"}`,
+                            "",
+                          ]}
+                        />
+                        <Bar
+                          dataKey="count"
+                          fill="hsl(var(--chart-1))"
+                          radius={[4, 4, 0, 0]}
+                          maxBarSize={38}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <EmptyState
+                    icon={CalendarDays}
+                    title="No hearings scheduled"
+                    description="Nothing is listed for the next fortnight. Hearings appear here as they are scheduled or imported from eCourts."
+                    className="border-0 py-12"
+                  />
+                )}
+              </CardContent>
+            </Card>
+
+            {/* ── Money ──────────────────────────────────────── */}
+            <div className="space-y-6 lg:col-span-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="font-display text-md font-semibold">
+                    Outstanding fees
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    Balance owed across all matters
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p
+                    data-numeric
+                    className="font-display text-3xl font-semibold tracking-tight text-foreground"
+                  >
+                    {inr.format(outstanding)}
+                  </p>
+                  <p className="mt-1.5 text-sm text-muted-foreground">
+                    {pendingPaymentCount === 0
+                      ? "Nothing outstanding"
+                      : `${pendingPaymentCount} record${pendingPaymentCount === 1 ? "" : "s"} with a balance`}
+                  </p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="mt-4 -ml-2 gap-1.5 text-sm"
+                    onClick={() => navigate("/payments")}
+                  >
+                    View payments
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* ── Library ──────────────────────────────────── */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="font-display text-md font-semibold">
+                    In the system
+                  </CardTitle>
+                  <CardDescription className="text-sm">Records held across the platform</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-1">
+                  <CountRow icon={Briefcase} label="Cases" value={counts.cases} />
+                  <CountRow icon={Users} label="Clients" value={counts.clients} />
+                  <CountRow icon={BookOpen} label="Statutes" value={counts.acts} />
+                  <CountRow icon={Users} label="Advocates" value={counts.advocates} />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* ── Today ────────────────────────────────────────── */}
+          <Card>
+            <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
+              <div>
+                <CardTitle className="font-display text-md font-semibold">
+                  Today in court
+                </CardTitle>
+                <CardDescription className="text-sm">
+                  {format(new Date(), "EEEE d MMMM")}
+                </CardDescription>
               </div>
-              <Button size="sm" variant="outline" className="text-xs h-8" onClick={() => navigate("/hearings")}>
+              <Button variant="outline" size="sm" onClick={() => navigate("/hearings")}>
                 Calendar
               </Button>
             </CardHeader>
             <CardContent>
               {todaysHearings.length === 0 ? (
-                <div className="text-center py-10 text-xs text-muted-foreground border border-dashed rounded-xl bg-muted/10">
-                  No hearings scheduled for today.
-                </div>
+                <EmptyState
+                  icon={CalendarDays}
+                  title="Nothing listed today"
+                  description="No hearings are scheduled for today."
+                  className="border-0 py-10"
+                />
               ) : (
-                <div className="border rounded-xl overflow-hidden bg-card">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Case File Title</TableHead>
-                        <TableHead>Purpose</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {todaysHearings.slice(0, 5).map((h: any) => (
-                        <TableRow key={h.id} className="hover:bg-muted/10">
-                          <TableCell className="font-bold text-xs">{(h.cases as any)?.case_title}</TableCell>
-                          <TableCell className="text-xs">{h.purpose || "Regular Hearing"}</TableCell>
-                          <TableCell><StatusBadge status={h.status} /></TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                <ul className="divide-y divide-border">
+                  {todaysHearings.slice(0, 6).map((h: any) => (
+                    <li
+                      key={h.id}
+                      className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-foreground">
+                          {h.cases?.case_title ?? "Untitled matter"}
+                        </p>
+                        <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                          {h.purpose || "Regular hearing"}
+                        </p>
+                      </div>
+                      <StatusBadge status={h.status} />
+                    </li>
+                  ))}
+                </ul>
               )}
             </CardContent>
           </Card>
+
+          <TaskWidget />
         </div>
-
-        {/* RIGHT COLUMN (cols-4): System health & storage usage */}
-        <div className="lg:col-span-4 space-y-6">
-          
-          {/* Storage telemetry */}
-          <Card className="shadow-sm border border-border">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base font-bold flex items-center gap-2">
-                <HardDrive className="h-4.5 w-4.5 text-primary" />
-                Storage Telemetry
-              </CardTitle>
-              <CardDescription className="text-xs">Supabase cloud bucket capacities.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-slate-700">Advocate Documents</span>
-                  <span className="text-muted-foreground">1.4 GB / 10 GB</span>
-                </div>
-                <Progress value={14} className="h-2" />
-                <span className="text-[10px] text-muted-foreground block">Vakalatnamas, plaints, and client proofs.</span>
-              </div>
-
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-slate-700">Bare Acts Gazette PDFs</span>
-                  <span className="text-muted-foreground">280 MB / 10 GB</span>
-                </div>
-                <Progress value={2.8} className="h-2 bg-slate-100" />
-                <span className="text-[10px] text-muted-foreground block">Statutory library reference files.</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* System status details */}
-          <Card className="shadow-sm border border-border">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base font-bold flex items-center gap-2">
-                <Activity className="h-4.5 w-4.5 text-primary" />
-                API Telemetry
-              </CardTitle>
-              <CardDescription className="text-xs">Response speeds and security status.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-3">
-              
-              <div className="flex items-center justify-between text-xs py-1 border-b">
-                <span className="text-muted-foreground flex items-center gap-1.5">
-                  <ShieldCheck className="h-4 w-4 text-emerald-500" /> SSL Certificate
-                </span>
-                <span className="font-bold text-slate-800">Valid</span>
-              </div>
-
-              <div className="flex items-center justify-between text-xs py-1 border-b">
-                <span className="text-muted-foreground flex items-center gap-1.5">
-                  <Database className="h-4 w-4 text-emerald-500" /> Supabase DB Connection
-                </span>
-                <span className="font-bold text-slate-800">Connected</span>
-              </div>
-
-              <div className="flex items-center justify-between text-xs py-1">
-                <span className="text-muted-foreground flex items-center gap-1.5">
-                  <Clock className="h-4 w-4 text-blue-500" /> API Round-Trip Latency
-                </span>
-                <span className="font-mono font-bold text-slate-800">42ms</span>
-              </div>
-
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Task Widget */}
-      <div className="pt-4">
-        <TaskWidget />
-      </div>
+      )}
     </div>
   );
 }
 
-/* ═══ INTERNAL COMPONENT HELPERS ═══ */
-
-function StatCard({ title, count, subtitle, icon: Icon, gradient, iconColor }: { 
-  title: string; 
-  count: number; 
-  subtitle: string; 
-  icon: any; 
-  gradient: string;
-  iconColor: string;
+function CountRow({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof Briefcase;
+  label: string;
+  value: number | null;
 }) {
   return (
-    <div className={cn("p-6 rounded-2xl border transition-all duration-300 hover:shadow-md hover:-translate-y-0.5", gradient)}>
-      <div className="flex justify-between items-start">
-        <div className="space-y-1.5">
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{title}</p>
-          <p className="text-3xl font-black text-slate-900 leading-none">{count}</p>
-        </div>
-        <div className={cn("p-2 rounded-xl bg-white/70 shadow-sm border border-white/50", iconColor)}>
-          <Icon className="h-5 w-5" />
-        </div>
-      </div>
-      <p className="text-[11px] text-muted-foreground mt-4 font-semibold">{subtitle}</p>
-    </div>
-  );
-}
-
-function DbCounterItem({ label, count, icon: Icon, bg }: { label: string; count: number; icon: any; bg: string }) {
-  return (
-    <div className="p-4 rounded-xl border border-border/60 bg-card hover:bg-muted/10 transition-colors flex items-center gap-3">
-      <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", bg)}>
-        <Icon className="h-5 w-5" />
-      </div>
-      <div>
-        <p className="text-lg font-black leading-none">{count}</p>
-        <p className="text-[10px] font-bold text-muted-foreground mt-1 uppercase tracking-tight">{label}</p>
-      </div>
+    <div className="flex items-center justify-between py-2">
+      <span className="flex items-center gap-2.5 text-sm text-muted-foreground">
+        <Icon className="h-4 w-4" />
+        {label}
+      </span>
+      <span data-numeric className="text-md font-semibold text-foreground">
+        {/* An unavailable count reads as unavailable, not as zero. */}
+        {value === null ? <span className="text-muted-foreground">—</span> : value}
+      </span>
     </div>
   );
 }
