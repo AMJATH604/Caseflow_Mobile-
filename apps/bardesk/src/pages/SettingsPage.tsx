@@ -1,90 +1,175 @@
-import { useCurrentAdmin, useAssociation } from '@/hooks/useBarDesk';
-import { Copy, Check } from 'lucide-react';
-import { useState } from 'react';
+import { useState } from "react";
+import { toast } from "sonner";
+import { Copy, Check, Building2, ShieldCheck } from "lucide-react";
+
+import { useCurrentAdmin, useAssociation } from "@/hooks/useBarDesk";
+import { formatCurrency, formatDate } from "@/lib/utils";
+import { PageHeader } from "@/components/PageHeader";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 
 export default function SettingsPage() {
   const { data: admin } = useCurrentAdmin();
-  const associationId = admin?.association_id || '';
+  const associationId = admin?.association_id || "";
   const { data: assoc, isLoading } = useAssociation(associationId);
   const [copied, setCopied] = useState(false);
 
-  const copyInviteCode = () => {
-    if (assoc?.invite_code) {
-      navigator.clipboard.writeText(assoc.invite_code);
+  const copyInviteCode = async () => {
+    if (!assoc?.invite_code) return;
+    try {
+      await navigator.clipboard.writeText(assoc.invite_code);
       setCopied(true);
+      toast.success("Invite code copied");
       setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard access is denied in some browsers and over plain http.
+      toast.error("Could not copy", {
+        description: "Select the code and copy it manually.",
+      });
     }
   };
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+      <div className="max-w-3xl space-y-6">
+        <Skeleton className="h-9 w-40" />
+        <Skeleton className="h-64 rounded-xl" />
+        <Skeleton className="h-44 rounded-xl" />
       </div>
     );
   }
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-extrabold text-slate-900 mb-6">Settings</h1>
+    <div className="max-w-3xl">
+      <PageHeader
+        title="Settings"
+        description="Association profile and your access"
+      />
 
-      {/* Association Info */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm mb-6">
-        <h3 className="text-base font-bold text-slate-900 mb-4">Association Details</h3>
-        <div className="space-y-4">
-          <InfoRow label="Name" value={assoc?.name || '—'} />
-          <InfoRow label="District" value={assoc?.district || '—'} />
-          <InfoRow label="Court" value={assoc?.court || '—'} />
-          <InfoRow label="Address" value={assoc?.address || '—'} />
-          <InfoRow label="Annual Fee" value={`₹${assoc?.annual_fee || 0}`} />
-          <InfoRow label="Subscription" value={assoc?.subscription_plan || 'free'} />
-        </div>
+      <div className="space-y-6">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 font-display text-md font-semibold">
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+              Association
+            </CardTitle>
+            <CardDescription className="text-sm">
+              These details are managed by CaseFlow support — contact them to change anything here.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="divide-y divide-border">
+            <InfoRow label="Name" value={assoc?.name} />
+            <InfoRow label="District" value={assoc?.district} />
+            <InfoRow label="Court" value={assoc?.court} />
+            <InfoRow label="Address" value={assoc?.address} />
+            <InfoRow
+              label="Annual fee"
+              value={assoc?.annual_fee != null ? formatCurrency(assoc.annual_fee) : undefined}
+              numeric
+            />
+            <InfoRow
+              label="Plan"
+              value={assoc?.subscription_plan || "free"}
+              badge
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="font-display text-md font-semibold">Invite code</CardTitle>
+            <CardDescription className="text-sm">
+              Advocates enter this in CaseFlow to join your association.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 rounded-xl border border-border bg-muted/40 px-5 py-4 text-center">
+                <span
+                  data-numeric
+                  className="font-mono text-2xl font-bold tracking-[0.4em] text-foreground"
+                >
+                  {assoc?.invite_code || "——————"}
+                </span>
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-12 w-12 shrink-0"
+                onClick={() => void copyInviteCode()}
+                disabled={!assoc?.invite_code}
+                aria-label="Copy invite code"
+              >
+                {copied ? (
+                  <Check className="h-5 w-5 text-success" />
+                ) : (
+                  <Copy className="h-5 w-5" />
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 font-display text-md font-semibold">
+              <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+              Your access
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="divide-y divide-border">
+            <InfoRow
+              label="Role"
+              value={(admin?.role || "admin").replace(/_/g, " ")}
+              badge
+            />
+            <InfoRow
+              label="Admin since"
+              value={admin?.created_at ? formatDate(admin.created_at) : undefined}
+            />
+          </CardContent>
+        </Card>
+
+        <p className="text-center text-2xs text-muted-foreground">
+          BarDesk · Powered by CaseFlow
+        </p>
       </div>
-
-      {/* Invite Code */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm mb-6">
-        <h3 className="text-base font-bold text-slate-900 mb-2">Invite Code</h3>
-        <p className="text-sm text-slate-500 mb-4">Share this code with advocates to join your association in CaseFlow.</p>
-        <div className="flex items-center gap-3">
-          <div className="flex-1 px-5 py-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
-            <span className="text-3xl font-extrabold text-slate-900 tracking-[8px] font-mono">
-              {assoc?.invite_code || '------'}
-            </span>
-          </div>
-          <button
-            onClick={copyInviteCode}
-            className={`p-3 rounded-xl border transition ${
-              copied
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
-                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Admin Info */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-        <h3 className="text-base font-bold text-slate-900 mb-4">Your Admin Role</h3>
-        <div className="space-y-4">
-          <InfoRow label="Role" value={(admin?.role || 'admin').replace('_', ' ').toUpperCase()} />
-          <InfoRow label="Admin Since" value={admin?.created_at ? new Date(admin.created_at).toLocaleDateString() : '—'} />
-        </div>
-      </div>
-
-      <p className="text-center text-xs text-slate-400 mt-8">
-        BarDesk v0.1.0 • Powered by CaseFlow
-      </p>
     </div>
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoRow({
+  label,
+  value,
+  badge,
+  numeric,
+}: {
+  label: string;
+  value?: string | null;
+  badge?: boolean;
+  numeric?: boolean;
+}) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
-      <span className="text-sm text-slate-500">{label}</span>
-      <span className="text-sm font-semibold text-slate-800">{value}</span>
+    <div className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
+      <span className="shrink-0 text-sm text-muted-foreground">{label}</span>
+      {value ? (
+        badge ? (
+          <Badge variant="secondary" className="font-normal capitalize">
+            {value}
+          </Badge>
+        ) : (
+          <span
+            {...(numeric ? { "data-numeric": true } : {})}
+            className="truncate text-sm font-medium text-foreground"
+          >
+            {value}
+          </span>
+        )
+      ) : (
+        <span className="text-sm text-muted-foreground">—</span>
+      )}
     </div>
   );
 }
