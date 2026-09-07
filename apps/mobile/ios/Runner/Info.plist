@@ -78,5 +78,24 @@
 	<string>CaseFlow requires location access for accurate evidence mapping.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>CaseFlow requires microphone access for recording witness statements.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>CaseFlow uses speech recognition for voice-to-text in witness statements and case notes.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>CaseFlow requires photo library access to save evidence photos and generated PDFs.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>CaseFlow uses Face ID for secure authentication.</string>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+		<string>fetch</string>
+	</array>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
