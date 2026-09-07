@@ -48,42 +48,7 @@ jobs:
             echo "✅ GoogleService-Info.plist already present"
           else
             echo "⚠️ GoogleService-Info.plist not found! Creating dummy plist for CI build..."
-            cat << 'EOF' > apps/mobile/ios/Runner/GoogleService-Info.plist
-            <?xml version="1.0" encoding="UTF-8"?>
-            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-            <plist version="1.0">
-            <dict>
-              <key>CLIENT_ID</key>
-              <string>dummy.apps.googleusercontent.com</string>
-              <key>REVERSED_CLIENT_ID</key>
-              <string>com.googleusercontent.apps.dummy</string>
-              <key>API_KEY</key>
-              <string>dummy-api-key</string>
-              <key>GCM_SENDER_ID</key>
-              <string>1234567890</string>
-              <key>PLIST_VERSION</key>
-              <string>1</string>
-              <key>BUNDLE_ID</key>
-              <string>com.caseflow.app</string>
-              <key>PROJECT_ID</key>
-              <string>caseflow-dummy</string>
-              <key>STORAGE_BUCKET</key>
-              <string>caseflow-dummy.appspot.com</string>
-              <key>IS_ADS_ENABLED</key>
-              <false></false>
-              <key>IS_ANALYTICS_ENABLED</key>
-              <false></false>
-              <key>IS_APPINVITE_ENABLED</key>
-              <true></true>
-              <key>IS_GCM_ENABLED</key>
-              <true></true>
-              <key>IS_SIGNIN_ENABLED</key>
-              <true></true>
-              <key>GOOGLE_APP_ID</key>
-              <string>1:1234567890:ios:abcdef123456</string>
-            </dict>
-            </plist>
-            EOF
+            echo "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIHBsaXN0IFBVQkxJQyAiLS8vQXBwbGUvL0RURCBQTElTVCAxLjAvL0VOIiAiaHR0cDovL3d3dy5hcHBsZS5jb20vRFREcy9Qcm9wZXJ0eUxpc3QtMS4wLmR0ZCI+CjxwbGlzdCB2ZXJzaW9uPSIxLjAiPgo8ZGljdD4KICA8a2V5PkNMSUVOVF9JRDwva2V5PgogIDxzdHJpbmc+ZHVtbXkuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb208L3N0cmluZz4KICA8a2V5PlJFVkVSU0VEX0NMSUVOVF9JRDwva2V5PgogIDxzdHJpbmc+Y29tLmdvb2dsZXVzZXJjb250ZW50LmFwcHMuZHVtbXk8L3N0cmluZz4KICA8a2V5PkFQSV9LRVk8L2tleT4KICA8c3RyaW5nPmR1bW15LWFwaS1rZXk8L3N0cmluZz4KICA8a2V5PkdDTV9TRU5ERVJfSUQ8L2tleT4KICA8c3RyaW5nPjEyMzQ1Njc4OTA8L3N0cmluZz4KICA8a2V5PlBMSVNUX1ZFUlNJT048L2tleT4KICA8c3RyaW5nPjE8L3N0cmluZz4KICA8a2V5PkJVTkRMRV9JRDwva2V5PgogIDxzdHJpbmc+Y29tLmNhc2VmbG93LmFwcDwvc3RyaW5nPgogIDxrZXk+UFJPSkVDVF9JRDwva2V5PgogIDxzdHJpbmc+Y2FzZWZsb3ctZHVtbXk8L3N0cmluZz4KICA8a2V5PlNUT1JBR0VfQlVDS0VUPC9rZXk+CiAgPHN0cmluZz5jYXNlZmxvdy1kdW1teS5hcHBzcG90LmNvbTwvc3RyaW5nPgogIDxrZXk+SVNfQURTX0VOQUJMRUQ8L2tleT4KICA8ZmFsc2UvPgogIDxrZXk+SVNfQU5BTFlUSUNTX0VOQUJMRUQ8L2tleT4KICA8ZmFsc2UvPgogIDxrZXk+SVNfQVBQSU5WSVRFX0VOQUJMRUQ8L2tleT4KICA8dHJ1ZS8+CiAgPGtleT5JU19HQ01fRU5BQkxFRDwva2V5PgogIDx0cnVlLz4KICA8a2V5PklTX1NJR05JTl9FTkFCTEVEPC9rZXk+CiAgPHRydWUvPgogIDxrZXk+R09PR0xFX0FQUF9JRDwva2V5PgogIDxzdHJpbmc+MToxMjM0NTY3ODkwOmlvczphYmNkZWYxMjM0NTY8L3N0cmluZz4KPC9kaWN0Pgo8L3BsaXN0Pgo=" | base64 -d > apps/mobile/ios/Runner/GoogleService-Info.plist
           fi
 
       - name: Install dependencies
