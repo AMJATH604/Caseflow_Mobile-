@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -23,21 +24,55 @@ final authStateProvider = StreamProvider<AuthState>((ref) {
   return Supabase.instance.client.auth.onAuthStateChange;
 });
 
-/// Number of pending invitations (firm-recruitment + case-sharing) addressed to
-/// the current user — powers the "Invitations" badge on the dashboard.
-/// autoDispose so it re-fetches whenever the dashboard is shown again; callers
-/// can also `ref.invalidate(pendingInvitationsCountProvider)` after acting on
-/// an invitation to refresh the badge immediately.
+/// Live count of pending invitations (firm-recruitment + case-sharing) for the
+/// current user — powers the "Invitations" badge on the dashboard.
+///
+/// Emits an initial count immediately, then re-emits whenever the user's
+/// invitation rows change in realtime (a new invite arrives, or one is
+/// accepted/rejected) — so the badge updates without a manual refresh. Requires
+/// `firm_members` and `case_collaborations` to be in the `supabase_realtime`
+/// publication (see migration 20260913_invitation_badge_realtime.sql).
 final pendingInvitationsCountProvider =
-    FutureProvider.autoDispose<int>((ref) async {
+    StreamProvider.autoDispose<int>((ref) {
   ref.watch(authStateProvider);
-  try {
-    final firm = await FirmService.fetchInvitations();
-    final cases = await CollaboratorService.fetchMyInvitations();
-    return firm.length + cases.length;
-  } catch (_) {
-    return 0;
+  final client = Supabase.instance.client;
+  final controller = StreamController<int>();
+
+  Future<void> emit() async {
+    try {
+      final firm = await FirmService.fetchInvitations();
+      final cases = await CollaboratorService.fetchMyInvitations();
+      if (!controller.isClosed) controller.add(firm.length + cases.length);
+    } catch (_) {
+      if (!controller.isClosed) controller.add(0);
+    }
   }
+
+  // Initial value.
+  emit();
+
+  // Live refresh when the user's invitation rows change.
+  final channel = client.channel('pending_invitations_badge')
+    ..onPostgresChanges(
+      event: PostgresChangeEvent.all,
+      schema: 'public',
+      table: 'firm_members',
+      callback: (_) => emit(),
+    )
+    ..onPostgresChanges(
+      event: PostgresChangeEvent.all,
+      schema: 'public',
+      table: 'case_collaborations',
+      callback: (_) => emit(),
+    )
+    ..subscribe();
+
+  ref.onDispose(() {
+    client.removeChannel(channel);
+    controller.close();
+  });
+
+  return controller.stream;
 });
 
 final connectivityStreamProvider = StreamProvider<bool>((ref) {
