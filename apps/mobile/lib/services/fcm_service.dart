@@ -489,16 +489,25 @@ class FcmService {
         } else {
           debugPrint('FCM: case_id is null for hearing notification');
         }
+      } else if (type == 'caveat_reminder') {
+        // ─── Caveat Reminder → open caveats screen ──────────
+        final route = data['route']?.toString() ?? '/caveats';
+        debugPrint('FCM: Pushing route $route');
+        GoRouter.of(ctx).push(route);
       } else {
         // ─── Fallback: detect from payload fields ────────────
         final conversationId = data['conversation_id'];
         final caseId = data['case_id'];
+        final route = data['route'];
         if (conversationId != null && conversationId.toString().isNotEmpty) {
           debugPrint('FCM: Fallback → /dm/$conversationId');
           GoRouter.of(ctx).push('/dm/$conversationId');
         } else if (caseId != null && caseId.toString().isNotEmpty) {
           debugPrint('FCM: Fallback → /cases/$caseId');
           GoRouter.of(ctx).push('/cases/$caseId');
+        } else if (route != null && route.toString().isNotEmpty) {
+          debugPrint('FCM: Fallback → $route');
+          GoRouter.of(ctx).push(route.toString());
         } else {
           debugPrint('FCM: Unknown notification type "$type" with no matching payload');
         }

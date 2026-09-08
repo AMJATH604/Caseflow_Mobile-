@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS public.fcm_tokens (
 ALTER TABLE public.fcm_tokens ENABLE ROW LEVEL SECURITY;
 
 -- 3. RLS Policy: Users can only manage their own tokens
+-- (Postgres has no `CREATE POLICY IF NOT EXISTS`, so drop-then-create keeps
+-- this script safely re-runnable.)
+DROP POLICY IF EXISTS "Users can manage their own tokens" ON public.fcm_tokens;
 CREATE POLICY "Users can manage their own tokens"
   ON public.fcm_tokens
   FOR ALL
@@ -32,6 +35,16 @@ CREATE INDEX IF NOT EXISTS idx_fcm_tokens_user_id ON public.fcm_tokens(user_id);
 -- CRON JOBS: Schedule hearing reminder triggers
 -- Run this in Supabase SQL Editor
 -- Requires pg_cron extension (enabled by default on Supabase)
+--
+-- NOTE: pg_cron/pg_net are provisioned and permissioned by the Supabase
+-- platform itself. The CREATE EXTENSION/GRANT lines below are only for a
+-- project where they've never been touched. If any `cron.schedule(...)`
+-- call below already exists in `select * from cron.job;`, these extensions
+-- are already enabled — re-running CREATE EXTENSION/GRANT against Supabase's
+-- own managed setup can fail with a Postgres privilege error ("dependent
+-- privileges exist") that has nothing to do with your schema. In that case,
+-- just skip straight to the `cron.schedule(...)` block(s) you actually need
+-- and run those alone.
 -- ============================================================
 
 -- Enable pg_cron and pg_net if not already enabled
@@ -86,6 +99,25 @@ SELECT cron.schedule(
       'Authorization', 'Bearer ' || current_setting('app.settings.service_role_key')
     ),
     body := '{"reminder_type": "morning_9am"}'::jsonb
+  );
+  $$
+);
+
+-- 9:00 AM IST (3:30 AM UTC) - Caveat expiry reminders (30/15/7/3/1 days left)
+-- send-caveat-reminders computes all of its milestone windows itself, so a
+-- single daily firing is enough — this is the cron job that was missing
+-- entirely, which is why caveat reminders never fired before this fix.
+SELECT cron.schedule(
+  'caveat-reminder-9am',
+  '30 3 * * *',
+  $$
+  SELECT net.http_post(
+    url := 'https://asrjqsnyezvcakvkokcl.supabase.co/functions/v1/send-caveat-reminders',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer ' || current_setting('app.settings.service_role_key')
+    ),
+    body := '{}'::jsonb
   );
   $$
 );

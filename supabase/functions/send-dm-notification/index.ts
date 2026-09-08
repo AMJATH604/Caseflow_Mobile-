@@ -27,6 +27,7 @@ Deno.serve(async (req: Request) => {
     const body = await req.json();
     const record = body.record || body;
 
+    const messageId: string | null = record.id;
     const senderId: string | null = record.sender_id;
     const conversationId: string | null = record.conversation_id;
     const message: string = record.message || "";
@@ -48,6 +49,31 @@ Deno.serve(async (req: Request) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const firebaseServiceAccount = JSON.parse(firebaseServiceAccountJson);
+
+    // ─── Idempotency guard ───────────────────────────────────────
+    // Atomically claim this message row before sending. If the webhook
+    // fires twice for the same insert (duplicate registration, or a
+    // retried delivery), only the invocation that wins the race sends —
+    // the other sees notified_at already set and skips, so the recipient
+    // never gets two pushes for one message.
+    if (messageId) {
+      const { data: claimed, error: claimError } = await supabase
+        .from("direct_messages")
+        .update({ notified_at: new Date().toISOString() })
+        .eq("id", messageId)
+        .is("notified_at", null)
+        .select("id");
+
+      if (claimError) {
+        console.log(`[${executionId}] Idempotency claim failed (continuing): ${claimError.message}`);
+      } else if (!claimed || claimed.length === 0) {
+        console.log(`[${executionId}] Message ${messageId} already notified — skipping`);
+        return new Response(
+          JSON.stringify({ skipped: true, reason: "already_notified" }),
+          { headers: { "Content-Type": "application/json" } }
+        );
+      }
+    }
 
     // ─── Step 1: Find the conversation and determine recipient ───
     const { data: conversation, error: convError } = await supabase

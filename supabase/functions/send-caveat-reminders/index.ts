@@ -106,9 +106,28 @@ Deno.serve(async (req: Request) => {
             body: JSON.stringify({
               message: {
                 token: token,
-                notification: { title, body },
-                data: { caveat_id: caveat.id, route: "/caveats" },
-                android: { priority: "high" },
+                // Data-only message: no `notification` block, so Android OS
+                // won't auto-display a system notification on top of the one
+                // the Flutter app renders itself via showRichNotification().
+                // Sending both used to cause a duplicate notification for
+                // every backgrounded/terminated delivery.
+                data: {
+                  type: "caveat_reminder",
+                  title,
+                  body,
+                  caveat_id: caveat.id,
+                  route: "/caveats",
+                },
+                android: { priority: "HIGH" },
+                apns: {
+                  payload: {
+                    aps: {
+                      "content-available": 1,
+                      sound: "default",
+                      badge: 1,
+                    },
+                  },
+                },
               },
             }),
           });
