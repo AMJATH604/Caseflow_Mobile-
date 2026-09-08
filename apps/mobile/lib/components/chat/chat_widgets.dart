@@ -17,3 +17,4 @@ export 'chat_quoted_reply.dart';
 export 'chat_message_options.dart';
 export 'chat_date_separator.dart';
 export 'chat_typing_indicator.dart';
+export 'chat_forward_picker.dart';

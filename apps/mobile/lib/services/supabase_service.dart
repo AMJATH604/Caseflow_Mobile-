@@ -15,6 +15,7 @@ import 'repositories/filing_repository.dart';
 import 'repositories/content_repository.dart';
 import 'repositories/discussion_repository.dart';
 import 'repositories/direct_message_repository.dart';
+import 'repositories/message_reaction_repository.dart';
 
 
 /// Backward-compatible facade that delegates to domain repositories.
@@ -364,6 +365,21 @@ class SupabaseService {
   static Future<void> deleteDiscussion(String id) =>
       DiscussionRepository.deleteDiscussion(id);
 
+  static Future<void> editDiscussion(String id, String newText) =>
+      DiscussionRepository.editDiscussion(id, newText);
+
+  static Future<void> markChambersRead(String firmId) =>
+      DiscussionRepository.markChambersRead(firmId);
+
+  static Future<int> chambersUnreadCount(String firmId) =>
+      DiscussionRepository.chambersUnreadCount(firmId);
+
+  static Future<Set<String>> firmMemberIds(String firmId) =>
+      DiscussionRepository.firmMemberIds(firmId);
+
+  static Future<Map<String, DateTime>> chambersReadTimes(String firmId) =>
+      DiscussionRepository.chambersReadTimes(firmId);
+
   static Future<String?> uploadChambersAttachment({
     required File file,
     required String firmId,
@@ -422,6 +438,31 @@ class SupabaseService {
 
   static Future<void> markDirectMessagesRead(String conversationId) =>
       DirectMessageRepository.markMessagesRead(conversationId);
+
+  static Future<void> markAllIncomingMessagesDelivered() =>
+      DirectMessageRepository.markAllIncomingDelivered();
+
+  static Future<void> editDirectMessage(String id, String newText) =>
+      DirectMessageRepository.editDirectMessage(id, newText);
+
+  // ─── Message reactions (DM + Chambers) ──────────────
+  static Future<void> toggleMessageReaction({
+    required String scope,
+    required String messageId,
+    required String emoji,
+  }) => MessageReactionRepository.toggleReaction(
+        scope: scope,
+        messageId: messageId,
+        emoji: emoji,
+      );
+
+  static Future<Map<String, List<MessageReaction>>> fetchMessageReactions({
+    required String scope,
+    required List<String> messageIds,
+  }) => MessageReactionRepository.fetchForMessages(
+        scope: scope,
+        messageIds: messageIds,
+      );
 
   static Future<String> createOrGetDirectConversation(String partnerId) =>
       DirectMessageRepository.createOrGetConversation(partnerId);

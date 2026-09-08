@@ -76,6 +76,16 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
             if (mounted) _loadAllChats();
           },
         )
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'chambers_reads',
+          callback: (payload) {
+            // Fires when this user opens Chambers (their read marker updates),
+            // so the unread badge clears here too.
+            if (mounted) _loadAllChats();
+          },
+        )
         .subscribe();
   }
 
@@ -85,6 +95,13 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
     _myUserId = user.id;
 
     try {
+      // Any messages waiting for this device are now "delivered" — stamp them
+      // so senders see the grey double-tick. Fire-and-forget (don't block the
+      // list load).
+      SupabaseService.markAllIncomingMessagesDelivered().catchError(
+        (e) => debugPrint('mark delivered failed: $e'),
+      );
+
       // 1. Fetch user profile to get firm ID
       final profile = await Supabase.instance.client
           .from('profiles')
@@ -103,9 +120,13 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
             .order('created_at', ascending: false)
             .limit(1);
 
+        final chambersUnread =
+            await SupabaseService.chambersUnreadCount(_myFirmId!);
+
         _chambersInfo = {
           'name': 'Digital Chambers',
           'last_message': chambersLast.isNotEmpty ? chambersLast[0] : null,
+          'unread_count': chambersUnread,
         };
       }
 
@@ -147,7 +168,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
         // Fetch last message
         final lastMsgRes = await Supabase.instance.client
             .from('direct_messages')
-            .select('message, created_at, sender_id')
+            .select('message, created_at, sender_id, is_read, delivered_at')
             .eq('conversation_id', conv['id'])
             .order('created_at', ascending: false)
             .limit(1);
@@ -444,7 +465,10 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
   }
 
   List<Widget> _buildChatListItems(bool isDark) {
-    final showChambers = _selectedFilter == 0 || _selectedFilter == 2;
+    final chambersUnread = _chambersInfo?['unread_count'] as int? ?? 0;
+    final showChambers = _selectedFilter == 0 ||
+        _selectedFilter == 2 ||
+        (_selectedFilter == 1 && chambersUnread > 0);
     final showDms = _selectedFilter == 0 || _selectedFilter == 1 || _selectedFilter == 3;
 
     final List<Widget> items = [];
@@ -532,6 +556,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
 
   Widget _buildChambersTile(bool isDark) {
     final lastMsg = _chambersInfo!['last_message'] as Map<String, dynamic>?;
+    final unread = _chambersInfo!['unread_count'] as int? ?? 0;
     String preview = 'No messages yet';
     String time = '';
 
@@ -626,6 +651,27 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        if (unread > 0) ...[
+                          SizedBox(width: 8.w),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 6.w,
+                              vertical: 3.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF00A884),
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                            child: Text(
+                              '$unread',
+                              style: GoogleFonts.inter(
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ],
@@ -711,14 +757,20 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                     SizedBox(height: 3.h),
                     Row(
                       children: [
-                        // Double tick for sent messages
+                        // Tick for messages I sent: single (sent) → double grey
+                        // (delivered) → double blue (read).
                         if (lastMsg != null && lastMsg['sender_id'] == _myUserId) ...[
                           Icon(
-                            Icons.done_all_rounded,
+                            (lastMsg['is_read'] == true ||
+                                    lastMsg['delivered_at'] != null)
+                                ? Icons.done_all_rounded
+                                : Icons.done_rounded,
                             size: 16.sp,
-                            color: isDark
-                                ? const Color(0xFF8696A0)
-                                : const Color(0xFF667781),
+                            color: lastMsg['is_read'] == true
+                                ? const Color(0xFF53BDEB)
+                                : (isDark
+                                    ? const Color(0xFF8696A0)
+                                    : const Color(0xFF667781)),
                           ),
                           SizedBox(width: 3.w),
                         ],

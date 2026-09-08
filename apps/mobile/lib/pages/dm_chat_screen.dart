@@ -33,11 +33,21 @@ class DmChatScreen extends ConsumerStatefulWidget {
   ConsumerState<DmChatScreen> createState() => _DmChatScreenState();
 }
 
-class _DmChatScreenState extends ConsumerState<DmChatScreen> {
+class _DmChatScreenState extends ConsumerState<DmChatScreen>
+    with WidgetsBindingObserver {
   final _msgController = TextEditingController();
   final _scrollController = ScrollController();
   bool _loading = true;
   bool _isUploading = false;
+
+  // Read-receipt tracking: mark partner messages read continuously while the
+  // chat is open & foregrounded (WhatsApp behaviour), not just on entry.
+  bool _isForeground = true;
+  bool _markingRead = false;
+
+  // Reactions: message_id -> list of reactions, refreshed live.
+  Map<String, List<MessageReaction>> _reactions = {};
+  RealtimeChannel? _reactionsChannel;
   UserProfile? _myProfile;
   Map<String, dynamic>? _partnerProfile;
   Stream<List<DirectMessage>>? _messagesStream;
@@ -81,6 +91,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // Suppress notifications for this conversation while user is viewing it
     FcmService().activeConversationId = widget.conversationId;
     _loadChatDetails();
@@ -88,7 +99,18 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _isForeground = state == AppLifecycleState.resumed;
+    // Coming back to the foreground while viewing this chat should immediately
+    // mark anything that arrived while backgrounded as read.
+    if (_isForeground) {
+      _markPartnerMessagesReadIfNeeded(_currentMessagesList);
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     // Clear active conversation tracking
     FcmService().activeConversationId = null;
     _msgController.dispose();
@@ -102,6 +124,9 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
     }
     if (_presenceChannel != null) {
       Supabase.instance.client.removeChannel(_presenceChannel!);
+    }
+    if (_reactionsChannel != null) {
+      Supabase.instance.client.removeChannel(_reactionsChannel!);
     }
     // Update own last_seen_at on leaving chat
     _updateLastSeen();
@@ -143,7 +168,9 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
         lastSeen = DateTime.tryParse(lastSeenRaw.toString());
       }
 
-      // Mark messages as read
+      // Initial mark-read on entry. Messages that arrive *after* this (while
+      // the chat stays open) are marked read by _markPartnerMessagesReadIfNeeded
+      // as the stream delivers them.
       await SupabaseService.markDirectMessagesRead(widget.conversationId);
 
       if (mounted) {
@@ -157,6 +184,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
         });
         _initTypingChannel();
         _initPresenceChannel(partnerId);
+        _initReactionsChannel();
         _updateLastSeen();
         _scrollToBottom();
       }
@@ -283,6 +311,143 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
         );
       }
     });
+  }
+
+  /// Mark the partner's messages read whenever there are unread ones and the
+  /// chat is open in the foreground. Called every time the message stream
+  /// delivers data, so messages that arrive *while B is looking at the chat*
+  /// are marked read instantly — this is what clears the unread badge and
+  /// turns the sender's tick blue in real time. Guarded so it fires once per
+  /// batch (the resulting is_read update re-emits the stream with no unread
+  /// left, so it does not loop).
+  Future<void> _markPartnerMessagesReadIfNeeded(
+    List<DirectMessage> messages,
+  ) async {
+    if (!_isForeground || _markingRead || !mounted) return;
+    final myId = _myProfile?.id;
+    if (myId == null) return;
+    final hasUnreadFromPartner =
+        messages.any((m) => m.senderId != myId && !m.isRead);
+    if (!hasUnreadFromPartner) return;
+
+    _markingRead = true;
+    try {
+      await SupabaseService.markDirectMessagesRead(widget.conversationId);
+    } catch (e) {
+      debugPrint('Mark read error: $e');
+    } finally {
+      _markingRead = false;
+    }
+  }
+
+  // ─── Reactions ──────────────────────────────────────
+  void _initReactionsChannel() {
+    _reactionsChannel = Supabase.instance.client
+        .channel('dm_reactions_${widget.conversationId}');
+    _reactionsChannel!
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'message_reactions',
+          callback: (_) => _loadReactions(),
+        )
+        .subscribe();
+  }
+
+  Future<void> _loadReactions() async {
+    final ids = _currentMessagesList.map((m) => m.id).toList();
+    if (ids.isEmpty) return;
+    try {
+      final map = await SupabaseService.fetchMessageReactions(
+        scope: 'dm',
+        messageIds: ids,
+      );
+      if (mounted) setState(() => _reactions = map);
+    } catch (e) {
+      debugPrint('Load reactions error: $e');
+    }
+  }
+
+  Map<String, int> _reactionCounts(String msgId) {
+    final list = _reactions[msgId];
+    if (list == null || list.isEmpty) return const {};
+    final counts = <String, int>{};
+    for (final r in list) {
+      counts[r.emoji] = (counts[r.emoji] ?? 0) + 1;
+    }
+    return counts;
+  }
+
+  String? _myReaction(String msgId) {
+    final list = _reactions[msgId];
+    if (list == null) return null;
+    for (final r in list) {
+      if (r.userId == _myProfile?.id) return r.emoji;
+    }
+    return null;
+  }
+
+  Future<void> _toggleReaction(String msgId, String emoji) async {
+    try {
+      await SupabaseService.toggleMessageReaction(
+        scope: 'dm',
+        messageId: msgId,
+        emoji: emoji,
+      );
+      await _loadReactions();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Reaction failed: $e')),
+        );
+      }
+    }
+  }
+
+  // ─── Edit message ───────────────────────────────────
+  Future<void> _editMessage(DirectMessage msg) async {
+    final controller = TextEditingController(text: msg.message);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final newText = await showDialog<String>(
+      context: context,
+      builder: (dctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+        title: Text(
+          'Edit message',
+          style: GoogleFonts.outfit(
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
+          ),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLines: null,
+          decoration: const InputDecoration(hintText: 'Edit your message'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dctx, controller.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    if (newText != null && newText.isNotEmpty && newText != msg.message) {
+      try {
+        await SupabaseService.editDirectMessage(msg.id, newText);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Edit failed: $e')),
+          );
+        }
+      }
+    }
   }
 
   // ─── Send Text ──────────────────────────────────────
@@ -1029,7 +1194,14 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                 }
 
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) _checkLocalFiles(messages);
+                  if (mounted) {
+                    _checkLocalFiles(messages);
+                    // Mark any freshly-arrived partner messages as read while
+                    // the chat is open, so the unread badge clears and the
+                    // sender sees the blue tick immediately.
+                    _markPartnerMessagesReadIfNeeded(messages);
+                    _loadReactions();
+                  }
                 });
                 if (messages.length > _lastMessageCount) {
                   _lastMessageCount = messages.length;
@@ -1064,6 +1236,10 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                       isDark: isDark,
                       showReadReceipt: true,
                       isRead: msg.isRead,
+                      isDelivered: msg.isDelivered,
+                      reactionCounts: _reactionCounts(msg.id),
+                      myReactionEmoji: _myReaction(msg.id),
+                      onReactionTap: (emoji) => _toggleReaction(msg.id, emoji),
                       playingUrl: _playingUrl,
                       isPlaying: _playerState == PlayerState.playing,
                       audioProgress: _playingUrl == msg.attachmentUrl &&
@@ -1083,7 +1259,18 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen> {
                         message: msg,
                         isMe: isMe,
                         isDark: isDark,
+                        myReaction: _myReaction(msg.id),
+                        onReact: (emoji) => _toggleReaction(msg.id, emoji),
                         onReply: () => setState(() => _replyingTo = msg),
+                        onForward: () => ChatForwardPicker.show(
+                          context,
+                          messageText: msg.message,
+                          attachmentUrl: msg.attachmentUrl,
+                          attachmentType: msg.attachmentType,
+                        ),
+                        onEdit: (isMe && !msg.hasAttachment)
+                            ? () => _editMessage(msg)
+                            : null,
                         onSave: msg.hasAttachment
                             ? () => _saveAttachmentToDevice(msg)
                             : null,

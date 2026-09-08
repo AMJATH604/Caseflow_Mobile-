@@ -698,6 +698,8 @@ class CaseComment with ChatMessageData {
   final String? replyToId;
   final String? replyToMessage;
   final String? replyToSender;
+  @override
+  final DateTime? editedAt;
 
   CaseComment({
     required this.id,
@@ -713,6 +715,7 @@ class CaseComment with ChatMessageData {
     this.replyToId,
     this.replyToMessage,
     this.replyToSender,
+    this.editedAt,
   });
 
   factory CaseComment.fromJson(Map<String, dynamic> json) => CaseComment(
@@ -731,6 +734,7 @@ class CaseComment with ChatMessageData {
     replyToId: json['reply_to_id'],
     replyToMessage: json['reply_to_message'],
     replyToSender: json['reply_to_sender'],
+    editedAt: json['edited_at'] != null ? parseDateOrNull(json['edited_at']) : null,
   );
 
   // hasAttachment, isImage, isVideo, hasReply are inherited from ChatMessageData

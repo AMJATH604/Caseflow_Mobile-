@@ -16,9 +16,13 @@ abstract mixin class ChatMessageData {
   String? get replyToMessage;
   String? get replyToSender;
 
+  // Edit tracking (defaults to null so existing models need not override it).
+  DateTime? get editedAt => null;
+
   // Computed helpers
   bool get hasAttachment => attachmentUrl != null && attachmentUrl!.isNotEmpty;
   bool get isImage => attachmentType == 'image';
   bool get isVideo => attachmentType == 'video';
   bool get hasReply => replyToId != null && replyToId!.isNotEmpty;
+  bool get isEdited => editedAt != null;
 }

@@ -150,6 +150,15 @@ class FcmService {
       final body = data['body'] ?? message.notification?.body ?? '';
       debugPrint('FCM: Foreground message: type=$type, title=$title');
 
+      // A DM push arriving means this device has received the message → stamp
+      // it delivered so the sender's tick becomes a grey double-tick, even if
+      // the recipient isn't on the chat screen. Fire-and-forget.
+      if (type == 'dm_message') {
+        SupabaseService.markAllIncomingMessagesDelivered().catchError(
+          (e) => debugPrint('FCM: mark delivered failed: $e'),
+        );
+      }
+
       // ── Active chat suppression (WhatsApp-style) ──────────────
       // If the user is currently viewing the same conversation,
       // don't show a notification — the message already appears in the chat.

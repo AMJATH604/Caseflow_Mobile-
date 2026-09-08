@@ -13,6 +13,17 @@ class ChatMessageOptions<T extends ChatMessageData> extends StatelessWidget {
   final VoidCallback? onReply;
   final VoidCallback? onSave;
   final VoidCallback? onDelete;
+  final VoidCallback? onForward;
+  final VoidCallback? onEdit;
+
+  /// Called with the tapped emoji from the quick-reaction row.
+  final void Function(String emoji)? onReact;
+
+  /// The current user's existing reaction on this message (to highlight it).
+  final String? myReaction;
+
+  /// Quick reactions shown in the row (WhatsApp-style).
+  static const List<String> quickReactions = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
 
   const ChatMessageOptions({
     super.key,
@@ -22,6 +33,10 @@ class ChatMessageOptions<T extends ChatMessageData> extends StatelessWidget {
     this.onReply,
     this.onSave,
     this.onDelete,
+    this.onForward,
+    this.onEdit,
+    this.onReact,
+    this.myReaction,
   });
 
   /// Show message options as a modal bottom sheet.
@@ -33,6 +48,10 @@ class ChatMessageOptions<T extends ChatMessageData> extends StatelessWidget {
     VoidCallback? onReply,
     VoidCallback? onSave,
     VoidCallback? onDelete,
+    VoidCallback? onForward,
+    VoidCallback? onEdit,
+    void Function(String emoji)? onReact,
+    String? myReaction,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -44,6 +63,13 @@ class ChatMessageOptions<T extends ChatMessageData> extends StatelessWidget {
         message: message,
         isMe: isMe,
         isDark: isDark,
+        myReaction: myReaction,
+        onReact: onReact != null
+            ? (emoji) {
+                Navigator.pop(ctx);
+                onReact(emoji);
+              }
+            : null,
         onReply: onReply != null
             ? () {
                 Navigator.pop(ctx);
@@ -54,6 +80,18 @@ class ChatMessageOptions<T extends ChatMessageData> extends StatelessWidget {
             ? () {
                 Navigator.pop(ctx);
                 onSave();
+              }
+            : null,
+        onForward: onForward != null
+            ? () {
+                Navigator.pop(ctx);
+                onForward();
+              }
+            : null,
+        onEdit: onEdit != null
+            ? () {
+                Navigator.pop(ctx);
+                onEdit();
               }
             : null,
         onDelete: onDelete != null
@@ -81,7 +119,37 @@ class ChatMessageOptions<T extends ChatMessageData> extends StatelessWidget {
               borderRadius: BorderRadius.circular(2.r),
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 12.h),
+          // ─── Quick reaction row (WhatsApp-style) ──────────
+          if (onReact != null) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: quickReactions.map((emoji) {
+                final selected = myReaction == emoji;
+                return GestureDetector(
+                  onTap: () => onReact!(emoji),
+                  child: Container(
+                    padding: EdgeInsets.all(8.r),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: selected
+                          ? (isDark
+                              ? Colors.white.withValues(alpha: 0.15)
+                              : const Color(0xFF4F46E5).withValues(alpha: 0.12))
+                          : Colors.transparent,
+                    ),
+                    child: Text(emoji, style: TextStyle(fontSize: 24.sp)),
+                  ),
+                );
+              }).toList(),
+            ),
+            SizedBox(height: 8.h),
+            Divider(
+              color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+              height: 1,
+            ),
+            SizedBox(height: 4.h),
+          ],
           if (onReply != null)
             _buildOption(
               icon: Icons.reply_rounded,
@@ -101,6 +169,20 @@ class ChatMessageOptions<T extends ChatMessageData> extends StatelessWidget {
                   const SnackBar(content: Text('Copied to clipboard')),
                 );
               },
+            ),
+          if (onForward != null)
+            _buildOption(
+              icon: Icons.forward_rounded,
+              label: 'Forward',
+              color: isDark ? Colors.white70 : const Color(0xFF4F46E5),
+              onTap: onForward!,
+            ),
+          if (isMe && !message.hasAttachment && onEdit != null)
+            _buildOption(
+              icon: Icons.edit_rounded,
+              label: 'Edit',
+              color: isDark ? Colors.white70 : const Color(0xFF4F46E5),
+              onTap: onEdit!,
             ),
           if (message.hasAttachment && onSave != null)
             _buildOption(

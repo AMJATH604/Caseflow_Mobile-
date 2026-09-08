@@ -137,6 +137,106 @@ class DiscussionRepository {
     await _client.from('case_discussions').delete().eq('id', id);
   }
 
+  /// Edit a Chambers/discussion message's text (own messages only, RLS).
+  static Future<void> editDiscussion(String id, String newText) async {
+    await _client.from('case_discussions').update({
+      'message': newText,
+      'edited_at': DateTime.now().toUtc().toIso8601String(),
+    }).eq('id', id);
+  }
+
+  // ─── Read tracking (Digital Chambers unread badge) ────
+
+  /// Mark the Chambers thread read for the current user up to now.
+  static Future<void> markChambersRead(String firmId) async {
+    final user = BaseRepository.requireAuth();
+    await _client.from('chambers_reads').upsert({
+      'user_id': user.id,
+      'firm_id': firmId,
+      'last_read_at': DateTime.now().toUtc().toIso8601String(),
+    }, onConflict: 'user_id,firm_id');
+  }
+
+  /// Count Chambers messages the current user hasn't seen yet
+  /// (created after their last_read_at and not sent by them).
+  static Future<int> chambersUnreadCount(String firmId) async {
+    final user = BaseRepository.requireAuth();
+
+    final readRow = await _client
+        .from('chambers_reads')
+        .select('last_read_at')
+        .eq('user_id', user.id)
+        .eq('firm_id', firmId)
+        .maybeSingle();
+
+    final lastReadAt = readRow?['last_read_at'];
+
+    var query = _client
+        .from('case_discussions')
+        .select('id')
+        .isFilter('case_id', null)
+        .eq('firm_id', firmId)
+        .neq('sender_id', user.id);
+
+    if (lastReadAt != null) {
+      query = query.gt('created_at', lastReadAt);
+    }
+
+    final res = await query;
+    return (res as List).length;
+  }
+
+  /// The set of user IDs who belong to a firm (owner + direct members +
+  /// accepted invited members). Used to decide when a Chambers message has been
+  /// read by everyone (group blue tick).
+  static Future<Set<String>> firmMemberIds(String firmId) async {
+    final ids = <String>{};
+
+    // Firm owner = the user whose id equals the firm id.
+    ids.add(firmId);
+
+    // Direct members (profiles.firm_id points at the firm).
+    final directMembers = await _client
+        .from('profiles')
+        .select('id')
+        .eq('firm_id', firmId);
+    for (final m in (directMembers as List)) {
+      if (m['id'] != null) ids.add(m['id'] as String);
+    }
+
+    // Invited members that accepted.
+    final invited = await _client
+        .from('firm_members')
+        .select('member_id')
+        .eq('owner_id', firmId)
+        .eq('status', 'accepted');
+    for (final m in (invited as List)) {
+      if (m['member_id'] != null) ids.add(m['member_id'] as String);
+    }
+
+    return ids;
+  }
+
+  /// Map of user_id → last_read_at for a firm's Chambers thread. Used with
+  /// [firmMemberIds] to compute "read by all" per message.
+  static Future<Map<String, DateTime>> chambersReadTimes(String firmId) async {
+    final rows = await _client
+        .from('chambers_reads')
+        .select('user_id, last_read_at')
+        .eq('firm_id', firmId);
+
+    final map = <String, DateTime>{};
+    for (final r in (rows as List)) {
+      final uid = r['user_id'] as String?;
+      final ts = r['last_read_at'];
+      if (uid != null && ts != null) {
+        final parsed = DateTime.tryParse(ts.toString());
+        if (parsed != null) map[uid] = parsed;
+      }
+    }
+    return map;
+  }
+
   // ─── FILE UPLOAD ──────────────────────────────────────
 
   /// Upload a file to Supabase Storage and return the public URL.

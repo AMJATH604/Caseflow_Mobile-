@@ -158,6 +158,30 @@ class DirectMessageRepository {
         .eq('is_read', false);
   }
 
+  /// Stamp `delivered_at` on every message addressed to the current user that
+  /// hasn't been marked delivered yet — across all their conversations. This is
+  /// what turns the sender's single tick into a grey double tick. Called when
+  /// the recipient's device receives a message (foreground push, chat-list
+  /// load), which is the moment "delivered" becomes true.
+  static Future<void> markAllIncomingDelivered() async {
+    final user = BaseRepository.requireAuth();
+
+    final convs = await _client
+        .from('direct_conversations')
+        .select('id')
+        .or('participant_1.eq.${user.id},participant_2.eq.${user.id}');
+
+    final ids = (convs as List).map((c) => c['id'] as String).toList();
+    if (ids.isEmpty) return;
+
+    await _client
+        .from('direct_messages')
+        .update({'delivered_at': DateTime.now().toUtc().toIso8601String()})
+        .inFilter('conversation_id', ids)
+        .neq('sender_id', user.id)
+        .isFilter('delivered_at', null);
+  }
+
   /// Get or create a direct conversation with a partner advocate.
   static Future<String> createOrGetConversation(String partnerId) async {
     final user = BaseRepository.requireAuth();
@@ -192,6 +216,14 @@ class DirectMessageRepository {
   /// Delete a direct message.
   static Future<void> deleteDirectMessage(String id) async {
     await _client.from('direct_messages').delete().eq('id', id);
+  }
+
+  /// Edit a direct message's text (own messages only, enforced by RLS).
+  static Future<void> editDirectMessage(String id, String newText) async {
+    await _client.from('direct_messages').update({
+      'message': newText,
+      'edited_at': DateTime.now().toUtc().toIso8601String(),
+    }).eq('id', id);
   }
 
   /// Upload an attachment for DMs to the chat-attachments bucket.

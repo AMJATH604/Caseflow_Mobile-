@@ -32,11 +32,27 @@ class ChambersChatScreen extends ConsumerStatefulWidget {
   ConsumerState<ChambersChatScreen> createState() => _ChambersChatScreenState();
 }
 
-class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
+class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
+    with WidgetsBindingObserver {
   final _msgController = TextEditingController();
   final _scrollController = ScrollController();
   final _searchController = TextEditingController();
   bool _isUploading = false;
+
+  // Read tracking: keep the Chambers thread marked read while it's open in the
+  // foreground, so the hub's unread badge clears (WhatsApp behaviour).
+  bool _isForeground = true;
+  bool _markingRead = false;
+
+  // Group read receipts: my messages show blue ✓✓ once every other firm member
+  // has read past them.
+  Set<String> _firmMemberIds = {};
+  Map<String, DateTime> _chambersReadTimes = {};
+  RealtimeChannel? _readsChannel;
+
+  // Reactions: message_id -> list of reactions, refreshed live.
+  Map<String, List<MessageReaction>> _reactions = {};
+  RealtimeChannel? _reactionsChannel;
   UserProfile? _profile;
   final List<CaseComment> _optimisticNotices = [];
   CaseComment? _replyingTo;
@@ -87,6 +103,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // Suppress notifications while user is viewing chambers chat
     FcmService().isInChambersChat = true;
     _loadProfile();
@@ -94,7 +111,14 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _isForeground = state == AppLifecycleState.resumed;
+    if (_isForeground) _markChambersReadIfNeeded();
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     // Clear chambers chat tracking
     FcmService().isInChambersChat = false;
     _msgController.dispose();
@@ -107,6 +131,12 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     if (_typingChannel != null) {
       Supabase.instance.client.removeChannel(_typingChannel!);
     }
+    if (_readsChannel != null) {
+      Supabase.instance.client.removeChannel(_readsChannel!);
+    }
+    if (_reactionsChannel != null) {
+      Supabase.instance.client.removeChannel(_reactionsChannel!);
+    }
     super.dispose();
   }
 
@@ -115,6 +145,191 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
     if (mounted) {
       setState(() {});
       _initTypingChannel();
+      _markChambersReadIfNeeded();
+      _loadReceiptState();
+      _initReadsChannel();
+      _initReactionsChannel();
+    }
+  }
+
+  // ─── Reactions ──────────────────────────────────────
+  void _initReactionsChannel() {
+    final firmId = _firmId;
+    if (firmId == null || _reactionsChannel != null) return;
+    _reactionsChannel =
+        Supabase.instance.client.channel('chambers_reactions_$firmId');
+    _reactionsChannel!
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'message_reactions',
+          callback: (_) => _loadReactions(),
+        )
+        .subscribe();
+  }
+
+  Future<void> _loadReactions() async {
+    final ids = _currentMessagesList.map((m) => m.id).toList();
+    if (ids.isEmpty) return;
+    try {
+      final map = await SupabaseService.fetchMessageReactions(
+        scope: 'chambers',
+        messageIds: ids,
+      );
+      if (mounted) setState(() => _reactions = map);
+    } catch (e) {
+      debugPrint('Load reactions error: $e');
+    }
+  }
+
+  Map<String, int> _reactionCounts(String msgId) {
+    final list = _reactions[msgId];
+    if (list == null || list.isEmpty) return const {};
+    final counts = <String, int>{};
+    for (final r in list) {
+      counts[r.emoji] = (counts[r.emoji] ?? 0) + 1;
+    }
+    return counts;
+  }
+
+  String? _myReaction(String msgId) {
+    final list = _reactions[msgId];
+    if (list == null) return null;
+    for (final r in list) {
+      if (r.userId == _profile?.id) return r.emoji;
+    }
+    return null;
+  }
+
+  Future<void> _toggleReaction(String msgId, String emoji) async {
+    // Optimistic messages haven't hit the DB yet — can't react to them.
+    if (msgId.startsWith('temp_')) return;
+    try {
+      await SupabaseService.toggleMessageReaction(
+        scope: 'chambers',
+        messageId: msgId,
+        emoji: emoji,
+      );
+      await _loadReactions();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Reaction failed: $e')),
+        );
+      }
+    }
+  }
+
+  // ─── Edit message ───────────────────────────────────
+  Future<void> _editMessage(CaseComment msg) async {
+    final controller = TextEditingController(text: msg.message);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final newText = await showDialog<String>(
+      context: context,
+      builder: (dctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+        title: Text(
+          'Edit message',
+          style: GoogleFonts.outfit(
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
+          ),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLines: null,
+          decoration: const InputDecoration(hintText: 'Edit your message'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dctx, controller.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    if (newText != null && newText.isNotEmpty && newText != msg.message) {
+      try {
+        await SupabaseService.editDiscussion(msg.id, newText);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Edit failed: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  /// Load the firm member list + everyone's last-read time so we can show a
+  /// blue "read by all" tick on my messages.
+  Future<void> _loadReceiptState() async {
+    final firmId = _firmId;
+    if (firmId == null) return;
+    try {
+      final members = await SupabaseService.firmMemberIds(firmId);
+      final reads = await SupabaseService.chambersReadTimes(firmId);
+      if (mounted) {
+        setState(() {
+          _firmMemberIds = members;
+          _chambersReadTimes = reads;
+        });
+      }
+    } catch (e) {
+      debugPrint('Load chambers receipt state error: $e');
+    }
+  }
+
+  /// Live-update read receipts: reload read times whenever any member's
+  /// chambers_reads row changes, so my ticks turn blue as teammates read.
+  void _initReadsChannel() {
+    final firmId = _firmId;
+    if (firmId == null || _readsChannel != null) return;
+
+    _readsChannel = Supabase.instance.client.channel('chambers_reads_$firmId');
+    _readsChannel!
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'chambers_reads',
+          callback: (payload) {
+            if (mounted) _loadReceiptState();
+          },
+        )
+        .subscribe();
+  }
+
+  /// Whether every other firm member has read past this message.
+  bool _isReadByAll(CaseComment msg) {
+    final myId = _profile?.id;
+    final others = _firmMemberIds.where((id) => id != myId);
+    if (others.isEmpty) return false;
+    for (final id in others) {
+      final t = _chambersReadTimes[id];
+      if (t == null || !t.isAfter(msg.createdAt)) return false;
+    }
+    return true;
+  }
+
+  /// Mark the Chambers thread read for this user (updates last_read_at to now),
+  /// as long as the screen is foregrounded. Called on open, on each new message
+  /// batch while viewing, and on resume — this is what clears the hub's unread
+  /// badge. Guarded so overlapping calls don't stack.
+  Future<void> _markChambersReadIfNeeded() async {
+    final firmId = _firmId;
+    if (firmId == null || _markingRead || !_isForeground || !mounted) return;
+    _markingRead = true;
+    try {
+      await SupabaseService.markChambersRead(firmId);
+    } catch (e) {
+      debugPrint('Mark chambers read error: $e');
+    } finally {
+      _markingRead = false;
     }
   }
 
@@ -892,7 +1107,13 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                     }
 
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) _checkLocalFiles(combined);
+                      if (mounted) {
+                        _checkLocalFiles(combined);
+                        // Keep the thread marked read while it's open so new
+                        // messages don't leave a stale unread badge on the hub.
+                        _markChambersReadIfNeeded();
+                        _loadReactions();
+                      }
                     });
                     if (combined.length > _lastMessageCount) {
                       _lastMessageCount = combined.length;
@@ -928,6 +1149,14 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                           isDark: isDark,
                           senderName: msg.senderName ?? 'Team Member',
                           senderNameColor: senderColor,
+                          // Group read receipts: double grey once sent, blue
+                          // once every other member has read past it.
+                          showReadReceipt: true,
+                          isDelivered: true,
+                          isRead: _isReadByAll(msg),
+                          reactionCounts: _reactionCounts(msg.id),
+                          myReactionEmoji: _myReaction(msg.id),
+                          onReactionTap: (emoji) => _toggleReaction(msg.id, emoji),
                           playingUrl: _playingUrl,
                           isPlaying: _playerState == PlayerState.playing,
                           audioProgress: _playingUrl == msg.attachmentUrl &&
@@ -947,7 +1176,18 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen> {
                             message: msg,
                             isMe: isMe,
                             isDark: isDark,
+                            myReaction: _myReaction(msg.id),
+                            onReact: (emoji) => _toggleReaction(msg.id, emoji),
                             onReply: () => setState(() => _replyingTo = msg),
+                            onForward: () => ChatForwardPicker.show(
+                              context,
+                              messageText: msg.message,
+                              attachmentUrl: msg.attachmentUrl,
+                              attachmentType: msg.attachmentType,
+                            ),
+                            onEdit: (isMe && !msg.hasAttachment)
+                                ? () => _editMessage(msg)
+                                : null,
                             onSave: msg.hasAttachment
                                 ? () => _saveAttachmentToDevice(msg)
                                 : null,

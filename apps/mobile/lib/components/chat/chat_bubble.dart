@@ -26,6 +26,10 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
   /// Whether the message has been read (only used when [showReadReceipt] is true).
   final bool isRead;
 
+  /// Whether the message has been delivered to the recipient's device.
+  /// Drives the single-tick (sent) vs double-tick (delivered/read) distinction.
+  final bool isDelivered;
+
   /// Optional sender name to display above the message (for group chats).
   final String? senderName;
 
@@ -55,6 +59,15 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
   // Image background download trigger
   final void Function(String url, String displayName)? onDownloadInBackground;
 
+  /// Emoji → count for reactions on this message.
+  final Map<String, int> reactionCounts;
+
+  /// The current user's own reaction emoji on this message, if any (highlighted).
+  final String? myReactionEmoji;
+
+  /// Tapped a reaction chip (WhatsApp: tap your own reaction to remove it).
+  final void Function(String emoji)? onReactionTap;
+
   const ChatBubble({
     super.key,
     required this.message,
@@ -62,6 +75,7 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
     required this.isDark,
     this.showReadReceipt = false,
     this.isRead = false,
+    this.isDelivered = false,
     this.senderName,
     this.senderNameColor,
     this.onLongPress,
@@ -79,6 +93,9 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
     this.localFilesExist = const {},
     this.localPaths = const {},
     this.onDownloadInBackground,
+    this.reactionCounts = const {},
+    this.myReactionEmoji,
+    this.onReactionTap,
   });
 
   @override
@@ -92,14 +109,18 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
 
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: GestureDetector(
-        onLongPress: onLongPress,
-        child: Container(
-          margin: EdgeInsets.only(
-            bottom: 4.h,
-            left: isMe ? 64.w : 0,
-            right: isMe ? 0 : 64.w,
-          ),
+      child: Column(
+        crossAxisAlignment:
+            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onLongPress: onLongPress,
+            child: Container(
+              margin: EdgeInsets.only(
+                bottom: reactionCounts.isEmpty ? 4.h : 2.h,
+                left: isMe ? 64.w : 0,
+                right: isMe ? 0 : 64.w,
+              ),
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.78,
           ),
@@ -227,6 +248,17 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    if (message.isEdited) ...[
+                      Text(
+                        'edited',
+                        style: GoogleFonts.inter(
+                          fontSize: 10.5.sp,
+                          color: metaColor,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      SizedBox(width: 5.w),
+                    ],
                     Text(
                       DateFormat('h:mm a').format(message.createdAt.toLocal()),
                       style: GoogleFonts.inter(
@@ -236,8 +268,14 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
                     ),
                     if (showReadReceipt && isMe) ...[
                       SizedBox(width: 4.w),
+                      // 3-state ticks:
+                      //   sent      → single grey  ✓
+                      //   delivered → double grey  ✓✓
+                      //   read      → double blue  ✓✓
                       Icon(
-                        Icons.done_all_rounded,
+                        (isRead || isDelivered)
+                            ? Icons.done_all_rounded
+                            : Icons.done_rounded,
                         size: 16.sp,
                         color: isRead
                             ? const Color(0xFF53BDEB)
@@ -250,6 +288,64 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
             ),
           ),
         ),
+      ),
+          if (reactionCounts.isNotEmpty) _buildReactionChips(metaColor),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReactionChips(Color metaColor) {
+    return Container(
+      margin: EdgeInsets.only(
+        bottom: 6.h,
+        left: isMe ? 0 : 8.w,
+        right: isMe ? 8.w : 0,
+      ),
+      child: Wrap(
+        spacing: 4.w,
+        children: reactionCounts.entries.map((e) {
+          final mine = myReactionEmoji == e.key;
+          return GestureDetector(
+            onTap: onReactionTap != null ? () => onReactionTap!(e.key) : null,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
+              decoration: BoxDecoration(
+                color: mine
+                    ? (isDark
+                        ? const Color(0xFF4F46E5).withValues(alpha: 0.35)
+                        : const Color(0xFF4F46E5).withValues(alpha: 0.12))
+                    : (isDark ? const Color(0xFF1E293B) : Colors.white),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: mine
+                      ? const Color(0xFF4F46E5)
+                      : (isDark
+                          ? const Color(0xFF334155)
+                          : const Color(0xFFE2E8F0)),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(e.key, style: TextStyle(fontSize: 12.sp)),
+                  if (e.value > 1) ...[
+                    SizedBox(width: 3.w),
+                    Text(
+                      '${e.value}',
+                      style: GoogleFonts.inter(
+                        fontSize: 11.sp,
+                        color: metaColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
