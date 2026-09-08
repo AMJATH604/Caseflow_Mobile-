@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchHearings,
@@ -102,6 +102,23 @@ export default function Hearings() {
   
   // Date pills for mobile timeline (7 days around selected date)
   const datePills = Array.from({ length: 7 }, (_, i) => addDays(subDays(date, 3), i));
+
+  // Group hearings by date for calendar view indicators
+  const hearingsByDate = useMemo(() => {
+    const map: Record<string, typeof hearings> = {};
+    hearings.forEach((h: any) => {
+      if (!h.hearing_date) return;
+      const key = format(parseISO(h.hearing_date), "yyyy-MM-dd");
+      if (!map[key]) map[key] = [];
+      map[key].push(h);
+    });
+    return map;
+  }, [hearings]);
+
+  // Dates that have hearings — used as calendar modifiers
+  const datesWithHearings = useMemo(() => {
+    return Object.keys(hearingsByDate).map(d => parseISO(d));
+  }, [hearingsByDate]);
 
   // Dynamic statistics
   const totalCount = hearings.length;
@@ -392,23 +409,180 @@ export default function Hearings() {
       {/* DESKTOP DIARY WORKSPACE */}
       <div className="hidden md:block">
         {view === "calendar" ? (
-          <Card className="border border-border/60 rounded-2xl shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-base font-bold flex items-center gap-2">
-                <CalendarIcon className="h-5 w-5 text-primary" />
-                Master Calendar Grid
-              </CardTitle>
-              <CardDescription className="text-xs">Click a date to display and manage hearings on that specific day.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex justify-center p-6 border-t">
-              <Calendar 
-                mode="single" 
-                selected={date} 
-                onSelect={(d) => d && setDate(d)} 
-                className="w-full max-w-2xl border rounded-2xl p-4 shadow-sm bg-card" 
-              />
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Calendar with hearing indicators */}
+            <div className="lg:col-span-5">
+              <Card className="border border-border/60 rounded-2xl shadow-sm">
+                <CardHeader className="pb-3 border-b">
+                  <CardTitle className="text-base font-bold flex items-center gap-2">
+                    <CalendarIcon className="h-5 w-5 text-primary" />
+                    Court Schedule Calendar
+                  </CardTitle>
+                  <CardDescription className="text-xs">Click a date to view scheduled court sessions. Dots indicate hearings.</CardDescription>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <Calendar 
+                    mode="single" 
+                    selected={date} 
+                    onSelect={(d) => d && setDate(d)} 
+                    modifiers={{ hasHearing: datesWithHearings }}
+                    modifiersClassNames={{ hasHearing: "has-hearing-dot" }}
+                    className="w-full border-0"
+                    components={{
+                      DayContent: ({ date: dayDate }) => {
+                        const dayKey = format(dayDate, "yyyy-MM-dd");
+                        const dayHearings = hearingsByDate[dayKey] || [];
+                        const count = dayHearings.length;
+                        const hasPending = dayHearings.some((h: any) => h.status === "pending" || !h.status);
+                        const hasAdjourned = dayHearings.some((h: any) => h.status === "adjourned");
+                        const hasCompleted = dayHearings.some((h: any) => h.status === "completed");
+                        const hasScheduled = dayHearings.some((h: any) => h.status === "scheduled");
+                        
+                        return (
+                          <div className="relative flex flex-col items-center">
+                            <span>{format(dayDate, "d")}</span>
+                            {count > 0 && (
+                              <div className="flex items-center gap-0.5 mt-0.5">
+                                {(hasPending || hasScheduled) && (
+                                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                )}
+                                {hasAdjourned && (
+                                  <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                )}
+                                {hasCompleted && (
+                                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      },
+                    }}
+                  />
+
+                  {/* Legend */}
+                  <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border/40 px-2">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-amber-500" />
+                      <span className="text-[10px] font-semibold text-muted-foreground">Pending</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-red-500" />
+                      <span className="text-[10px] font-semibold text-muted-foreground">Adjourned</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                      <span className="text-[10px] font-semibold text-muted-foreground">Completed</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Side panel: hearings for selected date */}
+            <div className="lg:col-span-7">
+              <Card className="border border-border/60 rounded-2xl shadow-sm bg-card">
+                <CardHeader className="pb-3 border-b flex-row items-center justify-between">
+                  <div>
+                    <CardTitle className="text-base font-bold flex items-center gap-2">
+                      <Gavel className="h-5 w-5 text-primary" />
+                      {isSameDay(date, startOfToday()) ? "Today's Schedule" : format(date, "EEEE, dd MMMM yyyy")}
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Court sessions for the selected date.
+                    </CardDescription>
+                  </div>
+                  <span className="text-xs font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-full px-3 py-1">
+                    {todayHearings.length} Session{todayHearings.length !== 1 ? "s" : ""}
+                  </span>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  {isLoading ? (
+                    <div className="flex flex-col items-center py-12 gap-2 text-muted-foreground">
+                      <RefreshCw className="h-6 w-6 animate-spin text-primary" />
+                      <span className="text-xs">Loading schedules...</span>
+                    </div>
+                  ) : todayHearings.length === 0 ? (
+                    <div className="text-center py-16 text-xs text-muted-foreground border border-dashed rounded-xl bg-muted/10">
+                      <Gavel className="h-8 w-8 mx-auto mb-2 text-muted-foreground/30" />
+                      No court sessions scheduled for this date.
+                    </div>
+                  ) : (
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+                      {todayHearings.map((h: any) => {
+                        const caseTitle = (h.cases as any)?.case_title || "Unknown Case Title";
+                        const caseNumber = (h.cases as any)?.case_number || "OS N/A";
+                        return (
+                          <div 
+                            key={h.id} 
+                            className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-muted/10 hover:bg-muted/30 border rounded-xl hover:shadow-sm transition-all duration-300 gap-4"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="p-2.5 bg-card border text-slate-700 rounded-lg shrink-0 mt-0.5 shadow-sm">
+                                <Gavel className="h-4.5 w-4.5 text-primary" />
+                              </div>
+                              <div className="space-y-1">
+                                <h4 
+                                  className="font-bold text-xs text-slate-800 hover:underline cursor-pointer flex items-center gap-1.5" 
+                                  onClick={() => navigate(`/cases/${h.case_id}`)}
+                                >
+                                  {caseTitle}
+                                </h4>
+                                <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground font-semibold">
+                                  <span className="font-mono bg-card border px-1.5 py-0.5 rounded text-slate-600">{caseNumber}</span>
+                                  <span className="flex items-center gap-0.5"><Clock className="h-3 w-3" /> {h.purpose || "Regular Hearing"}</span>
+                                  {h.notes && (
+                                    <span className="text-blue-600 italic">{h.notes}</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between sm:justify-end gap-3 border-t sm:border-t-0 pt-3 sm:pt-0 border-border/40">
+                              <div className="flex items-center gap-2">
+                                <Select value={h.status || "pending"} onValueChange={(s) => updateStatusMut.mutate({ id: h.id, status: s })}>
+                                  <SelectTrigger className="w-28 h-8 text-xs font-semibold">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="pending" className="text-xs">Pending</SelectItem>
+                                    <SelectItem value="scheduled" className="text-xs">Scheduled</SelectItem>
+                                    <SelectItem value="completed" className="text-xs">Completed</SelectItem>
+                                    <SelectItem value="adjourned" className="text-xs">Adjourned</SelectItem>
+                                    <SelectItem value="no_show" className="text-xs">No Show</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              <div className="flex items-center gap-1">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => navigate(`/cases/${h.case_id}`)}
+                                  title="View Case detail"
+                                >
+                                  <ArrowUpRight className="h-4.5 w-4.5" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 p-0"
+                                  onClick={() => { if (confirm("Delete this hearing session?")) deleteMut.mutate(h.id); }}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Sidebar Calendar picker */}

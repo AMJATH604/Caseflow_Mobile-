@@ -304,11 +304,15 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
     final lastDay = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0);
     final startWeekday = firstDay.weekday % 7; // Sun=0
 
+    // Group hearings by day with status breakdown
     final hearingDays = <int, int>{};
+    final dayStatuses = <int, Set<String>>{};
     for (var h in hearings) {
       final d = h.hearingDate;
       if (d.year == _focusedMonth.year && d.month == _focusedMonth.month) {
         hearingDays[d.day] = (hearingDays[d.day] ?? 0) + 1;
+        dayStatuses.putIfAbsent(d.day, () => <String>{});
+        dayStatuses[d.day]!.add((h.status ?? 'pending').toLowerCase());
       }
     }
 
@@ -389,7 +393,7 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                 final day = cellIndex - startWeekday + 1;
 
                 if (day < 1 || day > lastDay.day) {
-                  return Expanded(child: SizedBox(height: 44.h));
+                  return Expanded(child: SizedBox(height: 48.h));
                 }
 
                 final cellDate = DateTime(
@@ -400,12 +404,18 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                 final isToday = DateUtils.isSameDay(cellDate, DateTime.now());
                 final isSelected = DateUtils.isSameDay(cellDate, _selectedDate);
                 final count = hearingDays[day] ?? 0;
+                final statuses = dayStatuses[day] ?? <String>{};
+
+                // Determine which status dots to show
+                final hasPending = statuses.contains('pending') || statuses.contains('scheduled');
+                final hasAdjourned = statuses.contains('adjourned');
+                final hasCompleted = statuses.contains('completed');
 
                 return Expanded(
                   child: GestureDetector(
                     onTap: () => setState(() => _selectedDate = cellDate),
                     child: Container(
-                      height: 44.h,
+                      height: 48.h,
                       margin: EdgeInsets.all(2.r),
                       decoration: BoxDecoration(
                         color:
@@ -424,28 +434,15 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                                   : Colors.transparent,
                         ),
                       ),
-                      child: Stack(
-                        alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (count > 0 && !isSelected)
-                            Positioned(
-                              top: 6.h,
-                              right: 6.w,
-                              child: Container(
-                                width: 4.w,
-                                height: 4.h,
-                                decoration: const BoxDecoration(
-                                  color: AppTheme.accentViolet,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            ),
                           Text(
                             '$day',
                             style: GoogleFonts.inter(
                               fontSize: 13.sp,
                               fontWeight:
-                                  isToday || isSelected
+                                  isToday || isSelected || count > 0
                                       ? FontWeight.w700
                                       : FontWeight.w500,
                               color:
@@ -460,6 +457,53 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                                               : Colors.black38)),
                             ),
                           ),
+                          if (count > 0) ...[
+                            SizedBox(height: 3.h),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (hasPending)
+                                  Container(
+                                    width: 5.w,
+                                    height: 5.h,
+                                    margin: EdgeInsets.symmetric(horizontal: 1.w),
+                                    decoration: BoxDecoration(
+                                      color: isSelected ? Colors.white : const Color(0xFFF59E0B),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                if (hasAdjourned)
+                                  Container(
+                                    width: 5.w,
+                                    height: 5.h,
+                                    margin: EdgeInsets.symmetric(horizontal: 1.w),
+                                    decoration: BoxDecoration(
+                                      color: isSelected ? Colors.white70 : const Color(0xFFEF4444),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                if (hasCompleted)
+                                  Container(
+                                    width: 5.w,
+                                    height: 5.h,
+                                    margin: EdgeInsets.symmetric(horizontal: 1.w),
+                                    decoration: BoxDecoration(
+                                      color: isSelected ? Colors.white60 : const Color(0xFF10B981),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                if (!hasPending && !hasAdjourned && !hasCompleted)
+                                  Container(
+                                    width: 5.w,
+                                    height: 5.h,
+                                    decoration: BoxDecoration(
+                                      color: isSelected ? Colors.white : AppTheme.accentViolet,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -468,8 +512,45 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
               }),
             );
           }),
+
+          // Legend row
+          SizedBox(height: 12.h),
+          Divider(height: 1, color: isDark ? AppTheme.darkBorder : const Color(0xFFE2E8F0)),
+          SizedBox(height: 10.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _legendDot(const Color(0xFFF59E0B), 'Pending', isDark),
+              SizedBox(width: 16.w),
+              _legendDot(const Color(0xFFEF4444), 'Adjourned', isDark),
+              SizedBox(width: 16.w),
+              _legendDot(const Color(0xFF10B981), 'Completed', isDark),
+            ],
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _legendDot(Color color, String label, bool isDark) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 6.w,
+          height: 6.h,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        SizedBox(width: 4.w),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 9.sp,
+            fontWeight: FontWeight.w700,
+            color: isDark ? const Color(0xFFCBD5E1) : Colors.black38,
+          ),
+        ),
+      ],
     );
   }
 

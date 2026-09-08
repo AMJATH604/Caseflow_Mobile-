@@ -171,3 +171,16 @@
 .timeline-line {
   @apply w-0.5 bg-border/50 mx-auto;
 }
+
+/* Court Schedule Calendar — taller cells for hearing dots */
+.has-hearing-dot {
+  font-weight: 700;
+}
+
+/* Make calendar day cells taller to accommodate dots */
+.rdp-cell {
+  height: 2.75rem !important;
+}
+.rdp-day {
+  height: 2.75rem !important;
+}
