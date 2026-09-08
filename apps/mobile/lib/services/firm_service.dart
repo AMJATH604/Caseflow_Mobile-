@@ -137,6 +137,19 @@ class FirmService {
         .eq('id', user.id);
   }
 
+  /// For Members: Decline (reject) a firm invitation.
+  ///
+  /// Deletes the pending row rather than marking it 'rejected' so that the
+  /// owner can cleanly re-invite the same email later — inviteMember() keys off
+  /// the existence of a row, so a lingering 'rejected' row would block a fresh
+  /// pending invite.
+  static Future<void> declineInvitation(String invitationId) async {
+    final user = client.auth.currentUser;
+    if (user == null) throw Exception('Not authenticated');
+
+    await client.from('firm_members').delete().eq('id', invitationId);
+  }
+
   /// Assigns a case to a specific member.
   static Future<void> assignCase(String caseId, String? memberId) async {
     await client

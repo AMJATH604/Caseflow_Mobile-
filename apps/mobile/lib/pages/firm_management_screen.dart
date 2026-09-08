@@ -28,7 +28,6 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
   bool _isLoading = false;
   bool _isUploading = false;
   List<FirmMember> _members = [];
-  List<FirmMember> _invitations = [];
   UserProfile? _profile;
   final List<CaseComment> _optimisticNotices = [];
 
@@ -53,7 +52,6 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
       if (_profile!.isFirmOwner) {
         _members = await FirmService.fetchFirmMembers();
       }
-      _invitations = await FirmService.fetchInvitations();
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -72,27 +70,6 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Invitation sent!')));
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _acceptInvitation(String id) async {
-    setState(() => _isLoading = true);
-    try {
-      await FirmService.acceptInvitation(id);
-      await _loadInitialData();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Firm joined successfully!')),
-        );
       }
     } catch (e) {
       if (mounted) {
@@ -341,11 +318,6 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
                           (_profile?.isFirmOwner ?? false)) ...[
                         _buildSectionHeader('Digital Chambers'),
                         _buildNoticeBoard(),
-                        SizedBox(height: 32.h),
-                      ],
-                      if (_invitations.isNotEmpty) ...[
-                        _buildSectionHeader('Firm Invitations'),
-                        ..._invitations.map((inv) => _buildInvitationCard(inv)),
                         SizedBox(height: 32.h),
                       ],
                       if (_profile?.isFirmOwner ?? false) ...[
@@ -681,52 +653,6 @@ class _FirmManagementScreenState extends ConsumerState<FirmManagementScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildInvitationCard(FirmMember invitation) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16.h),
-      padding: EdgeInsets.all(12.r),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE2E8F0),
-        borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(color: AppTheme.accent.withValues(alpha: 0.4)),
-      ),
-      child: ListTile(
-        leading: const CircleAvatar(
-          backgroundColor: AppTheme.accent,
-          child: Icon(Icons.business_rounded, color: Colors.black),
-        ),
-        title: const Text(
-          'Professional Invitation',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
-          ),
-        ),
-        subtitle: Text(
-          'Join flow by ${invitation.ownerName ?? invitation.ownerId}',
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.5),
-            fontSize: 12.sp,
-          ),
-        ),
-        trailing: ElevatedButton(
-          onPressed: () => _acceptInvitation(invitation.id),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.accent,
-            foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-          ),
-          child: const Text(
-            'Accept',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
       ),
     );
   }

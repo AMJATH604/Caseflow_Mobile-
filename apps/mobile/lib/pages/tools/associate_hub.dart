@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../services/firm_service.dart';
 import '../../services/supabase_service.dart';
 import '../../models/models.dart';
-import '../../services/providers.dart';
 import '../../theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -19,7 +18,6 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
   final _emailController = TextEditingController();
   bool _isLoading = false;
   List<FirmMember> _members = [];
-  List<FirmMember> _invitations = [];
   UserProfile? _profile;
 
   @override
@@ -40,7 +38,6 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
           explicitOwnerId: _profile!.firmId,
         );
       }
-      _invitations = await FirmService.fetchInvitations();
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -57,13 +54,6 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (_invitations.isNotEmpty) ...[
-            _buildSectionHeader('FIRM INVITATIONS'),
-            SizedBox(height: 12.h),
-            ..._invitations.map((inv) => _buildInvitationCard(inv)),
-            SizedBox(height: 24.h),
-          ],
-
           if (_profile!.isFirmOwner) ...[
             _buildSectionHeader('RECRUIT NEW ASSOCIATE'),
             SizedBox(height: 12.h),
@@ -201,69 +191,6 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
     await FirmService.removeMember(id);
     await _loadData();
     if (mounted) setState(() => _isLoading = false);
-  }
-
-  Widget _buildInvitationCard(FirmMember invitation) {
-    return Container(
-      padding: EdgeInsets.all(12.r),
-      decoration: BoxDecoration(
-        color: AppTheme.accent.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppTheme.accent.withValues(alpha: 0.1)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.business_center_rounded, color: AppTheme.accent),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Text(
-              "Invite from ${invitation.ownerName ?? 'Firm'}",
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.sp),
-            ),
-          ),
-          TextButton(
-            onPressed: () => _acceptInv(invitation.id),
-            child: const Text(
-              'ACCEPT',
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                color: AppTheme.accent,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _acceptInv(String id) async {
-    setState(() => _isLoading = true);
-    try {
-      await FirmService.acceptInvitation(id);
-
-      // ─── Immediate Refresh ──────────────────────────────────────────────
-      // Invalidate providers to remove the "lag" - this forces an immediate
-      // re-fetch showing new cases and updated profile status.
-      ref.invalidate(userProfileProvider);
-      ref.invalidate(casesProvider);
-      ref.invalidate(dashboardStatsProvider);
-      ref.invalidate(hearingsProvider);
-
-      await _loadData();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Joined firm successfully!')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
   }
 
   Widget _buildNoFirmState() {
