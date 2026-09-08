@@ -48,6 +48,10 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
   Widget build(BuildContext context) {
     final paginatedState = ref.watch(paginatedHearingsProvider);
     final hearings = paginatedState.items;
+    // Use the same hearingsProvider as Court Diary so both calendars
+    // show identical dates and counts.
+    final allHearingsAsync = ref.watch(hearingsProvider);
+    final allHearings = allHearingsAsync.valueOrNull ?? <dynamic>[];
     final isMobile = MediaQuery.of(context).size.width < 768;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -77,13 +81,16 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                         : _view == 'calendar'
                             ? RefreshIndicator(
                                 color: AppTheme.accent,
-                                onRefresh: () => ref
-                                    .read(paginatedHearingsProvider.notifier)
-                                    .refresh(),
+                                onRefresh: () async {
+                                  ref.invalidate(hearingsProvider);
+                                  await ref
+                                      .read(paginatedHearingsProvider.notifier)
+                                      .refresh();
+                                },
                                 child: _buildCalendarView(
                                   isMobile,
                                   isDark,
-                                  hearings,
+                                  allHearings,
                                 ),
                               )
                             : RefreshIndicator(
@@ -304,15 +311,12 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
     final lastDay = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 0);
     final startWeekday = firstDay.weekday % 7; // Sun=0
 
-    // Group hearings by day with status breakdown
+    // Group hearings by day — count only, matching Court Diary logic.
     final hearingDays = <int, int>{};
-    final dayStatuses = <int, Set<String>>{};
     for (var h in hearings) {
       final d = h.hearingDate;
       if (d.year == _focusedMonth.year && d.month == _focusedMonth.month) {
         hearingDays[d.day] = (hearingDays[d.day] ?? 0) + 1;
-        dayStatuses.putIfAbsent(d.day, () => <String>{});
-        dayStatuses[d.day]!.add((h.status ?? 'pending').toLowerCase());
       }
     }
 
@@ -404,12 +408,6 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                 final isToday = DateUtils.isSameDay(cellDate, DateTime.now());
                 final isSelected = DateUtils.isSameDay(cellDate, _selectedDate);
                 final count = hearingDays[day] ?? 0;
-                final statuses = dayStatuses[day] ?? <String>{};
-
-                // Determine which status dots to show
-                final hasPending = statuses.contains('pending') || statuses.contains('scheduled');
-                final hasAdjourned = statuses.contains('adjourned');
-                final hasCompleted = statuses.contains('completed');
 
                 return Expanded(
                   child: GestureDetector(
@@ -434,76 +432,55 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
                                   : Colors.transparent,
                         ),
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Stack(
+                        clipBehavior: Clip.none,
                         children: [
-                          Text(
-                            '$day',
-                            style: GoogleFonts.inter(
-                              fontSize: 13.sp,
-                              fontWeight:
-                                  isToday || isSelected || count > 0
-                                      ? FontWeight.w700
-                                      : FontWeight.w500,
-                              color:
-                                  isSelected
-                                      ? Colors.white
-                                      : (count > 0
-                                          ? (isDark
-                                              ? Colors.white
-                                              : Colors.black87)
-                                          : (isDark
-                                              ? const Color(0xFFCBD5E1)
-                                              : Colors.black38)),
+                          Center(
+                            child: Text(
+                              '$day',
+                              style: GoogleFonts.inter(
+                                fontSize: 13.sp,
+                                fontWeight:
+                                    isToday || isSelected || count > 0
+                                        ? FontWeight.w700
+                                        : FontWeight.w500,
+                                color:
+                                    isSelected
+                                        ? Colors.white
+                                        : (count > 0
+                                            ? (isDark
+                                                ? Colors.white
+                                                : Colors.black87)
+                                            : (isDark
+                                                ? const Color(0xFFCBD5E1)
+                                                : Colors.black38)),
+                              ),
                             ),
                           ),
-                          if (count > 0) ...[
-                            SizedBox(height: 3.h),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (hasPending)
-                                  Container(
-                                    width: 5.w,
-                                    height: 5.h,
-                                    margin: EdgeInsets.symmetric(horizontal: 1.w),
-                                    decoration: BoxDecoration(
-                                      color: isSelected ? Colors.white : const Color(0xFFF59E0B),
-                                      shape: BoxShape.circle,
+                          // Numbered badge — matches Court Diary style
+                          if (count > 0)
+                            Positioned(
+                              right: -2,
+                              bottom: 2,
+                              child: Container(
+                                width: 16.w,
+                                height: 16.h,
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '$count',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 9.sp,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
                                     ),
                                   ),
-                                if (hasAdjourned)
-                                  Container(
-                                    width: 5.w,
-                                    height: 5.h,
-                                    margin: EdgeInsets.symmetric(horizontal: 1.w),
-                                    decoration: BoxDecoration(
-                                      color: isSelected ? Colors.white70 : const Color(0xFFEF4444),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                if (hasCompleted)
-                                  Container(
-                                    width: 5.w,
-                                    height: 5.h,
-                                    margin: EdgeInsets.symmetric(horizontal: 1.w),
-                                    decoration: BoxDecoration(
-                                      color: isSelected ? Colors.white60 : const Color(0xFF10B981),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                if (!hasPending && !hasAdjourned && !hasCompleted)
-                                  Container(
-                                    width: 5.w,
-                                    height: 5.h,
-                                    decoration: BoxDecoration(
-                                      color: isSelected ? Colors.white : AppTheme.accentViolet,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                              ],
+                                ),
+                              ),
                             ),
-                          ],
                         ],
                       ),
                     ),
@@ -512,21 +489,6 @@ class _HearingsScreenState extends ConsumerState<HearingsScreen> {
               }),
             );
           }),
-
-          // Legend row
-          SizedBox(height: 12.h),
-          Divider(height: 1, color: isDark ? AppTheme.darkBorder : const Color(0xFFE2E8F0)),
-          SizedBox(height: 10.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _legendDot(const Color(0xFFF59E0B), 'Pending', isDark),
-              SizedBox(width: 16.w),
-              _legendDot(const Color(0xFFEF4444), 'Adjourned', isDark),
-              SizedBox(width: 16.w),
-              _legendDot(const Color(0xFF10B981), 'Completed', isDark),
-            ],
-          ),
         ],
       ),
     );
