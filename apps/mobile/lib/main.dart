@@ -27,8 +27,14 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   debugPrint('FCM: Background message received: ${message.data}');
 
-  // With data-only FCM messages, Android OS does not auto-display anything.
-  // We always show our own rich WhatsApp-style notification.
+  // If the message has a `notification` block, Android OS already displayed
+  // it in the system tray — skip our own rich notification to avoid duplicates.
+  // Only show our custom notification for pure data-only messages (legacy).
+  if (message.notification != null) {
+    debugPrint('FCM: Skipping background rich notification — OS already displayed it');
+    return;
+  }
+
   final fcm = FcmService();
   await fcm.initLocalNotifications();
   await fcm.showRichNotification(message);

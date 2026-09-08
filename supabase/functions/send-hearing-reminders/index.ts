@@ -282,6 +282,10 @@ Deno.serve(async (req: Request) => {
                 body: JSON.stringify({
                   message: {
                     token: token,
+                    notification: {
+                      title: title,
+                      body: body,
+                    },
                     // Data-only message: no `notification` block so Android OS
                     // won't auto-display a system notification in addition to
                     // the one the Flutter app renders itself via
@@ -298,11 +302,15 @@ Deno.serve(async (req: Request) => {
                     },
                     android: {
                       priority: "HIGH",
+                      notification: {
+                        channel_id: "hearing_reminders_v2",
+                        sound: "default",
+                        default_vibrate_timings: true,
+                      },
                     },
                     apns: {
                       payload: {
                         aps: {
-                          "content-available": 1,
                           sound: "default",
                           badge: 1,
                         },

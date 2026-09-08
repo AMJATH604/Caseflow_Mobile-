@@ -228,12 +228,18 @@ Deno.serve(async (req: Request) => {
       try {
         const isAndroid = t.device_info === "TargetPlatform.android";
 
-        // Data-only message: no `notification` block so Android OS won't
-        // auto-display a system notification. The Flutter app's
-        // showRichNotification() handles all display (WhatsApp-style).
+        // Notification + Data message: the `notification` block ensures
+        // Android OS displays a push even when the app is killed or
+        // battery-optimised (data-only messages are silently dropped).
+        // The Flutter foreground handler suppresses the OS notification
+        // and shows its own rich WhatsApp-style version instead.
         const fcmPayload: any = {
           message: {
             token: t.token,
+            notification: {
+              title: title,
+              body: notificationBody,
+            },
             data: {
               type: "chat_message",
               title: title,
@@ -246,11 +252,15 @@ Deno.serve(async (req: Request) => {
             },
             android: {
               priority: "HIGH",
+              notification: {
+                channel_id: "chat_messages_v2",
+                sound: "default",
+                default_vibrate_timings: true,
+              },
             },
             apns: {
               payload: {
                 aps: {
-                  "content-available": 1,
                   sound: "default",
                   badge: 1,
                 },

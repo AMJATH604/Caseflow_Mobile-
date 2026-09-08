@@ -149,6 +149,10 @@ Deno.serve(async (req: Request) => {
             body: JSON.stringify({
               message: {
                 token: t.token,
+                notification: {
+                  title,
+                  body: notifBody,
+                },
                 // Data-only: no `notification` block, so the app renders exactly
                 // one notification (no OS auto-display duplicate).
                 data: {
@@ -157,11 +161,17 @@ Deno.serve(async (req: Request) => {
                   body: notifBody,
                   route: "/collaborator-invitations",
                 },
-                android: { priority: "HIGH" },
+                android: {
+                  priority: "HIGH",
+                  notification: {
+                    channel_id: "hearing_reminders_v2",
+                    sound: "default",
+                    default_vibrate_timings: true,
+                  },
+                },
                 apns: {
                   payload: {
                     aps: {
-                      "content-available": 1,
                       sound: "default",
                       badge: 1,
                     },
