@@ -14,11 +14,30 @@ import '../models/strategy_models.dart';
 import 'caveat_service.dart';
 import 'locale_service.dart';
 import 'repositories/strategy_repository.dart';
+import 'firm_service.dart';
+import 'collaborator_service.dart';
 
 // ─── Auth State ─────────────────────────────────────
 
 final authStateProvider = StreamProvider<AuthState>((ref) {
   return Supabase.instance.client.auth.onAuthStateChange;
+});
+
+/// Number of pending invitations (firm-recruitment + case-sharing) addressed to
+/// the current user — powers the "Invitations" badge on the dashboard.
+/// autoDispose so it re-fetches whenever the dashboard is shown again; callers
+/// can also `ref.invalidate(pendingInvitationsCountProvider)` after acting on
+/// an invitation to refresh the badge immediately.
+final pendingInvitationsCountProvider =
+    FutureProvider.autoDispose<int>((ref) async {
+  ref.watch(authStateProvider);
+  try {
+    final firm = await FirmService.fetchInvitations();
+    final cases = await CollaboratorService.fetchMyInvitations();
+    return firm.length + cases.length;
+  } catch (_) {
+    return 0;
+  }
 });
 
 final connectivityStreamProvider = StreamProvider<bool>((ref) {

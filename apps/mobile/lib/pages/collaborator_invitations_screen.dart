@@ -45,6 +45,8 @@ class _CollaboratorInvitationsScreenState
         _firmInvitations = results[1] as List<FirmMember>;
         _isLoading = false;
       });
+      // Keep the dashboard "Invitations" badge in sync with this list.
+      ref.invalidate(pendingInvitationsCountProvider);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

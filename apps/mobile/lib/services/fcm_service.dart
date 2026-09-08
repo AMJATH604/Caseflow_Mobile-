@@ -503,6 +503,11 @@ class FcmService {
         final route = data['route']?.toString() ?? '/caveats';
         debugPrint('FCM: Pushing route $route');
         GoRouter.of(ctx).push(route);
+      } else if (type == 'invitation') {
+        // ─── Firm/Case Invitation → open the Invitations screen ──
+        final route = data['route']?.toString() ?? '/collaborator-invitations';
+        debugPrint('FCM: Pushing route $route');
+        GoRouter.of(ctx).push(route);
       } else {
         // ─── Fallback: detect from payload fields ────────────
         final conversationId = data['conversation_id'];
