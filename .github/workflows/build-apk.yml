@@ -57,10 +57,14 @@ jobs:
           echo "android.useAndroidX=true" >> gradle.properties
           echo "android.enableJetifier=true" >> gradle.properties
 
-      - name: Build Release APKs (split per ABI + fat)
+      # Build the universal (fat) APK so `app-release.apk` exists — that's the
+      # file Firebase App Distribution below uploads. `--split-per-abi` produces
+      # only per-ABI APKs (app-arm64-v8a-release.apk, …) and NOT app-release.apk,
+      # which is why distribution failed with "file does not exist".
+      - name: Build Release APK (universal)
         working-directory: apps/mobile
         run: |
-          flutter build apk --release --split-per-abi \
+          flutter build apk --release \
             --android-skip-build-dependency-validation \
             --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
             --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
