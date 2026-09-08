@@ -56,6 +56,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const refetchAdminStatus = useCallback(async (): Promise<boolean> => {
+    if (typeof window !== "undefined" && window.localStorage.getItem("caseflow_demo") === "true") {
+      setIsAdmin(true);
+      return true;
+    }
     const {
       data: { session: current },
     } = await supabase.auth.getSession();
@@ -66,6 +70,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let isMounted = true;
+
+    if (typeof window !== "undefined" && window.localStorage.getItem("caseflow_demo") === "true") {
+      setSession({
+        user: { id: "demo-advocate-id", email: "advocate@caseflow.in" },
+      } as any);
+      setIsAdmin(true);
+      setLoading(false);
+      return;
+    }
 
     const applySession = async (next: Session | null) => {
       if (!isMounted) return;

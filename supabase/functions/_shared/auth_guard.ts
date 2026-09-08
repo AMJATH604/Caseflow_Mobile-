@@ -12,8 +12,11 @@
 //   2. `Authorization: Bearer <CRON_SECRET>` — external schedulers, manual
 //      admin triggers.
 //   3. `x-supabase-webhook-secret: <WEBHOOK_SECRET>` — custom webhook configs.
+//  3b. `x-pg-trigger-secret: <PG_TRIGGER_SECRET>` — SQL triggers using pg_net
+//      that read the shared secret from Supabase vault.
 //   4. A verified end-user JWT — ONLY when the caller passes
 //      `{ allowUserJwt: true }`, and only after the token is actually
+
 //      validated against Supabase Auth.
 //
 // Usage:
@@ -123,6 +126,14 @@ export async function verifyWebhookAuth(
 
   // ─── Mode 3: Custom webhook secret header ───────────────────────────
   if (timingSafeEqual(webhookSecretHeader, webhookSecret)) return null;
+
+  // ─── Mode 3b: pg_net trigger secret ────────────────────────────────
+  // SQL triggers (pg_net) from the database send this header. The shared
+  // secret is set once via: supabase secrets set PG_TRIGGER_SECRET=<random>
+  // and stored in vault for the trigger functions to read.
+  const pgTriggerHeader = req.headers.get("x-pg-trigger-secret");
+  const pgTriggerSecret = Deno.env.get("PG_TRIGGER_SECRET");
+  if (timingSafeEqual(pgTriggerHeader, pgTriggerSecret)) return null;
 
   // ─── Mode 4: Verified end-user JWT (opt-in only) ────────────────────
   // The old guard accepted anything shaped like `a.b.c` here without ever
