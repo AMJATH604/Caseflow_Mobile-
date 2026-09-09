@@ -11,6 +11,7 @@ import 'repositories/base_repository.dart';
 import '../models/models.dart';
 import '../models/case_dossier_models.dart';
 import '../models/caveat_models.dart';
+import '../models/notification_models.dart';
 import '../models/strategy_models.dart';
 import 'caveat_service.dart';
 import 'locale_service.dart';
@@ -64,6 +65,71 @@ final pendingInvitationsCountProvider =
       schema: 'public',
       table: 'case_collaborations',
       callback: (_) => emit(),
+    )
+    ..subscribe();
+
+  ref.onDispose(() {
+    client.removeChannel(channel);
+    controller.close();
+  });
+
+  return controller.stream;
+});
+
+/// The Notification Centre feed — everything from the last 24 hours, newest
+/// first. Rows older than that are purged server-side by the
+/// `purge-expired-notifications` cron job, so this is never a long list.
+///
+/// No offline cache, unlike [casesProvider]: caching rows that the server
+/// deletes within a day would only ever show the user stale notifications.
+final notificationsProvider =
+    FutureProvider<List<AppNotification>>((ref) async {
+  ref.watch(authStateProvider);
+  ref.watch(dataRefreshProvider);
+  return RetryHelper.retry(() => SupabaseService.fetchNotifications());
+});
+
+/// Live unread count for the Notification Centre — powers the badge on the
+/// "More" tab and on the Notifications tile inside the More sheet.
+///
+/// Same shape as [pendingInvitationsCountProvider]: emit an initial count,
+/// then re-emit on any realtime change to the user's rows. Requires
+/// `notifications` to be in the `supabase_realtime` publication (see migration
+/// 20260914_notification_center.sql).
+///
+/// Also invalidates [notificationsProvider] so an open list updates in place
+/// rather than only the badge moving.
+final unreadNotificationsCountProvider =
+    StreamProvider.autoDispose<int>((ref) {
+  ref.watch(authStateProvider);
+  final client = Supabase.instance.client;
+  final controller = StreamController<int>();
+
+  Future<void> emit() async {
+    try {
+      final count = await SupabaseService.unreadNotificationCount();
+      if (!controller.isClosed) controller.add(count);
+    } catch (_) {
+      if (!controller.isClosed) controller.add(0);
+    }
+  }
+
+  // Initial value.
+  emit();
+
+  // RLS scopes the subscription to this user's own rows.
+  final channel = client.channel('notifications_badge')
+    ..onPostgresChanges(
+      event: PostgresChangeEvent.all,
+      schema: 'public',
+      table: 'notifications',
+      callback: (_) {
+        // The channel can still deliver between removeChannel() and teardown;
+        // invalidating a provider after dispose throws.
+        if (controller.isClosed) return;
+        emit();
+        ref.invalidate(notificationsProvider);
+      },
     )
     ..subscribe();
 

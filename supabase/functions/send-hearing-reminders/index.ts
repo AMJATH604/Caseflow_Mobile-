@@ -7,7 +7,7 @@
 // Or copy the contents to Supabase Dashboard > Edge Functions > New Function
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { getAccessToken } from "../_shared/fcm_utils.ts";
+import { getAccessToken, recordNotification } from "../_shared/fcm_utils.ts";
 import { verifyWebhookAuth } from "../_shared/auth_guard.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -197,6 +197,61 @@ Deno.serve(async (req: Request) => {
 
     const userIds = Array.from(allUniqueUsers);
 
+    // ─── Build the reminder text, once per hearing ─────────────
+    // Hoisted above the token lookup so the Notification Centre records can
+    // reuse it; the FCM delivery loop below reads from this same map.
+    const reminderLabel =
+      reminder_type === "evening_7pm" || reminder_type === "evening_9pm"
+        ? "Tomorrow"
+        : "Today";
+    const motivation =
+      reminder_type === "morning_9am"
+        ? "☕ Good Morning! Safe travels to the court."
+        : "🌙 Good Evening! Preparation is the key to success.";
+
+    const hearingContent: Record<string, { title: string; body: string }> = {};
+    for (const h of hearings) {
+      const caseTitle = h.cases?.case_title || "Unknown Case";
+      const courtName = h.cases?.court_name || "";
+      const purpose = h.purpose || h.stage || "Hearing";
+      const caseNumber = h.cases?.case_number || "";
+
+      hearingContent[h.id] = {
+        title: `⚖️ Court Hearing ${reminderLabel}`,
+        body: `📁 Case: ${caseTitle}\n🔢 No: ${caseNumber || 'N/A'}\n⚖️ Stage: ${purpose}\n🏛️ Court: ${courtName || 'District Court'}\n🚀 Action: Prepare for ${reminderLabel.toLowerCase()}'s hearing\n${motivation}`,
+      };
+    }
+
+    // ─── Notification Centre ───────────────────────────────────
+    // Deliberately ahead of the token lookup: that block returns early when
+    // NO user has a token, and skips individual users who have none. Neither
+    // should suppress the in-app record.
+    const recordDateStr = new Date().toISOString().split("T")[0];
+    for (const h of hearings) {
+      const content = hearingContent[h.id];
+      for (const uid of hearingUserMap[h.id] || []) {
+        await recordNotification(
+          supabase,
+          {
+            user_id: uid,
+            type: "hearing_reminder",
+            title: content.title,
+            body: content.body,
+            route: h.case_id ? `/cases/${h.case_id}` : undefined,
+            payload: {
+              hearing_id: h.id,
+              case_id: h.case_id,
+              reminder_type,
+            },
+            // Per recipient — the key is globally unique, so leaving the user
+            // out would let one row suppress every other recipient's.
+            dedupe_key: `hearing:${h.id}:${reminder_type}:${recordDateStr}:${uid}`,
+          },
+          executionId
+        );
+      }
+    }
+
     // Fetch FCM tokens for those users
     // Note: 'body' was already parsed above; don't re-read req.json() as it can only be consumed once
     const queryUserId = reminder_type === "test" ? (body.userId ? [body.userId] : userIds) : userIds;
@@ -235,16 +290,6 @@ Deno.serve(async (req: Request) => {
     const accessToken = await getAccessToken(firebaseServiceAccount);
     const projectId = firebaseServiceAccount.project_id;
 
-    // Build the reminder message text
-    let reminderLabel: string;
-    if (reminder_type === "evening_7pm") {
-      reminderLabel = "Tomorrow";
-    } else if (reminder_type === "evening_9pm") {
-      reminderLabel = "Tomorrow";
-    } else {
-      reminderLabel = "Today";
-    }
-
     let sentCount = 0;
     let failCount = 0;
     const errors: string[] = [];
@@ -252,18 +297,9 @@ Deno.serve(async (req: Request) => {
     console.log(`[${executionId}] Starting delivery for ${hearings.length} hearings to ${userIds.length} users...`);
     for (const hearing of hearings) {
       const targetUserIds = hearingUserMap[hearing.id] || [];
-      
-      const caseTitle = hearing.cases?.case_title || "Unknown Case";
-      const courtName = hearing.cases?.court_name || "";
-      const purpose = hearing.purpose || hearing.stage || "Hearing";
-      const caseNumber = hearing.cases?.case_number || "";
 
-      const title = `⚖️ Court Hearing ${reminderLabel}`;
-      const motivation = reminder_type === 'morning_9am' 
-        ? "☕ Good Morning! Safe travels to the court." 
-        : "🌙 Good Evening! Preparation is the key to success.";
-
-      const body = `📁 Case: ${caseTitle}\n🔢 No: ${caseNumber || 'N/A'}\n⚖️ Stage: ${purpose}\n🏛️ Court: ${courtName || 'District Court'}\n🚀 Action: Prepare for ${reminderLabel.toLowerCase()}'s hearing\n${motivation}`;
+      // Same text already recorded to the Notification Centre above.
+      const { title, body } = hearingContent[hearing.id];
 
       for (const userId of targetUserIds) {
         const userTokens = tokenMap[userId];

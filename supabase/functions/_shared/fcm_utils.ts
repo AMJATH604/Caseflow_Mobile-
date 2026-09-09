@@ -161,6 +161,72 @@ export async function sendFcmMessage(
   }
 }
 
+// ─── Notification Centre Record ─────────────────────────────────
+// Persists a notification so it also appears in the in-app Notification
+// Centre (public.notifications), not just as a transient push.
+//
+// Call this BEFORE looking up fcm_tokens. A user who declined notification
+// permission has no token at all, and several senders return early on
+// `no_tokens` — but they should still get the in-app record.
+//
+// Never throws: failing to record must not stop a push that would otherwise
+// go out. Rows are purged after 24 hours by the purge-expired-notifications
+// cron job, so this table stays small.
+
+export type NotificationRecord = {
+  user_id: string;
+  type:
+    | "hearing_reminder"
+    | "caveat_reminder"
+    | "invitation"
+    | "case_status"
+    | "task_assigned"
+    | "task_due"
+    | "payment"
+    | "bar_notice";
+  title: string;
+  body?: string;
+  /** go_router path pushed when the row is tapped, e.g. `/cases/<uuid>`. */
+  route?: string;
+  payload?: Record<string, unknown>;
+  /**
+   * Stable key for one logical event, e.g. `hearing:<id>:morning_9am:<date>`.
+   * A retried cron run reuses it and the duplicate insert is dropped by the
+   * partial unique index on the column.
+   */
+  dedupe_key?: string;
+};
+
+export async function recordNotification(
+  supabase: SupabaseClient,
+  record: NotificationRecord,
+  executionId: string
+): Promise<void> {
+  try {
+    const { error } = await supabase.from("notifications").insert({
+      user_id: record.user_id,
+      type: record.type,
+      title: record.title,
+      body: record.body ?? "",
+      route: record.route ?? null,
+      payload: record.payload ?? {},
+      dedupe_key: record.dedupe_key ?? null,
+    });
+
+    // 23505 = unique_violation, i.e. the dedupe_key already exists. Expected
+    // on a retry, not an error worth logging loudly.
+    if (error && error.code !== "23505") {
+      console.log(
+        `[${executionId}] recordNotification failed for ${record.user_id}: ${error.message}`
+      );
+    }
+  } catch (e) {
+    console.log(
+      `[${executionId}] recordNotification threw: ${(e as any).message}`
+    );
+  }
+}
+
 // ─── Supabase + Firebase Init Helper ────────────────────────────
 // Common initialization pattern used by all notification functions.
 

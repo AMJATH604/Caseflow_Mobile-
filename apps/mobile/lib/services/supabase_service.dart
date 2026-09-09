@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/models.dart';
 import '../models/case_dossier_models.dart';
+import '../models/notification_models.dart';
 import 'fcm_service.dart';
 import 'offline_cache_service.dart';
 import 'repositories/base_repository.dart';
@@ -16,6 +17,7 @@ import 'repositories/content_repository.dart';
 import 'repositories/discussion_repository.dart';
 import 'repositories/direct_message_repository.dart';
 import 'repositories/message_reaction_repository.dart';
+import 'repositories/notification_repository.dart';
 
 
 /// Backward-compatible facade that delegates to domain repositories.
@@ -379,6 +381,26 @@ class SupabaseService {
 
   static Future<Map<String, DateTime>> chambersReadTimes(String firmId) =>
       DiscussionRepository.chambersReadTimes(firmId);
+
+  // ─── Notification Centre ────────────────────────────────
+
+  static Future<List<AppNotification>> fetchNotifications() =>
+      NotificationRepository.fetchNotifications();
+
+  static Future<int> unreadNotificationCount() =>
+      NotificationRepository.unreadCount();
+
+  static Future<void> markNotificationRead(String id) =>
+      NotificationRepository.markRead(id);
+
+  static Future<void> markAllNotificationsRead() =>
+      NotificationRepository.markAllRead();
+
+  static Future<void> dismissNotification(String id) =>
+      NotificationRepository.dismiss(id);
+
+  static Future<void> clearAllNotifications() =>
+      NotificationRepository.clearAll();
 
   static Future<String?> uploadChambersAttachment({
     required File file,

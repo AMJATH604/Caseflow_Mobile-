@@ -8,6 +8,7 @@ import '../services/app_localizations.dart';
 import '../utils/app_fonts.dart';
 import '../theme/app_theme.dart';
 import 'mobile_more_sheet.dart';
+import 'notification_badge.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MobileBottomNav extends ConsumerWidget {
@@ -74,7 +75,7 @@ class MobileBottomNav extends ConsumerWidget {
                     l10n.get('nav_tools'),
                     '/tools',
                   ),
-                  _buildMoreItem(context),
+                  _buildMoreItem(ref, context),
                 ],
               ),
             ),
@@ -160,7 +161,12 @@ class MobileBottomNav extends ConsumerWidget {
     );
   }
 
-  Widget _buildMoreItem(BuildContext context) {
+  Widget _buildMoreItem(WidgetRef ref, BuildContext context) {
+    // Notifications live inside the More sheet, so without a badge out here
+    // the unread count is invisible until the user thinks to open the sheet.
+    final unreadCount =
+        ref.watch(unreadNotificationsCountProvider).valueOrNull ?? 0;
+
     return InkWell(
       onTap: () {
         showModalBottomSheet(
@@ -178,10 +184,15 @@ class MobileBottomNav extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(height: 9.h),
-            const Icon(
-              Icons.more_horiz_rounded,
-              color: Color(0xFF94A3B8),
-              size: 22,
+            NotificationBadge(
+              count: unreadCount,
+              top: -4,
+              right: -8,
+              child: const Icon(
+                Icons.more_horiz_rounded,
+                color: Color(0xFF94A3B8),
+                size: 22,
+              ),
             ),
             SizedBox(height: 3.h),
             Text(

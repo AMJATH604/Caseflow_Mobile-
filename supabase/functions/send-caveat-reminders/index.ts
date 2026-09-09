@@ -5,7 +5,7 @@
 //   supabase functions deploy send-caveat-reminders
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { getAccessToken } from "../_shared/fcm_utils.ts";
+import { getAccessToken, recordNotification } from "../_shared/fcm_utils.ts";
 import { verifyWebhookAuth } from "../_shared/auth_guard.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -13,6 +13,8 @@ Deno.serve(async (req: Request) => {
   // ─── Auth Guard: Verify webhook/cron caller ────────────────
   const authError = await verifyWebhookAuth(req);
   if (authError) return authError;
+
+  const executionId = crypto.randomUUID().substring(0, 8);
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -83,9 +85,6 @@ Deno.serve(async (req: Request) => {
     await supabase.from("caveats").update({ status: "expired" }).eq("status", "active").lt("expiry_date", todayStr);
 
     for (const caveat of caveats) {
-      const userTokens = tokenMap[caveat.user_id];
-      if (!userTokens || userTokens.length === 0) continue;
-
       // Calculate exact days left to label the notification
       const expDate = new Date(caveat.expiry_date);
       const tDate = new Date(todayStr);
@@ -94,6 +93,31 @@ Deno.serve(async (req: Request) => {
 
       const title = `⚠️ Caveat Expiring in ${daysLeft} Day${daysLeft !== 1 ? 's' : ''}`;
       const body = `${caveat.caveator_name} vs ${caveat.opponent_name}\n${caveat.court_name}\nTap to review and renew protection.`;
+
+      // Record before the token check below — an advocate who declined push
+      // permission has no token, but must still see this in the app.
+      await recordNotification(
+        supabase,
+        {
+          user_id: caveat.user_id,
+          type: "caveat_reminder",
+          title,
+          body,
+          route: "/caveats",
+          payload: {
+            caveat_id: caveat.id,
+            expiry_date: caveat.expiry_date,
+            days_left: daysLeft,
+          },
+          // Per recipient — the key is globally unique, so scoping it to the
+          // user keeps one row from suppressing another's.
+          dedupe_key: `caveat:${caveat.id}:${todayStr}:${caveat.user_id}`,
+        },
+        executionId
+      );
+
+      const userTokens = tokenMap[caveat.user_id];
+      if (!userTokens || userTokens.length === 0) continue;
 
       for (const token of userTokens) {
         try {

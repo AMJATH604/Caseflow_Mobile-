@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/providers.dart';
 import '../services/supabase_service.dart';
 import '../theme/app_theme.dart';
+import 'notification_badge.dart';
 import 'dialogs/reset_workspace_dialog.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -145,9 +147,11 @@ class MobileMoreSheet extends ConsumerWidget {
               _buildMenuItem(
                 context,
                 Icons.notifications,
-                'Updates',
+                'Notifications',
                 Colors.pink,
                 '/notifications',
+                badgeCount:
+                    ref.watch(unreadNotificationsCountProvider).valueOrNull ?? 0,
               ),
               _buildMenuItem(
                 context,
@@ -210,8 +214,9 @@ class MobileMoreSheet extends ConsumerWidget {
     IconData icon,
     String label,
     Color color,
-    String route,
-  ) {
+    String route, {
+    int badgeCount = 0,
+  }) {
     return InkWell(
       onTap: () {
         Navigator.pop(context);
@@ -220,25 +225,28 @@ class MobileMoreSheet extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 56.w,
-            height: 56.h,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  color.withValues(alpha: 0.12),
-                  color.withValues(alpha: 0.06),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          NotificationBadge(
+            count: badgeCount,
+            child: Container(
+              width: 56.w,
+              height: 56.h,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    color.withValues(alpha: 0.12),
+                    color.withValues(alpha: 0.06),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(18.r),
+                border: Border.all(
+                  color: color.withValues(alpha: 0.15),
+                ),
+                boxShadow: AppTheme.shadowSm,
               ),
-              borderRadius: BorderRadius.circular(18.r),
-              border: Border.all(
-                color: color.withValues(alpha: 0.15),
-              ),
-              boxShadow: AppTheme.shadowSm,
+              child: Icon(icon, color: color, size: 24),
             ),
-            child: Icon(icon, color: color, size: 24),
           ),
           SizedBox(height: 8.h),
           Text(

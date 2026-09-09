@@ -12,7 +12,7 @@
 // are skipped — they'll see the invitation when they sign up.
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { getAccessToken } from "../_shared/fcm_utils.ts";
+import { getAccessToken, recordNotification } from "../_shared/fcm_utils.ts";
 import { verifyWebhookAuth } from "../_shared/auth_guard.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -115,6 +115,28 @@ Deno.serve(async (req: Request) => {
       title = "📁 Case Invitation";
       notifBody = `${inviterName} shared "${caseTitle}" with you`;
     }
+
+    // ─── Notification Centre ─────────────────────────────────
+    // Ahead of the token lookup, which returns early on `no_tokens`. An
+    // invitee who declined push permission still needs to see the invite.
+    await recordNotification(
+      supabase,
+      {
+        user_id: recipientId,
+        type: "invitation",
+        title,
+        body: notifBody,
+        route: "/collaborator-invitations",
+        payload: {
+          source_table: table,
+          invitation_id: record.id ?? null,
+          inviter_id: inviterId,
+          case_id: caseId,
+        },
+        dedupe_key: record.id ? `invitation:${table}:${record.id}` : undefined,
+      },
+      executionId
+    );
 
     // ─── Fetch the invitee's FCM tokens ──────────────────────
     const { data: tokens, error: tokensError } = await supabase
