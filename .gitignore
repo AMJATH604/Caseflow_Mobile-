@@ -27,6 +27,7 @@ supabase/.temp/
 .vscode/
 *.iml
 .mcp.json
+.agents/
 
 # ─── Flutter / Dart ───────────────────────────────────────────
 **/build/
