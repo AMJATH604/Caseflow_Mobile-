@@ -282,16 +282,10 @@ Deno.serve(async (req: Request) => {
                 body: JSON.stringify({
                   message: {
                     token: token,
-                    notification: {
-                      title: title,
-                      body: body,
-                    },
                     // Data-only message: no `notification` block so Android OS
-                    // won't auto-display a system notification in addition to
-                    // the one the Flutter app renders itself via
-                    // showRichNotification(). Sending both used to cause a
-                    // duplicate notification for every backgrounded/terminated
-                    // delivery — see send-dm-notification for the same fix.
+                    // won't auto-display a plain system notification. Our Flutter
+                    // background handler renders its own rich notification with
+                    // deep-link payload. Delivery ensured via android.priority = "HIGH".
                     data: {
                       type: "hearing_reminder",
                       title: title,

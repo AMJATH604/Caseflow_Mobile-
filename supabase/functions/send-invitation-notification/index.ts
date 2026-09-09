@@ -149,12 +149,8 @@ Deno.serve(async (req: Request) => {
             body: JSON.stringify({
               message: {
                 token: t.token,
-                notification: {
-                  title,
-                  body: notifBody,
-                },
-                // Data-only: no `notification` block, so the app renders exactly
-                // one notification (no OS auto-display duplicate).
+                // Data-only: no `notification` block, so the Flutter app
+                // renders its own rich notification with deep-link payload.
                 data: {
                   type: "invitation",
                   title,

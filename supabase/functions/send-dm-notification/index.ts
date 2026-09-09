@@ -164,18 +164,14 @@ Deno.serve(async (req: Request) => {
       try {
         const isAndroid = t.device_info === "TargetPlatform.android";
 
-        // Notification + Data message: the `notification` block ensures
-        // Android OS displays a push even when the app is killed or
-        // battery-optimised (data-only messages are silently dropped).
-        // The Flutter foreground handler suppresses the OS notification
-        // and shows its own rich WhatsApp-style version instead.
+        // Data-only message: no top-level `notification` block so Android OS
+        // won't auto-display a plain system notification. Instead, our Flutter
+        // background handler renders a rich WhatsApp-style notification with
+        // inline Reply + Mark Read action buttons and deep-link payload.
+        // Delivery is ensured via android.priority = "HIGH".
         const fcmPayload: any = {
           message: {
             token: t.token,
-            notification: {
-              title: title,
-              body: notificationBody,
-            },
             data: {
               type: "dm_message",
               title: title,

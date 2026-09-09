@@ -180,10 +180,22 @@ class FcmService {
     // Handle background/terminated tap
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageTap);
 
-    // Check if app was opened from a notification
+    // Check if app was opened from a Firebase notification (terminated state)
     _messaging.getInitialMessage().then((initialMessage) {
       if (initialMessage != null) {
         _handleMessageTap(initialMessage);
+      }
+    });
+
+    // Check if app was launched by tapping a flutter_local_notifications
+    // notification (cold start). This handles the case where the app was
+    // fully killed and the user taps our rich notification to open it.
+    _localNotifications.getNotificationAppLaunchDetails().then((details) {
+      if (details != null &&
+          details.didNotificationLaunchApp &&
+          details.notificationResponse != null) {
+        debugPrint('FCM: App launched from local notification tap');
+        _onNotificationTap(details.notificationResponse!);
       }
     });
 
