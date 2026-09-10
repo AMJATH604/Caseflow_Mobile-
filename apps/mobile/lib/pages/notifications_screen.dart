@@ -17,11 +17,43 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 /// every row with `DateTime.now()`. Rows now come from `public.notifications`,
 /// written by the notification edge functions and database triggers, and are
 /// purged server-side after 24 hours.
-class NotificationsScreen extends ConsumerWidget {
+class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NotificationsScreen> createState() =>
+      _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Opening the Centre *is* reading it, so clear the badge on entry rather
+    // than waiting for a per-row tap or the "Mark all read" button. Deferred to
+    // after first frame so the unread rows still render in their unread style
+    // for this build — the user sees what was new before it settles.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _markAllRead());
+  }
+
+  Future<void> _markAllRead() async {
+    try {
+      await SupabaseService.markAllNotificationsRead();
+    } catch (_) {
+      // Offline or a transient failure: leave the badge alone and let the next
+      // visit clear it. Nothing here is worth interrupting the user for.
+      return;
+    }
+    if (!mounted) return;
+    // The badge normally follows the realtime subscription on `notifications`,
+    // but invalidating directly makes it drop to zero immediately even if the
+    // realtime event is slow or the channel dropped.
+    ref.invalidate(unreadNotificationsCountProvider);
+    ref.invalidate(notificationsProvider);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final notificationsAsync = ref.watch(notificationsProvider);
     final unreadCount =
         ref.watch(unreadNotificationsCountProvider).valueOrNull ?? 0;
