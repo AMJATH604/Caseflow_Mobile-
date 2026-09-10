@@ -228,11 +228,16 @@ Deno.serve(async (req: Request) => {
       try {
         const isAndroid = t.device_info === "TargetPlatform.android";
 
-        // Data-only message: no top-level `notification` block so Android OS
-        // won't auto-display a plain system notification. Instead, our Flutter
-        // background handler renders a rich WhatsApp-style notification with
-        // inline Reply + Mark Read action buttons and deep-link payload.
-        // Delivery is ensured via android.priority = "HIGH".
+        // Data-only message. Our Flutter background handler renders the rich
+        // WhatsApp-style notification with inline Reply + Mark Read buttons and
+        // the deep-link payload; delivery is ensured via android.priority.
+        //
+        // This means NO notification block anywhere — not at the top level and
+        // NOT under `android` either. An `android.notification` block also makes
+        // Android auto-display, and since it carries no title/body it renders as
+        // a blank duplicate card next to the real one. Sound and vibration are
+        // set by the Flutter side (playSound/enableVibration in
+        // FcmService.showRichNotification), so nothing is lost by omitting it.
         const fcmPayload: any = {
           message: {
             token: t.token,
@@ -248,11 +253,6 @@ Deno.serve(async (req: Request) => {
             },
             android: {
               priority: "HIGH",
-              notification: {
-                channel_id: "chat_messages_v2",
-                sound: "default",
-                default_vibrate_timings: true,
-              },
             },
             apns: {
               payload: {

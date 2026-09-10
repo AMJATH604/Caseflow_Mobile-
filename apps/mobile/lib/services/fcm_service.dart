@@ -404,10 +404,16 @@ class FcmService {
 
     if (response.payload == null) return;
 
+    final Map<String, dynamic> data;
     try {
-      final data = jsonDecode(response.payload!) as Map<String, dynamic>;
-      final type = data['type'] ?? '';
+      data = jsonDecode(response.payload!) as Map<String, dynamic>;
+    } catch (e) {
+      debugPrint('FCM: Notification payload could not be decoded: $e');
+      return;
+    }
+    final type = data['type'] ?? '';
 
+    try {
       // Handle Quick Reply Action
       if (response.actionId == 'action_reply' &&
           response.input != null &&
@@ -457,8 +463,11 @@ class FcmService {
 
       // Body tap: Navigate to target chat screen
       _navigateToChat(data);
-    } catch (e) {
-      debugPrint('FCM: Error handling notification tap: $e');
+    } catch (e, stack) {
+      debugPrint('FCM: Error handling notification tap: $e\n$stack');
+      // Same reasoning as the background path: never drop a typed reply
+      // without telling the user.
+      await _notifyBackgroundActionFailed(response, data, e);
     }
   }
 
@@ -768,26 +777,24 @@ void notificationTapBackground(NotificationResponse response) async {
 
   if (response.payload == null) return;
 
+  final Map<String, dynamic> data;
   try {
-    try {
-      final client = Supabase.instance.client;
-      if (client.auth.currentSession == null) {
-        await Supabase.initialize(
-          url: AppConstants.supabaseUrl,
-          anonKey: AppConstants.supabaseAnonKey,
-        );
-      }
-    } catch (_) {
-      try {
-        await Supabase.initialize(
-          url: AppConstants.supabaseUrl,
-          anonKey: AppConstants.supabaseAnonKey,
-        );
-      } catch (_) {}
-    }
+    data = jsonDecode(response.payload!) as Map<String, dynamic>;
+  } catch (e) {
+    debugPrint('FCM: Background payload could not be decoded: $e');
+    return;
+  }
+  final type = data['type'] ?? '';
 
-    final data = jsonDecode(response.payload!) as Map<String, dynamic>;
-    final type = data['type'] ?? '';
+  try {
+    // Android runs this in a fresh isolate with no memory of the running app,
+    // so the Supabase client and the signed-in session both have to be
+    // re-established before any write. Without a session `requireAuth()`
+    // throws and the reply is lost.
+    final session = await _ensureBackgroundSession();
+    if (session == null) {
+      throw StateError('no authenticated Supabase session in background isolate');
+    }
 
     if (response.actionId == 'action_reply' &&
         response.input != null &&
@@ -796,24 +803,26 @@ void notificationTapBackground(NotificationResponse response) async {
 
       if (type == 'dm_message') {
         final conversationId = data['conversation_id'];
-        if (conversationId != null) {
-          await SupabaseService.sendDirectMessage(conversationId, replyText);
-          debugPrint('FCM: Background quick reply sent to DM $conversationId');
+        if (conversationId == null) {
+          throw StateError('reply payload is missing conversation_id');
         }
+        await SupabaseService.sendDirectMessage(conversationId, replyText);
+        debugPrint('FCM: Background quick reply sent to DM $conversationId');
       } else if (type == 'chat_message') {
         final firmId = data['firm_id'];
-        final profile = await SupabaseService.fetchProfile();
-        if (firmId != null) {
-          await SupabaseService.postDiscussion({
-            'firm_id': firmId,
-            'message': replyText,
-            'case_id': data['case_id'] != null && data['case_id'].toString().isNotEmpty
-                ? data['case_id']
-                : null,
-            'sender_name': profile?.fullName ?? 'Team Member',
-          });
-          debugPrint('FCM: Background quick reply sent to Chambers $firmId');
+        if (firmId == null) {
+          throw StateError('reply payload is missing firm_id');
         }
+        final profile = await SupabaseService.fetchProfile();
+        await SupabaseService.postDiscussion({
+          'firm_id': firmId,
+          'message': replyText,
+          'case_id': data['case_id'] != null && data['case_id'].toString().isNotEmpty
+              ? data['case_id']
+              : null,
+          'sender_name': profile?.fullName ?? 'Team Member',
+        });
+        debugPrint('FCM: Background quick reply sent to Chambers $firmId');
       }
     } else if (response.actionId == 'action_mark_read') {
       if (type == 'dm_message') {
@@ -825,11 +834,135 @@ void notificationTapBackground(NotificationResponse response) async {
       }
     }
 
+    // Only dismiss the card once the action actually landed — dismissing on
+    // failure is what made a dropped reply invisible.
     if (response.id != null) {
       final localNotif = FlutterLocalNotificationsPlugin();
       await localNotif.cancel(response.id!);
     }
+  } catch (e, stack) {
+    debugPrint('FCM: Error handling background notification response: $e\n$stack');
+    await _notifyBackgroundActionFailed(response, data, e);
+  }
+}
+
+/// Re-establish Supabase and the signed-in session inside a background isolate.
+///
+/// Returns null when the user genuinely cannot be authenticated, in which case
+/// the caller must not pretend the action succeeded.
+@pragma('vm:entry-point')
+Future<Session?> _ensureBackgroundSession() async {
+  SupabaseClient? client;
+  try {
+    // Throws if this isolate never ran Supabase.initialize — the usual case.
+    client = Supabase.instance.client;
+  } catch (_) {
+    client = null;
+  }
+
+  if (client == null) {
+    try {
+      // Mirror main.dart's options: a different authFlowType here would not
+      // read back the session persisted by the foreground app.
+      await Supabase.initialize(
+        url: AppConstants.supabaseUrl,
+        anonKey: AppConstants.supabaseAnonKey,
+        authOptions: const FlutterAuthClientOptions(
+          authFlowType: AuthFlowType.pkce,
+        ),
+      );
+      client = Supabase.instance.client;
+    } catch (e) {
+      debugPrint('FCM: Background Supabase.initialize failed: $e');
+      return null;
+    }
+  }
+
+  // Recovery of the persisted session is asynchronous, so a null here right
+  // after initialize does not yet mean "signed out". Give it a bounded wait.
+  var session = client.auth.currentSession;
+  final deadline = DateTime.now().add(const Duration(seconds: 5));
+  while (session == null && DateTime.now().isBefore(deadline)) {
+    await Future.delayed(const Duration(milliseconds: 200));
+    session = client.auth.currentSession;
+  }
+  if (session == null) {
+    debugPrint('FCM: Background session never recovered from storage');
+    return null;
+  }
+
+  // A restored session can already be expired; RLS would reject the insert.
+  if (session.isExpired) {
+    try {
+      final refreshed = await client.auth.refreshSession();
+      session = refreshed.session;
+      debugPrint('FCM: Background session refreshed');
+    } catch (e) {
+      debugPrint('FCM: Background session refresh failed: $e');
+      return null;
+    }
+  }
+
+  return session;
+}
+
+/// Tell the user their quick reply did not send, instead of dropping it.
+///
+/// `debugPrint` is compiled out in release builds, so without this a failed
+/// reply left no trace anywhere the user could see.
+@pragma('vm:entry-point')
+Future<void> _notifyBackgroundActionFailed(
+  NotificationResponse response,
+  Map<String, dynamic> data,
+  Object reason,
+) async {
+  // Only a reply carries content that would otherwise be lost. A failed
+  // "mark as read" is safe to ignore — the badge simply stays.
+  if (response.actionId != 'action_reply') return;
+  final attempted = response.input?.trim() ?? '';
+  if (attempted.isEmpty) return;
+
+  final type = data['type'] ?? '';
+  final channelId = type == 'chat_message'
+      ? FcmService._chamberChannelId
+      : FcmService._dmChannelId;
+  final channelName = type == 'chat_message'
+      ? FcmService._chamberChannelName
+      : FcmService._dmChannelName;
+
+  try {
+    final plugin = FlutterLocalNotificationsPlugin();
+    await plugin.initialize(
+      const InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      ),
+    );
+    await plugin.show(
+      // Reuse the original id so this replaces the message card rather than
+      // stacking a second one under it.
+      response.id ??
+          DateTime.now().millisecondsSinceEpoch % 2147483647,
+      'Reply not sent',
+      'Tap to open the chat and send it again: "$attempted"',
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          channelId,
+          channelName,
+          importance: Importance.max,
+          priority: Priority.max,
+          icon: '@mipmap/ic_launcher',
+          color: const Color(0xFFDC2626),
+          styleInformation: BigTextStyleInformation(
+            'Tap to open the chat and send it again:\n"$attempted"',
+            contentTitle: 'Reply not sent',
+            summaryText: 'CaseFlow',
+          ),
+        ),
+      ),
+      // Keep the original payload so tapping still deep-links to the chat.
+      payload: response.payload,
+    );
   } catch (e) {
-    debugPrint('FCM: Error handling background notification response: $e');
+    debugPrint('FCM: Could not surface failed-reply notification: $e ($reason)');
   }
 }
