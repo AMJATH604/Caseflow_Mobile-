@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui' show DartPluginRegistrant;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -773,6 +774,14 @@ class _NotificationBannerState extends State<_NotificationBanner>
 @pragma('vm:entry-point')
 void notificationTapBackground(NotificationResponse response) async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Android runs this in a fresh isolate spawned by flutter_local_notifications,
+  // and plugins are NOT registered there. ensureInitialized() above sets up the
+  // binding but not the plugin registry, so without this line
+  // `shared_preferences` is unavailable — and that is exactly where
+  // supabase_flutter persists the session. The session could then never be read,
+  // requireAuth() always threw, and the reply was lost while Android kept
+  // spinning on the notification waiting for us to finish.
+  DartPluginRegistrant.ensureInitialized();
   debugPrint('FCM: Background notification action: ${response.actionId}, input: ${response.input}');
 
   if (response.payload == null) return;
@@ -880,8 +889,12 @@ Future<Session?> _ensureBackgroundSession() async {
 
   // Recovery of the persisted session is asynchronous, so a null here right
   // after initialize does not yet mean "signed out". Give it a bounded wait.
+  // Android allows a background handler roughly 10s before killing the isolate,
+  // and a failure still needs time to post the "Reply not sent" card, so keep
+  // this short. With plugins registered the session is normally present on the
+  // first check and this loop never runs.
   var session = client.auth.currentSession;
-  final deadline = DateTime.now().add(const Duration(seconds: 5));
+  final deadline = DateTime.now().add(const Duration(seconds: 3));
   while (session == null && DateTime.now().isBefore(deadline)) {
     await Future.delayed(const Duration(milliseconds: 200));
     session = client.auth.currentSession;
