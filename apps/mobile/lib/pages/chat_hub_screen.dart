@@ -1,13 +1,10 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:image_picker/image_picker.dart';
 import '../services/supabase_service.dart';
-import '../theme/app_theme.dart';
 import '../components/profile_avatar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -209,25 +206,6 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
     );
   }
 
-  Future<void> _handleCameraTap() async {
-    final picked = await ImagePicker().pickImage(
-      source: ImageSource.camera,
-      imageQuality: 70,
-    );
-    if (picked == null) return;
-
-    if (mounted) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (ctx) => _AdvocatePickerSheet(
-          initialAttachment: File(picked.path),
-        ),
-      );
-    }
-  }
-
   Future<void> _markAllAsRead() async {
     try {
       for (final conv in _conversations) {
@@ -363,7 +341,6 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
                     ),
                   ),
                   const Spacer(),
-                  _actionIcon(Icons.camera_alt_outlined, isDark, _handleCameraTap),
                   _actionIcon(Icons.more_vert_rounded, isDark, () => _showOptionsMenu(context)),
                 ],
               ),
@@ -866,8 +843,7 @@ class _ChatHubScreenState extends ConsumerState<ChatHubScreen> {
 // ═══════════════════════════════════════════════════════
 
 class _AdvocatePickerSheet extends ConsumerStatefulWidget {
-  final File? initialAttachment;
-  const _AdvocatePickerSheet({this.initialAttachment});
+  const _AdvocatePickerSheet();
 
   @override
   ConsumerState<_AdvocatePickerSheet> createState() =>
@@ -952,21 +928,6 @@ class _AdvocatePickerSheetState extends ConsumerState<_AdvocatePickerSheet> {
             .select('id')
             .single();
         convId = newConv['id'];
-      }
-
-      if (widget.initialAttachment != null) {
-        final url = await SupabaseService.uploadDirectMessageAttachment(
-          file: widget.initialAttachment!,
-          conversationId: convId,
-        );
-        if (url != null) {
-          await SupabaseService.sendDirectMessage(
-            convId,
-            '📷 Photo',
-            attachmentUrl: url,
-            attachmentType: 'image',
-          );
-        }
       }
 
       if (mounted) {

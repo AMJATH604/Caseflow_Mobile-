@@ -179,6 +179,7 @@ export type NotificationRecord = {
     | "hearing_reminder"
     | "caveat_reminder"
     | "invitation"
+    | "invitation_response"
     | "case_status"
     | "task_assigned"
     | "task_due"

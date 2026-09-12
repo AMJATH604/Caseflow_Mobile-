@@ -13,36 +13,69 @@ class CaseRepository {
 
   // ─── Cases CRUD ────────────────────────────────────────
 
-  static Future<List<CaseModel>> fetchCases({int? limit, int? offset}) async {
-    final user = _client.auth.currentUser;
-    if (user == null) return [];
-
+  /// Builds the PostgREST `or()` filter scoping a `cases` query to everything
+  /// the current user may see: their own and their firm's records, plus any
+  /// case shared with them through an accepted collaboration.
+  ///
+  /// Extracted so the paginated list and the status counts below cannot drift
+  /// apart — a count computed over a different visibility rule than the list
+  /// would quietly disagree with it.
+  static Future<String> _visibilityFilter(String userId, String? email) async {
     final profile = await BaseRepository.getCachedProfile();
-    final orFilter = BaseRepository.buildVisibilityFilter(profile, user.id);
+    final orFilter = BaseRepository.buildVisibilityFilter(profile, userId);
 
     // Fetch collaborator case IDs
     final collabRes = await _client
         .from('case_collaborations')
         .select('case_id')
-        .or('collaborator_email.eq.${user.email},collaborator_id.eq.${user.id}')
+        .or('collaborator_email.eq.$email,collaborator_id.eq.$userId')
         .eq('status', 'accepted');
 
     final List<String> collaborationCaseIds =
         (collabRes as List).map((c) => c['case_id'] as String).toList();
 
-    var query = _client.from('cases').select('*, clients(name)');
+    if (collaborationCaseIds.isEmpty) return orFilter;
 
-    if (collaborationCaseIds.isEmpty) {
-      query = query.or(orFilter);
-    } else {
-      // Use a single `in.(...)` term rather than one `id.eq.` term per
-      // collaboration. The old form produced a filter string that grew
-      // linearly with the number of shared cases — a user on 500 shared
-      // cases sent a 500-term OR filter on every list load.
-      final String fullFilter =
-          '$orFilter,id.in.(${collaborationCaseIds.join(',')})';
-      query = query.or(fullFilter);
+    // Use a single `in.(...)` term rather than one `id.eq.` term per
+    // collaboration. The old form produced a filter string that grew
+    // linearly with the number of shared cases — a user on 500 shared
+    // cases sent a 500-term OR filter on every list load.
+    return '$orFilter,id.in.(${collaborationCaseIds.join(',')})';
+  }
+
+  /// Per-status counts across **all** visible cases.
+  ///
+  /// The Legal Repository list is paginated, and its stat cards used to count
+  /// the rows loaded so far — so the numbers climbed as the user scrolled.
+  /// This selects a single column for every visible case instead: no joins,
+  /// no pagination, cheap enough to run alongside the list.
+  ///
+  /// Statuses are normalised through [CaseStatus.fromString], the same
+  /// coercion the list rows use, so the totals always agree with what is on
+  /// screen even when the database holds a value outside the enum.
+  static Future<Map<String, int>> fetchCaseStatusCounts() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return <String, int>{};
+
+    final filter = await _visibilityFilter(user.id, user.email);
+    final rows = await _client.from('cases').select('status').or(filter);
+
+    final counts = <String, int>{};
+    for (final row in rows as List) {
+      final name = CaseStatus.fromString(row['status'] ?? 'active').name;
+      counts[name] = (counts[name] ?? 0) + 1;
     }
+    return counts;
+  }
+
+  static Future<List<CaseModel>> fetchCases({int? limit, int? offset}) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return [];
+
+    final query = _client
+        .from('cases')
+        .select('*, clients(name)')
+        .or(await _visibilityFilter(user.id, user.email));
 
     // Apply pagination and ordering in a single chain to avoid type mismatch
     final List response;

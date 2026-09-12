@@ -61,6 +61,16 @@ class _CollaboratorInvitationsScreenState
   Future<void> _respondCase(String id, String status) async {
     try {
       await CollaboratorService.respondToInvitation(id, status);
+
+      // Accepting grants access to a whole case, so the case list, hearings and
+      // dashboard stats are all stale — same refresh _acceptFirm does. Without
+      // this the newly shared case did not appear until a manual refresh.
+      if (status == 'accepted') {
+        ref.invalidate(casesProvider);
+        ref.invalidate(dashboardStatsProvider);
+        ref.invalidate(hearingsProvider);
+      }
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

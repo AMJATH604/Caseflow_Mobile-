@@ -43,10 +43,20 @@ class FirmService {
           'An advocate with this email is already a member of your team.',
         );
       } else {
-        // Refresh the pending invitation
+        // Re-invite: reset the row to pending.
+        //
+        // This used to only touch created_at, which left a 'rejected' row
+        // rejected — fetchInvitations filters on status = 'pending', so the
+        // invitee never saw it again and the senior could not re-invite them.
+        // Writing the status back is also what fires the notification trigger,
+        // which listens for any transition *into* 'pending'.
         await client
             .from('firm_members')
-            .update({'created_at': DateTime.now().toIso8601String()})
+            .update({
+              'status': 'pending',
+              'responded_at': null,
+              'created_at': DateTime.now().toIso8601String(),
+            })
             .eq('id', existing['id']);
         return;
       }
@@ -117,11 +127,24 @@ class FirmService {
     final user = client.auth.currentUser;
     if (user == null) throw Exception('Not authenticated');
 
-    // 1. Update invitation status
-    await client
+    // 1. Update invitation status.
+    //
+    // `.select()` is not cosmetic: an RLS-filtered write matches zero rows and
+    // still returns success, which is exactly how the decline bug went
+    // unnoticed. Checking the returned rows turns that into a real error.
+    final accepted = await client
         .from('firm_members')
-        .update({'member_id': user.id, 'status': 'accepted'})
-        .eq('id', invitationId);
+        .update({
+          'member_id': user.id,
+          'status': 'accepted',
+          'responded_at': DateTime.now().toUtc().toIso8601String(),
+        })
+        .eq('id', invitationId)
+        .select('id');
+
+    if ((accepted as List).isEmpty) {
+      throw Exception('Could not accept this invitation. It may have been withdrawn.');
+    }
 
     // 2. Link the profile to the firm (Owner's ID)
     final invitation =
@@ -139,15 +162,38 @@ class FirmService {
 
   /// For Members: Decline (reject) a firm invitation.
   ///
-  /// Deletes the pending row rather than marking it 'rejected' so that the
-  /// owner can cleanly re-invite the same email later — inviteMember() keys off
-  /// the existence of a row, so a lingering 'rejected' row would block a fresh
-  /// pending invite.
+  /// Marks the row 'rejected' rather than deleting it.
+  ///
+  /// The previous DELETE was silently a no-op. Every DELETE policy on
+  /// firm_members is owner-scoped (auth.uid() = owner_id), so for the invited
+  /// junior RLS filtered the row out, the statement matched zero rows, and
+  /// PostgREST still returned success — no exception was thrown, the UI showed
+  /// "Invitation Rejected", and the still-pending invitation reappeared on the
+  /// next refresh.
+  ///
+  /// Keeping the row is also what makes it possible to tell the senior who
+  /// invited them: a deleted row leaves nothing for the response trigger to
+  /// fire on. `inviteMember` resets a rejected row to pending, so re-inviting
+  /// still works.
   static Future<void> declineInvitation(String invitationId) async {
     final user = client.auth.currentUser;
     if (user == null) throw Exception('Not authenticated');
 
-    await client.from('firm_members').delete().eq('id', invitationId);
+    // member_id must be the caller — the RLS policy's WITH CHECK requires it,
+    // and the response trigger uses it to name who declined.
+    final rejected = await client
+        .from('firm_members')
+        .update({
+          'status': 'rejected',
+          'member_id': user.id,
+          'responded_at': DateTime.now().toUtc().toIso8601String(),
+        })
+        .eq('id', invitationId)
+        .select('id');
+
+    if ((rejected as List).isEmpty) {
+      throw Exception('Could not decline this invitation. It may have been withdrawn.');
+    }
   }
 
   /// Assigns a case to a specific member.

@@ -16,8 +16,8 @@ class AppNotification {
   final String userId;
 
   /// One of the types in the table's CHECK constraint: `hearing_reminder`,
-  /// `caveat_reminder`, `invitation`, `case_status`, `task_assigned`,
-  /// `task_due`, `payment`, `bar_notice`.
+  /// `caveat_reminder`, `invitation`, `invitation_response`, `case_status`,
+  /// `task_assigned`, `task_due`, `payment`, `bar_notice`.
   final String type;
   final String title;
   final String body;
@@ -87,6 +87,8 @@ class AppNotification {
         return Icons.shield_outlined;
       case 'invitation':
         return Icons.mail_rounded;
+      case 'invitation_response':
+        return Icons.how_to_reg_rounded;
       case 'case_status':
         return Icons.folder_rounded;
       case 'task_assigned':
@@ -111,6 +113,8 @@ class AppNotification {
         return const Color(0xFFEA580C);
       case 'invitation':
         return const Color(0xFF7C3AED);
+      case 'invitation_response':
+        return AppTheme.success;
       case 'case_status':
         return AppTheme.accent;
       case 'task_assigned':

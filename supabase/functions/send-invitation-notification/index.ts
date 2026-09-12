@@ -1,13 +1,23 @@
 // Supabase Edge Function: send-invitation-notification
-// Sends an FCM push when someone is invited:
-//   • firm_members       → firm recruitment ("X invited you to join their firm")
-//   • case_collaborations → case sharing     ("X shared \"Case\" with you")
 //
-// Triggered by a SQL trigger on INSERT (see migration
-// 20260912_invitation_notifications.sql), which posts a webhook-style payload
-// with an `x-pg-trigger-secret` header verified by verifyWebhookAuth().
+// Handles BOTH directions of an invitation, selected by the payload's `event`:
 //
-// The push only reaches invitees who already have a CaseFlow account (so we can
+//   event = "invite"   → notify the INVITEE that they've been invited
+//       • firm_members        ("X invited you to join their firm")
+//       • case_collaborations ("X shared \"Case\" with you")
+//
+//   event = "response" → notify the INVITER of the outcome
+//       • firm_members        ("Y joined your firm" / "Y declined …")
+//       • case_collaborations ("Y accepted your invitation to \"Case\"" / declined)
+//
+// An untagged payload is treated as "invite", so anything still posting the
+// old shape keeps working.
+//
+// Triggered by SQL triggers (see migrations 20260912_invitation_notifications
+// and 20260915_invitation_responses), which post a webhook-style payload with
+// an `x-pg-trigger-secret` header verified by verifyWebhookAuth().
+//
+// A push only reaches people who already have a CaseFlow account (so we can
 // resolve their FCM tokens). Email-only invites to people without an account
 // are skipped — they'll see the invitation when they sign up.
 
@@ -42,103 +52,173 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const firebaseServiceAccount = JSON.parse(firebaseServiceAccountJson);
 
+    // Which direction is this? `invite` goes to the invitee (the original
+    // behaviour); `response` goes back to the inviter when the invitee accepts
+    // or declines. The DB triggers tag the payload; anything untagged is an
+    // invite, so older callers keep working.
+    const event: string = body.event === "response" ? "response" : "invite";
+
     // ─── Resolve invitation shape per table ──────────────────
-    let recipientId: string | null = null;
-    let recipientEmail: string | null = null;
+    let inviteeId: string | null = null;
+    let inviteeEmail: string | null = null;
     let inviterId: string | null = null;
     let caseId: string | null = null;
     const status: string = record.status || "pending";
 
     if (table === "firm_members") {
-      recipientId = record.member_id ?? null;
-      recipientEmail = record.member_email ?? null;
+      inviteeId = record.member_id ?? null;
+      inviteeEmail = record.member_email ?? null;
       inviterId = record.owner_id ?? null;
     } else if (table === "case_collaborations") {
-      recipientId = record.collaborator_id ?? null;
-      recipientEmail = record.collaborator_email ?? null;
+      inviteeId = record.collaborator_id ?? null;
+      inviteeEmail = record.collaborator_email ?? null;
       inviterId = record.owner_id ?? null;
       caseId = record.case_id ?? null;
     } else {
       return jsonResponse({ skipped: true, reason: "unsupported_table" });
     }
 
-    // Only notify for pending invitations (ignore accepted/rejected rows).
-    if (status !== "pending") {
-      return jsonResponse({ skipped: true, reason: "not_pending" });
-    }
-
     // Resolve the invitee's user id from their email if it wasn't pre-linked.
-    if (!recipientId && recipientEmail) {
+    if (!inviteeId && inviteeEmail) {
       const { data: prof } = await supabase
         .from("profiles")
         .select("id")
-        .eq("email", recipientEmail)
+        .eq("email", inviteeEmail)
         .maybeSingle();
-      recipientId = prof?.id ?? null;
+      inviteeId = prof?.id ?? null;
     }
 
-    // The inviter can't invite themselves; also guard against a null recipient.
-    if (!recipientId) {
-      return jsonResponse({ skipped: true, reason: "recipient_has_no_account" });
-    }
-    if (recipientId === inviterId) {
-      return jsonResponse({ skipped: true, reason: "self_invite" });
-    }
+    // Look up a display name, falling back to the email local part.
+    const displayName = async (
+      userId: string | null,
+      email: string | null,
+      fallback: string
+    ): Promise<string> => {
+      if (userId) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", userId)
+          .maybeSingle();
+        if (data?.full_name) return data.full_name;
+      }
+      return email?.split("@")[0] || fallback;
+    };
 
-    // Inviter's display name.
-    let inviterName = "A colleague";
-    if (inviterId) {
-      const { data: inv } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", inviterId)
+    const caseTitleFor = async (id: string | null): Promise<string> => {
+      if (!id) return "a case";
+      const { data } = await supabase
+        .from("cases")
+        .select("case_title")
+        .eq("id", id)
         .maybeSingle();
-      inviterName = inv?.full_name || inviterName;
-    }
+      return data?.case_title || "a case";
+    };
 
-    // ─── Build the notification content ──────────────────────
+    // ─── Decide recipient and content ────────────────────────
+    let recipientId: string | null;
+    let notifType: "invitation" | "invitation_response";
     let title: string;
     let notifBody: string;
-    if (table === "firm_members") {
-      title = "⚖️ Firm Invitation";
-      notifBody = `${inviterName} invited you to join their firm`;
-    } else {
-      let caseTitle = "a case";
-      if (caseId) {
-        const { data: c } = await supabase
-          .from("cases")
-          .select("case_title")
-          .eq("id", caseId)
-          .maybeSingle();
-        caseTitle = c?.case_title || caseTitle;
+    let route: string;
+
+    if (event === "response") {
+      // The invitee answered — tell whoever sent the invite.
+      if (status !== "accepted" && status !== "rejected") {
+        return jsonResponse({ skipped: true, reason: "not_a_response" });
       }
-      title = "📁 Case Invitation";
-      notifBody = `${inviterName} shared "${caseTitle}" with you`;
+
+      recipientId = inviterId;
+      if (!recipientId) {
+        return jsonResponse({ skipped: true, reason: "no_inviter" });
+      }
+      if (recipientId === inviteeId) {
+        return jsonResponse({ skipped: true, reason: "self_response" });
+      }
+
+      const responder = await displayName(inviteeId, inviteeEmail, "Someone");
+      const accepted = status === "accepted";
+      title = accepted ? "✅ Invitation Accepted" : "🚫 Invitation Declined";
+
+      if (table === "firm_members") {
+        notifBody = accepted
+          ? `${responder} joined your firm`
+          : `${responder} declined your firm invitation`;
+        route = "/firm";
+      } else {
+        const caseTitle = await caseTitleFor(caseId);
+        notifBody = accepted
+          ? `${responder} accepted your invitation to "${caseTitle}"`
+          : `${responder} declined your invitation to "${caseTitle}"`;
+        route = caseId ? `/cases/${caseId}` : "/firm";
+      }
+
+      notifType = "invitation_response";
+    } else {
+      // Original path: a fresh (or renewed) invitation for the invitee.
+      if (status !== "pending") {
+        return jsonResponse({ skipped: true, reason: "not_pending" });
+      }
+
+      recipientId = inviteeId;
+      if (!recipientId) {
+        return jsonResponse({ skipped: true, reason: "recipient_has_no_account" });
+      }
+      if (recipientId === inviterId) {
+        return jsonResponse({ skipped: true, reason: "self_invite" });
+      }
+
+      const inviterName = await displayName(inviterId, null, "A colleague");
+
+      if (table === "firm_members") {
+        title = "⚖️ Firm Invitation";
+        notifBody = `${inviterName} invited you to join their firm`;
+      } else {
+        const caseTitle = await caseTitleFor(caseId);
+        title = "📁 Case Invitation";
+        notifBody = `${inviterName} shared "${caseTitle}" with you`;
+      }
+
+      notifType = "invitation";
+      route = "/collaborator-invitations";
     }
 
+    console.log(
+      `[${executionId}] event=${event} table=${table} status=${status} → ${recipientId}`
+    );
+
     // ─── Notification Centre ─────────────────────────────────
-    // Ahead of the token lookup, which returns early on `no_tokens`. An
-    // invitee who declined push permission still needs to see the invite.
+    // Ahead of the token lookup, which returns early on `no_tokens`. Someone
+    // who declined push permission still needs the in-app record.
+    //
+    // The dedupe key is scoped to the day so a duplicate webhook delivery is
+    // dropped, while a genuine re-invite tomorrow still notifies. Rows are
+    // purged after 24 hours, so a stale key never blocks a real notification.
+    const dayStamp = new Date().toISOString().split("T")[0];
     await recordNotification(
       supabase,
       {
         user_id: recipientId,
-        type: "invitation",
+        type: notifType,
         title,
         body: notifBody,
-        route: "/collaborator-invitations",
+        route,
         payload: {
           source_table: table,
           invitation_id: record.id ?? null,
           inviter_id: inviterId,
+          invitee_id: inviteeId,
           case_id: caseId,
+          status,
         },
-        dedupe_key: record.id ? `invitation:${table}:${record.id}` : undefined,
+        dedupe_key: record.id
+          ? `${notifType}:${table}:${record.id}:${status}:${dayStamp}`
+          : undefined,
       },
       executionId
     );
 
-    // ─── Fetch the invitee's FCM tokens ──────────────────────
+    // ─── Fetch the recipient's FCM tokens ────────────────────
     const { data: tokens, error: tokensError } = await supabase
       .from("fcm_tokens")
       .select("token")
@@ -174,10 +254,10 @@ Deno.serve(async (req: Request) => {
                 // Data-only: no `notification` block, so the Flutter app
                 // renders its own rich notification with deep-link payload.
                 data: {
-                  type: "invitation",
+                  type: notifType,
                   title,
                   body: notifBody,
-                  route: "/collaborator-invitations",
+                  route,
                 },
                 android: {
                   priority: "HIGH",
@@ -220,7 +300,7 @@ Deno.serve(async (req: Request) => {
     }
 
     console.log(`[${executionId}] ✅ Sent: ${sentCount}, Failed: ${failCount}`);
-    return jsonResponse({ success: true, table, sentCount, failCount });
+    return jsonResponse({ success: true, event, table, sentCount, failCount });
   } catch (error) {
     console.error(`[${executionId}] Error:`, (error as Error).message);
     return jsonResponse({ error: (error as Error).message }, 500);

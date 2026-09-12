@@ -23,7 +23,7 @@ class CasesScreen extends ConsumerStatefulWidget {
 
 class _CasesScreenState extends ConsumerState<CasesScreen> {
   String _searchQuery = '';
-  String _statusFilter = 'all'; // all, active, pending, closed
+  String _statusFilter = 'all'; // all, active, closed
   String _sortBy = 'recent'; // recent, hearing, title
   bool _isGridView = false;
   final ScrollController _scrollController = ScrollController();
@@ -54,6 +54,11 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
   Widget build(BuildContext context) {
     final paginatedState = ref.watch(paginatedCasesProvider);
     final rawCases = paginatedState.items;
+    // The stat cards and filter-chip counts describe the whole practice, so
+    // they come from their own query. Deriving them from `rawCases` meant they
+    // only ever counted the pages loaded so far, and climbed as you scrolled.
+    final statusCounts =
+        ref.watch(caseStatusCountsProvider).valueOrNull ?? const <String, int>{};
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final currentUserId = SupabaseService.client.auth.currentUser?.id;
 
@@ -101,11 +106,11 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ─── Modern Glassmorphic Hero Header ──────
-                  _buildModernHeroHeader(context, isDark, rawCases),
+                  _buildModernHeroHeader(context, isDark, statusCounts),
                   SizedBox(height: 16.h),
 
                   // ─── Search & Status Filters ──────────────
-                  _buildModernSearchAndFilters(context, isDark, rawCases),
+                  _buildModernSearchAndFilters(context, isDark, statusCounts),
                   SizedBox(height: 12.h),
 
                   // ─── Toolbar (Sort & Grid/List View) ─────
@@ -150,17 +155,19 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
 
   // ─── MODERN HERO HEADER ─────────────────────────────────
 
+  /// Counts the given [CaseStatus] names out of a status→count map.
+  static int _sumOf(Map<String, int> counts, List<String> names) =>
+      names.fold<int>(0, (sum, n) => sum + (counts[n] ?? 0));
+
   Widget _buildModernHeroHeader(
     BuildContext context,
     bool isDark,
-    List<CaseModel> cases,
+    Map<String, int> counts,
   ) {
-    final activeCount =
-        cases.where((c) => c.status.name.toLowerCase() == 'active').length;
-    final pendingCount =
-        cases.where((c) => c.status.name.toLowerCase() == 'pending').length;
-    final closedCount = cases.where((c) =>
-        ['closed', 'disposed', 'dismissed'].contains(c.status.name.toLowerCase())).length;
+    final totalCount = counts.values.fold<int>(0, (a, b) => a + b);
+    final activeCount = _sumOf(counts, const ['active']);
+    final closedCount =
+        _sumOf(counts, const ['closed', 'disposed', 'dismissed']);
 
     return Container(
       margin: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
@@ -230,6 +237,27 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                   children: [
                     Row(
                       children: [
+                        // `/cases` is a bottom-nav root, so there is usually
+                        // nothing to pop — fall back to the dashboard, the same
+                        // shape used by know_your_rights_screen.
+                        InkWell(
+                          onTap: () {
+                            if (context.canPop()) {
+                              context.pop();
+                            } else {
+                              context.go('/');
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(20.r),
+                          child: Padding(
+                            padding: EdgeInsets.only(right: 6.w),
+                            child: Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              color: Colors.white,
+                              size: 18.sp,
+                            ),
+                          ),
+                        ),
                         Container(
                           padding: EdgeInsets.all(8.r),
                           decoration: BoxDecoration(
@@ -287,7 +315,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '${cases.length}',
+                            '$totalCount',
                             style: GoogleFonts.outfit(
                               fontSize: 22.sp,
                               fontWeight: FontWeight.w800,
@@ -321,15 +349,6 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                         count: activeCount,
                         color: const Color(0xFF10B981),
                         icon: Icons.play_circle_fill_rounded,
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Expanded(
-                      child: _buildGlassStatTile(
-                        label: 'Pending',
-                        count: pendingCount,
-                        color: const Color(0xFFF59E0B),
-                        icon: Icons.hourglass_full_rounded,
                       ),
                     ),
                     SizedBox(width: 8.w),
@@ -414,7 +433,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
   Widget _buildModernSearchAndFilters(
     BuildContext context,
     bool isDark,
-    List<CaseModel> cases,
+    Map<String, int> counts,
   ) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -486,28 +505,25 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _buildStatusChip('all', 'ALL CASES', cases.length, isDark),
+                _buildStatusChip(
+                  'all',
+                  'ALL CASES',
+                  counts.values.fold<int>(0, (a, b) => a + b),
+                  isDark,
+                ),
                 SizedBox(width: 8.w),
                 _buildStatusChip(
                   'active',
                   'ACTIVE',
-                  cases.where((c) => c.status.name.toLowerCase() == 'active').length,
+                  _sumOf(counts, const ['active']),
                   isDark,
                   activeColor: const Color(0xFF10B981),
                 ),
                 SizedBox(width: 8.w),
                 _buildStatusChip(
-                  'pending',
-                  'PENDING',
-                  cases.where((c) => c.status.name.toLowerCase() == 'pending').length,
-                  isDark,
-                  activeColor: const Color(0xFFF59E0B),
-                ),
-                SizedBox(width: 8.w),
-                _buildStatusChip(
                   'closed',
                   'CLOSED',
-                  cases.where((c) => ['closed', 'disposed', 'dismissed'].contains(c.status.name.toLowerCase())).length,
+                  _sumOf(counts, const ['closed', 'disposed', 'dismissed']),
                   isDark,
                   activeColor: const Color(0xFF6366F1),
                 ),
@@ -1644,7 +1660,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
         return const Color(0xFF6366F1);
       case 'dismissed':
         return const Color(0xFFEF4444);
-      case 'pending':
+      case 'appeal':
         return const Color(0xFFF59E0B);
       default:
         return AppTheme.accent;
