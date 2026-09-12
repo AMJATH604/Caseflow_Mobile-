@@ -106,7 +106,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ─── Modern Glassmorphic Hero Header ──────
-                  _buildModernHeroHeader(context, isDark, statusCounts),
+                  _buildModernHeroHeader(context, isDark),
                   SizedBox(height: 16.h),
 
                   // ─── Search & Status Filters ──────────────
@@ -159,16 +159,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
   static int _sumOf(Map<String, int> counts, List<String> names) =>
       names.fold<int>(0, (sum, n) => sum + (counts[n] ?? 0));
 
-  Widget _buildModernHeroHeader(
-    BuildContext context,
-    bool isDark,
-    Map<String, int> counts,
-  ) {
-    final totalCount = counts.values.fold<int>(0, (a, b) => a + b);
-    final activeCount = _sumOf(counts, const ['active']);
-    final closedCount =
-        _sumOf(counts, const ['closed', 'disposed', 'dismissed']);
-
+  Widget _buildModernHeroHeader(BuildContext context, bool isDark) {
     return Container(
       margin: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
       decoration: BoxDecoration(
@@ -233,192 +224,69 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        // `/cases` is a bottom-nav root, so there is usually
-                        // nothing to pop — fall back to the dashboard, the same
-                        // shape used by know_your_rights_screen.
-                        InkWell(
-                          onTap: () {
-                            if (context.canPop()) {
-                              context.pop();
-                            } else {
-                              context.go('/');
-                            }
-                          },
-                          borderRadius: BorderRadius.circular(20.r),
-                          child: Padding(
-                            padding: EdgeInsets.only(right: 6.w),
-                            child: Icon(
-                              Icons.arrow_back_ios_new_rounded,
-                              color: Colors.white,
-                              size: 18.sp,
-                            ),
-                          ),
+                    // `/cases` is a bottom-nav root, so there is usually
+                    // nothing to pop — fall back to the dashboard, the same
+                    // shape used by know_your_rights_screen.
+                    InkWell(
+                      onTap: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go('/');
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(20.r),
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 6.w),
+                        child: Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: Colors.white,
+                          size: 18.sp,
                         ),
-                        Container(
-                          padding: EdgeInsets.all(8.r),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(14.r),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.2),
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.folder_special_rounded,
-                            color: Colors.white,
-                            size: 22.sp,
-                          ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'CASE ARCHIVE',
-                              style: GoogleFonts.inter(
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white.withValues(alpha: 0.75),
-                                letterSpacing: 1.5,
-                              ),
-                            ),
-                            SizedBox(height: 2.h),
-                            Text(
-                              'Legal Repository',
-                              style: GoogleFonts.outfit(
-                                fontSize: 24.sp,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                                letterSpacing: -0.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
-
-                    // Total Count Pill Badge
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+                      padding: EdgeInsets.all(8.r),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(18.r),
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(14.r),
                         border: Border.all(
                           color: Colors.white.withValues(alpha: 0.2),
                         ),
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '$totalCount',
-                            style: GoogleFonts.outfit(
-                              fontSize: 22.sp,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                              height: 1.0,
-                            ),
-                          ),
-                          SizedBox(height: 2.h),
-                          Text(
-                            'TOTAL',
-                            style: GoogleFonts.inter(
-                              fontSize: 9.sp,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white.withValues(alpha: 0.7),
-                              letterSpacing: 1,
-                            ),
-                          ),
-                        ],
+                      child: Icon(
+                        Icons.folder_special_rounded,
+                        color: Colors.white,
+                        size: 22.sp,
                       ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'CASE ARCHIVE',
+                          style: GoogleFonts.inter(
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white.withValues(alpha: 0.75),
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                        SizedBox(height: 2.h),
+                        Text(
+                          'Legal Repository',
+                          style: GoogleFonts.outfit(
+                            fontSize: 24.sp,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-                SizedBox(height: 20.h),
-
-                // Stat KPI Cards Row
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildGlassStatTile(
-                        label: 'Active',
-                        count: activeCount,
-                        color: const Color(0xFF10B981),
-                        icon: Icons.play_circle_fill_rounded,
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Expanded(
-                      child: _buildGlassStatTile(
-                        label: 'Closed',
-                        count: closedCount,
-                        color: const Color(0xFF818CF8),
-                        icon: Icons.check_circle_rounded,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGlassStatTile({
-    required String label,
-    required int count,
-    required Color color,
-    required IconData icon,
-  }) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.15),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(6.r),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.25),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: 12.sp, color: color),
-          ),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$count',
-                  style: GoogleFonts.outfit(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    height: 1.0,
-                  ),
-                ),
-                SizedBox(height: 2.h),
-                Text(
-                  label,
-                  style: GoogleFonts.inter(
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white.withValues(alpha: 0.75),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

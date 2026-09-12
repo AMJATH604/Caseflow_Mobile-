@@ -302,9 +302,11 @@ class CertifiedCopiesScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 12, 0),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Status indicator dot
                 Container(
+                  margin: EdgeInsets.only(top: 7.h),
                   width: 10.w,
                   height: 10.h,
                   decoration: BoxDecoration(
@@ -323,52 +325,56 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Two lines, and no longer sharing this row with the
+                      // status/paid badges — between them they left so little
+                      // width that most case names were cut to a first word.
                       Text(
                         c.caseTitle ?? 'Unknown Case',
                         style: GoogleFonts.outfit(
                           fontSize: 17.sp,
                           fontWeight: FontWeight.bold,
                           color: AppTheme.primary,
+                          height: 1.25,
                         ),
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 2.h),
-                      Row(
-                        children: [
-                          if (c.caNumber != null && c.caNumber!.isNotEmpty) ...[
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppTheme.background,
-                                borderRadius: BorderRadius.circular(6.r),
-                              ),
-                              child: Text(
-                                'CA: ${c.caNumber}',
-                                style: GoogleFonts.inter(
-                                  fontSize: 11.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.grey[500],
-                                  letterSpacing: 0.3,
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 8.w),
-                          ],
-                          Text(
-                            'Filed: ${_formatDate(c.boxDropDate)}',
-                            style: GoogleFonts.inter(
-                              fontSize: 11.sp,
-                              color: Colors.grey[400],
-                            ),
+                      // The court's case number, directly under the name —
+                      // what an advocate looks for first.
+                      if (c.caseNumber != null && c.caseNumber!.isNotEmpty) ...[
+                        SizedBox(height: 4.h),
+                        Text(
+                          c.caseNumber!,
+                          style: GoogleFonts.inter(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.accent,
+                            letterSpacing: 0.2,
                           ),
-                        ],
-                      ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ],
                   ),
                 ),
+                _buildActionsMenu(context, ref, c),
+              ],
+            ),
+          ),
+
+          // ─── Badges & meta ───
+          // In a Wrap rather than on the title row: previously the status and
+          // PAID badges sat beside the name and took whatever width they
+          // needed, which is what squeezed the case title down to one word.
+          // Here they flow onto a second line instead when space runs short.
+          Padding(
+            padding: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 0),
+            child: Wrap(
+              spacing: 8.w,
+              runSpacing: 8.h,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
                 // Status Badge
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -392,9 +398,8 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-                // NEW: Paid Badge
-                if (c.paidAmount != null) ...[
-                  SizedBox(width: 8.w),
+                // Paid Badge
+                if (c.paidAmount != null)
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -408,6 +413,7 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                       ),
                     ),
                     child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(
                           Icons.check_circle_rounded,
@@ -427,8 +433,37 @@ class CertifiedCopiesScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                ],
-                _buildActionsMenu(context, ref, c),
+                // CA (certified-copy application) number
+                if (c.caNumber != null && c.caNumber!.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppTheme.background,
+                      borderRadius: BorderRadius.circular(20.r),
+                      border: Border.all(
+                        color: AppTheme.border.withValues(alpha: 0.8),
+                      ),
+                    ),
+                    child: Text(
+                      'CA: ${c.caNumber}',
+                      style: GoogleFonts.inter(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.grey[600],
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ),
+                Text(
+                  'Filed: ${_formatDate(c.boxDropDate)}',
+                  style: GoogleFonts.inter(
+                    fontSize: 11.sp,
+                    color: Colors.grey[500],
+                  ),
+                ),
               ],
             ),
           ),

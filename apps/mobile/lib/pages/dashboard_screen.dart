@@ -331,44 +331,57 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ),
               SizedBox(height: 16.h),
+              // Equal-width slots. With spaceBetween each card sized itself to
+              // its label, so the longer Tamil words expanded until the four
+              // cards touched with no gap left between them.
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildFeatureCard(
-                    context,
-                    Icons.business_center_rounded,
-                    'Cases',
-                    const Color(0xFF6366F1),
-                    () {
-                      context.go('/cases');
-                    },
+                  Expanded(
+                    child: _buildFeatureCard(
+                      context,
+                      Icons.business_center_rounded,
+                      l10n.get('nav_cases'),
+                      const Color(0xFF6366F1),
+                      () {
+                        context.go('/cases');
+                      },
+                    ),
                   ),
-                  _buildFeatureCard(
-                    context,
-                    Icons.people_alt_rounded,
-                    'Clients',
-                    const Color(0xFF10B981),
-                    () {
-                      context.go('/clients');
-                    },
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: _buildFeatureCard(
+                      context,
+                      Icons.people_alt_rounded,
+                      l10n.get('clients'),
+                      const Color(0xFF10B981),
+                      () {
+                        context.go('/clients');
+                      },
+                    ),
                   ),
-                  _buildFeatureCard(
-                    context,
-                    Icons.gavel_rounded,
-                    'Hearings',
-                    const Color(0xFFF59E0B),
-                    () {
-                      context.go('/hearings');
-                    },
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: _buildFeatureCard(
+                      context,
+                      Icons.gavel_rounded,
+                      l10n.get('nav_hearings'),
+                      const Color(0xFFF59E0B),
+                      () {
+                        context.go('/hearings');
+                      },
+                    ),
                   ),
-                  _buildFeatureCard(
-                    context,
-                    Icons.credit_card_rounded,
-                    l10n.get('payments'),
-                    const Color(0xFF0EA5E9),
-                    () {
-                      context.go('/payments');
-                    },
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: _buildFeatureCard(
+                      context,
+                      Icons.credit_card_rounded,
+                      l10n.get('payments'),
+                      const Color(0xFF0EA5E9),
+                      () {
+                        context.go('/payments');
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -382,56 +395,69 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ),
               SizedBox(height: 16.h),
+              // Equal-width slots, same reason as the Jump To row above: the
+              // Tamil labels are long enough to collide under spaceBetween.
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildActionButton(
-                    context,
-                    Icons.add_rounded,
-                    l10n.get('new_case'),
-                    const Color(0xFF3B82F6),
-                    () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => const NewCaseDialog(),
-                      );
-                    },
+                  Expanded(
+                    child: _buildActionButton(
+                      context,
+                      Icons.add_rounded,
+                      l10n.get('new_case'),
+                      const Color(0xFF3B82F6),
+                      () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => const NewCaseDialog(),
+                        );
+                      },
+                    ),
                   ),
-                  _buildActionButton(
-                    context,
-                    Icons.person_add_rounded,
-                    l10n.get('new_client'),
-                    const Color(0xFF4ADE80),
-                    () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => const AddClientDialog(),
-                      );
-                    },
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: _buildActionButton(
+                      context,
+                      Icons.person_add_rounded,
+                      l10n.get('new_client'),
+                      const Color(0xFF4ADE80),
+                      () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => const AddClientDialog(),
+                        );
+                      },
+                    ),
                   ),
-                  _buildActionButton(
-                    context,
-                    Icons.event_available_rounded,
-                    l10n.get('new_hearing'),
-                    const Color(0xFFF59E0B),
-                    () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => const ScheduleHearingDialog(),
-                      );
-                    },
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: _buildActionButton(
+                      context,
+                      Icons.event_available_rounded,
+                      l10n.get('new_hearing'),
+                      const Color(0xFFF59E0B),
+                      () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => const ScheduleHearingDialog(),
+                        );
+                      },
+                    ),
                   ),
-                  _buildActionButton(
-                    context,
-                    Icons.note_add_rounded,
-                    'Log C.A',
-                    Colors.deepOrange,
-                    () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => const LogCCDialog(),
-                      );
-                    },
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: _buildActionButton(
+                      context,
+                      Icons.note_add_rounded,
+                      l10n.get('log_ca'),
+                      Colors.deepOrange,
+                      () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => const LogCCDialog(),
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -1014,13 +1040,19 @@ class DashboardScreen extends ConsumerWidget {
           children: [
             Icon(icon, color: accentColor, size: 26),
             SizedBox(height: 8.h),
+            // Tamil labels are longer than the English ones, so the label has
+            // to wrap inside the card rather than stretch it.
             Text(
               label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: GoogleFonts.outfit(
                 fontWeight: FontWeight.w600,
                 fontSize: 13.sp,
                 color: const Color(0xFF1E293B),
-              ),
+                height: 1.2,
+              ).indicSafe,
             ),
           ],
         ),
@@ -1093,12 +1125,19 @@ class DashboardScreen extends ConsumerWidget {
           ),
           if (label.isNotEmpty) ...[
             SizedBox(height: 8.h),
+            // Centred and wrapped: Tamil labels are much longer than their
+            // English equivalents ("புதிய கட்சிக்காரர்" vs "New Client") and
+            // used to run into the neighbouring button with no gap.
             Text(
               label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: GoogleFonts.inter(
                 color: const Color(0xFF64748B),
                 fontSize: 11.sp,
                 fontWeight: FontWeight.w600,
+                height: 1.25,
               ).indicSafe,
             ),
           ],

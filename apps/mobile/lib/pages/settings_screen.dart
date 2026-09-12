@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/providers.dart';
 import '../services/supabase_service.dart';
 import '../services/fcm_service.dart';
+import '../services/notification_prefs.dart';
 import '../components/profile_avatar.dart';
 import '../components/profile_detail_sheet.dart';
 import '../theme/app_theme.dart';
@@ -63,12 +64,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
       final prefs = await SharedPreferences.getInstance();
       if (mounted) {
         setState(() {
-          _dmNotifications = prefs.getBool('settings_dm_notif') ?? true;
+          // Keys come from NotificationPrefs, which is the side that acts on
+          // them in FcmService. Sharing the constants is what stops the two
+          // halves drifting apart — they already had, which is why these
+          // switches did nothing at all.
+          _dmNotifications = prefs.getBool(NotificationPrefs.dmKey) ?? true;
           _chamberNotifications =
-              prefs.getBool('settings_chamber_notif') ?? true;
-          _hearingReminders = prefs.getBool('settings_hearing_reminders') ?? true;
-          _notifSound = prefs.getBool('settings_notif_sound') ?? true;
-          _notifVibration = prefs.getBool('settings_notif_vibration') ?? true;
+              prefs.getBool(NotificationPrefs.chamberKey) ?? true;
+          _hearingReminders =
+              prefs.getBool(NotificationPrefs.hearingKey) ?? true;
+          _notifSound = prefs.getBool(NotificationPrefs.soundKey) ?? true;
+          _notifVibration =
+              prefs.getBool(NotificationPrefs.vibrationKey) ?? true;
           _publicDirectory = prefs.getBool('settings_public_directory') ?? true;
           _isDarkMode = prefs.getBool('settings_dark_mode') ?? false;
           _isLoading = false;
@@ -144,7 +151,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   color: const Color(0xFF6366F1),
                   onChanged: (v) {
                     setState(() => _dmNotifications = v);
-                    _saveBool('settings_dm_notif', v);
+                    _saveBool(NotificationPrefs.dmKey, v);
                   },
                 ),
                 _buildDivider(isDark),
@@ -157,7 +164,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   color: const Color(0xFF0EA5E9),
                   onChanged: (v) {
                     setState(() => _chamberNotifications = v);
-                    _saveBool('settings_chamber_notif', v);
+                    _saveBool(NotificationPrefs.chamberKey, v);
                   },
                 ),
                 _buildDivider(isDark),
@@ -170,7 +177,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   color: const Color(0xFFF59E0B),
                   onChanged: (v) {
                     setState(() => _hearingReminders = v);
-                    _saveBool('settings_hearing_reminders', v);
+                    _saveBool(NotificationPrefs.hearingKey, v);
                   },
                 ),
                 _buildDivider(isDark),
@@ -183,7 +190,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   color: const Color(0xFF10B981),
                   onChanged: (v) {
                     setState(() => _notifSound = v);
-                    _saveBool('settings_notif_sound', v);
+                    _saveBool(NotificationPrefs.soundKey, v);
                   },
                 ),
                 _buildDivider(isDark),
@@ -196,7 +203,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   color: const Color(0xFF8B5CF6),
                   onChanged: (v) {
                     setState(() => _notifVibration = v);
-                    _saveBool('settings_notif_vibration', v);
+                    _saveBool(NotificationPrefs.vibrationKey, v);
                   },
                 ),
               ]),
@@ -312,15 +319,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   title: l10n.get('send_feedback'),
                   subtitle: l10n.get('send_feedback_sub'),
                   color: const Color(0xFF3B82F6),
-                  onTap: _openFeedbackSheet,
-                ),
-                _buildDivider(isDark),
-                _buildActionTile(
-                  isDark,
-                  icon: Icons.bug_report_rounded,
-                  title: l10n.get('report_bug'),
-                  subtitle: l10n.get('report_bug_sub'),
-                  color: const Color(0xFFEF4444),
                   onTap: _openFeedbackSheet,
                 ),
                 _buildDivider(isDark),

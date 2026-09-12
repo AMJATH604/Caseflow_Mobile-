@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'supabase_service.dart';
 import 'app_constants.dart';
+import 'notification_prefs.dart';
 
 /// Handles Firebase Cloud Messaging (FCM) for server-side push notifications.
 class FcmService {
@@ -297,6 +298,16 @@ class FcmService {
     final isDm = type == 'dm_message';
     final isChat = type == 'chat_message';
 
+    // Settings → Notifications. Until now these switches were never read by
+    // anything, so turning DMs off changed nothing. Checking here is what
+    // makes them real: the pushes are data-only, so if we don't draw the
+    // notification, none appears.
+    final prefs = await NotificationPrefs.load();
+    if (!prefs.allows(type)) {
+      debugPrint('FCM: "$type" suppressed by notification settings');
+      return;
+    }
+
     // Route to appropriate channel
     String channelId;
     String channelName;
@@ -310,6 +321,14 @@ class FcmService {
       channelId = _hearingChannelId;
       channelName = _hearingChannelName;
     }
+
+    // Android pins sound and vibration to a channel at creation time and
+    // ignores playSound/enableVibration on later notifications, so the only
+    // way to honour those two switches is to post to a different channel.
+    // The suffix is empty when both are on, leaving the original channels —
+    // and any customisation the user made to them in Android — untouched.
+    channelId = '$channelId${prefs.channelSuffix}';
+    channelName = '$channelName${prefs.channelLabel}';
 
     // Build MessagingStyleInformation for messaging notifications (WhatsApp-style)
     StyleInformation styleInformation;
@@ -367,8 +386,8 @@ class FcmService {
       channelName,
       importance: Importance.max,
       priority: Priority.max,
-      playSound: true,
-      enableVibration: true,
+      playSound: prefs.sound,
+      enableVibration: prefs.vibration,
       styleInformation: styleInformation,
       icon: '@mipmap/ic_launcher',
       color: const Color(0xFF00A884),
