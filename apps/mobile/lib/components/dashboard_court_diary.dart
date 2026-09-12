@@ -224,7 +224,12 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // ── Title row ──
+                        // The title wraps to two lines rather than being cut
+                        // at one: party names like "SUMAINA vs PU MOHAMED ALI"
+                        // are longer than the space left beside the badge, and
+                        // a single ellipsised line hid which case it was.
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
                               child: Text(
@@ -232,12 +237,14 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                 style: TextStyle(
                                   fontWeight: FontWeight.w800,
                                   fontSize: 14.sp,
-                                  color: Color(0xFF1E293B),
+                                  color: const Color(0xFF1E293B),
+                                  height: 1.3,
                                 ),
-                                maxLines: 1,
+                                maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
+                            SizedBox(width: 8.w),
                             StatusBadge(status: h.status),
                           ],
                         ),

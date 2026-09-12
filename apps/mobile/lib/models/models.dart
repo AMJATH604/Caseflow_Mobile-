@@ -371,6 +371,11 @@ class CertifiedCopy {
   final String status;
   final String createdBy;
   final String? caseTitle;
+
+  /// The court's case number (e.g. `DVC/13/2025`) — how advocates actually
+  /// identify a case. Distinct from [caNumber], which is the certified-copy
+  /// application number. Already joined by the query in FilingRepository.
+  final String? caseNumber;
   final String? firmId;
   final double? paidAmount;
   final String? portalReceiptUrl;
@@ -386,6 +391,7 @@ class CertifiedCopy {
     this.status = 'box_drop',
     required this.createdBy,
     this.caseTitle,
+    this.caseNumber,
     this.firmId,
     this.paidAmount,
     this.portalReceiptUrl,
@@ -406,6 +412,7 @@ class CertifiedCopy {
     status: json['status'] ?? 'box_drop',
     createdBy: json['created_by'] ?? '',
     caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
+    caseNumber: json['cases'] != null ? json['cases']['case_number'] : null,
     firmId: json['cases'] != null ? json['cases']['firm_id'] : null,
     paidAmount:
         json['paid_amount'] != null
