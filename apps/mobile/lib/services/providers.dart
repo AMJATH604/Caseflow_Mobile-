@@ -227,6 +227,18 @@ final casesProvider = FutureProvider<List<CaseModel>>((ref) async {
   }
 });
 
+/// Per-status counts across every visible case, keyed by [CaseStatus] name.
+///
+/// Deliberately separate from [paginatedCasesProvider]: the Legal Repository
+/// list loads 20 rows at a time, and computing the stat cards from those rows
+/// made the numbers climb as the user scrolled. The list stays paginated; the
+/// counts come from their own one-column query.
+final caseStatusCountsProvider = FutureProvider<Map<String, int>>((ref) async {
+  ref.watch(authStateProvider);
+  ref.watch(dataRefreshProvider);
+  return RetryHelper.retry(() => SupabaseService.fetchCaseStatusCounts());
+});
+
 final caseDetailProvider = FutureProvider.family<CaseModel?, String>((
   ref,
   id,

@@ -115,6 +115,29 @@ final appRouter = GoRouter(
       },
     ),
 
+    // ─── Chat Routes (full-screen, outside the shell) ────────
+    // These sit outside AppShell on purpose. Each declares its own header with
+    // a back arrow, so inside the shell they rendered a second "CaseFlow" bar
+    // directly under AppShell's — two stacked titles saying the same thing.
+    // Being outside also drops the bottom nav, which is the usual shape for a
+    // messenger: you leave via the back arrow. `context.push` from the
+    // dashboard and FCM deep-links both still work unchanged.
+    GoRoute(
+      path: '/chat-hub',
+      builder: (context, state) => const ChatHubScreen(),
+    ),
+    GoRoute(
+      path: '/chambers-chat',
+      builder: (context, state) => const ChambersChatScreen(),
+    ),
+    GoRoute(
+      path: '/dm/:conversationId',
+      builder: (context, state) {
+        final conversationId = state.pathParameters['conversationId']!;
+        return DmChatScreen(conversationId: conversationId);
+      },
+    ),
+
     // ─── Guest Mode Routes (no auth required) ────────────────
     ShellRoute(
       builder: (context, state, child) => AppShell(isGuest: true, child: child),
@@ -236,22 +259,6 @@ final appRouter = GoRouter(
           path: '/legal-pulse',
           builder: (context, state) => const LegalPulseScreen(),
         ),
-        GoRoute(
-          path: '/chambers-chat',
-          builder: (context, state) => const ChambersChatScreen(),
-        ),
-        GoRoute(
-          path: '/chat-hub',
-          builder: (context, state) => const ChatHubScreen(),
-        ),
-        GoRoute(
-          path: '/dm/:conversationId',
-          builder: (context, state) {
-            final conversationId = state.pathParameters['conversationId']!;
-            return DmChatScreen(conversationId: conversationId);
-          },
-        ),
-
         // ─── Bar Association Routes ──────────────────────
         GoRoute(
           path: '/bar-association',
