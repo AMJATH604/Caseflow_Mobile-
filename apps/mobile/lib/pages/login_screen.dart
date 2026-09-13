@@ -168,11 +168,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           await SupabaseService.signOut();
           if (mounted) {
             setState(() => _isLoading = false);
-            final capitalizedDbRole =
-                profile.userRole == 'advocate' ? 'an Advocate' : 'a Citizen';
-            _showError(
-              'This account is registered as $capitalizedDbRole. Please go back and sign in through the correct portal.',
-            );
+            // 'admin' is a web-dashboard-only role. Without this branch the
+            // message below would call it "a Citizen", since it only knew two
+            // roles — confusing for whoever holds the admin credential.
+            if (profile.userRole == 'admin') {
+              _showError(
+                'This is an administrator account. Please sign in on the CaseFlow web dashboard instead.',
+              );
+            } else {
+              final capitalizedDbRole =
+                  profile.userRole == 'advocate' ? 'an Advocate' : 'a Citizen';
+              _showError(
+                'This account is registered as $capitalizedDbRole. Please go back and sign in through the correct portal.',
+              );
+            }
           }
           return;
         }
