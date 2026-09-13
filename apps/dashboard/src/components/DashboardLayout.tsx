@@ -16,7 +16,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   const PAGE_TITLES: ReadonlyArray<[string, string]> = [
     ["/legal-templates", "Legal Templates"],
     ["/stamp-values", "Stamp Values"],
-    ["/advocates", "Users"],
+    ["/users", "Users"],
     ["/bare-acts", "Bare Acts"],
   ];
 

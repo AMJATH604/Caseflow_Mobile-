@@ -13,7 +13,7 @@ export function MobileBottomNav() {
     // (Cases, Hearings, Tools) were removed from the console entirely.
     const navItems = [
         { title: "Overview", url: "/", icon: LayoutDashboard },
-        { title: "Users", url: "/advocates", icon: Users },
+        { title: "Users", url: "/users", icon: Users },
         { title: "Library", url: "/bare-acts", icon: BookOpen },
     ];
 

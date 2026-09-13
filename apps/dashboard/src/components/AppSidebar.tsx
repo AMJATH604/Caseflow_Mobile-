@@ -24,7 +24,7 @@ const navGroups = [
     label: "Platform",
     items: [
       { title: "Overview", url: "/", icon: LayoutDashboard },
-      { title: "Users", url: "/advocates", icon: Users },
+      { title: "Users", url: "/users", icon: Users },
     ],
   },
   {

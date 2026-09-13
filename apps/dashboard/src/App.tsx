@@ -8,11 +8,11 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
+import Overview from "./pages/Overview";
+import Users from "./pages/Users";
 import BareActs from "./pages/BareActs";
 import StampValuesAdmin from "./pages/StampValuesAdmin";
 import LegalTemplates from "./pages/LegalTemplates";
-import Advocates from "./pages/Advocates";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
 
@@ -64,8 +64,11 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<AuthRoute />} />
-            <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/advocates" element={<ProtectedRoute><Advocates /></ProtectedRoute>} />
+            <Route path="/" element={<ProtectedRoute><Overview /></ProtectedRoute>} />
+            <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+            {/* The old /advocates page read `profiles` directly and so showed
+                only what RLS allowed the admin to see. /users replaces it. */}
+            <Route path="/advocates" element={<Navigate to="/users" replace />} />
             <Route path="/bare-acts" element={<ProtectedRoute><BareActs /></ProtectedRoute>} />
             <Route path="/stamp-values" element={<ProtectedRoute><StampValuesAdmin /></ProtectedRoute>} />
             <Route path="/legal-templates" element={<ProtectedRoute><LegalTemplates /></ProtectedRoute>} />
