@@ -27,13 +27,38 @@ CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA net;
 
 -- ─────────────────────────────────────────────────────────
 -- Store the shared trigger secret in vault
--- Replace the placeholder below with your actual secret!
+--
+-- ⚠️  The secret is NOT written here any more.
+--
+-- This block used to hardcode the live value in plaintext, so the credential
+-- that authenticates every notification edge function sat in the repository —
+-- and therefore in git history permanently, readable by every collaborator and
+-- by anyone who ever clones or forks it.
+--
+-- Set it out of band instead, so it never enters version control:
+--
+--   SECRET=$(openssl rand -hex 32)
+--   supabase secrets set PG_TRIGGER_SECRET="$SECRET"      # edge function side
+--   -- then, in the SQL editor (vault side), as a one-off:
+--   --   delete from vault.secrets where name = 'pg_trigger_secret';
+--   --   select vault.create_secret('<paste $SECRET>', 'pg_trigger_secret');
+--
+-- Both sides must carry the SAME value: the triggers read the vault copy and
+-- send it as x-pg-trigger-secret; verifyWebhookAuth() compares it against the
+-- edge function's PG_TRIGGER_SECRET. Update the edge secret first, then the
+-- vault, to keep the mismatch window short.
+--
+-- This migration fails loudly rather than silently leaving auth broken.
 -- ─────────────────────────────────────────────────────────
 
--- Remove old secret if exists, then insert fresh
-DELETE FROM vault.secrets WHERE name = 'pg_trigger_secret';
-INSERT INTO vault.secrets (name, secret)
-VALUES ('pg_trigger_secret', 'caseflow_pg_trigger_2024_secure_key');
+DO $vault$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM vault.decrypted_secrets WHERE name = 'pg_trigger_secret') THEN
+    RAISE EXCEPTION
+      'vault secret "pg_trigger_secret" is missing. Create it out of band (see the comment above) before running this migration — the notification triggers cannot authenticate without it.';
+  END IF;
+END
+$vault$;
 
 
 -- ─────────────────────────────────────────────────────────

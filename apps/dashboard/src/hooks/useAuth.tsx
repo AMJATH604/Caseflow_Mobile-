@@ -56,10 +56,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const refetchAdminStatus = useCallback(async (): Promise<boolean> => {
-    if (typeof window !== "undefined" && window.localStorage.getItem("caseflow_demo") === "true") {
-      setIsAdmin(true);
-      return true;
-    }
     const {
       data: { session: current },
     } = await supabase.auth.getSession();
@@ -71,14 +67,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let isMounted = true;
 
-    if (typeof window !== "undefined" && window.localStorage.getItem("caseflow_demo") === "true") {
-      setSession({
-        user: { id: "demo-advocate-id", email: "advocate@caseflow.in" },
-      } as any);
-      setIsAdmin(true);
-      setLoading(false);
-      return;
-    }
+    // A `caseflow_demo` localStorage flag used to be honoured here and in
+    // refetchAdminStatus: setting it fabricated a session and forced
+    // isAdmin = true, which cleared every ProtectedRoute gate in the app.
+    // Anyone could type one line in the browser console to reach the admin
+    // UI. It is removed rather than gated on an env flag, because a build
+    // toggle is one misconfiguration away from shipping the same hole.
+    // Session and admin status now come only from Supabase.
 
     const applySession = async (next: Session | null) => {
       if (!isMounted) return;

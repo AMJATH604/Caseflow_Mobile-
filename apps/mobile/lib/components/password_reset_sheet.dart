@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/supabase_service.dart';
+import '../utils/password_policy.dart';
 
 /// Premium in-app password reset sheet.
 /// Uses a 6-digit OTP code sent to the advocate's email instead of
@@ -116,16 +117,22 @@ class _PasswordResetSheetState extends State<PasswordResetSheet> {
   Future<void> _verifyAndResetPassword() async {
     final email = _emailController.text.trim();
     final code = _codeController.text.trim();
-    final newPassword = _passwordController.text.trim();
-    final confirmPassword = _confirmPasswordController.text.trim();
+    // Passwords are not trimmed — see the note in login_screen._handleSignIn.
+    final newPassword = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
 
     if (code.length < 6 || code.length > 8) {
       setState(() => _errorMessage = 'Please enter the verification code (6 to 8 digits).');
       return;
     }
 
-    if (newPassword.length < 6) {
-      setState(() => _errorMessage = 'Password must be at least 6 characters long.');
+    // Must match the sign-up policy in login_screen (8 chars, 1 uppercase,
+    // 1 digit). This used to accept any 6 characters, which made "forgot
+    // password" a way around the policy the sign-up form enforces — set a
+    // strong password to register, then immediately reset it to "abc123".
+    final policyError = validatePasswordPolicy(newPassword);
+    if (policyError != null) {
+      setState(() => _errorMessage = policyError);
       return;
     }
 
