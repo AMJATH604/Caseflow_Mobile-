@@ -19,10 +19,18 @@ const int kMinPasswordLength = 8;
 
 /// Returns a human-readable reason the password is unacceptable, or `null` if
 /// it passes.
+///
+/// These rules mirror the Supabase Auth setting
+/// "Lowercase, uppercase letters and digits" exactly. They must stay in step:
+/// if the client were the looser of the two, a password could pass here and
+/// then be rejected by the server with a far less helpful message.
 String? validatePasswordPolicy(String? password) {
   if (password == null || password.isEmpty) return 'Enter a password';
   if (password.length < kMinPasswordLength) {
     return 'Minimum $kMinPasswordLength characters required';
+  }
+  if (!password.contains(RegExp(r'[a-z]'))) {
+    return 'Must contain at least 1 lowercase letter';
   }
   if (!password.contains(RegExp(r'[A-Z]'))) {
     return 'Must contain at least 1 uppercase letter';
