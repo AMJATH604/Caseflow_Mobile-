@@ -1144,7 +1144,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           _buildTextField(
             controller: _passwordController,
             label: 'Password',
-            hint: 'Min 8 chars, upper + lower case, 1 digit',
+            hint: 'Min 8 chars: upper, lower, digit & symbol',
             icon: Icons.lock_outline_rounded,
             isPassword: true,
             onChanged: _updatePasswordStrength,

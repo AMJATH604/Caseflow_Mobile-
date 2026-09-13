@@ -20,10 +20,14 @@ const int kMinPasswordLength = 8;
 /// Returns a human-readable reason the password is unacceptable, or `null` if
 /// it passes.
 ///
-/// These rules mirror the Supabase Auth setting
-/// "Lowercase, uppercase letters and digits" exactly. They must stay in step:
-/// if the client were the looser of the two, a password could pass here and
-/// then be rejected by the server with a far less helpful message.
+/// These rules mirror the configured Supabase Auth requirement
+/// ("Lowercase, uppercase letters, digits and symbols", minimum 8) exactly.
+///
+/// They must stay in step. If the client is the looser of the two, a password
+/// passes here and is then rejected by the server with its raw message —
+/// "Password should contain at least one character of each:
+/// abcdefghijklmnopqrstuvwxyz, ABCDEF..." — which is not something to show an
+/// advocate mid-signup.
 String? validatePasswordPolicy(String? password) {
   if (password == null || password.isEmpty) return 'Enter a password';
   if (password.length < kMinPasswordLength) {
@@ -37,6 +41,10 @@ String? validatePasswordPolicy(String? password) {
   }
   if (!password.contains(RegExp(r'[0-9]'))) {
     return 'Must contain at least 1 digit';
+  }
+  // Mirrors the symbol set GoTrue accepts.
+  if (!password.contains(RegExp(r'''[!@#$%^&*()_+\-=\[\]{};':"\\|<>?,./`~]'''))) {
+    return 'Must contain at least 1 symbol (e.g. ! @ # \$)';
   }
   return null;
 }
