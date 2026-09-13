@@ -1,4 +1,4 @@
-import { Scale, LayoutDashboard, Users, Briefcase, FileText, Gavel, CreditCard, LogOut, Wrench, BookOpen, FileStack, Receipt, Sparkles } from "lucide-react";
+import { Scale, LayoutDashboard, Users, LogOut, BookOpen, Receipt, FileText } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -6,38 +6,33 @@ import {
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarFooter, SidebarHeader,
 } from "@/components/ui/sidebar";
 
+/**
+ * Operator console navigation.
+ *
+ * The advocate-facing sections — Cases, Clients, Court Diary, E-Filing,
+ * Certified Copies, Payments, AI Assistant, Utilities — were removed. They are
+ * mobile-app features, and inside this console they showed the *administrator's
+ * own* records, which is useless for monitoring the platform. Pointing them at
+ * every user's data instead was never an option: case titles, client names and
+ * fee records are privileged advocate–client material.
+ *
+ * Platform observation is being built behind a server-side `admin-metrics`
+ * endpoint that returns aggregates and activity only, never record contents.
+ */
 const navGroups = [
   {
-    label: "Practice Hub",
+    label: "Platform",
     items: [
-      { title: "Dashboard", url: "/", icon: LayoutDashboard },
-      { title: "AI Assistant", url: "/ai-chat", icon: Sparkles },
-      { title: "Clients", url: "/clients", icon: Users },
-      { title: "Advocates", url: "/advocates", icon: Users },
+      { title: "Overview", url: "/", icon: LayoutDashboard },
+      { title: "Users", url: "/advocates", icon: Users },
     ],
   },
   {
-    label: "Management",
-    items: [
-      { title: "Cases", url: "/cases", icon: Briefcase },
-      { title: "Court Diary", url: "/hearings", icon: BookOpen },
-      { title: "E-Filing", url: "/efiling", icon: FileText },
-      { title: "Certified Copies", url: "/certified-copies", icon: FileStack },
-      { title: "Payments", url: "/payments", icon: CreditCard },
-    ],
-  },
-  {
-    label: "Statutory Library",
+    label: "Content Library",
     items: [
       { title: "Bare Acts", url: "/bare-acts", icon: BookOpen },
       { title: "Stamp Values", url: "/stamp-values", icon: Receipt },
       { title: "Legal Templates", url: "/legal-templates", icon: FileText },
-    ],
-  },
-  {
-    label: "System & Tools",
-    items: [
-      { title: "Utilities & Calculators", url: "/tools", icon: Wrench },
     ],
   },
 ];

@@ -11,21 +11,13 @@ import { useLocation } from "react-router-dom";
 export function DashboardLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
 
-  // Longest-prefix wins, so /cases/:id still resolves to "Cases".
+  // Longest-prefix wins. Only the routes this console still serves — the
+  // advocate-facing entries were removed along with their pages.
   const PAGE_TITLES: ReadonlyArray<[string, string]> = [
-    ["/certified-copies", "Certified Copies"],
     ["/legal-templates", "Legal Templates"],
-    ["/notifications", "Updates"],
     ["/stamp-values", "Stamp Values"],
-    ["/advocates", "Advocates"],
+    ["/advocates", "Users"],
     ["/bare-acts", "Bare Acts"],
-    ["/ai-chat", "AI Assistant"],
-    ["/payments", "Payments"],
-    ["/hearings", "Hearings"],
-    ["/efiling", "E-Filing"],
-    ["/clients", "Clients"],
-    ["/cases", "Cases"],
-    ["/tools", "Tools"],
   ];
 
   const getPageTitle = () => {

@@ -326,15 +326,6 @@ export default function Dashboard() {
                       ? "Nothing outstanding"
                       : `${pendingPaymentCount} record${pendingPaymentCount === 1 ? "" : "s"} with a balance`}
                   </p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="mt-4 -ml-2 gap-1.5 text-sm"
-                    onClick={() => navigate("/payments")}
-                  >
-                    View payments
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Button>
                 </CardContent>
               </Card>
 
@@ -368,9 +359,6 @@ export default function Dashboard() {
                   {format(new Date(), "EEEE d MMMM")}
                 </CardDescription>
               </div>
-              <Button variant="outline" size="sm" onClick={() => navigate("/hearings")}>
-                Calendar
-              </Button>
             </CardHeader>
             <CardContent>
               {todaysHearings.length === 0 ? (
