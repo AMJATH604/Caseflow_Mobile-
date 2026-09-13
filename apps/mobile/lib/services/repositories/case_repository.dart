@@ -1,7 +1,6 @@
 import '../../models/models.dart';
 import '../../models/case_dossier_models.dart';
 import 'base_repository.dart';
-import '../audit_logger.dart';
 
 /// Repository for all case-related operations.
 ///
@@ -127,13 +126,12 @@ class CaseRepository {
 
     final newCase = CaseModel.fromJson(response);
 
-    // Audit log
-    AuditLogger.log(
-      action: AuditAction.create,
-      entity: 'cases',
-      entityId: newCase.id,
-      details: {'case_title': newCase.caseTitle, 'client_id': newCase.clientId},
-    );
+    // Auditing is handled by the database trigger trg_audit_cases, which
+    // cannot be skipped by a client and also covers the web console. It
+    // deliberately records only the entity id and changed column names — the
+    // call removed from here wrote case_title and client_id into audit_logs,
+    // which is privileged material sitting in the table the admin console
+    // reads. See 20260917_audit_foundations.sql.
 
     return newCase;
   }
@@ -143,26 +141,15 @@ class CaseRepository {
     Map<String, dynamic> updates,
   ) async {
     await _client.from('cases').update(updates).eq('id', id);
-
-    // Audit log
-    AuditLogger.log(
-      action: AuditAction.update,
-      entity: 'cases',
-      entityId: id,
-      details: {'updated_fields': updates.keys.toList()},
-    );
+    // Audited by trg_audit_cases.
   }
 
   /// Cascading delete: removes all related records before the case itself.
   /// Ordered to avoid foreign key violations.
   static Future<void> deleteCase(String id) async {
-    // Audit log BEFORE deletion so we capture who deleted what
-    AuditLogger.log(
-      action: AuditAction.delete,
-      entity: 'cases',
-      entityId: id,
-      details: {'cascade': true},
-    );
+    // Audited by trg_audit_cases, which fires on the DELETE below. The child
+    // rows removed first are audited by their own triggers, so the cascade is
+    // recorded in full rather than as a single summary line.
 
     // Cascading delete: removes all related records before the case itself.
     await _client.from('strategy_tasks').delete().eq('case_id', id);
