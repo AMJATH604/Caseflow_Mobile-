@@ -9,6 +9,7 @@ import '../services/providers.dart';
 import '../services/fcm_service.dart';
 import '../models/geo_data.dart';
 import '../utils/responsive.dart';
+import '../utils/password_policy.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../components/password_reset_sheet.dart';
 
@@ -155,7 +156,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       try {
         await SupabaseService.signIn(
           _emailController.text.trim(),
-          _passwordController.text.trim(),
+          // Not trimmed: a password is an opaque credential, and silently
+          // stripping whitespace both shrinks the keyspace and means a
+          // password manager entry ending in a space can never be entered.
+          _passwordController.text,
         ).timeout(const Duration(seconds: 15));
 
         // Fetch user profile immediately to perform strict role check
@@ -222,7 +226,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         final res = await SupabaseService.client.auth
             .signUp(
               email: _emailController.text.trim(),
-              password: _passwordController.text.trim(),
+              // Must match _handleSignIn exactly — see the note there.
+              password: _passwordController.text,
               data: {
                 'full_name': _nameController.text.trim(),
                 'mobile_number': _mobileController.text.trim(),
@@ -1143,17 +1148,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             icon: Icons.lock_outline_rounded,
             isPassword: true,
             onChanged: _updatePasswordStrength,
-            validator: (v) {
-              if (v == null || v.isEmpty) return 'Enter a password';
-              if (v.length < 8) return 'Minimum 8 characters required';
-              if (!v.contains(RegExp(r'[A-Z]'))) {
-                return 'Must contain at least 1 uppercase letter';
-              }
-              if (!v.contains(RegExp(r'[0-9]'))) {
-                return 'Must contain at least 1 digit';
-              }
-              return null;
-            },
+            // Shared with the password-reset sheet so the two cannot drift
+            // apart — reset used to accept any 6 characters.
+            validator: validatePasswordPolicy,
           ),
           // Password Strength Indicator
           if (_passwordController.text.isNotEmpty) ...[
