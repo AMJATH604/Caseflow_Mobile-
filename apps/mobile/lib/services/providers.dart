@@ -13,9 +13,11 @@ import '../models/case_dossier_models.dart';
 import '../models/caveat_models.dart';
 import '../models/notification_models.dart';
 import '../models/strategy_models.dart';
+import '../models/cross_exam_models.dart';
 import 'caveat_service.dart';
 import 'locale_service.dart';
 import 'repositories/strategy_repository.dart';
+import 'repositories/cross_exam_repository.dart';
 import 'firm_service.dart';
 import 'collaborator_service.dart';
 
@@ -558,4 +560,35 @@ final strategyBoardSummaryProvider =
       ref.watch(dataRefreshProvider);
       return StrategyRepository.fetchBoardSummary(caseId);
     });
+
+// ─── Cross-Examination Prep ─────────────────────────
+
+/// All cross-examination sessions across all cases for the current user/firm.
+final crossExamSessionsProvider =
+    FutureProvider<List<CrossExamSession>>((ref) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(() => CrossExamRepository.fetchAllSessions());
+    });
+
+/// Cross-examination sessions for a specific case.
+final crossExamCaseSessionsProvider =
+    FutureProvider.family<List<CrossExamSession>, String>((ref, caseId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(
+        () => CrossExamRepository.fetchSessionsForCase(caseId),
+      );
+    });
+
+/// Questions for a specific cross-examination session.
+final crossExamQuestionsProvider =
+    FutureProvider.family<List<CrossExamQuestion>, String>((ref, sessionId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(
+        () => CrossExamRepository.fetchQuestions(sessionId),
+      );
+    });
+
 

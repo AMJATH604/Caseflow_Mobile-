@@ -23,6 +23,7 @@ import 'tools/mact_calculator.dart';
 import 'tools/maintenance_calculator.dart';
 import 'tools/legal_dictionary.dart';
 import 'tools/english_dictionary.dart';
+import 'cross_exam_sessions_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ToolsScreen extends ConsumerStatefulWidget {
@@ -150,6 +151,14 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
   ];
 
   final List<Map<String, dynamic>> _legalTools = [
+    {
+      'id': 'cross_exam',
+      'title': 'Cross-Exam Prep',
+      'desc': 'Prepare witness questions',
+      'icon': Icons.gavel_rounded,
+      'color': const Color(0xFFDC2626),
+      'plan': 'pro',
+    },
     {
       'id': 'ai_chat',
       'title': 'AI Legal Assistant',
@@ -520,6 +529,12 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
 
     if (tool['id'] == 'ai_chat') {
       context.push('/ai-chat');
+    } else if (tool['id'] == 'cross_exam') {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const CrossExamSessionsScreen(),
+        ),
+      );
     } else if (tool['id'] == 'advocate_directory') {
       context.push('/advocate-directory');
     } else if (tool['id'] == 'epay_court_fee') {
@@ -614,6 +629,9 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
           break;
         case 'stamp_values':
           toolWidget = const StampValueScreen();
+          break;
+        case 'cross_exam':
+          toolWidget = const CrossExamSessionsScreen();
           break;
         default:
           toolWidget = Center(child: Text('Tool: $_activeToolId'));

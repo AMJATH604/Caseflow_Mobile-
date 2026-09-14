@@ -35,6 +35,7 @@ import '../pages/chambers_chat_screen.dart';
 import '../pages/chat_hub_screen.dart';
 import '../pages/dm_chat_screen.dart';
 import '../pages/settings_screen.dart';
+import '../pages/cross_exam_sessions_screen.dart';
 
 import '../pages/bar_association/bar_association_home_screen.dart';
 import '../pages/bar_association/bar_notices_screen.dart';
@@ -258,6 +259,13 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/legal-pulse',
           builder: (context, state) => const LegalPulseScreen(),
+        ),
+        GoRoute(
+          path: '/cross-exam',
+          builder: (context, state) {
+            final caseId = state.uri.queryParameters['caseId'];
+            return CrossExamSessionsScreen(caseId: caseId);
+          },
         ),
         // ─── Bar Association Routes ──────────────────────
         GoRoute(
