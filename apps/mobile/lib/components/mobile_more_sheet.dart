@@ -89,13 +89,6 @@ class MobileMoreSheet extends ConsumerWidget {
               ),
               _buildMenuItem(
                 context,
-                Icons.description,
-                'E-Filing',
-                Colors.green,
-                '/efiling',
-              ),
-              _buildMenuItem(
-                context,
                 Icons.copy,
                 'CC Copies',
                 Colors.amber,

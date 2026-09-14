@@ -293,12 +293,6 @@ final casePaymentsProvider = FutureProvider.family<List<Payment>, String>((
   return RetryHelper.retry(() => SupabaseService.fetchPayments(caseId: caseId));
 });
 
-final efilingProvider = FutureProvider<List<EFilingRecord>>((ref) async {
-  ref.watch(authStateProvider);
-  ref.watch(dataRefreshProvider); // ← watches refresh trigger
-  return RetryHelper.retry(() => SupabaseService.fetchEfilingRecords());
-});
-
 final caseEfilingProvider = FutureProvider.family<List<EFilingRecord>, String>((
   ref,
   caseId,

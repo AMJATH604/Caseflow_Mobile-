@@ -3,7 +3,7 @@ import '../utils/env_config.dart';
 /// Application-wide constants.
 ///
 /// **Security:** Only Supabase connection credentials are exposed here.
-/// Third-party API keys (Gemini, iLovePDF) are stored as Supabase Edge
+/// Third-party API keys (Gemini) are stored as Supabase Edge
 /// Function secrets and accessed exclusively through server-side proxies.
 class AppConstants {
   static const String appName = 'CaseFlow';

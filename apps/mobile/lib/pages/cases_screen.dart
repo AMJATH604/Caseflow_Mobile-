@@ -26,6 +26,10 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
   String _statusFilter = 'all'; // all, active, closed
   String _sortBy = 'recent'; // recent, hearing, title
   bool _isGridView = false;
+
+  /// True once the hero header — and the back button inside it — has scrolled
+  /// out of view, so a compact back button can take its place.
+  bool _showPinnedBack = false;
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
 
@@ -99,7 +103,87 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
         ),
       ),
       body: SafeArea(
-        child: NestedScrollView(
+        child: Stack(
+          children: [
+            NotificationListener<ScrollNotification>(
+              onNotification: _onHeaderScroll,
+              child: _buildScrollBody(
+                context,
+                isDark,
+                statusCounts,
+                filteredCases,
+                paginatedState,
+                rawCases,
+                currentUserId,
+              ),
+            ),
+            // The back button lives in the hero header, which scrolls away
+            // with the list. Once it is gone, this one stays reachable.
+            Positioned(
+              top: 10.h,
+              left: 12.w,
+              child: IgnorePointer(
+                ignoring: !_showPinnedBack,
+                child: AnimatedOpacity(
+                  opacity: _showPinnedBack ? 1 : 0,
+                  duration: const Duration(milliseconds: 180),
+                  child: Material(
+                    color: isDark ? const Color(0xFF1E1B4B) : Colors.white,
+                    shape: const CircleBorder(),
+                    elevation: 4,
+                    shadowColor: Colors.black26,
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: () => _goBack(context),
+                      child: Padding(
+                        padding: EdgeInsets.all(10.r),
+                        child: Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          size: 18.sp,
+                          color: isDark ? Colors.white : const Color(0xFF312E81),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool _onHeaderScroll(ScrollNotification notification) {
+    // depth 0 is the NestedScrollView's outer scroll, which moves the header.
+    if (notification.depth == 0 &&
+        notification.metrics.axis == Axis.vertical) {
+      final show = notification.metrics.pixels > 110.h;
+      if (show != _showPinnedBack) setState(() => _showPinnedBack = show);
+    }
+    return false;
+  }
+
+  /// `/cases` is a bottom-nav root, so there is usually nothing to pop — fall
+  /// back to the dashboard, the same shape used by know_your_rights_screen.
+  void _goBack(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/');
+    }
+  }
+
+  Widget _buildScrollBody(
+    BuildContext context,
+    bool isDark,
+    Map<String, int> statusCounts,
+    List<CaseModel> filteredCases,
+    dynamic paginatedState,
+    List<CaseModel> rawCases,
+    String? currentUserId,
+  ) {
+    return NestedScrollView(
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverToBoxAdapter(
               child: Column(
@@ -148,8 +232,6 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                                   currentUserId,
                                 ),
                     ),
-        ),
-      ),
     );
   }
 

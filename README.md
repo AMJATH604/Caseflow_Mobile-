@@ -84,7 +84,6 @@
 | **Direct Messages** | WhatsApp-style advocate-to-advocate chat with attachments |
 | **Bar Association** | Membership cards, elections, notices, events, fee payments |
 | **Citizen Portal** | Case tracking, legal tools, and Know Your Rights for citizens |
-| **PDF Tools** | Compress, merge, convert, OCR — via server-side iLovePDF proxy |
 | **Broadcast** | Push notices to all firm members |
 | **Certified Copies** | Digital request tracking with status workflow |
 | **Legal Pulse** | Curated legal news feed |
@@ -112,8 +111,7 @@ caseflow/
 ├── supabase/
 │   └── functions/
 │       ├── send-hearing-reminders/ # Cron: automated FCM push
-│       ├── gemini-proxy/           # Server-side Gemini API proxy
-│       └── pdf-proxy/              # Server-side iLovePDF proxy
+│       └── gemini-proxy/           # Server-side Gemini API proxy
 ├── data/                           # Legal datasets (bare acts JSON)
 ├── scripts/                        # DB migrations & admin tools
 └── .github/workflows/
@@ -179,7 +177,7 @@ Tested across screen widths from 320dp (budget phones) to 430dp+ (flagships).
 ## 🔒 Security
 
 - **Row Level Security (RLS)** on all Supabase tables
-- **API key isolation** — Gemini & iLovePDF keys stored as Edge Function secrets, never in client binary
+- **API key isolation** — the Gemini key is stored as an Edge Function secret, never in client binary
 - **Evidence integrity** — SHA-256 hashing for commissioner evidence photos
 - **Subscription gating** — Server-validated tier + expiration checks
 - **Firm visibility** — OR-filter ensures users see own + firm data only
@@ -221,12 +219,9 @@ flutter run \
 # Deploy serverless functions
 supabase functions deploy send-hearing-reminders
 supabase functions deploy gemini-proxy
-supabase functions deploy pdf-proxy
 
 # Set secrets
 supabase secrets set GEMINI_API_KEY=<key>
-supabase secrets set ILOVEPDF_PUBLIC_KEY=<key>
-supabase secrets set ILOVEPDF_SECRET_KEY=<key>
 ```
 
 ---
@@ -256,7 +251,6 @@ Every push to `main` triggers:
 | **Mobile** | Flutter 3.29 · Dart 3.7 · Riverpod · GoRouter · ScreenUtil |
 | **Backend** | Supabase (PostgreSQL · Auth · Storage · Realtime · Edge Functions) |
 | **AI** | Google Gemini 2.0 Flash (server-side proxy) |
-| **PDF Engine** | iLovePDF API (server-side proxy) |
 | **Notifications** | Firebase Cloud Messaging (FCM v1 HTTP API) |
 | **Analytics** | Firebase Analytics · Crashlytics |
 | **CI/CD** | GitHub Actions (auto-build APK on push) |

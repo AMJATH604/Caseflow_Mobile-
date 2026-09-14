@@ -1,7 +1,7 @@
 /// Environment configuration for CaseFlow.
 ///
 /// **Security:** Only Supabase connection credentials are stored here.
-/// All third-party API keys (Gemini, iLovePDF) are stored server-side
+/// All third-party API keys (Gemini) are stored server-side
 /// as Supabase Edge Function secrets and never reach the client binary.
 ///
 /// The client key is the **publishable** key (`sb_publishable_…`). It is public

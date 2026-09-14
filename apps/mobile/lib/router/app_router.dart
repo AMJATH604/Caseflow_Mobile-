@@ -10,7 +10,6 @@ import '../pages/case_detail_screen.dart';
 import '../pages/clients_screen.dart';
 import '../pages/hearings_screen.dart';
 import '../pages/payments_screen.dart';
-import '../pages/efiling_screen.dart';
 import '../pages/certified_copies_screen.dart';
 import '../pages/portals_screen.dart';
 import '../pages/tools_screen.dart';
@@ -197,10 +196,6 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/payments',
           builder: (context, state) => const PaymentsScreen(),
-        ),
-        GoRoute(
-          path: '/efiling',
-          builder: (context, state) => EFilingScreen(),
         ),
         GoRoute(
           path: '/certified-copies',
