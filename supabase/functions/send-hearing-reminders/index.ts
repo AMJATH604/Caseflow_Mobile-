@@ -10,6 +10,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { getAccessToken, recordNotification } from "../_shared/fcm_utils.ts";
 import { verifyWebhookAuth } from "../_shared/auth_guard.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { secretKey } from "../_shared/keys.ts";
 
 Deno.serve(async (req: Request) => {
   // ─── Auth Guard: Verify webhook/cron caller ────────────────
@@ -65,7 +66,7 @@ Deno.serve(async (req: Request) => {
 
     // Initialize Supabase client with service role key
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const supabaseServiceKey = secretKey();
     const firebaseServiceAccountJson = Deno.env.get("FIREBASE_SERVICE_ACCOUNT");
 
     // Validate required environment variables

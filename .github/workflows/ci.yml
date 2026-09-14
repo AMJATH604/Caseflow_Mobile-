@@ -72,7 +72,7 @@ jobs:
         run: npm run build
         env:
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY || secrets.SUPABASE_ANON_KEY }}
 
   edge-functions:
     name: Edge Functions Check
@@ -127,10 +127,20 @@ jobs:
 
       - name: Check for hardcoded API keys
         run: |
-          # Search for common API key patterns in source code (excluding lock files and node_modules)
-          if grep -rn --include="*.ts" --include="*.dart" --include="*.tsx" --include="*.js" \
-            -E '(AIzaSy|sk-[a-zA-Z0-9]{20,}|AKIA[0-9A-Z]{16}|[0-9]{8,10}:AA[A-Za-z0-9_-]{30,}|xox[baprs]-[A-Za-z0-9-]{10,})' \
-            --exclude-dir=node_modules --exclude-dir=build --exclude-dir=.dart_tool .; then
+          # Search for common API key patterns in tracked source, scripts and
+          # text files. Widened after an audit found secrets this scan could not
+          # see: a service_role JWT in a .txt log, a Gemini key in Google's newer
+          # "AQ." format, and GitHub tokens in helper scripts.
+          #   AIzaSy / AQ.Ab        Google API keys (both formats)
+          #   c2VydmljZV9yb2xl…     base64 of "service_role" at each alignment
+          #   sb_secret_            Supabase secret key
+          #   gh[pousr]_            GitHub tokens
+          #   PRIVATE KEY-----<b64> a real PEM body, not code that strips headers
+          # google-services.json ships a Firebase key that is public by design.
+          if git ls-files -z -- '*.ts' '*.tsx' '*.js' '*.mjs' '*.dart' '*.txt' '*.ps1' '*.sh' '*.json' '*.sql' '*.yml' '*.yaml' '*.md' '*.env*' \
+              ':!:apps/mobile/android/app/google-services.json' ':!:**/package-lock.json' ':!:.github/workflows/ci.yml' \
+            | xargs -0 grep -nIE \
+              '(AIzaSy[0-9A-Za-z_-]{30,}|AQ\.Ab[0-9A-Za-z_-]{20,}|c2VydmljZV9yb2xl|NlcnZpY2Vfcm9sZ|zZXJ2aWNlX3JvbG|sb_secret_[A-Za-z0-9_-]{10,}|gh[pousr]_[A-Za-z0-9]{30,}|PRIVATE KEY-----(\\n)?[A-Za-z0-9+]{20,}|sk-[a-zA-Z0-9]{20,}|AKIA[0-9A-Z]{16}|[0-9]{8,10}:AA[A-Za-z0-9_-]{30,}|xox[baprs]-[A-Za-z0-9-]{10,})'; then
             echo "::error::Potential hardcoded API key detected in source code!"
             exit 1
           fi

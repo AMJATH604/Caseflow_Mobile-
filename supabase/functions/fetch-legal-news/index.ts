@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { verifyWebhookAuth } from "../_shared/auth_guard.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { requireSecretKey } from "../_shared/keys.ts";
 
 // ─── RSS Feed Sources ────────────────────────────────────────────────
 const FEEDS = [
@@ -177,7 +178,7 @@ Deno.serve(async (req: Request) => {
   if (authError) return authError;
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const supabaseServiceKey = requireSecretKey();
 
   // Use service role key for server-to-server DB writes
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
