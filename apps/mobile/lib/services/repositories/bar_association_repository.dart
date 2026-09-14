@@ -1,5 +1,4 @@
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'base_repository.dart';
 import '../../models/bar_association_models.dart';
 
@@ -8,8 +7,11 @@ import '../../models/bar_association_models.dart';
 /// Follows the existing CaseFlow [BaseRepository] pattern with static methods
 /// and direct Supabase client access via [BaseRepository.client].
 class BarAssociationRepository extends BaseRepository {
-  // ─── Salt for vote hashing (must match DB function) ─────
-  static const _voteSalt = 'caseflow_bar_election_salt_2026';
+  // Every column except invite_code, which only association administrators may
+  // read (through get_association_invite_code on the server).
+  static const _associationColumns =
+      'id, name, district, court, address, logo_url, annual_fee, '
+      'subscription_plan, subscription_expires_at, created_at, updated_at';
 
   // ═══════════════════════════════════════════════════════════
   // Association
@@ -34,7 +36,7 @@ class BarAssociationRepository extends BaseRepository {
 
     final rows = await BaseRepository.client
         .from('bar_associations')
-        .select()
+        .select(_associationColumns)
         .inFilter('id', assocIds);
 
     // Get member counts for each association
@@ -56,7 +58,7 @@ class BarAssociationRepository extends BaseRepository {
   static Future<BarAssociation?> getAssociation(String associationId) async {
     final row = await BaseRepository.client
         .from('bar_associations')
-        .select()
+        .select(_associationColumns)
         .eq('id', associationId)
         .maybeSingle();
 
@@ -76,56 +78,20 @@ class BarAssociationRepository extends BaseRepository {
   /// Joins an association using a 6-character invite code.
   /// Creates a bar_member record linking the user.
   static Future<BarAssociation> joinAssociation(String inviteCode) async {
-    final user = BaseRepository.requireAuth();
-    final profile = await BaseRepository.getCachedProfile();
+    BaseRepository.requireAuth();
 
-    // 1. Look up the association by invite code
-    final assocRow = await BaseRepository.client
-        .from('bar_associations')
-        .select()
-        .eq('invite_code', inviteCode.toUpperCase().trim())
-        .maybeSingle();
-
-    if (assocRow == null) {
-      throw Exception('Invalid invite code. Please check and try again.');
+    // The invite code is checked on the server: codes are not readable by
+    // ordinary users, and failed attempts are rate limited there.
+    try {
+      final assocRow = await BaseRepository.client.rpc(
+        'join_bar_association',
+        params: {'p_invite_code': inviteCode},
+      );
+      BaseRepository.invalidateProfileCache();
+      return BarAssociation.fromJson(Map<String, dynamic>.from(assocRow as Map));
+    } on PostgrestException catch (e) {
+      throw Exception(e.message);
     }
-
-    final associationId = assocRow['id'] as String;
-
-    // 2. Check if already a member
-    final existing = await BaseRepository.client
-        .from('bar_members')
-        .select()
-        .eq('association_id', associationId)
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-    if (existing != null) {
-      throw Exception('You are already a member of this association.');
-    }
-
-    // 3. Create the member record
-    await BaseRepository.client.from('bar_members').insert({
-      'association_id': associationId,
-      'user_id': user.id,
-      'name': profile.fullName,
-      'mobile': user.phone ?? '',
-      'email': user.email,
-      'membership_type': 'regular',
-      'status': 'active',
-      'joined_year': DateTime.now().year,
-      'is_caseflow_user': true,
-    });
-
-    // 4. Update profile with primary bar_association_id
-    await BaseRepository.client
-        .from('profiles')
-        .update({'bar_association_id': associationId})
-        .eq('id', user.id);
-
-    BaseRepository.invalidateProfileCache();
-
-    return BarAssociation.fromJson(assocRow);
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -346,29 +312,25 @@ class BarAssociationRepository extends BaseRepository {
 
   /// Casts votes for all posts in an election.
   /// [votes] is a map of postId -> nominationId.
+  ///
+  /// Cast on the server in one transaction: it checks membership, that voting
+  /// is open, that the candidates belong to this election and that you have
+  /// not voted, then stores the ballot under a voter hash keyed with a server
+  /// secret. The previous client-side hash used a salt published in the app,
+  /// so anyone could link ballots to members.
   static Future<void> castVotes({
     required String electionId,
     required String memberId,
     required Map<String, String> votes,
   }) async {
-    // 1. Generate voter hash (same as DB function)
-    final voterHash = _generateVoterHash(memberId, electionId);
-
-    // 2. Insert anonymous votes
-    final voteRecords = votes.entries.map((entry) => {
-      'post_id': entry.key,
-      'nomination_id': entry.value,
-      'voter_hash': voterHash,
-    }).toList();
-
-    await BaseRepository.client.from('bar_votes').insert(voteRecords);
-
-    // 3. Record participation (non-anonymous)
-    await BaseRepository.client.from('bar_voter_participation').insert({
-      'election_id': electionId,
-      'member_id': memberId,
-      'otp_verified': true,
-    });
+    try {
+      await BaseRepository.client.rpc(
+        'cast_bar_votes',
+        params: {'p_election_id': electionId, 'p_votes': votes},
+      );
+    } on PostgrestException catch (e) {
+      throw Exception(e.message);
+    }
   }
 
   /// Alias for castVotes.
@@ -415,14 +377,6 @@ class BarAssociationRepository extends BaseRepository {
       counts[row['nomination_id'] as String] = (row['vote_count'] as num).toInt();
     }
     return counts;
-  }
-
-  /// Generate SHA-256 voter hash matching the database function.
-  static String _generateVoterHash(String memberId, String electionId) {
-    final input = '$memberId$electionId$_voteSalt';
-    final bytes = utf8.encode(input);
-    final hash = sha256.convert(bytes);
-    return hash.toString();
   }
 
   // ─── Events ────────────────────────────────────────────────

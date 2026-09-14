@@ -63,17 +63,17 @@ class FirmService {
     }
 
     // Check if member already has a profile to pre-link
-    final memberProfile =
-        await client
-            .from('profiles')
-            .select('id')
-            .eq('email', email)
-            .maybeSingle();
+    final existingUserId =
+        await client.rpc(
+              'find_profile_id_by_email',
+              params: {'p_email': email},
+            )
+            as String?;
 
     await client.from('firm_members').insert({
       'owner_id': user.id,
       'member_email': email,
-      'member_id': memberProfile?['id'],
+      'member_id': existingUserId,
       'status': 'pending',
     });
   }

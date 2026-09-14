@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../models/commission_models.dart';
 import '../../theme/app_theme.dart';
+import '../secure_network_image.dart';
 
 /// Displays the sketches grid for a commission.
 ///
@@ -123,7 +124,7 @@ class CommissionSketchesTab extends StatelessWidget {
                   ),
                   child:
                       sk.sketchImageUrl != null
-                          ? Image.network(
+                          ? SecureNetworkImage(
                             sk.sketchImageUrl!,
                             fit: BoxFit.contain,
                             width: double.infinity,

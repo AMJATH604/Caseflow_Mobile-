@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../secure_network_image.dart';
+
 /// Image message bubble with local cache support and network fallback.
 class ChatImageBubble extends StatelessWidget {
   final String attachmentUrl;
@@ -58,7 +60,9 @@ class ChatImageBubble extends StatelessWidget {
   }
 
   Widget _buildNetworkImage() {
-    return Image.network(
+    // Chat attachments live in a private bucket, so the stored link is
+    // exchanged for a short-lived signed one before loading.
+    return SecureNetworkImage(
       attachmentUrl,
       width: 260.w,
       height: 200.h,

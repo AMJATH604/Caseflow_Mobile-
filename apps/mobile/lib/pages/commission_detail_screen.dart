@@ -15,6 +15,7 @@ import 'package:speech_to_text/speech_to_text.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../models/commission_models.dart';
 import '../services/commission_service.dart';
+import '../services/storage_links.dart';
 import '../theme/app_theme.dart';
 import 'commissions_screen.dart';
 import 'commission_report_screen.dart';
@@ -1118,7 +1119,9 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                       onPressed: () async {
                         final url = doc['url'] as String?;
                         if (url != null) {
-                          final uri = Uri.parse(url);
+                          final uri = Uri.parse(
+                            await StorageLinks.resolve(url),
+                          );
                           if (await canLaunchUrl(uri)) {
                             await launchUrl(
                               uri,
@@ -1444,7 +1447,9 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
 
     try {
       setState(() => _currentlyPlayingId = w.id);
-      await _audioPlayer.play(UrlSource(w.audioUrl!));
+      await _audioPlayer.play(
+        UrlSource(await StorageLinks.resolve(w.audioUrl!)),
+      );
       _audioPlayer.onPlayerComplete.listen((_) {
         if (mounted) setState(() => _currentlyPlayingId = null);
       });

@@ -19,27 +19,17 @@ final advocateSearchProvider = FutureProvider.family<
     final district = parts[1] == 'All' ? null : parts[1];
     final searchQuery = parts[2];
 
-    var query = Supabase.instance.client
-        .from('profiles')
-        .select(
-          'id, full_name, email, mobile_number, practice_state, practice_district, office_address, registration_number, avatar_url',
+    // Contact details are served only for advocates who opted into the
+    // directory, through a server function rather than a direct table read.
+    final response = await Supabase.instance.client
+        .rpc(
+          'search_advocate_directory',
+          params: {
+            'p_state': state,
+            'p_district': district,
+            'p_query': searchQuery,
+          },
         )
-        .eq('is_public_directory_enabled', true);
-
-    if (state != null && state.isNotEmpty) {
-      query = query.eq('practice_state', state);
-    }
-
-    if (district != null && district.isNotEmpty) {
-      query = query.eq('practice_district', district);
-    }
-
-    if (searchQuery.isNotEmpty) {
-      query = query.ilike('full_name', '%$searchQuery%');
-    }
-
-    final response = await query
-        .order('full_name')
         .timeout(
           const Duration(seconds: 15),
           onTimeout:
@@ -72,24 +62,6 @@ class _AdvocateDirectoryScreenState
   @override
   void initState() {
     super.initState();
-    _setupRealtimeListener();
-  }
-
-  void _setupRealtimeListener() {
-    _channel =
-        Supabase.instance.client
-            .channel('public:profiles')
-            .onPostgresChanges(
-              event: PostgresChangeEvent.all,
-              schema: 'public',
-              table: 'profiles',
-              callback: (payload) {
-                final filterKey =
-                    '$_selectedState|$_selectedDistrict|$_searchQuery';
-                ref.invalidate(advocateSearchProvider(filterKey));
-              },
-            )
-            .subscribe();
   }
 
   @override

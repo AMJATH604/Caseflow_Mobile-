@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../models/commission_models.dart';
 import '../../theme/app_theme.dart';
+import '../secure_network_image.dart';
 
 /// Displays the witnesses list for a commission.
 ///
@@ -115,7 +116,7 @@ class CommissionWitnessesTab extends StatelessWidget {
           borderRadius: BorderRadius.circular(12.r),
           child:
               w.photoUrl != null
-                  ? Image.network(
+                  ? SecureNetworkImage(
                     w.photoUrl!,
                     width: 56.w,
                     height: 56.h,

@@ -47,8 +47,9 @@ class BaseRepository {
     final user = client.auth.currentUser;
     if (user == null) throw Exception('Not authenticated');
 
-    final response =
-        await client.from('profiles').select().eq('id', user.id).maybeSingle();
+    // Through a server function: other users' contact fields are not
+    // selectable directly, but your own profile needs every column.
+    final response = await client.rpc('get_my_profile').maybeSingle();
 
     if (response == null) {
       final newProfile = {

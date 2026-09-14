@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
 import '../services/providers.dart';
 import '../services/supabase_service.dart';
+import '../services/storage_links.dart';
 import '../theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -104,7 +105,9 @@ class CaseDocumentsTab extends ConsumerWidget {
                                   onPressed: () async {
                                     final url = doc['url'] as String?;
                                     if (url != null) {
-                                      final uri = Uri.parse(url);
+                                      final uri = Uri.parse(
+                                        await StorageLinks.resolve(url),
+                                      );
                                       if (await canLaunchUrl(uri)) {
                                         await launchUrl(
                                           uri,

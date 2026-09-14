@@ -39,11 +39,16 @@ export function useAssociation(id: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('bar_associations')
-        .select('*')
+        .select('id, name, district, court, address, logo_url, annual_fee, subscription_plan, subscription_expires_at, created_at, updated_at')
         .eq('id', id)
         .single();
       if (error) throw error;
-      return data as BarAssociation;
+      // invite_code is not selectable directly; association admins read it
+      // through a server function. Non-admins simply get no code.
+      const { data: inviteCode } = await supabase.rpc('get_association_invite_code', {
+        p_association_id: id,
+      });
+      return { ...data, invite_code: inviteCode ?? '' } as BarAssociation;
     },
     enabled: !!id,
   });

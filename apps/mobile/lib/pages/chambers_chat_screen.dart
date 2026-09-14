@@ -15,6 +15,8 @@ import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/supabase_service.dart';
+import '../services/storage_links.dart';
+import '../components/secure_network_image.dart';
 import '../services/repositories/discussion_repository.dart';
 import '../services/providers.dart';
 import '../models/models.dart';
@@ -595,7 +597,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
         _localPaths[url] = localPath;
 
         await Dio().download(
-          url,
+          await StorageLinks.resolve(url),
           localPath,
           onReceiveProgress: (received, total) {
             if (total > 0 && mounted) {
@@ -704,7 +706,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
               maxScale: 4.0,
               child: isLocal
                   ? Image.file(File(pathOrUrl), fit: BoxFit.contain)
-                  : Image.network(
+                  : SecureNetworkImage(
                       pathOrUrl,
                       fit: BoxFit.contain,
                       loadingBuilder: (_, child, progress) {
@@ -741,7 +743,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
     if (await File(localPath).exists()) {
       await _audioPlayer.play(DeviceFileSource(localPath));
     } else {
-      await _audioPlayer.play(UrlSource(url));
+      await _audioPlayer.play(UrlSource(await StorageLinks.resolve(url)));
       _downloadInBackground(url, 'voice_message.m4a');
     }
   }

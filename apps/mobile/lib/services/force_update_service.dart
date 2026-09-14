@@ -19,7 +19,7 @@ import 'package:url_launcher/url_launcher.dart';
 /// ```
 class ForceUpdateService {
   /// The current app version — update on each release.
-  static const String currentVersion = '2.1.0';
+  static const String currentVersion = '2.2.0';
 
   /// Check if the current app version meets the minimum requirement.
   /// Returns true if an update is required.

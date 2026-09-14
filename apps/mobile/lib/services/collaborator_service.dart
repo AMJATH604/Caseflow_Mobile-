@@ -9,12 +9,12 @@ class CollaboratorService {
     if (user == null) throw Exception('Not authenticated');
 
     // Check if the user already exists to pre-link the ID
-    final profile =
-        await _client
-            .from('profiles')
-            .select('id')
-            .eq('email', email)
-            .maybeSingle();
+    final existingUserId =
+        await _client.rpc(
+              'find_profile_id_by_email',
+              params: {'p_email': email},
+            )
+            as String?;
 
     // onConflict must name the unique constraint. Without it PostgREST targets
     // the primary key, so re-inviting someone who previously declined hit
@@ -28,7 +28,7 @@ class CollaboratorService {
       'case_id': caseId,
       'owner_id': user.id,
       'collaborator_email': email,
-      'collaborator_id': profile?['id'],
+      'collaborator_id': existingUserId,
       'status': 'pending',
       'responded_at': null,
     }, onConflict: 'case_id,collaborator_email');
