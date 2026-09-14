@@ -8,79 +8,34 @@
 // body and pushed them with the service role. Anyone holding the app's public
 // key could send any text to any CaseFlow user — an ideal phishing channel.
 // It is now guarded like every other trigger-driven function.
+//
+// It also never delivered reliably. Its private copy of the Google OAuth code
+// encoded the signed JWT with plain base64 instead of base64url, which Google
+// rejects, and it ignored every FCM response, so it reported {"success":true}
+// while nothing arrived. It now uses the shared FCM helpers, which the working
+// senders use, and reports the real per-device outcome.
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { verifyWebhookAuth } from "../_shared/auth_guard.ts";
-import { requireSecretKey } from "../_shared/keys.ts";
-
-// Google Auth - get access token from service account
-async function getAccessToken(serviceAccount: any): Promise<string> {
-  const now = Math.floor(Date.now() / 1000);
-  const header = btoa(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-  const payload = btoa(
-    JSON.stringify({
-      iss: serviceAccount.client_email,
-      scope: "https://www.googleapis.com/auth/firebase.messaging",
-      aud: "https://oauth2.googleapis.com/token",
-      iat: now,
-      exp: now + 3600,
-    })
-  );
-
-  const pemContents = serviceAccount.private_key
-    .replace(/-----BEGIN PRIVATE KEY-----/, "")
-    .replace(/-----END PRIVATE KEY-----/, "")
-    .replace(/\n/g, "");
-  const binaryKey = Uint8Array.from(atob(pemContents), (c) => c.charCodeAt(0));
-
-  const cryptoKey = await crypto.subtle.importKey(
-    "pkcs8",
-    binaryKey,
-    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-
-  const unsignedToken = `${header}.${payload}`;
-  const signature = await crypto.subtle.sign(
-    "RSASSA-PKCS1-v1_5",
-    cryptoKey,
-    new TextEncoder().encode(unsignedToken)
-  );
-
-  const jwt = `${unsignedToken}.${btoa(
-    String.fromCharCode(...new Uint8Array(signature))
-  )}`;
-
-  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
-  });
-
-  const tokenData = await tokenResponse.json();
-  return tokenData.access_token;
-}
+import { getAccessToken, initClients, sendFcmMessage } from "../_shared/fcm_utils.ts";
 
 Deno.serve(async (req: Request) => {
   const authError = await verifyWebhookAuth(req);
   if (authError) return authError;
 
+  const executionId = crypto.randomUUID().substring(0, 8);
+  const json = (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+
   try {
-    const { user_id, title, message } = await req.json();
-    if (!user_id) {
-      return new Response(JSON.stringify({ error: "user_id is required" }), { status: 400 });
-    }
+    const { user_id, title, message, case_id } = await req.json();
+    if (!user_id) return json({ error: "user_id is required" }, 400);
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = requireSecretKey();
-    const firebaseServiceAccountJson = Deno.env.get("FIREBASE_SERVICE_ACCOUNT")!;
+    const { supabase, firebaseServiceAccount, projectId } = initClients();
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const firebaseServiceAccount = JSON.parse(firebaseServiceAccountJson);
-
-    // Fetch FCM tokens for the user
     const { data: tokens, error: tokensError } = await supabase
       .from("fcm_tokens")
       .select("token")
@@ -88,41 +43,51 @@ Deno.serve(async (req: Request) => {
 
     if (tokensError) throw tokensError;
     if (!tokens || tokens.length === 0) {
-      return new Response(JSON.stringify({ message: "No tokens found" }));
+      return json({ message: "No tokens found", sent: 0 });
     }
 
+    // Throws with Google's own error if the service-account key is rejected,
+    // instead of carrying on with an undefined access token.
     const accessToken = await getAccessToken(firebaseServiceAccount);
-    const projectId = firebaseServiceAccount.project_id;
 
+    const results = [];
     for (const t of tokens) {
-      await fetch(
-        `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+      results.push(
+        await sendFcmMessage(
+          projectId,
+          accessToken,
+          {
             message: {
               token: t.token,
-              notification: { title, body: message },
-              android: {
-                priority: "high",
-                notification: {
-                  channel_id: "case_updates",
-                  sound: "default",
-                  click_action: "FLUTTER_NOTIFICATION_CLICK",
-                },
+              // Data-only: the app renders the notification itself in
+              // FcmService.showRichNotification. A `notification` block would
+              // make Android show a second, duplicate one.
+              data: {
+                type: "case_status",
+                title: String(title ?? "Case update"),
+                body: String(message ?? ""),
+                route: case_id ? `/cases/${case_id}` : "/cases",
+              },
+              android: { priority: "HIGH" },
+              apns: {
+                payload: { aps: { "content-available": 1, sound: "default" } },
               },
             },
-          }),
-        }
+          },
+          supabase,
+          t.token,
+          executionId,
+        ),
       );
     }
 
-    return new Response(JSON.stringify({ success: true }));
+    const sent = results.filter((r) => r.success).length;
+    const errors = results.filter((r) => !r.success).map((r) => r.error);
+    if (errors.length) console.error(`[${executionId}] FCM failures: ${errors.join(" | ")}`);
+
+    return json({ success: sent > 0, sent, failed: errors.length, errors }, sent > 0 ? 200 : 502);
   } catch (error) {
-    return new Response(JSON.stringify({ error: (error as Error).message }), { status: 500 });
+    console.error(`[${executionId}] ${(error as Error).message}`);
+    return json({ error: (error as Error).message }, 500);
   }
 });
