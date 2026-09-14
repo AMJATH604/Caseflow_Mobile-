@@ -21,6 +21,23 @@ class ProfileRepository {
     BaseRepository.invalidateProfileCache();
   }
 
+  /// Display names for the given profile ids. Names only: other users'
+  /// contact fields are not selectable.
+  static Future<Map<String, String>> fetchDisplayNames(List<String> ids) async {
+    if (ids.isEmpty) return const {};
+    final rows = await _client
+        .from('profiles')
+        .select('id, full_name')
+        .inFilter('id', ids);
+    return {
+      for (final row in rows as List)
+        row['id'] as String:
+            ((row['full_name'] as String?)?.trim().isNotEmpty ?? false)
+                ? row['full_name'] as String
+                : 'a colleague',
+    };
+  }
+
   /// Refreshes the cache from the database.
   static Future<UserProfile> refreshProfile() async {
     BaseRepository.invalidateProfileCache();

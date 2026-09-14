@@ -23,6 +23,19 @@ class FirmService {
     return (response as List).map((json) => FirmMember.fromJson(json)).toList();
   }
 
+  /// Firms the current user has joined as an associate, each with its senior
+  /// and accepted associates.
+  ///
+  /// Through a server function because RLS lets an associate read only their
+  /// own firm_members row — querying the senior's firm directly returned just
+  /// that one row, so the associate never saw who they work under.
+  static Future<List<SeniorFirm>> fetchMySeniorFirms() async {
+    final response = await client.rpc('get_my_senior_firms');
+    return ((response as List?) ?? const [])
+        .map((json) => SeniorFirm.fromJson(Map<String, dynamic>.from(json as Map)))
+        .toList();
+  }
+
   /// Invites a member to the firm by email. No member limit.
   static Future<void> inviteMember(String email) async {
     final user = client.auth.currentUser;

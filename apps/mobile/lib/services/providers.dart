@@ -8,6 +8,7 @@ import 'supabase_service.dart';
 import 'retry_helper.dart';
 import 'offline_cache_service.dart';
 import 'repositories/base_repository.dart';
+import 'repositories/profile_repository.dart';
 import '../models/models.dart';
 import '../models/case_dossier_models.dart';
 import '../models/caveat_models.dart';
@@ -417,6 +418,15 @@ final caveatsProvider = FutureProvider<List<Caveat>>((ref) async {
 // ─── UI State ────────────────────────────────────────
 
 final navigationIndexProvider = StateProvider<int>((ref) => 0);
+
+/// Display names for a set of profile ids, e.g. the seniors whose firm shared
+/// a case. Keyed by a sorted, comma-joined id list so one set shares one fetch.
+final profileNamesProvider =
+    FutureProvider.family<Map<String, String>, String>((ref, idsKey) async {
+  ref.watch(authStateProvider);
+  if (idsKey.isEmpty) return const {};
+  return ProfileRepository.fetchDisplayNames(idsKey.split(','));
+});
 final pageTitleProvider = StateProvider<String>((ref) => 'CaseFlow');
 final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.light);
 

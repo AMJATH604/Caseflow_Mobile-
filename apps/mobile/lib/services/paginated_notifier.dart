@@ -112,4 +112,20 @@ abstract class PaginatedNotifier<T>
   Future<void> refresh() async {
     await loadInitial();
   }
+
+  /// Loads every remaining page.
+  ///
+  /// For an order the server cannot produce — such as "upcoming hearings
+  /// first" — the whole list has to be present before sorting; otherwise only
+  /// the pages loaded so far get reordered.
+  Future<void> loadAll() async {
+    while (mounted && (state.isLoading || state.isLoadingMore)) {
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    }
+    while (mounted && state.hasMore && state.error == null) {
+      final before = state.items.length;
+      await loadMore();
+      if (state.items.length == before) break;
+    }
+  }
 }

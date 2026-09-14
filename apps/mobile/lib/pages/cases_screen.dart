@@ -30,6 +30,12 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
   /// True once the hero header — and the back button inside it — has scrolled
   /// out of view, so a compact back button can take its place.
   bool _showPinnedBack = false;
+
+  /// Guards the one-off "load every page" run the Next Hearing sort needs.
+  bool _loadingAllCases = false;
+
+  /// Senior names for cases shared from another advocate's firm, by firm id.
+  Map<String, String> _sharerNames = const {};
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
 
@@ -68,6 +74,33 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
 
     // Filter & Sort
     final filteredCases = _getFilteredAndSortedCases(rawCases);
+
+    // Next Hearing orders across every case, not just the pages loaded so
+    // far, so pull in the rest before the order is meaningful.
+    if (_sortBy == 'hearing' &&
+        paginatedState.hasMore &&
+        !paginatedState.isLoading &&
+        !paginatedState.isLoadingMore &&
+        paginatedState.error == null &&
+        !_loadingAllCases) {
+      _loadingAllCases = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref
+            .read(paginatedCasesProvider.notifier)
+            .loadAll()
+            .whenComplete(() => _loadingAllCases = false);
+      });
+    }
+
+    final sharerIds = {
+      for (final c in rawCases)
+        if (currentUserId != null && c.isTeamCase(currentUserId)) c.firmId!,
+    }.toList()
+      ..sort();
+    _sharerNames =
+        ref.watch(profileNamesProvider(sharerIds.join(','))).valueOrNull ??
+            const {};
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF090D16) : const Color(0xFFF6F8FC),
@@ -158,7 +191,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
     // depth 0 is the NestedScrollView's outer scroll, which moves the header.
     if (notification.depth == 0 &&
         notification.metrics.axis == Axis.vertical) {
-      final show = notification.metrics.pixels > 110.h;
+      final show = notification.metrics.pixels > 48.h;
       if (show != _showPinnedBack) setState(() => _showPinnedBack = show);
     }
     return false;
@@ -189,8 +222,8 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ─── Modern Glassmorphic Hero Header ──────
-                  _buildModernHeroHeader(context, isDark),
+                  // ─── Title ────────────────────────────────
+                  _buildTitleHeader(context, isDark),
                   SizedBox(height: 16.h),
 
                   // ─── Search & Status Filters ──────────────
@@ -235,142 +268,41 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
     );
   }
 
-  // ─── MODERN HERO HEADER ─────────────────────────────────
+  // ─── TITLE HEADER ───────────────────────────────────────
 
   /// Counts the given [CaseStatus] names out of a status→count map.
   static int _sumOf(Map<String, int> counts, List<String> names) =>
       names.fold<int>(0, (sum, n) => sum + (counts[n] ?? 0));
 
-  Widget _buildModernHeroHeader(BuildContext context, bool isDark) {
-    return Container(
-      margin: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28.r),
-        gradient: LinearGradient(
-          colors: isDark
-              ? [
-                  const Color(0xFF0F172A),
-                  const Color(0xFF1E1B4B),
-                  const Color(0xFF312E81),
-                  const Color(0xFF4338CA),
-                ]
-              : [
-                  const Color(0xFF1E1B4B),
-                  const Color(0xFF312E81),
-                  const Color(0xFF4338CA),
-                  const Color(0xFF6366F1),
-                ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF312E81).withValues(alpha: isDark ? 0.5 : 0.3),
-            blurRadius: 28,
-            offset: const Offset(0, 14),
-          ),
-        ],
-      ),
-      child: Stack(
+  /// Just the page title. The decorative hero card used most of the first
+  /// screen; now the title scrolls away with the list and the compact back
+  /// button in [build] takes over once it has gone.
+  Widget _buildTitleHeader(BuildContext context, bool isDark) {
+    final titleColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    return Padding(
+      padding: EdgeInsets.fromLTRB(4.w, 8.h, 16.w, 0),
+      child: Row(
         children: [
-          // Background ambient glow circles
-          Positioned(
-            right: -20.w,
-            top: -20.h,
-            child: Container(
-              width: 140.w,
-              height: 140.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.08),
-              ),
+          IconButton(
+            tooltip: 'Back',
+            onPressed: () => _goBack(context),
+            icon: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 20.sp,
+              color: titleColor,
             ),
           ),
-          Positioned(
-            left: -40.w,
-            bottom: -40.h,
-            child: Container(
-              width: 160.w,
-              height: 160.w,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.accent.withValues(alpha: 0.2),
+          Expanded(
+            child: Text(
+              'Legal Repository',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.outfit(
+                fontSize: 24.sp,
+                fontWeight: FontWeight.w700,
+                color: titleColor,
+                letterSpacing: -0.5,
               ),
-            ),
-          ),
-
-          // Main Header Content
-          Padding(
-            padding: EdgeInsets.all(22.r),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    // `/cases` is a bottom-nav root, so there is usually
-                    // nothing to pop — fall back to the dashboard, the same
-                    // shape used by know_your_rights_screen.
-                    InkWell(
-                      onTap: () {
-                        if (context.canPop()) {
-                          context.pop();
-                        } else {
-                          context.go('/');
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(20.r),
-                      child: Padding(
-                        padding: EdgeInsets.only(right: 6.w),
-                        child: Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: Colors.white,
-                          size: 18.sp,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.all(8.r),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(14.r),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.2),
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.folder_special_rounded,
-                        color: Colors.white,
-                        size: 22.sp,
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'CASE ARCHIVE',
-                          style: GoogleFonts.inter(
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white.withValues(alpha: 0.75),
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        SizedBox(height: 2.h),
-                        Text(
-                          'Legal Repository',
-                          style: GoogleFonts.outfit(
-                            fontSize: 24.sp,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
             ),
           ),
         ],
@@ -773,7 +705,9 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
   ) {
     final statColor = _statusColor(c.status.name);
     final isOwner = c.createdBy == currentUserId;
-    final isSharedCase = !isOwner && c.firmId == null;
+    // firm_id is the firm owner's id, and a solo advocate's firm is
+    // themselves — so a case is shared exactly when that owner is someone else.
+    final isSharedCase = currentUserId != null && c.isTeamCase(currentUserId);
 
     return Container(
       margin: EdgeInsets.only(bottom: 14.h),
@@ -862,26 +796,6 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                     ),
                     const Spacer(),
 
-                    // Shared Tag
-                    if (isSharedCase) ...[
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2563EB).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: Text(
-                          'SHARED',
-                          style: GoogleFonts.inter(
-                            fontSize: 9.sp,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF2563EB),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                    ],
-
                     // Status Pill
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
@@ -941,7 +855,12 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 14.h),
+                SizedBox(height: 12.h),
+
+                if (isSharedCase) ...[
+                  _buildSharedByBadge(c, isDark),
+                  SizedBox(height: 12.h),
+                ],
 
                 // Client Name & Court Forum
                 Row(
@@ -968,7 +887,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                     SizedBox(width: 8.w),
                     Expanded(
                       child: Text(
-                        c.clientName ?? (c.firmId != null ? 'Firm Shared Case' : 'Private Client'),
+                        c.clientName ?? 'No client linked',
                         style: GoogleFonts.inter(
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w600,
@@ -1105,6 +1024,43 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
     );
   }
 
+  Widget _buildSharedByBadge(CaseModel c, bool isDark, {bool compact = false}) {
+    final name = _sharerNames[c.firmId];
+    final fg = isDark ? const Color(0xFF93C5FD) : const Color(0xFF1D4ED8);
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 8.w : 10.w,
+        vertical: compact ? 4.h : 6.h,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2563EB).withValues(alpha: isDark ? 0.2 : 0.08),
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(
+          color: const Color(0xFF2563EB).withValues(alpha: 0.25),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.groups_rounded, size: compact ? 13.sp : 16.sp, color: fg),
+          SizedBox(width: 6.w),
+          Flexible(
+            child: Text(
+              name != null ? 'Shared by $name' : 'Shared with you',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.inter(
+                fontSize: compact ? 10.sp : 12.sp,
+                fontWeight: FontWeight.w700,
+                color: fg,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildModernCaseCardGrid(
     BuildContext context,
     bool isDark,
@@ -1199,11 +1155,15 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
+                if (currentUserId != null && c.isTeamCase(currentUserId)) ...[
+                  SizedBox(height: 6.h),
+                  _buildSharedByBadge(c, isDark, compact: true),
+                ],
                 const Spacer(),
 
                 // Client Name
                 Text(
-                  c.clientName ?? 'Private Client',
+                  c.clientName ?? 'No client linked',
                   style: GoogleFonts.inter(
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w500,
@@ -1583,10 +1543,21 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
     // Sorting
     switch (_sortBy) {
       case 'hearing':
+        // Upcoming hearings first, soonest at the top; then hearings whose
+        // date has passed, most recent first; then cases with no date. A
+        // plain ascending sort put years-old dates above next week's.
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
+        int group(DateTime? d) =>
+            d == null ? 2 : (d.isBefore(today) ? 1 : 0);
         list.sort((a, b) {
-          if (a.nextHearingDate == null) return 1;
-          if (b.nextHearingDate == null) return -1;
-          return a.nextHearingDate!.compareTo(b.nextHearingDate!);
+          final ga = group(a.nextHearingDate);
+          final gb = group(b.nextHearingDate);
+          if (ga != gb) return ga.compareTo(gb);
+          if (ga == 2) return 0;
+          return ga == 0
+              ? a.nextHearingDate!.compareTo(b.nextHearingDate!)
+              : b.nextHearingDate!.compareTo(a.nextHearingDate!);
         });
         break;
       case 'title':
