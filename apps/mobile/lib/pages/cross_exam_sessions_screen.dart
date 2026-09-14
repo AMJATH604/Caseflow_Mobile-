@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
 import '../models/cross_exam_models.dart';
-import '../models/models.dart';
 import '../services/providers.dart';
 import '../services/repositories/cross_exam_repository.dart';
 import '../theme/app_theme.dart';
@@ -974,7 +973,6 @@ class _NewSessionSheet extends ConsumerStatefulWidget {
 class _NewSessionSheetState extends ConsumerState<_NewSessionSheet> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedCaseId;
-  String? _selectedCaseTitle;
   final _witnessNameController = TextEditingController();
   String _selectedTag = 'PW1';
   DateTime? _hearingDate;
@@ -1111,11 +1109,10 @@ class _NewSessionSheetState extends ConsumerState<_NewSessionSheet> {
 
                   if (_selectedCaseId == null && cases.isNotEmpty) {
                     _selectedCaseId = cases.first.id;
-                    _selectedCaseTitle = cases.first.caseTitle;
                   }
 
                   return DropdownButtonFormField<String>(
-                    value: _selectedCaseId,
+                    initialValue: _selectedCaseId,
                     isExpanded: true,
                     decoration: InputDecoration(
                       contentPadding: EdgeInsets.symmetric(
@@ -1141,8 +1138,6 @@ class _NewSessionSheetState extends ConsumerState<_NewSessionSheet> {
                     onChanged: (val) {
                       setState(() {
                         _selectedCaseId = val;
-                        final found = cases.firstWhere((c) => c.id == val);
-                        _selectedCaseTitle = found.caseTitle;
                       });
                     },
                     validator: (v) => v == null ? 'Select a case' : null,

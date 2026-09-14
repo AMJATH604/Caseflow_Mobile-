@@ -688,10 +688,11 @@ class _CrossExamDetailScreenState
       question: question,
       isDark: isDark,
       onSave: (updates) async {
+        final messenger = ScaffoldMessenger.of(context);
         await CrossExamRepository.updateQuestion(question.id, updates);
         ref.invalidate(crossExamQuestionsProvider(_session.id));
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          messenger.showSnackBar(
             const SnackBar(
               content: Text('Question updated successfully'),
               duration: Duration(seconds: 1),
@@ -1054,10 +1055,11 @@ class _CrossExamDetailScreenState
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () async {
+              final nav = Navigator.of(context);
               Navigator.of(ctx).pop();
               await CrossExamRepository.deleteSession(_session.id);
               ref.invalidate(crossExamSessionsProvider);
-              if (mounted) Navigator.of(context).pop();
+              if (mounted) nav.pop();
             },
             child: const Text('Delete', style: TextStyle(color: Colors.white)),
           ),
@@ -1114,9 +1116,9 @@ class _CrossExamDetailScreenState
           // Case & Witness Meta Box
           pw.Container(
             padding: const pw.EdgeInsets.all(12),
-            decoration: pw.BoxDecoration(
+            decoration: const pw.BoxDecoration(
               color: PdfColors.grey100,
-              borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+              borderRadius: pw.BorderRadius.all(pw.Radius.circular(6)),
             ),
             child: pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,

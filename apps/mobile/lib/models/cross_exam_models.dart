@@ -2,6 +2,7 @@
 ///
 /// Privacy-first: All data stored locally in Supabase.
 /// No AI, no third-party APIs involved.
+library;
 
 import '../utils/safe_date.dart';
 
@@ -245,7 +246,7 @@ class CrossExamSession {
 
   /// Days until the hearing date (negative = overdue).
   int? get daysUntilHearing =>
-      hearingDate != null ? hearingDate!.difference(DateTime.now()).inDays : null;
+      hearingDate?.difference(DateTime.now()).inDays;
 
   /// Witness tag prefix (PW, DW, CW) without the number.
   String get witnessTagPrefix => witnessTag.replaceAll(RegExp(r'[0-9]'), '');
