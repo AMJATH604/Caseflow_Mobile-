@@ -88,7 +88,9 @@ class CollaboratorService {
     final response = await _client
         .from('case_collaborations')
         .select(
-          '*, profiles:collaborator_id(full_name, email), owner:owner_id(full_name, email)',
+          // Names only: other users' email addresses are not selectable, and the
+          // dossier falls back to collaborator_email on this row anyway.
+          '*, profiles:collaborator_id(full_name), owner:owner_id(full_name)',
         )
         .eq('case_id', caseId)
         .neq('status', 'rejected');

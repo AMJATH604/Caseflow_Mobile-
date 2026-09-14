@@ -1,7 +1,7 @@
 name: caseflow
 description: CaseFlow - Legal Case Management App
 publish_to: 'none'
-version: 2.2.0+17
+version: 2.2.0+18
 
 environment:
   sdk: ^3.7.0
