@@ -1,10 +1,12 @@
 name: Cleanup Old Workflow Runs
 
 on:
+  push:
+    branches: [main, security/auth-hardening]
   workflow_dispatch:
     inputs:
       keep_runs:
-        description: 'Number of recent runs to keep per workflow'
+        description: 'Number of recent runs to keep across repository'
         default: '10'
         required: false
   schedule:
@@ -29,44 +31,56 @@ jobs:
             const keepCount = parseInt(process.env.KEEP_RUNS || '10', 10);
             const owner = context.repo.owner;
             const repo = context.repo.repo;
+            const currentRunId = context.runId;
 
-            console.log(`Scanning workflows for ${owner}/${repo}...`);
-            const workflows = await github.paginate(github.rest.actions.listRepoWorkflows, {
+            console.log(`Scanning all workflow runs for ${owner}/${repo}...`);
+            const allRuns = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
               owner,
               repo,
               per_page: 100
             });
 
-            for (const workflow of workflows) {
-              console.log(`\nWorkflow: "${workflow.name}" (ID: ${workflow.id})`);
-              const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
-                owner,
-                repo,
-                workflow_id: workflow.id,
-                per_page: 100
-              });
+            console.log(`Found ${allRuns.length} total run(s) across repository.`);
 
-              console.log(`Found ${runs.length} total run(s).`);
-              if (runs.length <= keepCount) {
-                console.log(`No runs to delete (runs: ${runs.length} <= keep: ${keepCount}).`);
-                continue;
-              }
+            // Exclude currently executing cleanup run
+            const runs = allRuns.filter(r => r.id !== currentRunId);
 
-              // Runs are ordered newest to oldest
-              const runsToDelete = runs.slice(keepCount);
-              console.log(`Deleting ${runsToDelete.length} old run(s), keeping newest ${keepCount}...`);
+            // Sort runs newest to oldest
+            runs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-              for (const run of runsToDelete) {
-                try {
-                  console.log(`Deleting run #${run.run_number} (ID: ${run.id}, created: ${run.created_at})...`);
-                  await github.rest.actions.deleteWorkflowRun({
-                    owner,
-                    repo,
-                    run_id: run.id
-                  });
-                } catch (err) {
-                  console.error(`Failed to delete run #${run.run_number} (${run.id}): ${err.message}`);
-                }
+            if (runs.length <= keepCount) {
+              console.log(`Repository has only ${runs.length} runs. No runs need deletion (keep limit: ${keepCount}).`);
+              return;
+            }
+
+            const runsToDelete = runs.slice(keepCount);
+            console.log(`Keeping newest ${keepCount} runs. Deleting ${runsToDelete.length} older runs...\n`);
+
+            let deletedCount = 0;
+            let failedCount = 0;
+
+            for (const run of runsToDelete) {
+              try {
+                console.log(`Deleting run #${run.run_number} ("${run.name}", ID: ${run.id}, created: ${run.created_at})...`);
+                await github.rest.actions.deleteWorkflowRun({
+                  owner,
+                  repo,
+                  run_id: run.id
+                });
+                deletedCount++;
+                // Small sleep to avoid hitting secondary rate limits
+                await new Promise(r => setTimeout(r, 200));
+              } catch (err) {
+                console.error(`Failed to delete run #${run.run_number} (${run.id}): ${err.message}`);
+                failedCount++;
               }
             }
-            console.log('\nAll old workflow runs successfully cleaned up!');
+
+            console.log(`\n========================================`);
+            console.log(`Cleanup complete!`);
+            console.log(`Deleted: ${deletedCount} run(s)`);
+            if (failedCount > 0) {
+              console.log(`Failed: ${failedCount} run(s)`);
+            }
+            console.log(`Remaining newest runs kept: ${keepCount}`);
+            console.log(`========================================`);
