@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/models.dart';
+import 'repositories/base_repository.dart';
 
 class FirmService {
   static SupabaseClient get client => Supabase.instance.client;
@@ -136,41 +137,29 @@ class FirmService {
   }
 
   /// For Members: Accept a firm invitation.
-  static Future<void> acceptInvitation(String invitationId) async {
-    final user = client.auth.currentUser;
-    if (user == null) throw Exception('Not authenticated');
+  ///
+  /// One team at a time: if the user already belongs to another team, the
+  /// server removes them from it and adds them to this one in a single
+  /// transaction (unassigning that firm's cases and notifying its senior).
+  /// Returns the names of the seniors whose teams they left.
+  static Future<List<String>> acceptInvitation(String invitationId) async {
+    final result = await client.rpc(
+      'accept_firm_invitation',
+      params: {'p_invitation_id': invitationId},
+    );
+    BaseRepository.invalidateProfileCache();
+    final left = (result as Map?)?['left_teams'] as List? ?? const [];
+    return left.map((e) => e.toString()).toList();
+  }
 
-    // 1. Update invitation status.
-    //
-    // `.select()` is not cosmetic: an RLS-filtered write matches zero rows and
-    // still returns success, which is exactly how the decline bug went
-    // unnoticed. Checking the returned rows turns that into a real error.
-    final accepted = await client
-        .from('firm_members')
-        .update({
-          'member_id': user.id,
-          'status': 'accepted',
-          'responded_at': DateTime.now().toUtc().toIso8601String(),
-        })
-        .eq('id', invitationId)
-        .select('id');
-
-    if ((accepted as List).isEmpty) {
-      throw Exception('Could not accept this invitation. It may have been withdrawn.');
-    }
-
-    // 2. Link the profile to the firm (Owner's ID)
-    final invitation =
-        await client
-            .from('firm_members')
-            .select('owner_id')
-            .eq('id', invitationId)
-            .single();
-
-    await client
-        .from('profiles')
-        .update({'firm_id': invitation['owner_id']})
-        .eq('id', user.id);
+  /// For Members: Leave the team led by [ownerId].
+  ///
+  /// Leaves the user unassigned — they never fall back to a previous team.
+  /// Cases of that firm assigned to them are unassigned and the senior is
+  /// notified.
+  static Future<void> leaveTeam(String ownerId) async {
+    await client.rpc('leave_firm_team', params: {'p_owner_id': ownerId});
+    BaseRepository.invalidateProfileCache();
   }
 
   /// For Members: Decline (reject) a firm invitation.

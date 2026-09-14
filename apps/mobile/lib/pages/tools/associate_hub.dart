@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../services/firm_service.dart';
+import '../../services/providers.dart';
 import '../../services/supabase_service.dart';
 import '../../models/models.dart';
 import '../../theme/app_theme.dart';
@@ -88,6 +89,9 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
               SizedBox(height: 12.h),
               ..._seniorFirms.map(_buildSeniorFirmCard),
               SizedBox(height: 12.h),
+            ] else ...[
+              _buildUnassignedBanner(),
+              SizedBox(height: 20.h),
             ],
             if (isSenior) ...[
               _buildSectionHeader('RECRUIT NEW ASSOCIATE'),
@@ -171,6 +175,106 @@ class _AssociateHubState extends ConsumerState<AssociateHub> {
                 badgeColor: _green,
                 highlight: e.value.isMe,
               ),
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: _isLoading ? null : () => _leaveTeam(firm),
+              icon: Icon(Icons.logout_rounded, color: _red, size: 18.sp),
+              label: Text(
+                'Leave team',
+                style: GoogleFonts.inter(
+                  color: _red,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13.sp,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _leaveTeam(SeniorFirm firm) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text("Leave ${firm.ownerName}'s team?"),
+        content: Text(
+          "You'll lose access to ${firm.ownerName}'s firm cases, and any of them "
+          "assigned to you will be unassigned. ${firm.ownerName} will be notified.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: _red),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Leave team'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    setState(() => _isLoading = true);
+    try {
+      await FirmService.leaveTeam(firm.ownerId);
+      // Firm cases, hearings and the dashboard all depend on the team.
+      ref.read(dataRefreshProvider.notifier).state++;
+      await _loadData();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("You left ${firm.ownerName}'s team")),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not leave the team: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Widget _buildUnassignedBanner() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.r),
+      decoration: AppTheme.cardDecoration(isDark: _isDark),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 20.r,
+            backgroundColor: Colors.grey.withValues(alpha: 0.15),
+            child: Icon(Icons.person_off_rounded, color: Colors.grey, size: 20.sp),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "You're not part of any team",
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14.sp,
+                    color: _isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  "Accept a senior's invitation to join their team, or invite associates to start your own.",
+                  style: GoogleFonts.inter(fontSize: 11.sp, color: Colors.grey),
+                ),
+              ],
             ),
           ),
         ],
