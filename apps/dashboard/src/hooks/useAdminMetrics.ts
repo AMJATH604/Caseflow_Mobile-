@@ -1,4 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -13,9 +18,12 @@ import { supabase } from "@/integrations/supabase/client";
  * `functions.invoke` attaches the current session's access token, which is
  * what the function checks.
  */
-async function callAdminMetrics<T>(action: string): Promise<T> {
+async function callAdminMetrics<T>(
+  action: string,
+  payload: Record<string, unknown> = {},
+): Promise<T> {
   const { data, error } = await supabase.functions.invoke("admin-metrics", {
-    body: { action },
+    body: { action, ...payload },
   });
 
   if (error) {
@@ -59,10 +67,80 @@ export interface AdminUser {
   created_at: string;
   last_sign_in_at: string | null;
   email_confirmed: boolean;
+  is_disabled: boolean;
   cases: number;
   clients: number;
   hearings: number;
   has_push: boolean;
+}
+
+/**
+ * One audited event.
+ *
+ * `details` is server-side scrubbed to an allowlist of safe keys — column
+ * names and identifiers, never their values. `_redacted` counts the keys the
+ * server withheld, so an omission is visible rather than silent.
+ */
+export interface ActivityRow {
+  id: string;
+  created_at: string;
+  action: string;
+  entity: string;
+  entity_id: string | null;
+  context: string | null;
+  user_id: string | null;
+  actor_name: string | null;
+  actor_email: string | null;
+  details: (Record<string, unknown> & { _redacted?: number }) | null;
+}
+
+export interface ActivityPage {
+  rows: ActivityRow[];
+  next_before: string | null;
+  exhausted: boolean;
+}
+
+export interface ActivityFilters {
+  actions: string[];
+  entities: string[];
+  total: number;
+}
+
+export interface AdminUserDetail {
+  user: {
+    id: string;
+    email: string | null;
+    created_at: string;
+    last_sign_in_at: string | null;
+    email_confirmed: boolean;
+    is_disabled: boolean;
+    banned_until: string | null;
+    full_name: string | null;
+    user_role: string;
+    is_admin: boolean;
+    subscription_tier: string;
+    mobile_number: string | null;
+    registration_number: string | null;
+    practice_state: string | null;
+    practice_district: string | null;
+    firm_id: string | null;
+  };
+  usage: {
+    cases: number; clients: number; hearings: number;
+    payments: number; filings: number;
+  };
+  devices: Array<{
+    device_info: Record<string, unknown> | string | null;
+    created_at: string;
+    updated_at: string;
+  }>;
+  sessions: { active: number };
+  feedback: Array<{
+    id: string; type: string | null; severity: string | null;
+    title: string | null; status: string | null;
+    app_version: string | null; created_at: string;
+  }>;
+  recent_activity: Array<Omit<ActivityRow, "user_id" | "actor_name" | "actor_email">>;
 }
 
 export function useAdminOverview() {
@@ -78,5 +156,84 @@ export function useAdminUsers() {
     queryKey: ["admin", "users"],
     queryFn: () => callAdminMetrics<AdminUser[]>("users"),
     staleTime: 60_000,
+  });
+}
+
+export interface ActivityQuery {
+  userId?: string;
+  filterAction?: string;
+  entity?: string;
+}
+
+/**
+ * Keyset paging on `created_at` rather than OFFSET: new events arrive at the
+ * head of this feed constantly, and an offset would skip or repeat rows as the
+ * table shifts underneath the reader.
+ */
+export function useAdminActivity(query: ActivityQuery = {}, limit = 50) {
+  return useInfiniteQuery({
+    queryKey: ["admin", "activity", query, limit],
+    initialPageParam: null as string | null,
+    queryFn: ({ pageParam }) =>
+      callAdminMetrics<ActivityPage>("activity", {
+        limit,
+        before: pageParam,
+        ...query,
+      }),
+    getNextPageParam: (last) => (last.exhausted ? undefined : last.next_before),
+    staleTime: 30_000,
+  });
+}
+
+export function useActivityFilters() {
+  return useQuery({
+    queryKey: ["admin", "activity_filters"],
+    queryFn: () => callAdminMetrics<ActivityFilters>("activity_filters"),
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useAdminUserDetail(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["admin", "user", userId],
+    queryFn: () => callAdminMetrics<AdminUserDetail>("user_detail", { userId }),
+    enabled: !!userId,
+    staleTime: 30_000,
+  });
+}
+
+/**
+ * Support actions. Both are audited server-side through `record_admin_action()`
+ * and both refuse to act on the calling administrator's own account — with a
+ * single admin account, self-disabling locks you out of this console.
+ */
+export function useRevokeSessions(userId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () =>
+      callAdminMetrics<{ sessions_removed: number; tokens_revoked: number }>(
+        "revoke_sessions",
+        { userId },
+      ),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "user", userId] });
+      qc.invalidateQueries({ queryKey: ["admin", "activity"] });
+    },
+  });
+}
+
+export function useSetAccountDisabled(userId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (disabled: boolean) =>
+      callAdminMetrics<{ disabled: boolean; sessions_removed: number }>(
+        "set_account_disabled",
+        { userId, disabled },
+      ),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "user", userId] });
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+      qc.invalidateQueries({ queryKey: ["admin", "activity"] });
+    },
   });
 }

@@ -98,6 +98,79 @@ Deno.serve(async (req: Request) => {
         return json({ action, data });
       }
 
+      case "activity": {
+        const { data, error } = await admin.rpc("admin_activity", {
+          p_limit: typeof body.limit === "number" ? body.limit : 50,
+          p_before: body.before ?? null,
+          p_user_id: body.userId ?? null,
+          p_action: body.filterAction ?? null,
+          p_entity: body.entity ?? null,
+        });
+        if (error) throw new Error(error.message);
+        return json({ action, data });
+      }
+
+      case "activity_filters": {
+        const { data, error } = await admin.rpc("admin_activity_filters");
+        if (error) throw new Error(error.message);
+        return json({ action, data });
+      }
+
+      case "user_detail": {
+        if (!body.userId) return json({ error: "userId is required" }, 400);
+        const { data, error } = await admin.rpc("admin_user_detail", {
+          p_user_id: body.userId,
+        });
+        if (error) throw new Error(error.message);
+        if (!data?.user) return json({ error: "No such user" }, 404);
+        return json({ action, data });
+      }
+
+      // ── Mutations ───────────────────────────────────────
+      // The self-action guard also lives in SQL. It is repeated here so the
+      // console gets a clear 400 instead of a raised Postgres exception, and so
+      // the rule survives if these functions ever gain another caller.
+
+      case "revoke_sessions": {
+        if (!body.userId) return json({ error: "userId is required" }, 400);
+        if (body.userId === caller.id) {
+          return json(
+            { error: "You cannot revoke your own sessions from the console." },
+            400,
+          );
+        }
+        const { data, error } = await admin.rpc("admin_revoke_sessions", {
+          p_admin_id: caller.id,
+          p_user_id: body.userId,
+        });
+        if (error) throw new Error(error.message);
+        console.log(`[${executionId}] ${caller.email} revoked sessions for ${body.userId}`);
+        return json({ action, data });
+      }
+
+      case "set_account_disabled": {
+        if (!body.userId) return json({ error: "userId is required" }, 400);
+        if (typeof body.disabled !== "boolean") {
+          return json({ error: "disabled must be true or false" }, 400);
+        }
+        if (body.userId === caller.id) {
+          return json(
+            { error: "You cannot disable your own account from the console." },
+            400,
+          );
+        }
+        const { data, error } = await admin.rpc("admin_set_account_disabled", {
+          p_admin_id: caller.id,
+          p_user_id: body.userId,
+          p_disabled: body.disabled,
+        });
+        if (error) throw new Error(error.message);
+        console.log(
+          `[${executionId}] ${caller.email} ${body.disabled ? "disabled" : "enabled"} ${body.userId}`,
+        );
+        return json({ action, data });
+      }
+
       default:
         return json({ error: `Unknown action "${action}"` }, 400);
     }
