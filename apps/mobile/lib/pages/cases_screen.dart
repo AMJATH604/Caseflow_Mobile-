@@ -27,10 +27,6 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
   String _sortBy = 'recent'; // recent, hearing, title
   bool _isGridView = false;
 
-  /// True once the hero header — and the back button inside it — has scrolled
-  /// out of view, so a compact back button can take its place.
-  bool _showPinnedBack = false;
-
   /// Guards the one-off "load every page" run the Next Hearing sort needs.
   bool _loadingAllCases = false;
 
@@ -136,48 +132,53 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
         ),
       ),
       body: SafeArea(
-        child: Stack(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            NotificationListener<ScrollNotification>(
-              onNotification: _onHeaderScroll,
-              child: _buildScrollBody(
-                context,
-                isDark,
-                statusCounts,
-                filteredCases,
-                paginatedState,
-                rawCases,
-                currentUserId,
-              ),
-            ),
-            // The back button lives in the hero header, which scrolls away
-            // with the list. Once it is gone, this one stays reachable.
-            Positioned(
-              top: 10.h,
-              left: 12.w,
-              child: IgnorePointer(
-                ignoring: !_showPinnedBack,
-                child: AnimatedOpacity(
-                  opacity: _showPinnedBack ? 1 : 0,
-                  duration: const Duration(milliseconds: 180),
-                  child: Material(
-                    color: isDark ? const Color(0xFF1E1B4B) : Colors.white,
-                    shape: const CircleBorder(),
-                    elevation: 4,
-                    shadowColor: Colors.black26,
-                    child: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: () => _goBack(context),
-                      child: Padding(
-                        padding: EdgeInsets.all(10.r),
-                        child: Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          size: 18.sp,
-                          color: isDark ? Colors.white : const Color(0xFF312E81),
-                        ),
+            // Fixed, like "Court Schedule" on the Hearings page.
+            _buildTitleHeader(context, isDark),
+            Expanded(
+              child: RefreshIndicator(
+                color: AppTheme.accent,
+                onRefresh: () =>
+                    ref.read(paginatedCasesProvider.notifier).refresh(),
+                // One scroll for search, filters, sort and every case. This
+                // was a NestedScrollView whose list carried its own
+                // controller, which detached it from the header: the search
+                // and filters stayed put and only the cards scrolled in the
+                // space left beneath them.
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 8.h),
+                          _buildModernSearchAndFilters(
+                            context,
+                            isDark,
+                            statusCounts,
+                          ),
+                          SizedBox(height: 12.h),
+                          _buildModernToolbar(
+                            context,
+                            isDark,
+                            filteredCases.length,
+                          ),
+                          SizedBox(height: 8.h),
+                        ],
                       ),
                     ),
-                  ),
+                    ..._buildCaseSlivers(
+                      isDark,
+                      filteredCases,
+                      paginatedState,
+                      rawCases,
+                      currentUserId,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -185,16 +186,6 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
         ),
       ),
     );
-  }
-
-  bool _onHeaderScroll(ScrollNotification notification) {
-    // depth 0 is the NestedScrollView's outer scroll, which moves the header.
-    if (notification.depth == 0 &&
-        notification.metrics.axis == Axis.vertical) {
-      final show = notification.metrics.pixels > 48.h;
-      if (show != _showPinnedBack) setState(() => _showPinnedBack = show);
-    }
-    return false;
   }
 
   /// `/cases` is a bottom-nav root, so there is usually nothing to pop — fall
@@ -207,65 +198,33 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
     }
   }
 
-  Widget _buildScrollBody(
-    BuildContext context,
+  List<Widget> _buildCaseSlivers(
     bool isDark,
-    Map<String, int> statusCounts,
     List<CaseModel> filteredCases,
     dynamic paginatedState,
     List<CaseModel> rawCases,
     String? currentUserId,
   ) {
-    return NestedScrollView(
-          headerSliverBuilder: (context, innerBoxIsScrolled) => [
-            SliverToBoxAdapter(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ─── Title ────────────────────────────────
-                  _buildTitleHeader(context, isDark),
-                  SizedBox(height: 16.h),
-
-                  // ─── Search & Status Filters ──────────────
-                  _buildModernSearchAndFilters(context, isDark, statusCounts),
-                  SizedBox(height: 12.h),
-
-                  // ─── Toolbar (Sort & Grid/List View) ─────
-                  _buildModernToolbar(context, isDark, filteredCases.length),
-                  SizedBox(height: 8.h),
-                ],
-              ),
-            ),
-          ],
-          body: paginatedState.isLoading && rawCases.isEmpty
-              ? _buildModernShimmerLoading(isDark)
-              : paginatedState.error != null && rawCases.isEmpty
-                  ? ErrorStateWidget(
-                      error: paginatedState.error!,
-                      onRetry: () =>
-                          ref.read(paginatedCasesProvider.notifier).refresh(),
-                    )
-                  : RefreshIndicator(
-                      color: AppTheme.accent,
-                      onRefresh: () =>
-                          ref.read(paginatedCasesProvider.notifier).refresh(),
-                      child: filteredCases.isEmpty
-                          ? _buildModernEmptyState(isDark)
-                          : _isGridView
-                              ? _buildModernCasesGrid(
-                                  isDark,
-                                  filteredCases,
-                                  paginatedState,
-                                  currentUserId,
-                                )
-                              : _buildModernCasesList(
-                                  isDark,
-                                  filteredCases,
-                                  paginatedState,
-                                  currentUserId,
-                                ),
-                    ),
-    );
+    if (paginatedState.isLoading && rawCases.isEmpty) {
+      return [_buildModernShimmerLoading(isDark)];
+    }
+    if (paginatedState.error != null && rawCases.isEmpty) {
+      return [
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: ErrorStateWidget(
+            error: paginatedState.error!,
+            onRetry: () => ref.read(paginatedCasesProvider.notifier).refresh(),
+          ),
+        ),
+      ];
+    }
+    if (filteredCases.isEmpty) {
+      return [SliverToBoxAdapter(child: _buildModernEmptyState(isDark))];
+    }
+    return _isGridView
+        ? _buildModernCasesGrid(isDark, filteredCases, paginatedState, currentUserId)
+        : _buildModernCasesList(isDark, filteredCases, paginatedState, currentUserId);
   }
 
   // ─── TITLE HEADER ───────────────────────────────────────
@@ -274,9 +233,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
   static int _sumOf(Map<String, int> counts, List<String> names) =>
       names.fold<int>(0, (sum, n) => sum + (counts[n] ?? 0));
 
-  /// Just the page title. The decorative hero card used most of the first
-  /// screen; now the title scrolls away with the list and the compact back
-  /// button in [build] takes over once it has gone.
+  /// The page title, fixed above the scrolling content.
   Widget _buildTitleHeader(BuildContext context, bool isDark) {
     final titleColor = isDark ? Colors.white : const Color(0xFF0F172A);
     return Padding(
@@ -673,7 +630,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
 
   // ─── LIST VIEW MODE ─────────────────────────────────────
 
-  Widget _buildModernCasesList(
+  List<Widget> _buildModernCasesList(
     bool isDark,
     List<CaseModel> cases,
     dynamic paginatedState,
@@ -682,19 +639,28 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
     final hasMore = paginatedState.hasMore ?? false;
     final isLoadingMore = paginatedState.isLoadingMore ?? false;
 
-    return ListView.builder(
-      controller: _scrollController,
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      itemCount: cases.length + (hasMore ? 1 : 0),
-      itemBuilder: (context, index) {
-        if (index == cases.length) {
-          return _buildLoadingMoreIndicator(isLoadingMore);
-        }
-        final c = cases[index];
-        return _buildModernCaseCardList(context, isDark, c, currentUserId);
-      },
-    );
+    return [
+      SliverPadding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        sliver: SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              if (index == cases.length) {
+                return _buildLoadingMoreIndicator(isLoadingMore);
+              }
+              return _buildModernCaseCardList(
+                context,
+                isDark,
+                cases[index],
+                currentUserId,
+              );
+            },
+            childCount: cases.length + (hasMore ? 1 : 0),
+          ),
+        ),
+      ),
+      SliverToBoxAdapter(child: SizedBox(height: 90.h)),
+    ];
   }
 
   Widget _buildModernCaseCardList(
@@ -985,7 +951,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
 
   // ─── GRID VIEW MODE ─────────────────────────────────────
 
-  Widget _buildModernCasesGrid(
+  List<Widget> _buildModernCasesGrid(
     bool isDark,
     List<CaseModel> cases,
     dynamic paginatedState,
@@ -994,10 +960,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
     final hasMore = paginatedState.hasMore ?? false;
     final isLoadingMore = paginatedState.isLoadingMore ?? false;
 
-    return CustomScrollView(
-      controller: _scrollController,
-      physics: const AlwaysScrollableScrollPhysics(),
-      slivers: [
+    return [
         SliverPadding(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
           sliver: SliverGrid(
@@ -1020,8 +983,8 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
           SliverToBoxAdapter(
             child: _buildLoadingMoreIndicator(isLoadingMore),
           ),
-      ],
-    );
+        SliverToBoxAdapter(child: SizedBox(height: 90.h)),
+    ];
   }
 
   Widget _buildSharedByBadge(CaseModel c, bool isDark, {bool compact = false}) {
@@ -1210,9 +1173,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
   // ─── EMPTY STATE & LOADING SKELETON ─────────────────────
 
   Widget _buildModernEmptyState(bool isDark) {
-    return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      child: Center(
+    return Center(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 64.h),
           child: Column(
@@ -1276,15 +1237,16 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 
   Widget _buildModernShimmerLoading(bool isDark) {
-    return ListView.builder(
+    return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      itemCount: 4,
-      itemBuilder: (context, index) => Container(
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          childCount: 4,
+          (context, index) => Container(
         height: 140.h,
         margin: EdgeInsets.only(bottom: 14.h),
         decoration: BoxDecoration(
@@ -1293,6 +1255,8 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
           border: Border.all(
             color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
           ),
+        ),
+      ),
         ),
       ),
     );
