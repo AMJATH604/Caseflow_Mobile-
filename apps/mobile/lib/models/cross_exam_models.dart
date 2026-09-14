@@ -225,7 +225,7 @@ class CrossExamSession {
       status: SessionStatus.fromString(json['status'] ?? 'draft'),
       hearingDate: parseDateOrNull(json['hearing_date']),
       notes: json['notes'],
-      caseTitle: json['cases']?['title'],
+      caseTitle: json['cases']?['case_title'] ?? json['cases']?['title'],
       questionCount: qCount,
       createdAt: parseDateOr(json['created_at'], DateTime.now()),
       updatedAt: parseDateOr(json['updated_at'], DateTime.now()),

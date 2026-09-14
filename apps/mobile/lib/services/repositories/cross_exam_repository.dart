@@ -19,7 +19,7 @@ class CrossExamRepository {
           .from('cross_exam_sessions')
           .select('''
             *,
-            cases(title),
+            cases(case_title),
             cross_exam_questions(count)
           ''')
           .isFilter('deleted_at', null)
@@ -48,7 +48,7 @@ class CrossExamRepository {
           .from('cross_exam_sessions')
           .select('''
             *,
-            cases(title),
+            cases(case_title),
             cross_exam_questions(count)
           ''')
           .eq('case_id', caseId)
@@ -89,7 +89,7 @@ class CrossExamRepository {
           'user_id': user.id,
           'firm_id': firmId,
         })
-        .select('*, cases(title)')
+        .select('*, cases(case_title)')
         .single();
 
     return CrossExamSession.fromJson(response);
