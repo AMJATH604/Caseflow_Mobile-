@@ -1,0 +1,362 @@
+[
+  {
+    "num": "01",
+    "title": "Splash & Constitution Reveal",
+    "pillar": null,
+    "tag": "Opening Sequence",
+    "file": null,
+    "statute": "Dr. Ambedkar Constitution Quote",
+    "image_file": "screen_01_Splash__Constitution_Reveal.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_01_Splash__Constitution_Reveal.png"
+  },
+  {
+    "num": "02",
+    "title": "Role Selection Portal",
+    "pillar": null,
+    "tag": "Workspace Routing",
+    "file": null,
+    "statute": "Advocates Act vs Litigant Access",
+    "image_file": "screen_02_Role_Selection_Portal.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_02_Role_Selection_Portal.png"
+  },
+  {
+    "num": "03",
+    "title": "Chamber Onboarding Tour",
+    "pillar": null,
+    "tag": "Walkthrough Engine",
+    "file": null,
+    "statute": "Practice Automation",
+    "image_file": "screen_03_Chamber_Onboarding_Tour.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_03_Chamber_Onboarding_Tour.png"
+  },
+  {
+    "num": "04",
+    "title": "Secure Chamber Sign-In",
+    "pillar": null,
+    "tag": "Bar Council Verification",
+    "file": null,
+    "statute": "Advocates Act, 1961",
+    "image_file": "screen_04_Secure_Chamber_Sign-In.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_04_Secure_Chamber_Sign-In.png"
+  },
+  {
+    "num": "05",
+    "title": "Executive Dashboard",
+    "pillar": null,
+    "tag": "Daily Command Center",
+    "file": null,
+    "statute": "High Court & Sub Court Daily Board",
+    "image_file": "screen_05_Executive_Dashboard.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_05_Executive_Dashboard.png"
+  },
+  {
+    "num": "06",
+    "title": "Daily Cause List & Hearings",
+    "pillar": null,
+    "tag": "Courtroom Diary",
+    "file": null,
+    "statute": "High Court / District Court Causelists",
+    "image_file": "screen_06_Daily_Cause_List__Hearings.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_06_Daily_Cause_List__Hearings.png"
+  },
+  {
+    "num": "07",
+    "title": "Case Archive & Docket Registry",
+    "pillar": null,
+    "tag": "Court Docket",
+    "file": null,
+    "statute": "High Court CIS Standard",
+    "image_file": "screen_07_Case_Archive__Docket_Registry.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_07_Case_Archive__Docket_Registry.png"
+  },
+  {
+    "num": "08",
+    "title": "Case Detail Dossier",
+    "pillar": null,
+    "tag": "Master Case File",
+    "file": null,
+    "statute": "Order VII CPC Plaint File",
+    "image_file": "screen_08_Case_Detail_Dossier.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_08_Case_Detail_Dossier.png"
+  },
+  {
+    "num": "09",
+    "title": "Litigant Directory & CRM",
+    "pillar": null,
+    "tag": "Client Management",
+    "file": null,
+    "statute": "Bar Council Advocate-Client Standards",
+    "image_file": "screen_09_Litigant_Directory__CRM.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_09_Litigant_Directory__CRM.png"
+  },
+  {
+    "num": "10",
+    "title": "Chamber Billing & Financials",
+    "pillar": null,
+    "tag": "Financial Ledger",
+    "file": null,
+    "statute": "Chamber Accounts & Invoicing",
+    "image_file": "screen_10_Chamber_Billing__Financials.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_10_Chamber_Billing__Financials.png"
+  },
+  {
+    "num": "11",
+    "title": "e-Filing 3.0 Portal Sync",
+    "pillar": null,
+    "tag": "e-Filing Portal",
+    "file": null,
+    "statute": "High Court e-Filing Rules 2020",
+    "image_file": "screen_11_e-Filing_30_Portal_Sync.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_11_e-Filing_30_Portal_Sync.png"
+  },
+  {
+    "num": "12",
+    "title": "Certified Copies (CA) Registry",
+    "pillar": null,
+    "tag": "Registry Copyist Section",
+    "file": null,
+    "statute": "Civil Rules of Practice Rule 128",
+    "image_file": "screen_12_Certified_Copies_CA_Registry.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_12_Certified_Copies_CA_Registry.png"
+  },
+  {
+    "num": "13",
+    "title": "Court Fee Calculator",
+    "pillar": null,
+    "tag": "Statutory Fee Engine",
+    "file": null,
+    "statute": "TN Court Fees Act 1955 (2017 Amendment)",
+    "image_file": "screen_13_Court_Fee_Calculator.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_13_Court_Fee_Calculator.png"
+  },
+  {
+    "num": "14",
+    "title": "Section 5 Delay Calculator",
+    "pillar": null,
+    "tag": "Limitation Engine",
+    "file": null,
+    "statute": "Limitation Act 1963 Section 5 & 12",
+    "image_file": "screen_14_Section_5_Delay_Calculator.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_14_Section_5_Delay_Calculator.png"
+  },
+  {
+    "num": "15",
+    "title": "Limitation Period Calculator",
+    "pillar": null,
+    "tag": "Statutory Deadlines",
+    "file": null,
+    "statute": "Articles 54, 58, 65 & NI Act \u00a7138",
+    "image_file": "screen_15_Limitation_Period_Calculator.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_15_Limitation_Period_Calculator.png"
+  },
+  {
+    "num": "16",
+    "title": "MACT Accident Claims Calculator",
+    "pillar": null,
+    "tag": "Motor Accident Tribunal",
+    "file": null,
+    "statute": "Sarla Verma & Pranay Sethi Benchmarks",
+    "image_file": "screen_16_MACT_Accident_Claims_Calculator.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_16_MACT_Accident_Claims_Calculator.png"
+  },
+  {
+    "num": "17",
+    "title": "Partition Share Calculator",
+    "pillar": null,
+    "tag": "Succession Law Engine",
+    "file": null,
+    "statute": "Hindu Succession Act 1956 & Muslim Shariat",
+    "image_file": "screen_17_Partition_Share_Calculator.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_17_Partition_Share_Calculator.png"
+  },
+  {
+    "num": "18",
+    "title": "Maintenance Calculator",
+    "pillar": null,
+    "tag": "Matrimonial Support",
+    "file": null,
+    "statute": "Rajnesh v. Neha & Sec 144 BNSS",
+    "image_file": "screen_18_Maintenance_Calculator.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_18_Maintenance_Calculator.png"
+  },
+  {
+    "num": "19",
+    "title": "CPC Pre & Post Decree Interest",
+    "pillar": null,
+    "tag": "Decree Execution",
+    "file": null,
+    "statute": "Section 34 CPC & Order XXI Rule 11",
+    "image_file": "screen_19_CPC_Pre__Post_Decree_Interest.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_19_CPC_Pre__Post_Decree_Interest.png"
+  },
+  {
+    "num": "20",
+    "title": "Stamp Duty & Registration Calculator",
+    "pillar": null,
+    "tag": "Property Registration",
+    "file": null,
+    "statute": "Indian Stamp Act & Registration Act",
+    "image_file": "screen_20_Stamp_Duty__Registration_Calculator.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_20_Stamp_Duty__Registration_Calculator.png"
+  },
+  {
+    "num": "21",
+    "title": "Advocate Commissioner Hub",
+    "pillar": null,
+    "tag": "Court Commissioner",
+    "file": null,
+    "statute": "Order XXVI CPC (Rules 9, 10, 14)",
+    "image_file": "screen_21_Advocate_Commissioner_Hub.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_21_Advocate_Commissioner_Hub.png"
+  },
+  {
+    "num": "22",
+    "title": "Commission Inspection Protocol",
+    "pillar": null,
+    "tag": "Field Inspection",
+    "file": null,
+    "statute": "Order XXVI Rule 9 Inspection Memo",
+    "image_file": "screen_22_Commission_Inspection_Protocol.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_22_Commission_Inspection_Protocol.png"
+  },
+  {
+    "num": "23",
+    "title": "Digital Commission Sketch Tool",
+    "pillar": null,
+    "tag": "Survey Canvas",
+    "file": null,
+    "statute": "Order XXVI Rule 10 Court Report",
+    "image_file": "screen_23_Digital_Commission_Sketch_Tool.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_23_Digital_Commission_Sketch_Tool.png"
+  },
+  {
+    "num": "24",
+    "title": "Evidence Lab & Forensic Vault",
+    "pillar": null,
+    "tag": "Forensic Trial Prep",
+    "file": null,
+    "statute": "Section 63 BSA (Old 65B IEA)",
+    "image_file": "screen_24_Evidence_Lab__Forensic_Vault.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_24_Evidence_Lab__Forensic_Vault.png"
+  },
+  {
+    "num": "25",
+    "title": "Bare Acts Digital Library",
+    "pillar": null,
+    "tag": "Statutory Corpus",
+    "file": null,
+    "statute": "BNS, BNSS, BSA 2023 & CPC 1908",
+    "image_file": "screen_25_Bare_Acts_Digital_Library.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_25_Bare_Acts_Digital_Library.png"
+  },
+  {
+    "num": "26",
+    "title": "Legal Templates & Court Drafts",
+    "pillar": null,
+    "tag": "Court Petitions",
+    "file": null,
+    "statute": "Bar Council Vakalath & Petition Standards",
+    "image_file": "screen_26_Legal_Templates__Court_Drafts.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_26_Legal_Templates__Court_Drafts.png"
+  },
+  {
+    "num": "27",
+    "title": "Legal Dictionary & Latin Maxims",
+    "pillar": null,
+    "tag": "Judicial Vocabulary",
+    "file": null,
+    "statute": "Indian Judicial Interpretation",
+    "image_file": "screen_27_Legal_Dictionary__Latin_Maxims.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_27_Legal_Dictionary__Latin_Maxims.png"
+  },
+  {
+    "num": "28",
+    "title": "AI Legal Copilot",
+    "pillar": null,
+    "tag": "Generative Legal AI",
+    "file": null,
+    "statute": "Gemini Judicial Precedent Retrieval",
+    "image_file": "screen_28_AI_Legal_Copilot.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_28_AI_Legal_Copilot.png"
+  },
+  {
+    "num": "29",
+    "title": "Caveats Register & Expiry Monitor",
+    "pillar": null,
+    "tag": "Caveat Registry",
+    "file": null,
+    "statute": "Section 148A CPC (90-Day Lifespan)",
+    "image_file": "screen_29_Caveats_Register__Expiry_Monitor.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_29_Caveats_Register__Expiry_Monitor.png"
+  },
+  {
+    "num": "30",
+    "title": "Legal Pulse News & Digest",
+    "pillar": null,
+    "tag": "Judicial Updates",
+    "file": null,
+    "statute": "Supreme Court & Madras HC Bulletins",
+    "image_file": "screen_30_Legal_Pulse_News__Digest.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_30_Legal_Pulse_News__Digest.png"
+  },
+  {
+    "num": "31",
+    "title": "Bar Association & Digital ID Card",
+    "pillar": null,
+    "tag": "Bar Community Portal",
+    "file": null,
+    "statute": "Bar Council of Tamil Nadu & Puducherry",
+    "image_file": "screen_31_Bar_Association__Digital_ID_Card.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_31_Bar_Association__Digital_ID_Card.png"
+  },
+  {
+    "num": "32",
+    "title": "Chambers Secure Messaging",
+    "pillar": null,
+    "tag": "Encrypted Legal Chat",
+    "file": null,
+    "statute": "Advocate-Client Privilege Standards",
+    "image_file": "screen_32_Chambers_Secure_Messaging.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_32_Chambers_Secure_Messaging.png"
+  },
+  {
+    "num": "33",
+    "title": "Citizen & Litigant Portal",
+    "pillar": null,
+    "tag": "Litigant Public View",
+    "file": null,
+    "statute": "Litigant Transparency Guidelines",
+    "image_file": "screen_33_Citizen__Litigant_Portal.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_33_Citizen__Litigant_Portal.png"
+  },
+  {
+    "num": "34",
+    "title": "Public CNR Case Status Search",
+    "pillar": null,
+    "tag": "eCourts Case Search",
+    "file": null,
+    "statute": "eCourts CIS Public Access",
+    "image_file": "screen_34_Public_CNR_Case_Status_Search.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_34_Public_CNR_Case_Status_Search.png"
+  },
+  {
+    "num": "35",
+    "title": "Chamber Firm & Associate Allocation",
+    "pillar": null,
+    "tag": "Team Management",
+    "file": null,
+    "statute": "Chamber Practice Management",
+    "image_file": "screen_35_Chamber_Firm__Associate_Allocation.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_35_Chamber_Firm__Associate_Allocation.png"
+  },
+  {
+    "num": "36",
+    "title": "Chamber Settings & Security",
+    "pillar": null,
+    "tag": "Configuration & Security",
+    "file": null,
+    "statute": "Bar Council Digital Compliance",
+    "image_file": "screen_36_Chamber_Settings__Security.png",
+    "image_path": "c:\\Users\\amjat\\OneDrive\\Desktop\\CASEFLOW\\figma_assets\\screen_36_Chamber_Settings__Security.png"
+  }
+]
