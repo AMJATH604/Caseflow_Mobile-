@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../case_picker_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../services/supabase_service.dart';
@@ -80,25 +81,14 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
             children: [
               casesAsync.when(
                 data:
-                    (cases) => DropdownButtonFormField<String>(
-                      initialValue: _selectedCaseId,
+                    (cases) => CasePickerField(
+                      cases: cases,
+                      value: _selectedCaseId,
+                      sheetTitle: 'Select case for hearing',
                       decoration: const InputDecoration(
                         labelText: 'Select Case',
                       ),
-                      items:
-                          cases
-                              .map(
-                                (c) => DropdownMenuItem(
-                                  value: c.id,
-                                  child: Text(
-                                    c.caseTitle.isEmpty
-                                        ? (c.caseNumber ?? 'Unknown Case')
-                                        : c.caseTitle,
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                      onChanged: (val) => setState(() => _selectedCaseId = val),
+                      onSelected: (c) => setState(() => _selectedCaseId = c.id),
                       validator: (v) => v == null ? 'Required' : null,
                     ),
                 loading: () => const CircularProgressIndicator(),

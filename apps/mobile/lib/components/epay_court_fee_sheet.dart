@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'case_picker_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -236,14 +237,10 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                                       : const Color(0xFFE2E8F0),
                             ),
                           ),
-                          child: DropdownButtonFormField<String>(
-                            initialValue: _selectedCaseId,
-                            isExpanded: true,
-                            style: GoogleFonts.inter(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.primary,
-                            ),
+                          child: CasePickerField(
+                            cases: cases,
+                            value: _selectedCaseId,
+                            sheetTitle: 'Link a case',
                             decoration: InputDecoration(
                               hintText: 'Link a case for auto-sync...',
                               hintStyle: GoogleFonts.inter(
@@ -266,32 +263,10 @@ class _EPayCourtFeeSheetState extends ConsumerState<EPayCourtFeeSheet>
                                 vertical: 14,
                               ),
                             ),
-                            items:
-                                cases
-                                    .map(
-                                      (c) => DropdownMenuItem(
-                                        value: c.id,
-                                        child: Text(
-                                          c.caseTitle.isEmpty
-                                              ? (c.caseNumber ?? 'Case')
-                                              : c.caseTitle,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
-                            onChanged: (val) {
-                              final selected = cases.firstWhere(
-                                (c) => c.id == val,
-                              );
-                              setState(() {
-                                _selectedCaseId = val;
-                                _selectedCaseTitle =
-                                    selected.caseTitle.isEmpty
-                                        ? (selected.caseNumber ?? 'Case')
-                                        : selected.caseTitle;
-                              });
-                            },
+                            onSelected: (c) => setState(() {
+                              _selectedCaseId = c.id;
+                              _selectedCaseTitle = CaseLabels.title(c);
+                            }),
                           ),
                         ),
                     loading: () => const LinearProgressIndicator(),

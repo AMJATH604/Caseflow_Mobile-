@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../components/case_picker_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -1111,9 +1112,10 @@ class _NewSessionSheetState extends ConsumerState<_NewSessionSheet> {
                     _selectedCaseId = cases.first.id;
                   }
 
-                  return DropdownButtonFormField<String>(
-                    initialValue: _selectedCaseId,
-                    isExpanded: true,
+                  return CasePickerField(
+                    cases: cases,
+                    value: _selectedCaseId,
+                    sheetTitle: 'Select case for session',
                     decoration: InputDecoration(
                       contentPadding: EdgeInsets.symmetric(
                           horizontal: 14.w, vertical: 12.h),
@@ -1122,24 +1124,7 @@ class _NewSessionSheetState extends ConsumerState<_NewSessionSheet> {
                       ),
                       prefixIcon: const Icon(Icons.folder_open_rounded),
                     ),
-                    items: cases.map((c) {
-                      final title = c.caseTitle.isNotEmpty
-                          ? c.caseTitle
-                          : (c.caseNumber ?? 'Unnamed Case');
-                      return DropdownMenuItem(
-                        value: c.id,
-                        child: Text(
-                          title,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 13.sp),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        _selectedCaseId = val;
-                      });
-                    },
+                    onSelected: (c) => setState(() => _selectedCaseId = c.id),
                     validator: (v) => v == null ? 'Select a case' : null,
                   );
                 },

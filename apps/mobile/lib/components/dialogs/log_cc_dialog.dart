@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../case_picker_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -152,12 +153,10 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                       SizedBox(height: 8.h),
                       casesAsync.when(
                         data:
-                            (cases) => DropdownButtonFormField<String>(
-                              initialValue: _selectedCaseId,
-                              style: GoogleFonts.inter(
-                                color: AppTheme.primary,
-                                fontSize: 15.sp,
-                              ),
+                            (cases) => CasePickerField(
+                              cases: cases,
+                              value: _selectedCaseId,
+                              sheetTitle: 'Select case for CC copy',
                               decoration: InputDecoration(
                                 hintText: 'Choose a case...',
                                 prefixIcon: const Icon(
@@ -188,27 +187,8 @@ class _LogCCDialogState extends ConsumerState<LogCCDialog> {
                                   ),
                                 ),
                               ),
-                              items:
-                                  cases
-                                      .map(
-                                        (c) => DropdownMenuItem(
-                                          value: c.id,
-                                          child: Text(
-                                            c.caseTitle.isEmpty
-                                                ? (c.caseNumber ??
-                                                    'Case #${c.id.substring(0, 4)}')
-                                                : c.caseTitle,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
-                              onChanged:
-                                  (val) =>
-                                      setState(() => _selectedCaseId = val),
-                              validator:
-                                  (v) =>
-                                      v == null ? 'Please select a case' : null,
+                              onSelected: (c) => setState(() => _selectedCaseId = c.id),
+                              validator: (v) => v == null ? 'Please select a case' : null,
                             ),
                         loading: () => const LinearProgressIndicator(),
                         error:

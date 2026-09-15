@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../components/case_picker_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:file_picker/file_picker.dart';
@@ -156,8 +157,10 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                 SizedBox(height: 16.h),
                 casesAsync.when(
                   data:
-                      (cases) => DropdownButtonFormField<String>(
-                        initialValue: _selectedCaseId,
+                      (cases) => CasePickerField(
+                        cases: cases,
+                        value: _selectedCaseId,
+                        sheetTitle: 'Select case to export',
                         decoration: InputDecoration(
                           labelText: 'Select Case',
                           prefixIcon: const Icon(Icons.work_outlined, size: 20),
@@ -169,19 +172,7 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                             vertical: 14,
                           ),
                         ),
-                        items:
-                            cases
-                                .map(
-                                  (c) => DropdownMenuItem(
-                                    value: c.id,
-                                    child: Text(
-                                      c.caseTitle,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                        onChanged: (v) => setState(() => _selectedCaseId = v),
+                        onSelected: (c) => setState(() => _selectedCaseId = c.id),
                       ),
                   loading:
                       () => const Center(child: CircularProgressIndicator()),
