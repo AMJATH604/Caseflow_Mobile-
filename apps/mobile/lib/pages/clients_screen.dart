@@ -70,9 +70,8 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Fixed title; search, stats and clients scroll together below it.
             _buildCustomHeader(isMobile, isDark),
-            SizedBox(height: 16.h),
-            _buildSearch(isDark),
             SizedBox(height: 16.h),
             Expanded(
               child: paginatedState.isLoading && clients.isEmpty
@@ -278,8 +277,24 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
               (c.email ?? '').toLowerCase().contains(q);
         }).toList();
 
+    // The search box scrolls with the list — and stays reachable when a search
+    // matches nothing, so the query can still be changed.
+    final searchBlock = SliverToBoxAdapter(
+      child: Padding(
+        padding: EdgeInsets.only(bottom: 16.h),
+        child: _buildSearch(isDark),
+      ),
+    );
+
     if (filtered.isEmpty) {
-      return Center(
+      return CustomScrollView(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          searchBlock,
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -309,6 +324,9 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
             ),
           ],
         ),
+      ),
+          ),
+        ],
       );
     }
 
@@ -317,74 +335,77 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     final hasMore = paginatedState?.hasMore ?? false;
     final isLoadingMore = paginatedState?.isLoadingMore ?? false;
 
-    return Column(
-      children: [
-        // Stats Row
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: Row(
-            children: [
-              _buildQuickStat(
-                'Total',
-                filtered.length,
-                const Color(0xFF6366F1),
-              ),
-              SizedBox(width: 8.w),
-              _buildQuickStat('Active', activeCount, const Color(0xFF10B981)),
-              SizedBox(width: 8.w),
-              _buildQuickStat(
-                'Inactive',
-                filtered.length - activeCount,
-                const Color(0xFF94A3B8),
-              ),
-            ],
+    return CustomScrollView(
+      controller: _scrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        searchBlock,
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 16.h),
+            child: Row(
+              children: [
+                _buildQuickStat(
+                  'Total',
+                  filtered.length,
+                  const Color(0xFF6366F1),
+                ),
+                SizedBox(width: 8.w),
+                _buildQuickStat('Active', activeCount, const Color(0xFF10B981)),
+                SizedBox(width: 8.w),
+                _buildQuickStat(
+                  'Inactive',
+                  filtered.length - activeCount,
+                  const Color(0xFF94A3B8),
+                ),
+              ],
+            ),
           ),
         ),
-        SizedBox(height: 16.h),
         // Client Cards List
-        Expanded(
-          child: ListView.builder(
-            controller: _scrollController,
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 0.h),
-            itemCount: filtered.length + (hasMore ? 1 : 0),
-            itemBuilder: (context, index) {
-              // Loading more indicator at the bottom
-              if (index == filtered.length) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16.h),
-                  child: Center(
-                    child: isLoadingMore
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 16.r,
-                                height: 16.r,
-                                child: const CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: AppTheme.accent,
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 90.h),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                // Loading more indicator at the bottom
+                if (index == filtered.length) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16.h),
+                    child: Center(
+                      child: isLoadingMore
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 16.r,
+                                  height: 16.r,
+                                  child: const CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppTheme.accent,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: 8.w),
-                              Text(
-                                'Loading more clients...',
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  color: const Color(0xFF94A3B8),
-                                  fontWeight: FontWeight.w500,
+                                SizedBox(width: 8.w),
+                                Text(
+                                  'Loading more clients...',
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    color: const Color(0xFF94A3B8),
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                );
-              }
+                              ],
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  );
+                }
 
-              final c = filtered[index];
-              return _buildClientCard(c, isDark);
-            },
+                final c = filtered[index];
+                return _buildClientCard(c, isDark);
+              },
+              childCount: filtered.length + (hasMore ? 1 : 0),
+            ),
           ),
         ),
       ],

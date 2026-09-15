@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../services/legal_news_service.dart';
 import '../components/error_state_widget.dart';
+import '../components/pinned_header_delegate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // ─── Providers ─────────────────────────────────────────
@@ -81,13 +82,23 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
+      // One scroll for the page: the red Legal Pulse card scrolls away and the
+      // category tabs stick to the top. The card and tabs used to stay fixed,
+      // leaving the news only the space below them.
       body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildCategoryTabs(),
-            Expanded(
-              child: TabBarView(
+        child: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            SliverToBoxAdapter(child: _buildHeader()),
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: PinnedHeaderDelegate(
+                height: 40.h + 24,
+                backgroundColor: AppTheme.background,
+                child: _buildCategoryTabs(),
+              ),
+            ),
+          ],
+          body: TabBarView(
                 controller: _tabController,
                 children:
                     _categories.map((cat) {
@@ -99,9 +110,7 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
                         ref: ref,
                       );
                     }).toList(),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

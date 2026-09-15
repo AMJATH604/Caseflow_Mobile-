@@ -122,25 +122,33 @@ class _AdvocateDirectoryScreenState
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
-      body: Column(
-        children: [
-          _buildFilterHeader(isDark),
-          Expanded(
-            child: advocatesAsync.when(
+      // One scroll: the filters and search move with the advocate list. They
+      // stay part of the scroll in every state — typing a search reloads the
+      // list, and the search box must not disappear while that happens.
+      body: RefreshIndicator(
+        onRefresh: () async => ref.invalidate(advocateSearchProvider(filterKey)),
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(child: _buildFilterHeader(isDark)),
+            ...advocatesAsync.when(
               data: (advocates) {
                 if (advocates.isEmpty) {
-                  return _buildEmptyState(isDark);
+                  return [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: _buildEmptyState(isDark),
+                    ),
+                  ];
                 }
-                return RefreshIndicator(
-                  onRefresh:
-                      () async =>
-                          ref.invalidate(advocateSearchProvider(filterKey)),
-                  child: ListView.builder(
-                    padding: EdgeInsets.all(16.r),
-                    itemCount: advocates.length + 1, // +1 for count header
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        return Padding(
+                return [
+                  SliverPadding(
+                    padding: EdgeInsets.fromLTRB(16.r, 16.r, 16.r, 32.h),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          if (index == 0) {
+                            return Padding(
                           padding: EdgeInsets.only(bottom: 12.h),
                           child: Row(
                             children: [
@@ -165,14 +173,19 @@ class _AdvocateDirectoryScreenState
                             ],
                           ),
                         );
-                      }
-                      return _buildAdvocateCard(advocates[index - 1], isDark);
-                    },
+                          }
+                          return _buildAdvocateCard(advocates[index - 1], isDark);
+                        },
+                        childCount: advocates.length + 1, // +1 for count header
+                      ),
+                    ),
                   ),
-                );
+                ];
               },
-              loading:
-                  () => Center(
+              loading: () => [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -188,10 +201,17 @@ class _AdvocateDirectoryScreenState
                       ],
                     ),
                   ),
-              error: (e, st) => _buildErrorState(e, filterKey, isDark),
+                ),
+              ],
+              error: (e, st) => [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _buildErrorState(e, filterKey, isDark),
+                ),
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
