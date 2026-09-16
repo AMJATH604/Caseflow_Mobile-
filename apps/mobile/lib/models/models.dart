@@ -719,6 +719,29 @@ class SeniorFirm {
   );
 }
 
+/// One person in the Digital Chambers room, flattened from either the firm
+/// owner's view of [FirmMember] or an associate's view of [SeniorFirm] so the
+/// members sheet renders one list regardless of which role is looking.
+///
+/// Name and avatar only — `profiles` restricts contact columns to the owner.
+class ChambersMember {
+  final String id;
+  final String name;
+  final String? avatarUrl;
+  final bool isSenior;
+  final bool isMe;
+
+  const ChambersMember({
+    required this.id,
+    required this.name,
+    this.avatarUrl,
+    required this.isSenior,
+    this.isMe = false,
+  });
+
+  String get roleLabel => isSenior ? 'Senior' : 'Associate';
+}
+
 class TeamMate {
   final String memberId;
   final String name;

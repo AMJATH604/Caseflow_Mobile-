@@ -37,6 +37,76 @@ class FirmService {
         .toList();
   }
 
+  /// Everyone in the current user's Digital Chambers room — the senior first,
+  /// then accepted associates.
+  ///
+  /// Two paths, because RLS differs by role: a firm owner reads their own
+  /// `firm_members` rows directly, while an associate can read only their own
+  /// row and has to go through `get_my_senior_firms()`.
+  ///
+  /// Names and avatars only. `profiles` has a column GRANT list since the
+  /// Phase B lockdown, so emails and phone numbers are not readable by other
+  /// members and are deliberately absent here.
+  static Future<List<ChambersMember>> fetchChambersTeam() async {
+    final user = client.auth.currentUser;
+    if (user == null) throw Exception('Not authenticated');
+    final profile = await BaseRepository.getCachedProfile();
+
+    // firm_id == null means "I am the firm owner" — see the firm visibility
+    // model in CLAUDE.md.
+    if (profile.firmId == null) {
+      final members = await fetchFirmMembers();
+      return [
+        ChambersMember(
+          id: user.id,
+          name: profile.fullName ?? 'You',
+          avatarUrl: profile.avatarUrl,
+          isSenior: true,
+          isMe: true,
+        ),
+        for (final m in members)
+          if (m.status == 'accepted')
+            ChambersMember(
+              // No avatar on this path: fetchFirmMembers selects only
+              // full_name, so these fall back to initials.
+              id: m.memberId ?? m.id,
+              name: m.memberName ?? m.memberEmail,
+              isSenior: false,
+              isMe: m.memberId == user.id,
+            ),
+      ];
+    }
+
+    final firms = await fetchMySeniorFirms();
+    SeniorFirm? firm;
+    for (final f in firms) {
+      if (f.ownerId == profile.firmId) {
+        firm = f;
+        break;
+      }
+    }
+    firm ??= firms.isEmpty ? null : firms.first;
+    if (firm == null) return const [];
+
+    return [
+      ChambersMember(
+        id: firm.ownerId,
+        name: firm.ownerName,
+        avatarUrl: firm.ownerAvatarUrl,
+        isSenior: true,
+        isMe: firm.ownerId == user.id,
+      ),
+      for (final t in firm.teammates)
+        ChambersMember(
+          id: t.memberId,
+          name: t.name,
+          avatarUrl: t.avatarUrl,
+          isSenior: false,
+          isMe: t.isMe,
+        ),
+    ];
+  }
+
   /// Invites a member to the firm by email. No member limit.
   static Future<void> inviteMember(String email) async {
     final user = client.auth.currentUser;
