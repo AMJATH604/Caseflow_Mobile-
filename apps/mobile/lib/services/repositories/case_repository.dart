@@ -19,27 +19,12 @@ class CaseRepository {
   /// Extracted so the paginated list and the status counts below cannot drift
   /// apart — a count computed over a different visibility rule than the list
   /// would quietly disagree with it.
+  /// Delegates to [BaseRepository.buildCaseVisibilityFilter] so the case list
+  /// and everything scoped to case ids — hearings, payments, e-filing — share
+  /// one rule. They were two copies, and only this one counted collaborations.
   static Future<String> _visibilityFilter(String userId, String? email) async {
     final profile = await BaseRepository.getCachedProfile();
-    final orFilter = BaseRepository.buildVisibilityFilter(profile, userId);
-
-    // Fetch collaborator case IDs
-    final collabRes = await _client
-        .from('case_collaborations')
-        .select('case_id')
-        .or('collaborator_email.eq.$email,collaborator_id.eq.$userId')
-        .eq('status', 'accepted');
-
-    final List<String> collaborationCaseIds =
-        (collabRes as List).map((c) => c['case_id'] as String).toList();
-
-    if (collaborationCaseIds.isEmpty) return orFilter;
-
-    // Use a single `in.(...)` term rather than one `id.eq.` term per
-    // collaboration. The old form produced a filter string that grew
-    // linearly with the number of shared cases — a user on 500 shared
-    // cases sent a 500-term OR filter on every list load.
-    return '$orFilter,id.in.(${collaborationCaseIds.join(',')})';
+    return BaseRepository.buildCaseVisibilityFilter(profile, userId, email);
   }
 
   /// Per-status counts across **all** visible cases.

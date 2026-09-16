@@ -17,11 +17,18 @@ class BaseRepository {
   // ─── Profile Cache ─────────────────────────────────────
   static UserProfile? _cachedProfile;
   static DateTime? _profileCachedAt;
+  static Future<UserProfile>? _profileInFlight;
   static const _profileTtl = Duration(minutes: 5);
 
   /// Returns a cached profile if fresh (< 5 min), otherwise fetches from DB.
   /// This eliminates the N+1 problem where fetchProfile() was called inside
   /// every data-fetching method (fetchCases, fetchClients, etc.).
+  ///
+  /// Concurrent callers share a single request. The result cache alone did
+  /// not cover a cold start: the dashboard builds a dozen providers at once,
+  /// every one of them missed the empty cache in the same moment, and each
+  /// fired its own `get_my_profile` RPC — a thundering herd against the one
+  /// endpoint all of them were waiting on.
   static Future<UserProfile> getCachedProfile() async {
     final now = DateTime.now();
     if (_cachedProfile != null &&
@@ -29,10 +36,22 @@ class BaseRepository {
         now.difference(_profileCachedAt!) < _profileTtl) {
       return _cachedProfile!;
     }
-    // Cache miss — fetch fresh
-    _cachedProfile = await _fetchAndVerifyProfile();
-    _profileCachedAt = now;
-    return _cachedProfile!;
+
+    final inFlight = _profileInFlight;
+    if (inFlight != null) return inFlight;
+
+    final future = _fetchAndVerifyProfile();
+    _profileInFlight = future;
+    try {
+      final profile = await future;
+      _cachedProfile = profile;
+      _profileCachedAt = DateTime.now();
+      return profile;
+    } finally {
+      // Cleared on failure too, so a failed fetch does not wedge every later
+      // caller onto the same broken future.
+      _profileInFlight = null;
+    }
   }
 
   /// Force-invalidates the profile cache.
@@ -40,6 +59,7 @@ class BaseRepository {
   static void invalidateProfileCache() {
     _cachedProfile = null;
     _profileCachedAt = null;
+    _profileInFlight = null;
   }
 
   /// Full profile fetch with firm membership verification.
@@ -99,6 +119,22 @@ class BaseRepository {
     return user;
   }
 
+  /// Guarantees the request that follows carries a live access token.
+  ///
+  /// A query sent with an expired or missing token is not rejected loudly by
+  /// PostgREST — RLS simply matches no rows, so the caller receives an empty
+  /// list that is indistinguishable from "this user genuinely has none". That
+  /// is how the Court Diary could come up blank on a cold start and fill in
+  /// later. Throwing instead lets [RetryHelper] recover the session and retry.
+  static Future<User> requireActiveSession() async {
+    final session = client.auth.currentSession;
+    if (session == null) throw Exception('Not authenticated');
+    if (session.isExpired) {
+      await client.auth.refreshSession();
+    }
+    return requireAuth();
+  }
+
   /// Returns the current user's ID or null.
   static String? get currentUserId => client.auth.currentUser?.id;
 
@@ -126,12 +162,48 @@ class BaseRepository {
     return orFilter;
   }
 
-  /// Returns all visible case IDs for the current user (for filtering sub-entities).
+  /// The full case-visibility filter: own and firm records, **plus** every
+  /// case shared through an accepted collaboration.
+  ///
+  /// [buildVisibilityFilter] alone omits collaborations, which is correct for
+  /// tables that are not shared but wrong for `cases`. Hearings, payments and
+  /// e-filing all scope themselves to case ids, so a shared case missing here
+  /// meant its hearings never reached the Court Diary at all.
+  static Future<String> buildCaseVisibilityFilter(
+    UserProfile profile,
+    String userId,
+    String? email,
+  ) async {
+    final orFilter = buildVisibilityFilter(profile, userId);
+
+    final collabRes = await client
+        .from('case_collaborations')
+        .select('case_id')
+        .or('collaborator_email.eq.$email,collaborator_id.eq.$userId')
+        .eq('status', 'accepted');
+
+    final ids = (collabRes as List).map((c) => c['case_id'] as String).toList();
+    if (ids.isEmpty) return orFilter;
+
+    // One `in.(...)` term rather than an `id.eq.` term per collaboration, so
+    // the filter string does not grow linearly with the number shared.
+    return '$orFilter,id.in.(${ids.join(',')})';
+  }
+
+  /// Returns all visible case IDs for the current user (for filtering
+  /// sub-entities such as hearings, payments and e-filing records).
+  ///
+  /// An empty result now means the user genuinely has no cases: the query
+  /// either succeeds or throws, so callers may treat empty as authoritative.
   static Future<List<String>> getVisibleCaseIds(
     UserProfile profile,
     String userId,
   ) async {
-    final orFilter = buildVisibilityFilter(profile, userId);
+    final orFilter = await buildCaseVisibilityFilter(
+      profile,
+      userId,
+      client.auth.currentUser?.email,
+    );
     final res = await client.from('cases').select('id').or(orFilter);
     return (res as List).map((c) => c['id'] as String).toList();
   }

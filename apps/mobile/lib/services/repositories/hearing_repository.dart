@@ -10,8 +10,12 @@ class HearingRepository {
     int? limit,
     int? offset,
   }) async {
-    final user = _client.auth.currentUser;
-    if (user == null) return [];
+    // Throws rather than returning an empty list when the session is missing
+    // or its token has expired. Returning [] made "not signed in yet" look
+    // exactly like "no hearings", so the Court Diary rendered its empty state
+    // on a cold start and the provider cached that empty list — it only
+    // filled in once something else happened to refresh it.
+    final user = await BaseRepository.requireActiveSession();
 
     final profile = await BaseRepository.getCachedProfile();
     final visibleCaseIds = await BaseRepository.getVisibleCaseIds(
@@ -19,6 +23,8 @@ class HearingRepository {
       user.id,
     );
 
+    // Authoritative: the query above either succeeded or threw, so an empty
+    // list here means the user really has no cases.
     if (visibleCaseIds.isEmpty) return [];
 
     var query = _client
