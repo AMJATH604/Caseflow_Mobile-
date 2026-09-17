@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import '../services/providers.dart';
 import '../services/paginated_providers.dart';
 import '../services/supabase_service.dart';
 import '../components/dialogs/add_client_dialog.dart';
@@ -18,8 +16,13 @@ class ClientsScreen extends ConsumerStatefulWidget {
   ConsumerState<ClientsScreen> createState() => _ClientsScreenState();
 }
 
+/// Directory filters. "Missing details" is derived from empty contact fields
+/// rather than stored — see [_ClientsScreenState._isIncomplete].
+enum _ClientFilter { all, active, incomplete }
+
 class _ClientsScreenState extends ConsumerState<ClientsScreen> {
   String _searchQuery = '';
+  _ClientFilter _filter = _ClientFilter.all;
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -51,8 +54,8 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
       const Color(0xFFF59E0B),
       const Color(0xFFEF4444),
       const Color(0xFF8B5CF6),
-      Color(0xFFEC4899),
-      Color(0xFF14B8A6),
+      const Color(0xFFEC4899),
+      const Color(0xFF14B8A6),
     ];
     return colors[name.hashCode.abs() % colors.length];
   }
@@ -330,114 +333,157 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
       );
     }
 
-    // Stats bar
-    final activeCount = filtered.where((c) => c.hasActiveCases).length;
     final hasMore = paginatedState?.hasMore ?? false;
     final isLoadingMore = paginatedState?.isLoadingMore ?? false;
+    final visible = _applyFilter(filtered);
 
     return CustomScrollView(
       controller: _scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
         searchBlock,
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 16.h),
-            child: Row(
-              children: [
-                _buildQuickStat(
-                  'Total',
-                  filtered.length,
-                  const Color(0xFF6366F1),
-                ),
-                SizedBox(width: 8.w),
-                _buildQuickStat('Active', activeCount, const Color(0xFF10B981)),
-                SizedBox(width: 8.w),
-                _buildQuickStat(
-                  'Inactive',
-                  filtered.length - activeCount,
-                  const Color(0xFF94A3B8),
-                ),
-              ],
+        SliverToBoxAdapter(child: _buildFilterBar(filtered, isDark)),
+        if (visible.isEmpty)
+          SliverToBoxAdapter(child: _buildFilterEmpty(isDark))
+        else
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 90.h),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  if (index == visible.length) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16.h),
+                      child: Center(
+                        child: isLoadingMore
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 16.r,
+                                    height: 16.r,
+                                    child: const CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppTheme.accent,
+                                    ),
+                                  ),
+                                  SizedBox(width: 8.w),
+                                  Text(
+                                    'Loading more clients…',
+                                    style: TextStyle(
+                                      fontSize: 12.sp,
+                                      color: const Color(0xFF94A3B8),
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                    );
+                  }
+                  return _buildClientCard(visible[index], isDark);
+                },
+                childCount: visible.length + (hasMore ? 1 : 0),
+              ),
             ),
           ),
-        ),
-        // Client Cards List
-        SliverPadding(
-          padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 90.h),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                // Loading more indicator at the bottom
-                if (index == filtered.length) {
-                  return Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16.h),
-                    child: Center(
-                      child: isLoadingMore
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 16.r,
-                                  height: 16.r,
-                                  child: const CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: AppTheme.accent,
-                                  ),
-                                ),
-                                SizedBox(width: 8.w),
-                                Text(
-                                  'Loading more clients...',
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    color: const Color(0xFF94A3B8),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : const SizedBox.shrink(),
-                    ),
-                  );
-                }
-
-                final c = filtered[index];
-                return _buildClientCard(c, isDark);
-              },
-              childCount: filtered.length + (hasMore ? 1 : 0),
-            ),
-          ),
-        ),
       ],
     );
   }
 
-  Widget _buildQuickStat(String label, int value, Color color) {
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 10.h),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(color: color.withValues(alpha: 0.12)),
+  // ─── FILTERING ──────────────────────────────────────────
+
+  /// A client with no phone, no email and no address.
+  ///
+  /// Not a stored flag — derived. Importing from eCourts creates clients from
+  /// the case title alone, so the directory fills with bare names that look
+  /// finished but cannot be contacted. Surfacing them is how they get
+  /// completed.
+  static bool _isIncomplete(ClientModel c) =>
+      (c.phone == null || c.phone!.trim().isEmpty) &&
+      (c.email == null || c.email!.trim().isEmpty) &&
+      (c.address == null || c.address!.trim().isEmpty);
+
+  List<ClientModel> _applyFilter(List<ClientModel> all) => switch (_filter) {
+        _ClientFilter.all => all,
+        _ClientFilter.active => all.where((c) => c.hasActiveCases).toList(),
+        _ClientFilter.incomplete => all.where(_isIncomplete).toList(),
+      };
+
+  Widget _buildFilterBar(List<ClientModel> all, bool isDark) {
+    final counts = {
+      _ClientFilter.all: all.length,
+      _ClientFilter.active: all.where((c) => c.hasActiveCases).length,
+      _ClientFilter.incomplete: all.where(_isIncomplete).length,
+    };
+    const labels = {
+      _ClientFilter.all: 'All',
+      _ClientFilter.active: 'With active cases',
+      _ClientFilter.incomplete: 'Missing details',
+    };
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 14.h),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (final f in _ClientFilter.values) ...[
+              _buildFilterChip(labels[f]!, counts[f]!, f, isDark),
+              SizedBox(width: 8.w),
+            ],
+          ],
         ),
-        child: Column(
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(
+    String label,
+    int count,
+    _ClientFilter value,
+    bool isDark,
+  ) {
+    final selected = _filter == value;
+    final tint = value == _ClientFilter.incomplete && count > 0
+        ? AppTheme.warning
+        : AppTheme.accent;
+    final border = isDark ? Colors.white12 : const Color(0xFFE2E8F0);
+    final muted = isDark ? Colors.white60 : const Color(0xFF64748B);
+
+    return GestureDetector(
+      onTap: () => setState(() => _filter = value),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
+        decoration: BoxDecoration(
+          color: selected
+              ? tint.withValues(alpha: 0.08)
+              : (isDark ? const Color(0xFF1E2030) : Colors.white),
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(
+            color: selected ? tint : border,
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '$value',
-              style: GoogleFonts.outfit(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w700,
-                color: color,
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 12.sp,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected ? tint : muted,
               ),
             ),
+            SizedBox(width: 6.w),
             Text(
-              label.toUpperCase(),
-              style: GoogleFonts.inter(
-                fontSize: 8.sp,
-                fontWeight: FontWeight.w800,
-                color: color.withValues(alpha: 0.7),
-                letterSpacing: 1,
+              '$count',
+              style: GoogleFonts.robotoMono(
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w700,
+                color: selected ? tint : muted,
               ),
             ),
           ],
@@ -446,214 +492,203 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     );
   }
 
-  Widget _buildClientCard(ClientModel c, bool isDark) {
-    final color = _avatarColor(c.name);
-
+  Widget _buildFilterEmpty(bool isDark) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 10.h),
-      child: InkWell(
-        onTap: () => ClientDetailSheet.show(context, c),
-        borderRadius: BorderRadius.circular(16.r),
-        child: Container(
-          padding: EdgeInsets.all(16.r),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E2030) : Colors.white,
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(
-              color: isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0),
+      padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 48.h),
+      child: Column(
+        children: [
+          Icon(
+            Icons.filter_alt_off_rounded,
+            size: 34.sp,
+            color: const Color(0xFF94A3B8),
+          ),
+          SizedBox(height: 12.h),
+          Text(
+            _filter == _ClientFilter.incomplete
+                ? 'Every client has contact details'
+                : 'No clients in this filter',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.outfit(
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
           ),
-          child: Row(
-            children: [
-              // Gradient Avatar
-              Container(
-                width: 48.w,
-                height: 48.h,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [color, color.withValues(alpha: 0.6)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(14.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: color.withValues(alpha: 0.25),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    c.name[0].toUpperCase(),
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18.sp,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 14.w),
-              // Client Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            c.name,
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w700,
-                              color:
-                                  isDark
-                                      ? Colors.white
-                                      : const Color(0xFF0F172A),
-                              fontSize: 15.sp,
-                              letterSpacing: -0.3,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        // Status dot
-                        Container(
-                          width: 7.w,
-                          height: 7.h,
-                          margin: EdgeInsets.only(left: 6.w),
-                          decoration: BoxDecoration(
-                            color:
-                                c.hasActiveCases
-                                    ? const Color(0xFF10B981)
-                                    : const Color(0xFFCBD5E1),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 4.h),
-                    Row(
-                      children: [
-                        if (c.phone != null && c.phone!.isNotEmpty)
-                          Expanded(
-                            child: Text(
-                              c.phone!,
-                              style: GoogleFonts.inter(
-                                color: const Color(0xFF64748B),
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          )
-                        else if (c.email != null && c.email!.isNotEmpty)
-                          Expanded(
-                            child: Text(
-                              c.email!,
-                              style: GoogleFonts.inter(
-                                color: const Color(0xFF64748B),
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          )
-                        else
-                          Expanded(
-                            child: Text(
-                              'No contact info',
-                              style: GoogleFonts.inter(
-                                color: const Color(0xFFCBD5E1),
-                                fontSize: 12.sp,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ),
-                        // Case count badge
-                        if (c.caseCount > 0)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(
-                                0xFF6366F1,
-                              ).withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Text(
-                              "${c.caseCount} ${c.caseCount == 1 ? 'Case' : 'Cases'}",
-                              style: GoogleFonts.inter(
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF6366F1),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      "Since ${DateFormat('MMM yyyy').format(c.createdAt)}",
-                      style: GoogleFonts.inter(
-                        fontSize: 10.sp,
-                        color: const Color(0xFFCBD5E1),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: 8.w),
-              // Actions
-              Column(
-                children: [
-                  _buildActionIcon(
-                    Icons.open_in_new_rounded,
-                    const Color(0xFF64748B),
-                    () {
-                      ClientDetailSheet.show(context, c);
-                    },
-                  ),
-                  SizedBox(height: 6.h),
-                  _buildActionIcon(
-                    Icons.delete_outline_rounded,
-                    Colors.redAccent.withValues(alpha: 0.5),
-                    () => _deleteClient(c),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildActionIcon(IconData icon, Color color, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10.r),
-      child: Container(
-        padding: EdgeInsets.all(8.r),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(10.r),
+  // ─── CARD ───────────────────────────────────────────────
+
+  Widget _buildClientCard(ClientModel c, bool isDark) {
+    final color = _avatarColor(c.name);
+    final incomplete = _isIncomplete(c);
+    final border = isDark ? const Color(0xFF2D3748) : const Color(0xFFE2E8F0);
+    final ink = isDark ? Colors.white : const Color(0xFF0F172A);
+    final muted = isDark ? Colors.white60 : const Color(0xFF64748B);
+
+    // The contact line collapses to whatever the client actually has, rather
+    // than printing empty rows with placeholder dashes.
+    final contact = [
+      if (c.phone != null && c.phone!.trim().isNotEmpty) c.phone!.trim(),
+      if (c.email != null && c.email!.trim().isNotEmpty) c.email!.trim(),
+    ].join('  ·  ');
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.h),
+      // Swipe to delete rather than a delete button on every row. Delete had
+      // nowhere else to live — the detail sheet's comment claims an action it
+      // does not have — so removing it from the card would have removed it
+      // from the app.
+      child: Dismissible(
+        key: ValueKey('client-${c.id}'),
+        direction: DismissDirection.endToStart,
+        background: Container(
+          alignment: Alignment.centerRight,
+          padding: EdgeInsets.only(right: 20.w),
+          decoration: BoxDecoration(
+            color: AppTheme.error.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Icon(
+            Icons.delete_outline_rounded,
+            color: AppTheme.error,
+            size: 22.sp,
+          ),
         ),
-        child: Icon(icon, color: color, size: 16),
+        // Deletion runs from the existing confirm dialog, and the row is
+        // never removed optimistically — the list refreshes from the server.
+        confirmDismiss: (_) async {
+          await _deleteClient(c);
+          return false;
+        },
+        child: Material(
+          color: isDark ? const Color(0xFF1E2030) : Colors.white,
+          borderRadius: BorderRadius.circular(12.r),
+          child: InkWell(
+          onTap: () => ClientDetailSheet.show(context, c),
+          borderRadius: BorderRadius.circular(12.r),
+          child: Container(
+            padding: EdgeInsets.all(14.r),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12.r),
+              border: Border.all(color: border),
+            ),
+            child: Row(
+              children: [
+                // Flat initial, not a gradient tile with its own shadow —
+                // fifty of those down a list is fifty things competing.
+                Container(
+                  width: 42.w,
+                  height: 42.w,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(11.r),
+                  ),
+                  child: Center(
+                    child: Text(
+                      c.name.trim().isEmpty
+                          ? '?'
+                          : c.name.trim()[0].toUpperCase(),
+                      style: GoogleFonts.outfit(
+                        color: color,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 17.sp,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 13.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              c.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.inter(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: ink,
+                              ),
+                            ),
+                          ),
+                          if (incomplete) ...[
+                            SizedBox(width: 7.w),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 6.w,
+                                vertical: 2.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppTheme.warning.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(4.r),
+                              ),
+                              child: Text(
+                                'NO CONTACT',
+                                style: GoogleFonts.inter(
+                                  fontSize: 8.sp,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.4,
+                                  color: AppTheme.warning,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      SizedBox(height: 3.h),
+                      Text(
+                        contact.isEmpty ? 'No phone or email yet' : contact,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                          fontSize: 11.5.sp,
+                          color: muted,
+                          fontStyle: contact.isEmpty
+                              ? FontStyle.italic
+                              : FontStyle.normal,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 10.w),
+                // Case count as one quiet number; the list is scanned for
+                // "who do I act for", not for a row of action buttons.
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${c.caseCount}',
+                      style: GoogleFonts.robotoMono(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w700,
+                        color: c.caseCount > 0 ? AppTheme.accent : muted,
+                      ),
+                    ),
+                    Text(
+                      c.caseCount == 1 ? 'case' : 'cases',
+                      style: GoogleFonts.inter(fontSize: 9.sp, color: muted),
+                    ),
+                  ],
+                ),
+                SizedBox(width: 6.w),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 18.sp,
+                  color: muted,
+                ),
+              ],
+            ),
+          ),
+          ),
+        ),
       ),
     );
   }
@@ -662,7 +697,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     showDialog(context: context, builder: (context) => const AddClientDialog());
   }
 
-  void _deleteClient(ClientModel client) async {
+  Future<void> _deleteClient(ClientModel client) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder:
