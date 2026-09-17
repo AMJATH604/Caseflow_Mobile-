@@ -9,6 +9,7 @@ import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../services/back_interceptors.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -60,13 +61,22 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   @override
   void initState() {
     super.initState();
+    BackInterceptors.add(_handleBackPress);
     _tabs = TabController(length: 8, vsync: this);
     _load();
     _initSpeech();
   }
 
+  /// Back closes an open field visit before leaving the commission.
+  bool _handleBackPress() {
+    if (_activeVisitId == null) return false;
+    setState(() => _activeVisitId = null);
+    return true;
+  }
+
   @override
   void dispose() {
+    BackInterceptors.remove(_handleBackPress);
     _tabs.dispose();
     _speech.cancel();
     _audioPlayer.dispose();

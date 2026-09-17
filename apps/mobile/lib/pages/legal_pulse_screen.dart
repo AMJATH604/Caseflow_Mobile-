@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../components/screen_back_button.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -137,6 +138,8 @@ class _LegalPulseScreenState extends ConsumerState<LegalPulseScreen>
       ),
       child: Row(
         children: [
+          const ScreenBackButton(color: Colors.white),
+          SizedBox(width: 4.w),
           Container(
             padding: EdgeInsets.all(10.r),
             decoration: BoxDecoration(

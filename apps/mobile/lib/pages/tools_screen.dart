@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/analytics_service.dart';
+import '../services/back_interceptors.dart';
 import '../theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import '../components/epay_court_fee_sheet.dart';
@@ -34,6 +35,26 @@ class ToolsScreen extends ConsumerStatefulWidget {
 
 class _ToolsScreenState extends ConsumerState<ToolsScreen> {
   String? _activeToolId;
+
+  /// Back closes the open tool first. Tools are rendered from state, not the
+  /// router, so without this the shell treats back as "leave the Tools tab".
+  bool _handleBackPress() {
+    if (_activeToolId == null) return false;
+    setState(() => _activeToolId = null);
+    return true;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    BackInterceptors.add(_handleBackPress);
+  }
+
+  @override
+  void dispose() {
+    BackInterceptors.remove(_handleBackPress);
+    super.dispose();
+  }
 
   final List<Map<String, dynamic>> _legalTools = [
     {
