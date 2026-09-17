@@ -22,92 +22,109 @@ class AiMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Assistant replies run the full width of the column with no bubble,
+    // border or shadow — the way ChatGPT and Claude set them. A legal answer
+    // is several paragraphs with headings and citations, and a chat bubble
+    // squeezed it into a narrow column that then had to wrap every line.
+    // The user's turn stays a bubble, so the two are still easy to tell
+    // apart at a glance.
+    return isUser ? _buildUserTurn(context) : _buildAssistantTurn(context);
+  }
+
+  Widget _buildUserTurn(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 16.h),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment:
-            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+      padding: EdgeInsets.only(bottom: 18.h, left: 40.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (!isUser) ...[
-            _buildAiAvatar(),
-            SizedBox(width: 10.w),
-          ],
-          Flexible(
-            child: Container(
-              padding: EdgeInsets.all(14.r),
-              decoration: BoxDecoration(
-                color: isUser
-                    ? AppTheme.accent
-                    : isDark
-                        ? const Color(0xFF1E1E2E)
-                        : Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(18.r),
-                  topRight: Radius.circular(18.r),
-                  bottomLeft: Radius.circular(isUser ? 18 : 4),
-                  bottomRight: Radius.circular(isUser ? 4 : 18),
-                ),
-                border: isUser
-                    ? null
-                    : Border.all(
-                        color: isDark
-                            ? const Color(0xFF2D2D3F)
-                            : const Color(0xFFE2E8F0),
-                      ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 11.h),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? const Color(0xFF1E293B)
+                  : const Color(0xFFEFF4FF),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16.r),
+                topRight: Radius.circular(16.r),
+                bottomLeft: Radius.circular(16.r),
+                bottomRight: Radius.circular(4.r),
               ),
-              child: message.isLoading
-                  ? _buildTypingIndicator()
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Show attached image in user bubble
-                        if (isUser && message.hasImage) ...[
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10.r),
-                            child: message.imagePath != null
-                                ? Image.file(
-                                    File(message.imagePath!),
-                                    width: 200.w,
-                                    height: 150.h,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Container(
-                                      width: 200.w,
-                                      height: 60.h,
-                                      color: Colors.grey[300],
-                                      child: const Center(
-                                        child: Icon(Icons.broken_image),
-                                      ),
-                                    ),
-                                  )
-                                : const SizedBox.shrink(),
-                          ),
-                          SizedBox(height: 8.h),
-                        ],
-                        _buildMessageContent(context),
-                        if (!isUser) ...[
-                          // ── RAG Source Citations (Perplexity-style) ──
-                          if (message.hasSources) ...[
-                            SizedBox(height: 10.h),
-                            _buildSourceChips(context),
-                          ],
-                          SizedBox(height: 8.h),
-                          _buildCopyChip(context),
-                        ],
-                      ],
-                    ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (message.hasImage) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10.r),
+                    child: message.imagePath != null
+                        ? Image.file(
+                            File(message.imagePath!),
+                            width: 200.w,
+                            height: 150.h,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              width: 200.w,
+                              height: 60.h,
+                              color: Colors.grey[300],
+                              child: const Center(
+                                child: Icon(Icons.broken_image),
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                  SizedBox(height: 8.h),
+                ],
+                SelectableText(
+                  message.text,
+                  style: GoogleFonts.inter(
+                    fontSize: 14.sp,
+                    height: 1.5,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
+              ],
             ),
           ),
-          if (isUser) ...[
-            SizedBox(width: 10.w),
-            _buildUserAvatar(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAssistantTurn(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 22.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              _buildAiAvatar(),
+              SizedBox(width: 9.w),
+              Text(
+                'CaseFlow AI',
+                style: GoogleFonts.inter(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w700,
+                  color: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF64748B),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          if (message.isLoading)
+            _buildTypingIndicator()
+          else ...[
+            _buildMessageContent(context),
+            if (message.hasSources) ...[
+              SizedBox(height: 12.h),
+              _buildSourceChips(context),
+            ],
+            SizedBox(height: 10.h),
+            _buildCopyChip(context),
           ],
         ],
       ),
@@ -132,21 +149,8 @@ class AiMessageBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildUserAvatar() {
-    return Container(
-      width: 32.w,
-      height: 32.h,
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF232330) : const Color(0xFFE2E8F0),
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      child: Icon(
-        Icons.person_rounded,
-        color: isDark ? Colors.white70 : const Color(0xFF475569),
-        size: 18,
-      ),
-    );
-  }
+  // The user's own avatar is gone: their turn is right-aligned in a tinted
+  // bubble, which already says whose it is without spending a row on it.
 
   Widget _buildMessageContent(BuildContext context) {
     if (isUser) {

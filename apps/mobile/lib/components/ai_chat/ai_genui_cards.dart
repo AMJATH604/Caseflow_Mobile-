@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'markdown_body.dart';
 
 /// Renders AI message text with embedded Gen UI cards (case, payment, calculators, section).
 /// Parses `<genui-TYPE attr="val" />` tags from the AI response and renders
@@ -22,14 +23,10 @@ class AiGenUiContent extends StatelessWidget {
     final matches = regex.allMatches(text);
 
     if (matches.isEmpty) {
-      return SelectableText(
-        text,
-        style: GoogleFonts.inter(
-          fontSize: 14.sp,
-          height: 1.6.h,
-          color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
-        ),
-      );
+      // Through the Markdown renderer: the model answers in Markdown, and a
+      // plain SelectableText printed **Section 138** with the asterisks
+      // showing.
+      return MarkdownBody(text: text, isDark: isDark);
     }
 
     final children = <Widget>[];
@@ -39,18 +36,8 @@ class AiGenUiContent extends StatelessWidget {
       if (match.start > lastEnd) {
         final textBefore = text.substring(lastEnd, match.start).trim();
         if (textBefore.isNotEmpty) {
-          children.add(
-            SelectableText(
-              textBefore,
-              style: GoogleFonts.inter(
-                fontSize: 14.sp,
-                height: 1.6.h,
-                color: isDark
-                    ? const Color(0xFFE2E8F0)
-                    : const Color(0xFF334155),
-              ),
-            ),
-          );
+          // Same Markdown treatment as a reply with no cards in it.
+          children.add(MarkdownBody(text: textBefore, isDark: isDark));
           children.add(SizedBox(height: 12.h));
         }
       }
@@ -88,16 +75,7 @@ class AiGenUiContent extends StatelessWidget {
     if (lastEnd < text.length) {
       final textAfter = text.substring(lastEnd).trim();
       if (textAfter.isNotEmpty) {
-        children.add(
-          SelectableText(
-            textAfter,
-            style: GoogleFonts.inter(
-              fontSize: 14.sp,
-              height: 1.6.h,
-              color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
-            ),
-          ),
-        );
+        children.add(MarkdownBody(text: textAfter, isDark: isDark));
       }
     }
 
