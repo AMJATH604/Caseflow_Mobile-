@@ -100,37 +100,9 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF090D16) : const Color(0xFFF6F8FC),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30.r),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.accent.withValues(alpha: 0.4),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: FloatingActionButton.extended(
-          onPressed: () => _showNewCaseDialog(context),
-          backgroundColor: AppTheme.accent,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          highlightElevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.r),
-          ),
-          icon: Icon(Icons.add_rounded, size: 22.sp),
-          label: Text(
-            'New Case File',
-            style: GoogleFonts.inter(
-              fontWeight: FontWeight.w700,
-              fontSize: 14.sp,
-              letterSpacing: 0.3,
-            ),
-          ),
-        ),
-      ),
+      // No floating New Case button: a case is created from the dashboard's
+      // Quick Actions, and the empty state below still offers it to a user
+      // with no cases yet.
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1205,7 +1177,7 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
               Text(
                 _searchQuery.isNotEmpty || _statusFilter != 'all'
                     ? 'No cases match your active filters or search terms. Try clearing search.'
-                    : 'Your legal repository is empty. Tap "+ New Case File" below to create your first case dossier.',
+                    : 'Your legal repository is empty. Create your first case dossier to get started.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
                   fontSize: 13.sp,

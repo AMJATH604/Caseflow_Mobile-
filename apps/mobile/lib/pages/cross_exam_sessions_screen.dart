@@ -717,27 +717,19 @@ class _CrossExamSessionsScreenState
               ),
               textAlign: TextAlign.center,
             ),
+            // No button here. The "New Session" action is always on screen as
+            // the button above the list, so an empty state that added its own
+            // gave two controls doing one job.
             if (isTotalEmpty) ...[
-              SizedBox(height: 24.h),
-              ElevatedButton.icon(
-                onPressed: () => _showNewSessionSheet(context),
-                icon: const Icon(Icons.add_rounded, color: Colors.white),
-                label: const Text(
-                  'Create First Session',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
+              SizedBox(height: 16.h),
+              Text(
+                'Tap New Session to start.',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.accent,
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.accent,
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                  elevation: 2,
-                ),
+                textAlign: TextAlign.center,
               ),
             ],
           ],
