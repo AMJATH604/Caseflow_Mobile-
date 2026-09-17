@@ -325,7 +325,19 @@ class CaseImportService {
     for (int i = 0; i < parsedCases.length; i++) {
       try {
         final parsedCase = parsedCases[i];
-        final representationType = roles[i] ?? 'petitioner';
+        // No fallback. This used to read `roles[i] ?? 'petitioner'`, which
+        // made the first name in "X vs Y" the client whenever the caller had
+        // not said otherwise — wrong for every case argued from the other
+        // side, and silent about it. The preview now requires an answer for
+        // each case, so a missing one is a programming error, not a default.
+        final representationType = roles[i];
+        if (representationType == null) {
+          throw StateError(
+            'No side chosen for case ${i + 1} '
+            '("${parsedCase['case_title'] ?? 'untitled'}"). '
+            'The client cannot be determined without it.',
+          );
+        }
         final String? cnr = parsedCase['cnr_number'];
 
         // Check for existing case by CNR (from cache)

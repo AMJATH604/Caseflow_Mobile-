@@ -11,6 +11,7 @@ import '../../services/case_import_service.dart';
 import '../../services/providers.dart';
 import '../../models/models.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/party_labels.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CaseImportExportScreen extends ConsumerStatefulWidget {
@@ -1000,8 +1001,12 @@ class _CaseImportExportScreenState
     final Map<int, String> selectedRoles = {};
     // Map to store whether each case is selected for import
     final Map<int, bool> selectedCases = {};
+    // Deliberately no default role. Every case used to start as
+    // 'petitioner', and since nobody flips ninety radio buttons the client
+    // silently became the first name in "X vs Y" — wrong for every case where
+    // the advocate acts for the other side. Import stays disabled until each
+    // selected case has an answer.
     for (int i = 0; i < cases.length; i++) {
-      selectedRoles[i] = 'petitioner';
       selectedCases[i] = true; // All selected by default
     }
 
@@ -1012,6 +1017,20 @@ class _CaseImportExportScreenState
             builder: (context, setDialogState) {
               final selectedCount = selectedCases.values.where((v) => v).length;
               final allSelected = selectedCount == cases.length;
+              // Selected cases still missing a side.
+              final unanswered = <int>[
+                for (int i = 0; i < cases.length; i++)
+                  if (selectedCases[i] == true && selectedRoles[i] == null) i,
+              ];
+              final canImport = selectedCount > 0 && unanswered.isEmpty;
+
+              void setAll(String role) {
+                setDialogState(() {
+                  for (int i = 0; i < cases.length; i++) {
+                    if (selectedCases[i] == true) selectedRoles[i] = role;
+                  }
+                });
+              }
 
               return AlertDialog(
                 shape: RoundedRectangleBorder(
@@ -1069,7 +1088,102 @@ class _CaseImportExportScreenState
                           ),
                         ],
                       ),
-                      SizedBox(height: 8.h),
+                      SizedBox(height: 10.h),
+                      // Answer once for the whole batch; individual cases can
+                      // still differ below.
+                      Container(
+                        padding: EdgeInsets.all(12.r),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0F4FF),
+                          borderRadius: BorderRadius.circular(10.r),
+                          border: Border.all(
+                            color: const Color(0xFF2980b9).withValues(alpha: 0.15),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Which side do you appear for?',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF1A237E),
+                              ),
+                            ),
+                            SizedBox(height: 3.h),
+                            Text(
+                              'Your client is taken from this. Set it for all, '
+                              'then change any that differ.',
+                              style: TextStyle(
+                                fontSize: 10.5.sp,
+                                color: Colors.blueGrey[600],
+                                height: 1.35,
+                              ),
+                            ),
+                            SizedBox(height: 9.h),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: selectedCount > 0
+                                        ? () => setAll('petitioner')
+                                        : null,
+                                    style: OutlinedButton.styleFrom(
+                                      visualDensity: VisualDensity.compact,
+                                      foregroundColor: const Color(0xFF2980b9),
+                                    ),
+                                    child: Text(
+                                      'All: first party',
+                                      style: TextStyle(fontSize: 10.5.sp),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 8.w),
+                                Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: selectedCount > 0
+                                        ? () => setAll('respondent')
+                                        : null,
+                                    style: OutlinedButton.styleFrom(
+                                      visualDensity: VisualDensity.compact,
+                                      foregroundColor: const Color(0xFF2980b9),
+                                    ),
+                                    child: Text(
+                                      'All: second party',
+                                      style: TextStyle(fontSize: 10.5.sp),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (unanswered.isNotEmpty) ...[
+                        SizedBox(height: 8.h),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline_rounded,
+                              size: 14,
+                              color: Colors.orange[700],
+                            ),
+                            SizedBox(width: 6.w),
+                            Expanded(
+                              child: Text(
+                                '${unanswered.length} case(s) still need a side',
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.orange[800],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                      SizedBox(height: 10.h),
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxHeight: 350),
                         child: ListView.builder(
@@ -1082,6 +1196,10 @@ class _CaseImportExportScreenState
                                 cnr != null && existingCnrs.contains(cnr);
                             final currentRole = selectedRoles[i];
                             final isSelected = selectedCases[i] ?? true;
+                            final labels = PartyLabels.forCase(
+                              caseNumber: c['case_number'],
+                              caseType: c['case_type'],
+                            );
 
                             return Container(
                               margin: EdgeInsets.only(bottom: 12.h),
@@ -1178,67 +1296,70 @@ class _CaseImportExportScreenState
                                   ),
                                   if (isSelected) ...[
                                     SizedBox(height: 10.h),
-                                    // Role Switcher
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Representing:',
-                                          style: TextStyle(
-                                            fontSize: 11.sp,
-                                            fontWeight: FontWeight.w500,
+                                    // Role switcher, worded for this case's
+                                    // type: a civil suit has a plaintiff, a
+                                    // cheque complaint a complainant. The
+                                    // names are shown on the buttons because
+                                    // "I appear for Amjath" needs no
+                                    // translation, and translating in the head
+                                    // is where the wrong side gets chosen.
+                                    Text(
+                                      'I appear for:',
+                                      style: TextStyle(
+                                        fontSize: 11.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: currentRole == null
+                                            ? Colors.orange[800]
+                                            : Colors.blueGrey[700],
+                                      ),
+                                    ),
+                                    SizedBox(height: 6.h),
+                                    SegmentedButton<String>(
+                                      emptySelectionAllowed: true,
+                                      segments: [
+                                        ButtonSegment(
+                                          value: 'petitioner',
+                                          label: Text(
+                                            c['petitioner'] ?? labels.first,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(fontSize: 10.sp),
                                           ),
                                         ),
-                                        SizedBox(width: 8.w),
-                                        Expanded(
-                                          child: SegmentedButton<String>(
-                                            segments: [
-                                              ButtonSegment(
-                                                value: 'petitioner',
-                                                label: Text(
-                                                  'Petitioner',
-                                                  style: TextStyle(
-                                                    fontSize: 10.sp,
-                                                  ),
-                                                ),
-                                              ),
-                                              ButtonSegment(
-                                                value: 'respondent',
-                                                label: Text(
-                                                  'Respondent',
-                                                  style: TextStyle(
-                                                    fontSize: 10.sp,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                            selected: {currentRole!},
-                                            onSelectionChanged: (val) {
-                                              setDialogState(
-                                                () =>
-                                                    selectedRoles[i] =
-                                                        val.first,
-                                              );
-                                            },
-                                            style: SegmentedButton.styleFrom(
-                                              visualDensity:
-                                                  VisualDensity.compact,
-                                              padding: EdgeInsets.zero,
-                                            ),
+                                        ButtonSegment(
+                                          value: 'respondent',
+                                          label: Text(
+                                            c['respondent'] ?? labels.second,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(fontSize: 10.sp),
                                           ),
                                         ),
                                       ],
+                                      selected: currentRole == null
+                                          ? <String>{}
+                                          : {currentRole},
+                                      onSelectionChanged: (val) {
+                                        setDialogState(
+                                          () => selectedRoles[i] = val.first,
+                                        );
+                                      },
+                                      style: SegmentedButton.styleFrom(
+                                        visualDensity: VisualDensity.compact,
+                                        padding: EdgeInsets.zero,
+                                      ),
                                     ),
                                     Divider(height: 20.h, thickness: 0.5),
                                     if (c['petitioner'] != null)
                                       _previewDetailRow(
                                         Icons.person_rounded,
-                                        "Petitioner: ${c['petitioner']}",
+                                        "${labels.first}: ${c['petitioner']}",
                                         isBold: currentRole == 'petitioner',
                                       ),
                                     if (c['respondent'] != null)
                                       _previewDetailRow(
                                         Icons.person_off_rounded,
-                                        "Respondent: ${c['respondent']}",
+                                        "${labels.second}: ${c['respondent']}",
                                         isBold: currentRole == 'respondent',
                                       ),
                                     if (c['cnr_number'] != null)
@@ -1264,13 +1385,11 @@ class _CaseImportExportScreenState
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
-                          selectedCount > 0
-                              ? const Color(0xFF2980b9)
-                              : Colors.grey,
+                          canImport ? const Color(0xFF2980b9) : Colors.grey,
                       foregroundColor: Colors.white,
                     ),
                     onPressed:
-                        selectedCount > 0
+                        canImport
                             ? () {
                               // Only pass selected cases
                               final filteredRoles = <int, String>{};
