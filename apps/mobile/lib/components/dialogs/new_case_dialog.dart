@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'case_conflict_dialog.dart';
 import '../../services/supabase_service.dart';
 import '../../services/firm_service.dart';
 import '../../services/providers.dart';
@@ -31,7 +33,6 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
   CaseStage _stage = CaseStage.filing;
   CourtType _courtType = CourtType.trial;
   final _cnrController = TextEditingController();
-  bool _isAutoTrackingEnabled = true;
 
   // ─── Plaintiff / Petitioner (Your Client) ───
   final _plaintiffNameController = TextEditingController();
@@ -109,6 +110,34 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
 
     setState(() => _isSaving = true);
     try {
+      // 0. Refuse to file the same case twice.
+      //
+      // Scoped to number + court: case numbers repeat across courts, so an
+      // OS/448/2022 in Tenkasi is not the OS/448/2022 in Madurai. A matching
+      // title only warns — two unrelated matters are often named alike.
+      final provisionalTitle = _titleController.text.trim();
+      final conflicts = await SupabaseService.findConflictingCases(
+        caseNumber: _numberController.text.trim(),
+        courtName: _courtController.text.trim(),
+        caseTitle: provisionalTitle.isEmpty ? null : provisionalTitle,
+      );
+      if (conflicts.isNotEmpty) {
+        if (!mounted) return;
+        final proceed = await showCaseConflictDialog(
+          context,
+          conflicts,
+          onOpenExisting: (caseId) {
+            // Close this form too, or the case opens behind it.
+            Navigator.of(context).pop();
+            context.go('/cases/$caseId');
+          },
+        );
+        if (!proceed) {
+          if (mounted) setState(() => _isSaving = false);
+          return;
+        }
+      }
+
       // 1. Auto-create or find client from the selected representing party
       final isRepresentingA = _representing == RepresentationType.petitioner;
       final clientName =
@@ -170,8 +199,12 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
         'opposing_advocate_phone': _defendantAdvocatePhoneController.text,
         'petitioner_advocate_phone': _plaintiffAdvocatePhoneController.text,
         'cnr_number': _cnrController.text.trim().toUpperCase(),
-        'is_auto_sync_enabled':
-            _cnrController.text.trim().isNotEmpty && _isAutoTrackingEnabled,
+        // Off for new cases. The toggle that set this was the only control
+        // for it anywhere in the app and has been removed; daily eCourts
+        // polling costs Apify credits per case, so it is not switched on
+        // silently. Re-introducing it means adding a deliberate per-case
+        // setting, most naturally in the Case Dossier.
+        'is_auto_sync_enabled': false,
       });
 
       ref.invalidate(casesProvider);
@@ -180,9 +213,14 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
+        // The unique index is the real guard — the pre-check above is only a
+        // courtesy, and two devices saving at once still reach here.
+        final message = SupabaseService.isDuplicateCaseError(e)
+            ? 'This case already exists in the same court.'
+            : 'Error: $e';
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ).showSnackBar(SnackBar(content: Text(message)));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -287,11 +325,14 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
               ),
               SizedBox(height: 24.h),
 
-              // ─── AUTO TRACKING (CNR) ───
+              // ─── CNR ───
+              // The CNR is kept because Track Case and eCourts lookups need
+              // it. What was removed is the "Automated Monitoring" framing
+              // and its toggle — see the note on is_auto_sync_enabled below.
               _buildPartySectionHeader(
-                icon: Icons.auto_awesome_rounded,
-                label: 'Automated Monitoring',
-                subtitle: 'CNR Number is mandatory for background sync',
+                icon: Icons.qr_code_rounded,
+                label: 'eCourts Reference',
+                subtitle: 'Optional — needed to look this case up on eCourts',
                 color: const Color(0xFF0F172A),
               ),
               SizedBox(height: 12.h),
@@ -313,28 +354,6 @@ class _NewCaseDialogState extends ConsumerState<NewCaseDialog> {
                 onChanged: (v) => setState(() {}),
                 textCapitalization: TextCapitalization.characters,
               ),
-              if (_cnrController.text.isNotEmpty)
-                Padding(
-                  padding: EdgeInsets.only(top: 12.h),
-                  child: SwitchListTile(
-                    title: Text(
-                      'Enable Background Tracking',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Text(
-                      "We'll poll eCourts daily for updates",
-                      style: TextStyle(fontSize: 11.sp),
-                    ),
-                    value: _isAutoTrackingEnabled,
-                    onChanged:
-                        (v) => setState(() => _isAutoTrackingEnabled = v),
-                    activeThumbColor: AppTheme.accent,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
               SizedBox(height: 24.h),
 
               // ─── PLAINTIFF / PETITIONER SECTION ───

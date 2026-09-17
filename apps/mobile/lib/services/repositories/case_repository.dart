@@ -1,4 +1,7 @@
+import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
+
 import '../../models/models.dart';
+import '../../models/case_conflict.dart';
 import '../../models/case_dossier_models.dart';
 import 'base_repository.dart';
 
@@ -119,6 +122,50 @@ class CaseRepository {
     // reads. See 20260917_audit_foundations.sql.
 
     return newCase;
+  }
+
+  /// Existing cases that clash with the one about to be saved.
+  ///
+  /// A pre-check for the user's benefit only — the authority is the partial
+  /// unique index `cases_unique_number_per_court`, which is what actually
+  /// stops two devices saving the same case at the same moment. Callers must
+  /// still handle [isDuplicateCaseError] on the insert.
+  ///
+  /// Returns blocking conflicts first, so a caller that shows one row shows
+  /// the serious one.
+  static Future<List<CaseConflict>> findConflictingCases({
+    String? caseNumber,
+    String? courtName,
+    String? caseTitle,
+    String? excludeId,
+  }) async {
+    BaseRepository.requireAuth();
+    final rows = await _client.rpc(
+      'find_conflicting_cases',
+      params: {
+        'p_case_number': caseNumber,
+        'p_court_name': courtName,
+        'p_case_title': caseTitle,
+        'p_exclude_id': excludeId,
+      },
+    );
+    return ((rows as List?) ?? const [])
+        .map((r) => CaseConflict.fromJson(Map<String, dynamic>.from(r as Map)))
+        .toList();
+  }
+
+  /// Whether an error thrown by [createCase] is the duplicate-case rejection
+  /// rather than a genuine failure. Postgres reports it as 23505 naming the
+  /// index, which is the only way to tell it from any other unique violation
+  /// on the table.
+  static bool isDuplicateCaseError(Object error) {
+    if (error is PostgrestException) {
+      return error.code == '23505' &&
+          (error.message.contains('cases_unique_number_per_court') ||
+              (error.details?.toString() ?? '')
+                  .contains('cases_unique_number_per_court'));
+    }
+    return error.toString().contains('cases_unique_number_per_court');
   }
 
   static Future<void> updateCase(
