@@ -178,7 +178,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         }
 
         ref.invalidate(userProfileProvider);
-        await FcmService().initialize();
+        try {
+          await FcmService().initialize();
+        } catch (fcmError) {
+          debugPrint('FCM initialization non-fatal error: $fcmError');
+        }
         if (mounted) setState(() => _isLoading = false);
         return;
       } catch (e) {

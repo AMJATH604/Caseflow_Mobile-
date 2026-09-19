@@ -59,7 +59,7 @@ class FcmService {
     debugPrint('FCM: Initialization complete');
   }
 
-  /// Initialize flutter_local_notifications with Android settings and actions.
+  /// Initialize flutter_local_notifications with Android and iOS settings.
   Future<void> initLocalNotifications() async {
     if (_localNotificationsInitialized) return;
 
@@ -67,8 +67,15 @@ class FcmService {
       '@mipmap/ic_launcher',
     );
 
+    const iosSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+
     const initSettings = InitializationSettings(
       android: androidSettings,
+      iOS: iosSettings,
     );
 
     await _localNotifications.initialize(
