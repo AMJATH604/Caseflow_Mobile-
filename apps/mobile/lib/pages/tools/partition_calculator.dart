@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../components/partition_tree.dart';
 import '../../theme/app_theme.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -39,6 +40,14 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
   final List<String> _calculationSteps = [];
   bool _showResults = false;
 
+  /// Defaults to the list, so the view an advocate already relies on is the
+  /// one that appears without asking for it.
+  bool _treeView = false;
+
+  double get _netEstate =>
+      (double.tryParse(_estateCtrl.text.replaceAll(',', '')) ?? 0) -
+      (double.tryParse(_debtsCtrl.text.replaceAll(',', '')) ?? 0);
+
   @override
   void dispose() {
     _estateCtrl.dispose();
@@ -50,7 +59,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
     // Validate inputs
     final double estate =
         double.tryParse(_estateCtrl.text.replaceAll(',', '')) ?? 0.0;
-    final double debts = double.tryParse(_debtsCtrl.text.replaceAll(',', '')) ?? 0.0;
+    final double debts =
+        double.tryParse(_debtsCtrl.text.replaceAll(',', '')) ?? 0.0;
     final double netEstate = estate - debts;
 
     if (estate <= 0) {
@@ -177,6 +187,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                     ? '1/$totalShares'
                     : '1/${totalShares * _wifeCount}',
             'amount': perWidow,
+            'relation': 'spouse',
+            'basis': 'equal',
           });
         }
       }
@@ -185,6 +197,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
           'heir': 'Mother',
           'fraction': '1/$totalShares',
           'amount': valuePerShare,
+          'relation': 'mother',
+          'basis': 'equal',
         });
       }
       for (int i = 1; i <= _sonCount; i++) {
@@ -192,6 +206,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
           'heir': _sonCount == 1 ? 'Son' : 'Son $i',
           'fraction': '1/$totalShares',
           'amount': valuePerShare,
+          'relation': 'son',
+          'basis': 'equal',
         });
       }
       for (int i = 1; i <= _daughterCount; i++) {
@@ -199,6 +215,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
           'heir': _daughterCount == 1 ? 'Daughter' : 'Daughter $i',
           'fraction': '1/$totalShares',
           'amount': valuePerShare,
+          'relation': 'daughter',
+          'basis': 'equal',
         });
       }
     } else {
@@ -237,6 +255,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
           'heir': 'Husband',
           'fraction': '1/$totalShares',
           'amount': valuePerShare,
+          'relation': 'spouse',
+          'basis': 'equal',
         });
       }
       for (int i = 1; i <= _sonCount; i++) {
@@ -244,6 +264,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
           'heir': _sonCount == 1 ? 'Son' : 'Son $i',
           'fraction': '1/$totalShares',
           'amount': valuePerShare,
+          'relation': 'son',
+          'basis': 'equal',
         });
       }
       for (int i = 1; i <= _daughterCount; i++) {
@@ -251,6 +273,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
           'heir': _daughterCount == 1 ? 'Daughter' : 'Daughter $i',
           'fraction': '1/$totalShares',
           'amount': valuePerShare,
+          'relation': 'daughter',
+          'basis': 'equal',
         });
       }
     }
@@ -351,7 +375,13 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
       final double scale = 1.0 / totalFixedFractions;
       if (wifeFraction > 0) {
         final double amount = netEstate * wifeFraction * scale;
-        _results.add({'heir': 'Wife', 'fraction': 'Reduced', 'amount': amount});
+        _results.add({
+          'heir': 'Wife',
+          'fraction': 'Reduced',
+          'amount': amount,
+          'relation': 'spouse',
+          'basis': 'fixed',
+        });
       }
       if (husbandFraction > 0) {
         final double amount = netEstate * husbandFraction * scale;
@@ -359,6 +389,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
           'heir': 'Husband',
           'fraction': 'Reduced',
           'amount': amount,
+          'relation': 'spouse',
+          'basis': 'fixed',
         });
       }
       if (fatherFraction > 0) {
@@ -367,6 +399,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
           'heir': 'Father',
           'fraction': 'Reduced',
           'amount': amount,
+          'relation': 'father',
+          'basis': 'fixed',
         });
       }
       if (motherFraction > 0) {
@@ -375,6 +409,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
           'heir': 'Mother',
           'fraction': 'Reduced',
           'amount': amount,
+          'relation': 'mother',
+          'basis': 'fixed',
         });
       }
       return;
@@ -387,6 +423,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
         'heir': _wifeCount > 1 ? 'Wives (×$_wifeCount, split)' : 'Wife',
         'fraction': hasChildren ? '1/8' : '1/4',
         'amount': amount,
+        'relation': 'spouse',
+        'basis': 'fixed',
       });
     }
     if (husbandFraction > 0) {
@@ -395,11 +433,19 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
         'heir': 'Husband',
         'fraction': hasChildren ? '1/4' : '1/2',
         'amount': amount,
+        'relation': 'spouse',
+        'basis': 'fixed',
       });
     }
     if (fatherFraction > 0) {
       final double amount = netEstate * fatherFraction;
-      _results.add({'heir': 'Father', 'fraction': '1/6', 'amount': amount});
+      _results.add({
+        'heir': 'Father',
+        'fraction': '1/6',
+        'amount': amount,
+        'relation': 'father',
+        'basis': 'fixed',
+      });
     }
     if (motherFraction > 0) {
       final double amount = netEstate * motherFraction;
@@ -407,6 +453,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
         'heir': 'Mother',
         'fraction': hasChildren ? '1/6' : '1/3',
         'amount': amount,
+        'relation': 'mother',
+        'basis': 'fixed',
       });
     }
 
@@ -446,6 +494,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
             'heir': _sonCount == 1 ? 'Son' : 'Son $i',
             'fraction': '2/$totalParts res.',
             'amount': amt,
+            'relation': 'son',
+            'basis': 'residuary',
           });
         }
         for (int i = 1; i <= _daughterCount; i++) {
@@ -456,14 +506,18 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
             'heir': _daughterCount == 1 ? 'Daughter' : 'Daughter $i',
             'fraction': '1/$totalParts res.',
             'amount': valuePerPart,
+            'relation': 'daughter',
+            'basis': 'residuary',
           });
         }
       } else if (_daughterCount > 0) {
-        final double daughtersFixedFraction = _daughterCount == 1 ? 0.5 : (2 / 3);
+        final double daughtersFixedFraction =
+            _daughterCount == 1 ? 0.5 : (2 / 3);
         final String fracLabel = _daughterCount == 1 ? '1/2' : '2/3';
 
         if (remainingFraction >= daughtersFixedFraction) {
-          final double totalDaughtersAmount = netEstate * daughtersFixedFraction;
+          final double totalDaughtersAmount =
+              netEstate * daughtersFixedFraction;
           final double perDaughter = totalDaughtersAmount / _daughterCount;
           _calculationSteps.add(
             '  Daughters (no sons): Fixed share = $fracLabel = ${formatCurrency.format(totalDaughtersAmount)}',
@@ -473,6 +527,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
               'heir': _daughterCount == 1 ? 'Daughter' : 'Daughter $i',
               'fraction': fracLabel,
               'amount': perDaughter,
+              'relation': 'daughter',
+              'basis': 'fixed',
             });
           }
           remainingFraction -= daughtersFixedFraction;
@@ -484,16 +540,20 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
             '  Father takes remaining as residuary = ${formatCurrency.format(remainingAmount)}',
           );
           final fatherRecord =
-              _results.where((e) => e['heir'] == 'Father').firstOrNull;
+              _results.where((e) => e['relation'] == 'father').firstOrNull;
           if (fatherRecord != null) {
             fatherRecord['amount'] =
                 (fatherRecord['amount'] as double) + remainingAmount;
             fatherRecord['fraction'] = '1/6 + res.';
+            // He now draws from both pots, so neither label alone is true.
+            fatherRecord['basis'] = 'mixed';
           } else {
             _results.add({
               'heir': 'Father',
               'fraction': 'Residuary',
               'amount': remainingAmount,
+              'relation': 'father',
+              'basis': 'residuary',
             });
           }
         }
@@ -502,16 +562,20 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
           '  Father takes all residuary = ${formatCurrency.format(remainingAmount)}',
         );
         final fatherRecord =
-            _results.where((e) => e['heir'] == 'Father').firstOrNull;
+            _results.where((e) => e['relation'] == 'father').firstOrNull;
         if (fatherRecord != null) {
           fatherRecord['amount'] =
               (fatherRecord['amount'] as double) + remainingAmount;
           fatherRecord['fraction'] = '1/6 + res.';
+          // He now draws from both pots, so neither label alone is true.
+          fatherRecord['basis'] = 'mixed';
         } else {
           _results.add({
             'heir': 'Father',
             'fraction': 'Residuary',
             'amount': remainingAmount,
+            'relation': 'father',
+            'basis': 'residuary',
           });
         }
       } else {
@@ -530,7 +594,8 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
 
     final double estate =
         double.tryParse(_estateCtrl.text.replaceAll(',', '')) ?? 0.0;
-    final double debts = double.tryParse(_debtsCtrl.text.replaceAll(',', '')) ?? 0.0;
+    final double debts =
+        double.tryParse(_debtsCtrl.text.replaceAll(',', '')) ?? 0.0;
 
     final StringBuffer sb = StringBuffer();
     sb.writeln('═══════════════════════════════════════════');
@@ -577,7 +642,9 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
         ),
         backgroundColor: Colors.green[700],
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.r),
+        ),
       ),
     );
   }
@@ -904,12 +971,12 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                 trailing: TextButton.icon(
                   onPressed: _copyToClipboard,
                   icon: const Icon(Icons.copy_rounded, size: 14),
-                  label: Text(
-                    'Copy Memo',
-                    style: TextStyle(fontSize: 12.sp),
-                  ),
+                  label: Text('Copy Memo', style: TextStyle(fontSize: 12.sp)),
                 ),
                 children: [
+                  _buildViewToggle(isDark),
+                  SizedBox(height: 14.h),
+
                   // Net estate summary
                   Container(
                     width: double.infinity,
@@ -934,16 +1001,7 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                           style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                         Text(
-                          formatCurrency.format(
-                            (double.tryParse(
-                                      _estateCtrl.text.replaceAll(',', ''),
-                                    ) ??
-                                    0) -
-                                (double.tryParse(
-                                      _debtsCtrl.text.replaceAll(',', ''),
-                                    ) ??
-                                    0),
-                          ),
+                          formatCurrency.format(_netEstate),
                           style: TextStyle(
                             fontWeight: FontWeight.w900,
                             fontSize: 18.sp,
@@ -955,71 +1013,81 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
                   ),
                   SizedBox(height: 16.h),
 
+                  if (_treeView)
+                    PartitionTree(
+                      results: _results,
+                      netEstate: _netEstate,
+                      deceasedGender: _deceasedGender,
+                      currency: formatCurrency,
+                      isDark: isDark,
+                    ),
+
                   // Share cards
-                  ..._results.map(
-                    (row) => Container(
-                      margin: EdgeInsets.only(bottom: 8.h),
-                      padding: EdgeInsets.all(14.r),
-                      decoration: BoxDecoration(
-                        color:
-                            isDark
-                                ? Colors.white.withValues(alpha: 0.04)
-                                : Colors.grey[50],
-                        borderRadius: BorderRadius.circular(10.r),
-                        border: Border.all(
-                          color: isDark ? Colors.white10 : Colors.grey[200]!,
+                  if (!_treeView)
+                    ..._results.map(
+                      (row) => Container(
+                        margin: EdgeInsets.only(bottom: 8.h),
+                        padding: EdgeInsets.all(14.r),
+                        decoration: BoxDecoration(
+                          color:
+                              isDark
+                                  ? Colors.white.withValues(alpha: 0.04)
+                                  : Colors.grey[50],
+                          borderRadius: BorderRadius.circular(10.r),
+                          border: Border.all(
+                            color: isDark ? Colors.white10 : Colors.grey[200]!,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40.w,
+                              height: 40.h,
+                              decoration: BoxDecoration(
+                                color: AppTheme.accent.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                              child: const Icon(
+                                Icons.person,
+                                color: AppTheme.accent,
+                                size: 20,
+                              ),
+                            ),
+                            SizedBox(width: 12.w),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    row['heir'],
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14.sp,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2.h),
+                                  Text(
+                                    "Share: ${row['fraction']}",
+                                    style: TextStyle(
+                                      fontSize: 12.sp,
+                                      color: Colors.grey[500],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              formatCurrency.format(row['amount']),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 16.sp,
+                                color: AppTheme.primary,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40.w,
-                            height: 40.h,
-                            decoration: BoxDecoration(
-                              color: AppTheme.accent.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: const Icon(
-                              Icons.person,
-                              color: AppTheme.accent,
-                              size: 20,
-                            ),
-                          ),
-                          SizedBox(width: 12.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  row['heir'],
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 14.sp,
-                                  ),
-                                ),
-                                SizedBox(height: 2.h),
-                                Text(
-                                  "Share: ${row['fraction']}",
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    color: Colors.grey[500],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            formatCurrency.format(row['amount']),
-                            style: TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 16.sp,
-                              color: AppTheme.primary,
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
-                  ),
                 ],
               ),
 
@@ -1141,6 +1209,81 @@ class _PartitionCalculatorState extends State<PartitionCalculator> {
   }
 
   // ─── REUSABLE CARD WIDGET ──
+  /// List on the left, tree on the right. The same result either way — only
+  /// the drawing changes, so switching never needs a recalculation.
+  Widget _buildViewToggle(bool isDark) {
+    return Container(
+      padding: EdgeInsets.all(3.r),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[100],
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: isDark ? Colors.white10 : Colors.grey[200]!),
+      ),
+      child: Row(
+        children: [
+          _buildViewToggleTab(isDark, Icons.list_rounded, 'List', false),
+          _buildViewToggleTab(isDark, Icons.account_tree_rounded, 'Tree', true),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildViewToggleTab(
+    bool isDark,
+    IconData icon,
+    String label,
+    bool treeView,
+  ) {
+    final bool selected = _treeView == treeView;
+    return Expanded(
+      child: Semantics(
+        selected: selected,
+        button: true,
+        child: GestureDetector(
+          onTap: () => setState(() => _treeView = treeView),
+          behavior: HitTestBehavior.opaque,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: EdgeInsets.symmetric(vertical: 9.h),
+            decoration: BoxDecoration(
+              color:
+                  selected
+                      ? (isDark ? AppTheme.accent : Colors.white)
+                      : Colors.transparent,
+              borderRadius: BorderRadius.circular(8.r),
+              boxShadow: selected && !isDark ? AppTheme.shadowSm : null,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: 16,
+                  color:
+                      selected
+                          ? (isDark ? Colors.white : AppTheme.accent)
+                          : Colors.grey[500],
+                ),
+                SizedBox(width: 6.w),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                    color:
+                        selected
+                            ? (isDark ? Colors.white : AppTheme.accent)
+                            : Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildCard(
     bool isDark, {
     required IconData icon,
