@@ -3,7 +3,8 @@ import {
   Users,
   Receipt,
   Megaphone,
-  Vote,
+  BellRing,
+  Flower2,
   ArrowRight,
   Pin,
   UserPlus,
@@ -86,33 +87,38 @@ export default function DashboardPage() {
             hint={`${activeMembers} active${inactiveMembers ? ` · ${inactiveMembers} suspended` : ""}`}
             onClick={() => navigate("/members")}
           />
+          {/* Lapses lead, because a lapsed membership is why a welfare
+              claim gets refused — it is the one figure that costs a family
+              money if nobody looks at it. */}
+          <KpiCard
+            title="Renewals due"
+            value={(stats?.expiringSoon ?? 0) + (stats?.lapsed ?? 0)}
+            icon={BellRing}
+            color={stats?.lapsed ? "destructive" : stats?.expiringSoon ? "warning" : "success"}
+            hint={
+              stats?.lapsed
+                ? `${stats.lapsed} already lapsed`
+                : stats?.expiringSoon
+                  ? `${stats.expiringSoon} within 60 days`
+                  : "Everyone current"
+            }
+            onClick={() => navigate("/renewals")}
+          />
           <KpiCard
             title="Fees collected"
-            value={formatCurrency(stats?.feeCollectedThisYear || 0)}
+            value={formatCurrency(stats?.feesCollected || 0)}
             icon={Receipt}
             color="success"
-            hint={
-              stats?.pendingPayments
-                ? `${stats.pendingPayments} pending`
-                : "Nothing pending"
-            }
+            hint="This membership year"
             onClick={() => navigate("/fees")}
           />
           <KpiCard
-            title="Notices published"
-            value={stats?.totalNotices ?? 0}
+            title="Welfare claims"
+            value={stats?.openClaims ?? 0}
             icon={Megaphone}
-            color="info"
-            hint="Visible to members"
-            onClick={() => navigate("/notices")}
-          />
-          <KpiCard
-            title="Election"
-            value={stats?.activeElection ? "Active" : "None"}
-            icon={Vote}
-            color={stats?.activeElection ? "accent" : "default"}
-            hint={stats?.activeElection ? "In progress" : "No election running"}
-            onClick={() => navigate("/elections")}
+            color={stats?.openClaims ? "info" : "default"}
+            hint={stats?.openClaims ? "Awaiting the Bar Council" : "Nothing outstanding"}
+            onClick={() => navigate("/welfare")}
           />
         </div>
 
@@ -187,7 +193,7 @@ export default function DashboardPage() {
                       <span
                         className={cn(
                           "mt-1.5 h-2 w-2 shrink-0 rounded-full",
-                          noticeTone[notice.category] ?? "bg-muted-foreground",
+                          noticeTone[notice.category ?? "general"] ?? "bg-muted-foreground",
                         )}
                         aria-hidden
                       />
@@ -196,7 +202,7 @@ export default function DashboardPage() {
                           {notice.title}
                         </p>
                         <p className="mt-0.5 text-sm text-muted-foreground">
-                          {formatDate(notice.published_at)} · {notice.read_count} read
+                          {notice.published_at ? formatDate(notice.published_at) : "Unpublished"} · {notice.read_count ?? 0} read
                         </p>
                       </div>
                       {notice.is_pinned && (
@@ -273,7 +279,7 @@ export default function DashboardPage() {
               <QuickAction icon={Send} label="Send notice" onClick={() => navigate("/notices")} />
               <QuickAction icon={UserPlus} label="Add member" onClick={() => navigate("/members")} />
               <QuickAction icon={Receipt} label="Pending fees" onClick={() => navigate("/fees")} />
-              <QuickAction icon={Vote} label="Create election" onClick={() => navigate("/elections")} />
+              <QuickAction icon={Flower2} label="Condolence" onClick={() => navigate("/condolences")} />
               <QuickAction icon={CalendarPlus} label="Add event" onClick={() => navigate("/events")} />
             </div>
           </CardContent>
