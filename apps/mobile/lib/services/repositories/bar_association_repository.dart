@@ -75,17 +75,33 @@ class BarAssociationRepository extends BaseRepository {
     return BarAssociation.fromJson(map);
   }
 
-  /// Joins an association using a 6-character invite code.
-  /// Creates a bar_member record linking the user.
-  static Future<BarAssociation> joinAssociation(String inviteCode) async {
+  /// Claims this user's place on an association's roll.
+  ///
+  /// The association enters its register first — a name and an enrolment
+  /// number per member, with no account attached — and an advocate then
+  /// claims the row that is already there. That claim is what makes the
+  /// account a verified advocate: the bar, which is the body that actually
+  /// knows who practises in its court, has vouched for them.
+  ///
+  /// This replaced a join that *created* a member for whoever presented the
+  /// code. A six-letter code shared with every member of a bar is no gate at
+  /// all, so anyone who saw it became an active member in the database.
+  ///
+  /// Both the code and the identifier are checked on the server, where
+  /// failed attempts are rate limited.
+  static Future<BarAssociation> claimMembership(
+    String inviteCode,
+    String enrolmentOrMobile,
+  ) async {
     BaseRepository.requireAuth();
 
-    // The invite code is checked on the server: codes are not readable by
-    // ordinary users, and failed attempts are rate limited there.
     try {
       final assocRow = await BaseRepository.client.rpc(
-        'join_bar_association',
-        params: {'p_invite_code': inviteCode},
+        'claim_bar_membership',
+        params: {
+          'p_invite_code': inviteCode,
+          'p_identifier': enrolmentOrMobile,
+        },
       );
       BaseRepository.invalidateProfileCache();
       return BarAssociation.fromJson(Map<String, dynamic>.from(assocRow as Map));
@@ -251,137 +267,24 @@ class BarAssociationRepository extends BaseRepository {
     }).eq('id', paymentId);
   }
 
-  // ─── Elections ─────────────────────────────────────────────
-
-  /// Gets the active (non-completed, non-cancelled) election for an association.
-  static Future<BarElection?> getActiveElection(String associationId) async {
-    final row = await BaseRepository.client
-        .from('bar_elections')
-        .select()
-        .eq('association_id', associationId)
-        .inFilter('status', ['nominations', 'voting', 'completed'])
-        .order('created_at', ascending: false)
-        .limit(1)
-        .maybeSingle();
-
-    if (row == null) return null;
-    return BarElection.fromJson(row);
-  }
-
-  /// Gets all posts for an election.
-  static Future<List<BarElectionPost>> getElectionPosts(
-    String electionId,
-  ) async {
-    final rows = await BaseRepository.client
-        .from('bar_election_posts')
-        .select()
-        .eq('election_id', electionId)
-        .order('created_at');
-
-    return (rows as List).map((r) => BarElectionPost.fromJson(r)).toList();
-  }
-
-  /// Gets approved nominations for a post with nominee details.
-  static Future<List<BarNomination>> getNominations(String postId) async {
-    final rows = await BaseRepository.client
-        .from('bar_nominations')
-        .select('''
-          *,
-          nominee:nominee_member_id(name, photo_url),
-          proposer:proposer_member_id(name),
-          seconder:seconder_member_id(name)
-        ''')
-        .eq('post_id', postId)
-        .eq('status', 'approved')
-        .order('created_at');
-
-    return (rows as List).map((r) => BarNomination.fromJson(r)).toList();
-  }
-
-  /// Checks if the current user has already voted in this election.
-  static Future<bool> hasVoted(String electionId, String memberId) async {
-    final row = await BaseRepository.client
-        .from('bar_voter_participation')
-        .select('id')
-        .eq('election_id', electionId)
-        .eq('member_id', memberId)
-        .maybeSingle();
-
-    return row != null;
-  }
-
-  /// Casts votes for all posts in an election.
-  /// [votes] is a map of postId -> nominationId.
-  ///
-  /// Cast on the server in one transaction: it checks membership, that voting
-  /// is open, that the candidates belong to this election and that you have
-  /// not voted, then stores the ballot under a voter hash keyed with a server
-  /// secret. The previous client-side hash used a salt published in the app,
-  /// so anyone could link ballots to members.
-  static Future<void> castVotes({
-    required String electionId,
-    required String memberId,
-    required Map<String, String> votes,
-  }) async {
-    try {
-      await BaseRepository.client.rpc(
-        'cast_bar_votes',
-        params: {'p_election_id': electionId, 'p_votes': votes},
-      );
-    } on PostgrestException catch (e) {
-      throw Exception(e.message);
-    }
-  }
-
-  /// Alias for castVotes.
-  static Future<void> castVote({
-    required String electionId,
-    required String memberId,
-    required Map<String, String> votes,
-  }) => castVotes(electionId: electionId, memberId: memberId, votes: votes);
-
-  /// Gets approved nominations for a post with vote counts included.
-  static Future<List<BarNomination>> getNominationsWithVotes(String postId) async {
-    final nominations = await getNominations(postId);
-    final voteCounts = await getVoteCounts(postId);
-
-    return nominations.map((nom) {
-      final count = voteCounts[nom.id] ?? 0;
-      return BarNomination(
-        id: nom.id,
-        postId: nom.postId,
-        nomineeMemberId: nom.nomineeMemberId,
-        proposerMemberId: nom.proposerMemberId,
-        seconderMemberId: nom.seconderMemberId,
-        status: nom.status,
-        bio: nom.bio,
-        photoUrl: nom.photoUrl,
-        createdAt: nom.createdAt,
-        nomineeName: nom.nomineeName,
-        proposerName: nom.proposerName,
-        seconderName: nom.seconderName,
-        voteCount: count,
-      );
-    }).toList();
-  }
-
-  /// Gets vote counts per nomination for a post (for results).
-  static Future<Map<String, int>> getVoteCounts(String postId) async {
-    final rows = await BaseRepository.client.rpc(
-      'get_vote_counts',
-      params: {'p_post_id': postId},
-    );
-
-    final Map<String, int> counts = {};
-    for (final row in (rows as List)) {
-      counts[row['nomination_id'] as String] = (row['vote_count'] as num).toInt();
-    }
-    return counts;
-  }
-
   // ─── Events ────────────────────────────────────────────────
 
   /// Gets all events for an association.
+  /// Condolences published by the association, most recent first.
+  static Future<List<BarCondolence>> getCondolences(
+    String associationId, {
+    int limit = 30,
+  }) async {
+    final rows = await BaseRepository.client
+        .from('bar_condolences')
+        .select()
+        .eq('association_id', associationId)
+        .order('date_of_death', ascending: false)
+        .limit(limit);
+
+    return (rows as List).map((r) => BarCondolence.fromJson(r)).toList();
+  }
+
   static Future<List<BarEvent>> getEvents(String associationId) async {
     final rows = await BaseRepository.client
         .from('bar_events')

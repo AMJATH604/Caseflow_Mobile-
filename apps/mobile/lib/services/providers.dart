@@ -507,13 +507,13 @@ final barEventsProvider =
       );
     });
 
-/// Active election for an association.
-final barElectionProvider =
-    FutureProvider.family<BarElection?, String>((ref, assocId) async {
+/// Condolences published by an association.
+final barCondolencesProvider =
+    FutureProvider.family<List<BarCondolence>, String>((ref, assocId) async {
       ref.watch(authStateProvider);
       ref.watch(dataRefreshProvider);
       return RetryHelper.retry(
-        () => BarAssociationRepository.getActiveElection(assocId),
+        () => BarAssociationRepository.getCondolences(assocId),
       );
     });
 

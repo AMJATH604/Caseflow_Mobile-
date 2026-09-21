@@ -39,7 +39,6 @@ import '../pages/cross_exam_sessions_screen.dart';
 import '../pages/bar_association/bar_association_home_screen.dart';
 import '../pages/bar_association/bar_notices_screen.dart';
 import '../pages/bar_association/bar_fee_payment_screen.dart';
-import '../pages/bar_association/bar_election_screen.dart';
 import '../pages/bar_association/bar_membership_card_screen.dart';
 import '../pages/bar_association/bar_events_screen.dart';
 
@@ -279,13 +278,6 @@ final appRouter = GoRouter(
           builder: (context, state) {
             final assocId = state.uri.queryParameters['assocId'] ?? '';
             return BarFeePaymentScreen(associationId: assocId);
-          },
-        ),
-        GoRoute(
-          path: '/bar-elections',
-          builder: (context, state) {
-            final assocId = state.uri.queryParameters['assocId'] ?? '';
-            return BarElectionScreen(associationId: assocId);
           },
         ),
         GoRoute(
