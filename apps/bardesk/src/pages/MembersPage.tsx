@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Search, Plus, UserCheck, UserX, Users } from "lucide-react";
+import { FileSpreadsheet, Search, Plus, UserCheck, UserX, Users } from "lucide-react";
 
 import {
   useMembers,
@@ -10,6 +10,7 @@ import {
 } from "@/hooks/useBarDesk";
 import { getInitials, getMembershipBadge, cn } from "@/lib/utils";
 import { PageHeader } from "@/components/PageHeader";
+import { RollImportDialog } from "@/pages/RollImportDialog";
 import { DataTable, type Column } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,7 @@ export default function MembersPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [showAdd, setShowAdd] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [draft, setDraft] = useState(EMPTY_MEMBER);
 
   const all = members || [];
@@ -102,6 +104,13 @@ export default function MembersPage() {
     }
   };
 
+  // An entry with no user_id is a name the association put on its register
+  // that nobody has claimed from CaseFlow yet. Chasing those is the whole of
+  // onboarding, so the count sits at the top of the page.
+  const claimed = all.filter((m) => m.user_id).length;
+  const unclaimed = all.length - claimed;
+  const adoption = all.length > 0 ? Math.round((claimed / all.length) * 100) : 0;
+
   const columns: Column<(typeof all)[number]>[] = [
     {
       key: "name",
@@ -134,7 +143,7 @@ export default function MembersPage() {
       sortValue: (m) => m.membership_type,
       render: (m) => (
         <Badge variant="secondary" className="font-normal">
-          {getMembershipBadge(m.membership_type)}
+          {getMembershipBadge(m.membership_type ?? "ordinary")}
         </Badge>
       ),
     },
@@ -187,7 +196,7 @@ export default function MembersPage() {
           )}
           onClick={(e) => {
             e.stopPropagation();
-            void toggleStatus(m.id, m.status, m.name);
+            void toggleStatus(m.id, m.status ?? "active", m.name);
           }}
           disabled={updateMember.isPending}
         >
@@ -205,12 +214,42 @@ export default function MembersPage() {
         title="Members"
         description={`${counts.all} on the roll · ${counts.active} active`}
         actions={
-          <Button className="gap-2" onClick={() => setShowAdd(true)}>
-            <Plus className="h-4 w-4" />
-            Add member
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" className="gap-2" onClick={() => setShowImport(true)}>
+              <FileSpreadsheet className="h-4 w-4" />
+              Import roll
+            </Button>
+            <Button className="gap-2" onClick={() => setShowAdd(true)}>
+              <Plus className="h-4 w-4" />
+              Add member
+            </Button>
+          </div>
         }
       >
+        {all.length > 0 && (
+          <div className="mb-4 rounded-xl border border-border bg-card p-4">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <p className="text-sm font-medium text-foreground">
+                <span className="font-mono text-lg font-semibold tabular-nums">{claimed}</span>
+                <span className="text-muted-foreground"> of {all.length} have joined CaseFlow</span>
+              </p>
+              <p className="font-mono text-sm tabular-nums text-muted-foreground">{adoption}%</p>
+            </div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-all"
+                style={{ width: `${adoption}%` }}
+              />
+            </div>
+            {unclaimed > 0 && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                {unclaimed} {unclaimed === 1 ? "entry is" : "entries are"} still unclaimed. They
+                join by entering the association code and their enrolment number in CaseFlow.
+              </p>
+            )}
+          </div>
+        )}
+
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative w-full sm:max-w-xs">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -271,6 +310,13 @@ export default function MembersPage() {
       />
 
       {/* ── Add member ───────────────────────────────────────── */}
+      <RollImportDialog
+        open={showImport}
+        onOpenChange={setShowImport}
+        associationId={associationId}
+        onImported={() => refetch()}
+      />
+
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
