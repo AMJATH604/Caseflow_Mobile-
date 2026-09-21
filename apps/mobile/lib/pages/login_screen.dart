@@ -192,7 +192,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             errorStr.contains('timed out') ||
             errorStr.contains('socketexception') ||
             errorStr.contains('connection') ||
-            errorStr.contains('timeout');
+            errorStr.contains('timeout') ||
+            errorStr.contains('handshake') ||
+            errorStr.contains('clientexception') ||
+            errorStr.contains('httpexception') ||
+            errorStr.contains('tls') ||
+            errorStr.contains('failed host lookup');
 
         if (attempt < maxAttempts && isTimeout) {
           await Future.delayed(Duration(seconds: attempt));
@@ -203,12 +208,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           String userMessage;
           if (isTimeout) {
             userMessage = 'Cannot connect to server. Check your internet.';
-          } else if (errorStr.contains('invalid login')) {
+          } else if (errorStr.contains('invalid login') ||
+                     errorStr.contains('invalid credentials') ||
+                     errorStr.contains('invalid_credentials') ||
+                     errorStr.contains('invalid grant') ||
+                     errorStr.contains('invalid_grant') ||
+                     errorStr.contains('user not found') ||
+                     errorStr.contains('user_not_found') ||
+                     errorStr.contains('wrong password') ||
+                     errorStr.contains('bad credentials')) {
             userMessage = 'Invalid email or password.';
-          } else if (errorStr.contains('email not confirmed')) {
+          } else if (errorStr.contains('email not confirmed') ||
+                     errorStr.contains('email_not_confirmed') ||
+                     errorStr.contains('email not verified') ||
+                     errorStr.contains('email_not_verified') ||
+                     errorStr.contains('email address not confirmed')) {
             userMessage = 'Please verify your email first.';
           } else {
-            userMessage = 'Authentication failed. Please try again.';
+            final detailStr = e is AuthException ? e.message : e.toString();
+            userMessage = detailStr.length > 80
+                ? detailStr.substring(0, 80) + '...'
+                : detailStr;
           }
           _showError(userMessage, isWarning: isTimeout);
         }
