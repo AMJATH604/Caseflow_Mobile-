@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordResetDialog } from "@/components/PasswordResetDialog";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showReset, setShowReset] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,8 +134,24 @@ export default function LoginPage() {
             >
               {loading ? "Signing in…" : "Sign in"}
             </Button>
+
+            {/* Without this an office-bearer who forgets their password has
+                no way back in except someone with database access. */}
+            <button
+              type="button"
+              onClick={() => setShowReset(true)}
+              className="w-full text-center text-xs text-sidebar-foreground/60 underline-offset-4 hover:text-sidebar-foreground hover:underline"
+            >
+              Forgot your password?
+            </button>
           </form>
         </div>
+
+        <PasswordResetDialog
+          open={showReset}
+          onOpenChange={setShowReset}
+          initialEmail={email}
+        />
 
         <p className="mt-6 text-center text-2xs text-sidebar-foreground/50">
           Powered by CaseFlow · Access is limited to authorised office-bearers
