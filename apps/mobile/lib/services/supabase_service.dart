@@ -20,7 +20,6 @@ import 'repositories/direct_message_repository.dart';
 import 'repositories/message_reaction_repository.dart';
 import 'repositories/notification_repository.dart';
 
-
 /// Backward-compatible facade that delegates to domain repositories.
 ///
 /// **Architecture upgrade:**
@@ -127,6 +126,12 @@ class SupabaseService {
 
   static Future<Hearing> createHearing(Map<String, dynamic> data) =>
       HearingRepository.createHearing(data);
+
+  static Future<HearingUpsert> upsertHearing(Map<String, dynamic> data) =>
+      HearingRepository.upsertHearing(data);
+
+  static bool isDuplicateHearing(Object error) =>
+      HearingRepository.isDuplicateHearing(error);
 
   static Future<Hearing?> adjournHearing(
     String id,
@@ -424,7 +429,8 @@ class SupabaseService {
   static Future<String?> uploadChambersAttachment({
     required File file,
     required String firmId,
-  }) => DiscussionRepository.uploadChambersAttachment(file: file, firmId: firmId);
+  }) =>
+      DiscussionRepository.uploadChambersAttachment(file: file, firmId: firmId);
 
   static Future<void> postChambersAttachment({
     required String firmId,
@@ -436,15 +442,15 @@ class SupabaseService {
     String? replyToMessage,
     String? replyToSender,
   }) => DiscussionRepository.postChambersAttachment(
-        firmId: firmId,
-        message: message,
-        url: url,
-        type: type,
-        senderName: senderName,
-        replyToId: replyToId,
-        replyToMessage: replyToMessage,
-        replyToSender: replyToSender,
-      );
+    firmId: firmId,
+    message: message,
+    url: url,
+    type: type,
+    senderName: senderName,
+    replyToId: replyToId,
+    replyToMessage: replyToMessage,
+    replyToSender: replyToSender,
+  );
 
   // ─── Direct Messages ────────────────────────────────
 
@@ -492,18 +498,18 @@ class SupabaseService {
     required String messageId,
     required String emoji,
   }) => MessageReactionRepository.toggleReaction(
-        scope: scope,
-        messageId: messageId,
-        emoji: emoji,
-      );
+    scope: scope,
+    messageId: messageId,
+    emoji: emoji,
+  );
 
   static Future<Map<String, List<MessageReaction>>> fetchMessageReactions({
     required String scope,
     required List<String> messageIds,
   }) => MessageReactionRepository.fetchForMessages(
-        scope: scope,
-        messageIds: messageIds,
-      );
+    scope: scope,
+    messageIds: messageIds,
+  );
 
   static Future<String> createOrGetDirectConversation(String partnerId) =>
       DirectMessageRepository.createOrGetConversation(partnerId);
@@ -518,8 +524,6 @@ class SupabaseService {
     file: file,
     conversationId: conversationId,
   );
-
-
 
   // ─── District Portals ──────────────────────────────────
 

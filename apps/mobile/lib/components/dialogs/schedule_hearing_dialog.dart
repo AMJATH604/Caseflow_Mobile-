@@ -52,9 +52,16 @@ class _ScheduleHearingDialogState extends ConsumerState<ScheduleHearingDialog> {
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        // The dialog stays open on a duplicate so the date can be corrected.
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              SupabaseService.isDuplicateHearing(e)
+                  ? 'This case is already listed on that date.'
+                  : 'Error: $e',
+            ),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);

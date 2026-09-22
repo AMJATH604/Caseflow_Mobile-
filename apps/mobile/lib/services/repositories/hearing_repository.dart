@@ -1,9 +1,31 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../models/models.dart';
 import 'base_repository.dart';
+
+/// The outcome of [HearingRepository.upsertHearing].
+class HearingUpsert {
+  const HearingUpsert(this.hearing, this.created);
+
+  /// The row now in the database — the new one, or the one already there.
+  final Hearing? hearing;
+
+  /// False when the case was already listed on that date and nothing was
+  /// written. Callers that report counts should not call that a failure.
+  final bool created;
+}
 
 /// Repository for hearing management including the adjourn workflow.
 class HearingRepository {
   static final _client = BaseRepository.client;
+
+  /// True when the database refused a second hearing for a case on a date it
+  /// is already listed on, so a screen can say that in plain words instead of
+  /// showing the raw constraint violation.
+  static bool isDuplicateHearing(Object error) =>
+      error is PostgrestException &&
+      (error.code == '23505' ||
+          error.message.contains('hearings_unique_date_per_case'));
 
   static Future<List<Hearing>> fetchHearings({
     String? caseId,
@@ -53,17 +75,64 @@ class HearingRepository {
     return response.map((json) => Hearing.fromJson(json)).toList();
   }
 
+  static const String _hearingSelect =
+      '*, cases(case_title, court_name, case_number, cnr_number, firm_id)';
+
   static Future<Hearing> createHearing(Map<String, dynamic> hearingData) async {
     final user = BaseRepository.requireAuth();
     final response =
         await _client
             .from('hearings')
             .insert({...hearingData, 'created_by': user.id})
-            .select(
-              '*, cases(case_title, court_name, case_number, cnr_number, firm_id)',
-            )
+            .select(_hearingSelect)
             .single();
     return Hearing.fromJson(response);
+  }
+
+  /// Ensures the case is listed on this date, without ever adding a second
+  /// row for a date it is already listed on.
+  ///
+  /// Sync, restore and adjourn all want "make sure this date is listed"
+  /// rather than "add a row". Asking for the latter is what left 25 cases
+  /// holding duplicate hearings before `hearings_unique_date_per_case`
+  /// existed, because a re-run of the eCourts import inserted a second row
+  /// and the caller counted the resulting failure as a skip.
+  ///
+  /// A collision keeps the row already there rather than overwriting it: the
+  /// existing row may carry notes the advocate typed, and a re-sync of the
+  /// same date has nothing new to say about it.
+  static Future<HearingUpsert> upsertHearing(
+    Map<String, dynamic> hearingData,
+  ) async {
+    final user = BaseRepository.requireAuth();
+
+    final inserted = await _client
+        .from('hearings')
+        .upsert(
+          {...hearingData, 'created_by': user.id},
+          onConflict: 'case_id,hearing_date',
+          ignoreDuplicates: true,
+        )
+        .select(_hearingSelect);
+
+    if (inserted.isNotEmpty) {
+      return HearingUpsert(Hearing.fromJson(inserted.first), true);
+    }
+
+    // Already listed. Hand back what is there so a caller that needs the row
+    // — adjourn does — is not left holding null.
+    final existing =
+        await _client
+            .from('hearings')
+            .select(_hearingSelect)
+            .eq('case_id', hearingData['case_id'])
+            .eq('hearing_date', hearingData['hearing_date'])
+            .maybeSingle();
+
+    return HearingUpsert(
+      existing == null ? null : Hearing.fromJson(existing),
+      false,
+    );
   }
 
   /// Adjourn workflow:
@@ -74,7 +143,7 @@ class HearingRepository {
     String id,
     Map<String, dynamic> data,
   ) async {
-    final user = BaseRepository.requireAuth();
+    BaseRepository.requireAuth();
 
     final String nextStage = data['next_stage'] ?? 'Next Hearing';
     final bool isFinal =
@@ -86,21 +155,16 @@ class HearingRepository {
     Hearing? newHearing;
 
     if (!isFinal) {
-      // 2. Create new future hearing
-      final response =
-          await _client
-              .from('hearings')
-              .insert({
-                'case_id': data['case_id'],
-                'hearing_date': data['next_date'],
-                'stage': nextStage,
-                'created_by': user.id,
-              })
-              .select(
-                '*, cases(case_title, court_name, case_number, cnr_number, firm_id)',
-              )
-              .single();
-      newHearing = Hearing.fromJson(response);
+      // 2. List the next date. Upsert rather than insert: the old hearing has
+      // already been deleted above, so a unique violation here would destroy
+      // it and leave nothing in its place. Adjourning onto a date the case is
+      // already listed on simply reuses that listing.
+      final result = await upsertHearing({
+        'case_id': data['case_id'],
+        'hearing_date': data['next_date'],
+        'stage': nextStage,
+      });
+      newHearing = result.hearing;
     }
 
     // 3. Update case status
