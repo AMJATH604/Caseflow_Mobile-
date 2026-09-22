@@ -1,7 +1,9 @@
+import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
+
 import '../../models/models.dart';
+import '../../models/case_conflict.dart';
 import '../../models/case_dossier_models.dart';
 import 'base_repository.dart';
-import '../audit_logger.dart';
 
 /// Repository for all case-related operations.
 ///
@@ -20,27 +22,12 @@ class CaseRepository {
   /// Extracted so the paginated list and the status counts below cannot drift
   /// apart — a count computed over a different visibility rule than the list
   /// would quietly disagree with it.
+  /// Delegates to [BaseRepository.buildCaseVisibilityFilter] so the case list
+  /// and everything scoped to case ids — hearings, payments, e-filing — share
+  /// one rule. They were two copies, and only this one counted collaborations.
   static Future<String> _visibilityFilter(String userId, String? email) async {
     final profile = await BaseRepository.getCachedProfile();
-    final orFilter = BaseRepository.buildVisibilityFilter(profile, userId);
-
-    // Fetch collaborator case IDs
-    final collabRes = await _client
-        .from('case_collaborations')
-        .select('case_id')
-        .or('collaborator_email.eq.$email,collaborator_id.eq.$userId')
-        .eq('status', 'accepted');
-
-    final List<String> collaborationCaseIds =
-        (collabRes as List).map((c) => c['case_id'] as String).toList();
-
-    if (collaborationCaseIds.isEmpty) return orFilter;
-
-    // Use a single `in.(...)` term rather than one `id.eq.` term per
-    // collaboration. The old form produced a filter string that grew
-    // linearly with the number of shared cases — a user on 500 shared
-    // cases sent a 500-term OR filter on every list load.
-    return '$orFilter,id.in.(${collaborationCaseIds.join(',')})';
+    return BaseRepository.buildCaseVisibilityFilter(profile, userId, email);
   }
 
   /// Per-status counts across **all** visible cases.
@@ -127,15 +114,58 @@ class CaseRepository {
 
     final newCase = CaseModel.fromJson(response);
 
-    // Audit log
-    AuditLogger.log(
-      action: AuditAction.create,
-      entity: 'cases',
-      entityId: newCase.id,
-      details: {'case_title': newCase.caseTitle, 'client_id': newCase.clientId},
-    );
+    // Auditing is handled by the database trigger trg_audit_cases, which
+    // cannot be skipped by a client and also covers the web console. It
+    // deliberately records only the entity id and changed column names — the
+    // call removed from here wrote case_title and client_id into audit_logs,
+    // which is privileged material sitting in the table the admin console
+    // reads. See 20260917_audit_foundations.sql.
 
     return newCase;
+  }
+
+  /// Existing cases that clash with the one about to be saved.
+  ///
+  /// A pre-check for the user's benefit only — the authority is the partial
+  /// unique index `cases_unique_number_per_court`, which is what actually
+  /// stops two devices saving the same case at the same moment. Callers must
+  /// still handle [isDuplicateCaseError] on the insert.
+  ///
+  /// Returns blocking conflicts first, so a caller that shows one row shows
+  /// the serious one.
+  static Future<List<CaseConflict>> findConflictingCases({
+    String? caseNumber,
+    String? courtName,
+    String? caseTitle,
+    String? excludeId,
+  }) async {
+    BaseRepository.requireAuth();
+    final rows = await _client.rpc(
+      'find_conflicting_cases',
+      params: {
+        'p_case_number': caseNumber,
+        'p_court_name': courtName,
+        'p_case_title': caseTitle,
+        'p_exclude_id': excludeId,
+      },
+    );
+    return ((rows as List?) ?? const [])
+        .map((r) => CaseConflict.fromJson(Map<String, dynamic>.from(r as Map)))
+        .toList();
+  }
+
+  /// Whether an error thrown by [createCase] is the duplicate-case rejection
+  /// rather than a genuine failure. Postgres reports it as 23505 naming the
+  /// index, which is the only way to tell it from any other unique violation
+  /// on the table.
+  static bool isDuplicateCaseError(Object error) {
+    if (error is PostgrestException) {
+      return error.code == '23505' &&
+          (error.message.contains('cases_unique_number_per_court') ||
+              (error.details?.toString() ?? '')
+                  .contains('cases_unique_number_per_court'));
+    }
+    return error.toString().contains('cases_unique_number_per_court');
   }
 
   static Future<void> updateCase(
@@ -143,26 +173,15 @@ class CaseRepository {
     Map<String, dynamic> updates,
   ) async {
     await _client.from('cases').update(updates).eq('id', id);
-
-    // Audit log
-    AuditLogger.log(
-      action: AuditAction.update,
-      entity: 'cases',
-      entityId: id,
-      details: {'updated_fields': updates.keys.toList()},
-    );
+    // Audited by trg_audit_cases.
   }
 
   /// Cascading delete: removes all related records before the case itself.
   /// Ordered to avoid foreign key violations.
   static Future<void> deleteCase(String id) async {
-    // Audit log BEFORE deletion so we capture who deleted what
-    AuditLogger.log(
-      action: AuditAction.delete,
-      entity: 'cases',
-      entityId: id,
-      details: {'cascade': true},
-    );
+    // Audited by trg_audit_cases, which fires on the DELETE below. The child
+    // rows removed first are audited by their own triggers, so the cascade is
+    // recorded in full rather than as a single summary line.
 
     // Cascading delete: removes all related records before the case itself.
     await _client.from('strategy_tasks').delete().eq('case_id', id);

@@ -32,7 +32,14 @@ class _AiChatScreenState extends State<AiChatScreen>
   @override
   void initState() {
     super.initState();
+    // The composer draws an accent ring while focused, which only appears if
+    // the field's focus changes rebuild it.
+    _focusNode.addListener(_onFocusChanged);
     _loadChatHistory();
+  }
+
+  void _onFocusChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadChatHistory() async {
@@ -52,6 +59,7 @@ class _AiChatScreenState extends State<AiChatScreen>
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();
+    _focusNode.removeListener(_onFocusChanged);
     _focusNode.dispose();
     super.dispose();
   }
@@ -498,48 +506,57 @@ class _AiChatScreenState extends State<AiChatScreen>
           ),
         ],
       ),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: _isSending ? null : _showAttachmentOptions,
-            icon: Icon(
-              Icons.add_circle_outline_rounded,
-              color: _pendingFile != null
-                  ? const Color(0xFF6366F1)
-                  : isDark
-                      ? const Color(0xFF475569)
-                      : const Color(0xFF94A3B8),
-              size: 24,
-            ),
+      // One rounded field holding attach, text and send — the composer shape
+      // ChatGPT and Claude use. Three separate controls in a row read as a
+      // form; one container reads as a place to type.
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(22.r),
+          border: Border.all(
+            color: _focusNode.hasFocus
+                ? AppTheme.accent.withValues(alpha: 0.5)
+                : (isDark
+                    ? const Color(0xFF232330)
+                    : const Color(0xFFE2E8F0)),
+            width: _focusNode.hasFocus ? 1.5 : 1,
           ),
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: isDark
-                    ? const Color(0xFF0A0A0F)
-                    : const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(24.r),
-                border: Border.all(
-                  color: isDark
-                      ? const Color(0xFF232330)
-                      : const Color(0xFFE2E8F0),
-                ),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            IconButton(
+              tooltip: 'Attach',
+              onPressed: _isSending ? null : _showAttachmentOptions,
+              icon: Icon(
+                Icons.add_rounded,
+                color: _pendingFile != null
+                    ? AppTheme.accent
+                    : isDark
+                        ? const Color(0xFF64748B)
+                        : const Color(0xFF94A3B8),
+                size: 22,
               ),
+            ),
+            Expanded(
               child: TextField(
                 controller: _controller,
                 focusNode: _focusNode,
-                maxLines: 4,
+                maxLines: 6,
                 minLines: 1,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (text) => _sendMessage(text),
                 style: GoogleFonts.inter(
                   fontSize: 14.sp,
+                  height: 1.45,
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
                 decoration: InputDecoration(
+                  isDense: true,
                   hintText: _pendingFile != null
-                      ? 'Describe what to analyze...'
-                      : 'Ask about any Indian law...',
+                      ? 'Describe what to analyse…'
+                      : 'Ask about any Indian law…',
                   hintStyle: GoogleFonts.inter(
                     fontSize: 14.sp,
                     color: isDark
@@ -547,52 +564,49 @@ class _AiChatScreenState extends State<AiChatScreen>
                         : const Color(0xFF94A3B8),
                   ),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 12,
-                  ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 12.h),
                 ),
               ),
             ),
-          ),
-          SizedBox(width: 8.w),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: 44.w,
-            height: 44.h,
-            decoration: BoxDecoration(
-              gradient: _isSending
-                  ? null
-                  : const LinearGradient(
-                      colors: [Color(0xFF6366F1), Color(0xFF2563EB)],
-                    ),
-              color: _isSending
-                  ? (isDark
-                      ? const Color(0xFF232330)
-                      : const Color(0xFFE2E8F0))
-                  : null,
-              borderRadius: BorderRadius.circular(22.r),
+            SizedBox(width: 4.w),
+            Padding(
+              padding: EdgeInsets.only(bottom: 3.h),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                width: 34.w,
+                height: 34.w,
+                decoration: BoxDecoration(
+                  color: _isSending
+                      ? (isDark
+                          ? const Color(0xFF232330)
+                          : const Color(0xFFE2E8F0))
+                      : AppTheme.accent,
+                  borderRadius: BorderRadius.circular(17.r),
+                ),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  tooltip: 'Send',
+                  onPressed:
+                      _isSending ? null : () => _sendMessage(_controller.text),
+                  icon: _isSending
+                      ? SizedBox(
+                          width: 15.w,
+                          height: 15.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: isDark ? Colors.white54 : Colors.black26,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.arrow_upward_rounded,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                ),
+              ),
             ),
-            child: IconButton(
-              onPressed:
-                  _isSending ? null : () => _sendMessage(_controller.text),
-              icon: _isSending
-                  ? SizedBox(
-                      width: 18.w,
-                      height: 18.h,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: isDark ? Colors.white54 : Colors.black26,
-                      ),
-                    )
-                  : const Icon(
-                      Icons.send_rounded,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

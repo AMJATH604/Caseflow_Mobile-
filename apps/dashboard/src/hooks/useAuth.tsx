@@ -38,16 +38,18 @@ const AuthContext = createContext<AuthContextType>({
 async function resolveIsAdmin(userId: string | undefined): Promise<boolean> {
   if (!userId) return false;
 
-  const { data, error } = await (supabase.from as (t: string) => any)("profiles")
-    .select("is_admin")
-    .eq("id", userId)
-    .maybeSingle();
+  // A server function, because profiles.is_admin is not selectable by ordinary
+  // roles. It only ever answers for the signed-in user; userId above is just
+  // the "someone is signed in" guard.
+  const { data: isAdmin, error } = await (supabase.rpc as (fn: string) => any)(
+    "is_platform_admin",
+  );
 
   if (error) {
     console.error("Could not determine admin status:", error.message);
     return false;
   }
-  return data?.is_admin === true;
+  return isAdmin === true;
 }
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {

@@ -325,7 +325,19 @@ class CaseImportService {
     for (int i = 0; i < parsedCases.length; i++) {
       try {
         final parsedCase = parsedCases[i];
-        final representationType = roles[i] ?? 'petitioner';
+        // No fallback. This used to read `roles[i] ?? 'petitioner'`, which
+        // made the first name in "X vs Y" the client whenever the caller had
+        // not said otherwise — wrong for every case argued from the other
+        // side, and silent about it. The preview now requires an answer for
+        // each case, so a missing one is a programming error, not a default.
+        final representationType = roles[i];
+        if (representationType == null) {
+          throw StateError(
+            'No side chosen for case ${i + 1} '
+            '("${parsedCase['case_title'] ?? 'untitled'}"). '
+            'The client cannot be determined without it.',
+          );
+        }
         final String? cnr = parsedCase['cnr_number'];
 
         // Check for existing case by CNR (from cache)
@@ -408,7 +420,10 @@ class CaseImportService {
         if (rawHearingDate != null && rawHearingDate.isNotEmpty) {
           if (DateTime.tryParse(rawHearingDate) != null) {
             try {
-              await SupabaseService.createHearing({
+              // Upsert, not insert. Re-syncing a case whose date has not
+              // moved must be a no-op; inserting blindly is what left 25
+              // cases showing the same hearing twice in the Court Diary.
+              final result = await SupabaseService.upsertHearing({
                 'case_id': caseId,
                 'hearing_date': rawHearingDate,
                 'stage': parsedCase['status'] ?? 'Listed',
@@ -419,13 +434,18 @@ class CaseImportService {
                         ? 'Synced from eCourts Update'
                         : 'Imported from eCourts',
               });
-              hearingsCreated++;
+              if (result.created) {
+                hearingsCreated++;
+              } else {
+                // Already listed for that date — nothing to do, and not a
+                // failure worth reporting as one.
+                hearingsSkipped++;
+              }
             } catch (e) {
-              // Most often a duplicate for an already-synced case, which is
-              // benign — but log it so a genuine failure is visible instead
-              // of vanishing.
               hearingsSkipped++;
-              debugPrint('Import: hearing creation failed for case $caseId: $e');
+              debugPrint(
+                'Import: hearing creation failed for case $caseId: $e',
+              );
             }
           } else {
             hearingsSkipped++;
@@ -546,7 +566,10 @@ class CaseImportService {
           );
           continue;
         }
-        await SupabaseService.createHearing({
+        // Upsert: a backup taken before hearings had a unique key can itself
+        // hold two rows for one date, and an insert would abort the whole
+        // restore over a duplicate the user cannot see or fix.
+        await SupabaseService.upsertHearing({
           'case_id': caseId,
           'hearing_date': hearingDate,
           'stage': h['stage'],

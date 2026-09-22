@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../services/back_interceptors.dart';
 import '../theme/app_theme.dart';
 import '../components/epay_court_fee_sheet.dart';
 import 'tools/court_fee_calculator.dart';
@@ -27,6 +28,14 @@ class CitizenToolsScreen extends ConsumerStatefulWidget {
 
 class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
   String? _activeToolId;
+
+  /// Back closes the open tool first. Tools are rendered from state, not the
+  /// router, so without this the shell treats back as "leave the Tools tab".
+  bool _handleBackPress() {
+    if (_activeToolId == null) return false;
+    setState(() => _activeToolId = null);
+    return true;
+  }
 
   final List<Map<String, dynamic>> _calculatorTools = [
     {
@@ -135,9 +144,16 @@ class _CitizenToolsScreenState extends ConsumerState<CitizenToolsScreen> {
   @override
   void initState() {
     super.initState();
+    BackInterceptors.add(_handleBackPress);
     if (widget.initialToolId != null && widget.initialToolId!.isNotEmpty) {
       _activeToolId = widget.initialToolId;
     }
+  }
+
+  @override
+  void dispose() {
+    BackInterceptors.remove(_handleBackPress);
+    super.dispose();
   }
 
   @override

@@ -7,6 +7,7 @@
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { secretKey } from "./keys.ts";
 
 // ─── Google OAuth for FCM v1 API ─────────────────────────────
 // Generates a short-lived OAuth2 access token from a Firebase service account
@@ -237,7 +238,7 @@ export function initClients(): {
   projectId: string;
 } {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const supabaseServiceKey = secretKey();
   const firebaseServiceAccountJson = Deno.env.get("FIREBASE_SERVICE_ACCOUNT");
 
   if (!supabaseUrl || !supabaseServiceKey) {

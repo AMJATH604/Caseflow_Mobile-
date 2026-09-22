@@ -18,4 +18,5 @@ export 'discussion_repository.dart';
 export 'profile_repository.dart';
 export 'direct_message_repository.dart';
 export 'strategy_repository.dart';
+export 'cross_exam_repository.dart';
 

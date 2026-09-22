@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -180,7 +181,12 @@ class _PasswordResetSheetState extends State<PasswordResetSheet> {
           _isLoading = false;
           final err = e.toString().toLowerCase();
           if (err.contains('invalid') || err.contains('token') || err.contains('otp')) {
-            _errorMessage = 'Invalid or expired 6-digit code. Please check your email.';
+            // Either the code is wrong, or there was never an account to send
+            // one to. The server does not distinguish them, and neither can
+            // this message without leaking who is registered.
+            _errorMessage =
+                'That code is invalid or expired — or there is no CaseFlow '
+                'account for this email. Check the code, or sign up instead.';
           } else {
             _errorMessage = 'Failed to reset password: ${e.toString().replaceAll("Exception: ", "")}';
           }
@@ -419,13 +425,29 @@ class _PasswordResetSheetState extends State<PasswordResetSheet> {
                     ),
                   ),
                   SizedBox(height: 2.h),
+                  // Supabase returns success for an unregistered address on
+                  // purpose: saying "no such user" would let anyone test
+                  // emails and learn which advocates have accounts. So this
+                  // states a condition rather than claiming a mail was sent.
                   Text(
-                    'Sent to ${_emailController.text.trim()}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    'If an account exists for '
+                    '${_emailController.text.trim()}, a code is on its way.',
+                    maxLines: 2,
                     style: GoogleFonts.inter(
                       fontSize: 12.sp,
+                      height: 1.35,
                       color: isDark ? Colors.white60 : Colors.grey.shade600,
+                    ),
+                  ),
+                  SizedBox(height: 6.h),
+                  Text(
+                    'No code arriving? Check spam — or you may not have an '
+                    'account yet.',
+                    style: GoogleFonts.inter(
+                      fontSize: 11.sp,
+                      height: 1.35,
+                      fontStyle: FontStyle.italic,
+                      color: isDark ? Colors.white38 : Colors.grey.shade500,
                     ),
                   ),
                 ],
@@ -592,6 +614,32 @@ class _PasswordResetSheetState extends State<PasswordResetSheet> {
               ),
             ),
           ],
+        ),
+
+        // The way out for someone who never registered. Without it, a person
+        // who mistyped their address — or never had an account — is stranded
+        // on this screen waiting for a code that is not coming.
+        Divider(height: 24.h),
+        Center(
+          child: TextButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              context.go('/role-selection');
+            },
+            icon: Icon(
+              Icons.person_add_alt_rounded,
+              size: 15.sp,
+              color: const Color(0xFF10B981),
+            ),
+            label: Text(
+              "Don't have an account? Sign up",
+              style: GoogleFonts.inter(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF10B981),
+              ),
+            ),
+          ),
         ),
       ],
     );

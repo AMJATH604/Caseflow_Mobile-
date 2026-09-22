@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/models.dart';
+import 'repositories/base_repository.dart';
 
 class FirmService {
   static SupabaseClient get client => Supabase.instance.client;
@@ -21,6 +22,89 @@ class FirmService {
         .eq('owner_id', targetId);
 
     return (response as List).map((json) => FirmMember.fromJson(json)).toList();
+  }
+
+  /// Firms the current user has joined as an associate, each with its senior
+  /// and accepted associates.
+  ///
+  /// Through a server function because RLS lets an associate read only their
+  /// own firm_members row — querying the senior's firm directly returned just
+  /// that one row, so the associate never saw who they work under.
+  static Future<List<SeniorFirm>> fetchMySeniorFirms() async {
+    final response = await client.rpc('get_my_senior_firms');
+    return ((response as List?) ?? const [])
+        .map((json) => SeniorFirm.fromJson(Map<String, dynamic>.from(json as Map)))
+        .toList();
+  }
+
+  /// Everyone in the current user's Digital Chambers room — the senior first,
+  /// then accepted associates.
+  ///
+  /// Two paths, because RLS differs by role: a firm owner reads their own
+  /// `firm_members` rows directly, while an associate can read only their own
+  /// row and has to go through `get_my_senior_firms()`.
+  ///
+  /// Names and avatars only. `profiles` has a column GRANT list since the
+  /// Phase B lockdown, so emails and phone numbers are not readable by other
+  /// members and are deliberately absent here.
+  static Future<List<ChambersMember>> fetchChambersTeam() async {
+    final user = client.auth.currentUser;
+    if (user == null) throw Exception('Not authenticated');
+    final profile = await BaseRepository.getCachedProfile();
+
+    // firm_id == null means "I am the firm owner" — see the firm visibility
+    // model in CLAUDE.md.
+    if (profile.firmId == null) {
+      final members = await fetchFirmMembers();
+      return [
+        ChambersMember(
+          id: user.id,
+          name: profile.fullName ?? 'You',
+          avatarUrl: profile.avatarUrl,
+          isSenior: true,
+          isMe: true,
+        ),
+        for (final m in members)
+          if (m.status == 'accepted')
+            ChambersMember(
+              // No avatar on this path: fetchFirmMembers selects only
+              // full_name, so these fall back to initials.
+              id: m.memberId ?? m.id,
+              name: m.memberName ?? m.memberEmail,
+              isSenior: false,
+              isMe: m.memberId == user.id,
+            ),
+      ];
+    }
+
+    final firms = await fetchMySeniorFirms();
+    SeniorFirm? firm;
+    for (final f in firms) {
+      if (f.ownerId == profile.firmId) {
+        firm = f;
+        break;
+      }
+    }
+    firm ??= firms.isEmpty ? null : firms.first;
+    if (firm == null) return const [];
+
+    return [
+      ChambersMember(
+        id: firm.ownerId,
+        name: firm.ownerName,
+        avatarUrl: firm.ownerAvatarUrl,
+        isSenior: true,
+        isMe: firm.ownerId == user.id,
+      ),
+      for (final t in firm.teammates)
+        ChambersMember(
+          id: t.memberId,
+          name: t.name,
+          avatarUrl: t.avatarUrl,
+          isSenior: false,
+          isMe: t.isMe,
+        ),
+    ];
   }
 
   /// Invites a member to the firm by email. No member limit.
@@ -63,17 +147,17 @@ class FirmService {
     }
 
     // Check if member already has a profile to pre-link
-    final memberProfile =
-        await client
-            .from('profiles')
-            .select('id')
-            .eq('email', email)
-            .maybeSingle();
+    final existingUserId =
+        await client.rpc(
+              'find_profile_id_by_email',
+              params: {'p_email': email},
+            )
+            as String?;
 
     await client.from('firm_members').insert({
       'owner_id': user.id,
       'member_email': email,
-      'member_id': memberProfile?['id'],
+      'member_id': existingUserId,
       'status': 'pending',
     });
   }
@@ -123,41 +207,29 @@ class FirmService {
   }
 
   /// For Members: Accept a firm invitation.
-  static Future<void> acceptInvitation(String invitationId) async {
-    final user = client.auth.currentUser;
-    if (user == null) throw Exception('Not authenticated');
+  ///
+  /// One team at a time: if the user already belongs to another team, the
+  /// server removes them from it and adds them to this one in a single
+  /// transaction (unassigning that firm's cases and notifying its senior).
+  /// Returns the names of the seniors whose teams they left.
+  static Future<List<String>> acceptInvitation(String invitationId) async {
+    final result = await client.rpc(
+      'accept_firm_invitation',
+      params: {'p_invitation_id': invitationId},
+    );
+    BaseRepository.invalidateProfileCache();
+    final left = (result as Map?)?['left_teams'] as List? ?? const [];
+    return left.map((e) => e.toString()).toList();
+  }
 
-    // 1. Update invitation status.
-    //
-    // `.select()` is not cosmetic: an RLS-filtered write matches zero rows and
-    // still returns success, which is exactly how the decline bug went
-    // unnoticed. Checking the returned rows turns that into a real error.
-    final accepted = await client
-        .from('firm_members')
-        .update({
-          'member_id': user.id,
-          'status': 'accepted',
-          'responded_at': DateTime.now().toUtc().toIso8601String(),
-        })
-        .eq('id', invitationId)
-        .select('id');
-
-    if ((accepted as List).isEmpty) {
-      throw Exception('Could not accept this invitation. It may have been withdrawn.');
-    }
-
-    // 2. Link the profile to the firm (Owner's ID)
-    final invitation =
-        await client
-            .from('firm_members')
-            .select('owner_id')
-            .eq('id', invitationId)
-            .single();
-
-    await client
-        .from('profiles')
-        .update({'firm_id': invitation['owner_id']})
-        .eq('id', user.id);
+  /// For Members: Leave the team led by [ownerId].
+  ///
+  /// Leaves the user unassigned — they never fall back to a previous team.
+  /// Cases of that firm assigned to them are unassigned and the senior is
+  /// notified.
+  static Future<void> leaveTeam(String ownerId) async {
+    await client.rpc('leave_firm_team', params: {'p_owner_id': ownerId});
+    BaseRepository.invalidateProfileCache();
   }
 
   /// For Members: Decline (reject) a firm invitation.

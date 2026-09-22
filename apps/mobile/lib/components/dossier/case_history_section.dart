@@ -96,9 +96,15 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                         ref.invalidate(hearingsProvider);
                       } catch (e) {
                         if (mounted) {
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                SupabaseService.isDuplicateHearing(e)
+                                    ? 'This case is already listed on that date.'
+                                    : 'Error: $e',
+                              ),
+                            ),
+                          );
                         }
                       }
                     },
@@ -203,7 +209,9 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                 ),
                 decoration: BoxDecoration(
                   color: rowColor,
-                  border: const Border(top: BorderSide(color: AppTheme.darkBorder)),
+                  border: const Border(
+                    top: BorderSide(color: AppTheme.darkBorder),
+                  ),
                 ),
                 child: Row(
                   children: [

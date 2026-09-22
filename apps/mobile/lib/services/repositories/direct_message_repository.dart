@@ -32,12 +32,12 @@ class DirectMessageRepository {
     // Fetch partner profiles
     Map<String, Map<String, dynamic>> profileMap = {};
     if (partnerIds.isNotEmpty) {
-      final profiles = await _client
-          .from('profiles')
-          .select(
-            'id, full_name, avatar_url, practice_state, practice_district, user_role, subscription_tier, mobile_number, registration_number, office_address',
-          )
-          .inFilter('id', partnerIds.toList());
+      // Contact fields are returned only for advocates in the public
+      // directory or in your own firm.
+      final profiles = await _client.rpc(
+        'get_profiles',
+        params: {'p_ids': partnerIds.toList()},
+      );
 
       for (final p in profiles) {
         profileMap[p['id']] = p;

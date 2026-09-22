@@ -8,23 +8,13 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-import Clients from "./pages/Clients";
-import Cases from "./pages/Cases";
-import CaseDetail from "./pages/CaseDetail";
-import EFiling from "./pages/EFiling";
-import Hearings from "./pages/Hearings";
-import CertifiedCopies from "./pages/CertifiedCopies";
-import Payments from "./pages/Payments";
-import Tools from "./pages/Tools";
+import Overview from "./pages/Overview";
+import Users from "./pages/Users";
 import BareActs from "./pages/BareActs";
 import StampValuesAdmin from "./pages/StampValuesAdmin";
 import LegalTemplates from "./pages/LegalTemplates";
-import Advocates from "./pages/Advocates";
-import Notifications from "./pages/Notifications";
 import Unauthorized from "./pages/Unauthorized";
 import NotFound from "./pages/NotFound";
-import AIChat from "./pages/AIChat";
 
 const queryClient = new QueryClient();
 
@@ -74,21 +64,32 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<AuthRoute />} />
-            <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
-            <Route path="/cases" element={<ProtectedRoute><Cases /></ProtectedRoute>} />
-            <Route path="/cases/:id" element={<ProtectedRoute><CaseDetail /></ProtectedRoute>} />
-            <Route path="/efiling" element={<ProtectedRoute><EFiling /></ProtectedRoute>} />
-            <Route path="/hearings" element={<ProtectedRoute><Hearings /></ProtectedRoute>} />
-            <Route path="/certified-copies" element={<ProtectedRoute><CertifiedCopies /></ProtectedRoute>} />
-            <Route path="/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+            <Route path="/" element={<ProtectedRoute><Overview /></ProtectedRoute>} />
+            <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+            {/* The old /advocates page read `profiles` directly and so showed
+                only what RLS allowed the admin to see. /users replaces it. */}
+            <Route path="/advocates" element={<Navigate to="/users" replace />} />
             <Route path="/bare-acts" element={<ProtectedRoute><BareActs /></ProtectedRoute>} />
             <Route path="/stamp-values" element={<ProtectedRoute><StampValuesAdmin /></ProtectedRoute>} />
             <Route path="/legal-templates" element={<ProtectedRoute><LegalTemplates /></ProtectedRoute>} />
-            <Route path="/advocates" element={<ProtectedRoute><Advocates /></ProtectedRoute>} />
-            <Route path="/tools" element={<ProtectedRoute><Tools /></ProtectedRoute>} />
-            <Route path="/ai-chat" element={<ProtectedRoute><AIChat /></ProtectedRoute>} />
-            <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+
+            {/* The advocate-facing routes (/cases, /clients, /hearings,
+                /payments, /certified-copies, /efiling, /tools, /ai-chat,
+                /notifications) were removed. They rendered the administrator's
+                own records — RLS scopes every query to the signed-in user — so
+                they showed nothing useful for monitoring, and widening them to
+                all users would have exposed privileged client material.
+                Redirected rather than 404'd so old bookmarks land somewhere. */}
+            <Route path="/cases/*" element={<Navigate to="/" replace />} />
+            <Route path="/clients" element={<Navigate to="/" replace />} />
+            <Route path="/hearings" element={<Navigate to="/" replace />} />
+            <Route path="/payments" element={<Navigate to="/" replace />} />
+            <Route path="/certified-copies" element={<Navigate to="/" replace />} />
+            <Route path="/efiling" element={<Navigate to="/" replace />} />
+            <Route path="/tools" element={<Navigate to="/" replace />} />
+            <Route path="/ai-chat" element={<Navigate to="/" replace />} />
+            <Route path="/notifications" element={<Navigate to="/" replace />} />
+
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

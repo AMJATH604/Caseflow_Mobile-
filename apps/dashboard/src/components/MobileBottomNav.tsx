@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, Briefcase, Gavel, Wrench, MoreHorizontal } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MobileMoreSheet } from "./MobileMoreSheet";
 
@@ -9,11 +9,12 @@ export function MobileBottomNav() {
     const location = useLocation();
     const [moreOpen, setMoreOpen] = useState(false);
 
+    // Operator console destinations. The advocate tools this used to point at
+    // (Cases, Hearings, Tools) were removed from the console entirely.
     const navItems = [
-        { title: "Home", url: "/", icon: LayoutDashboard },
-        { title: "Cases", url: "/cases", icon: Briefcase },
-        { title: "Hearings", url: "/hearings", icon: Gavel },
-        { title: "Tools", url: "/tools", icon: Wrench },
+        { title: "Overview", url: "/", icon: LayoutDashboard },
+        { title: "Users", url: "/users", icon: Users },
+        { title: "Library", url: "/bare-acts", icon: BookOpen },
     ];
 
     const isActive = (url: string) => {
@@ -22,7 +23,7 @@ export function MobileBottomNav() {
     };
 
     // Check if "More" pages are active
-    const morePages = ["/clients", "/efiling", "/certified-copies", "/payments", "/notifications"];
+    const morePages = ["/stamp-values", "/legal-templates"];
     const isMoreActive = morePages.some(p => location.pathname.startsWith(p));
 
     return (

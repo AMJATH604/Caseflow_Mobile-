@@ -126,7 +126,7 @@ export default function FeesPage() {
         <span
           className={cn(
             "inline-flex rounded-full px-2 py-0.5 text-2xs font-semibold capitalize",
-            statusTone[p.status] ?? "bg-destructive/10 text-destructive",
+            statusTone[p.status ?? "pending"] ?? "bg-destructive/10 text-destructive",
           )}
         >
           {p.status}

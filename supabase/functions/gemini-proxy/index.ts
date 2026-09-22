@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { requirePublishableKey, requireSecretKey } from "../_shared/keys.ts";
 
 // ─── Security: API Key from environment ONLY (no fallback) ──────────
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
@@ -136,7 +137,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseAnonKey = requirePublishableKey();
     
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
@@ -157,7 +158,7 @@ Deno.serve(async (req: Request) => {
     let rateCheck = checkRateLimitFast(user.id);
     if (rateCheck.needsDbCheck) {
       // Cold start or cache miss — check persistent count from audit_logs
-      const supabaseAdmin = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      const supabaseAdmin = createClient(supabaseUrl, requireSecretKey());
       rateCheck = { ...(await checkRateLimitWithDb(user.id, supabaseAdmin)), needsDbCheck: false };
     }
     if (!rateCheck.allowed) {
@@ -220,16 +221,25 @@ Deno.serve(async (req: Request) => {
     if (prompt && prompt.length > 10) {
       try {
         const ragUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/rag-search`;
+        // Internal server-to-server hop. rag-search runs with a service-role
+        // client and is not callable anonymously, so present a privileged
+        // credential rather than the publishable key, which any client has.
+        //
+        // The shared trigger secret works whichever API-key generation is
+        // live. The legacy service_role JWT is sent as well only while it
+        // still exists, for a rag-search deployed with verify_jwt enabled.
+        const internalKey = requireSecretKey();
+        const ragHeaders: Record<string, string> = {
+          "Content-Type": "application/json",
+          apikey: internalKey,
+        };
+        const pgTriggerSecret = Deno.env.get("PG_TRIGGER_SECRET");
+        if (pgTriggerSecret) ragHeaders["x-pg-trigger-secret"] = pgTriggerSecret;
+        if (internalKey.startsWith("eyJ")) ragHeaders["Authorization"] = `Bearer ${internalKey}`;
+
         const ragResponse = await fetch(ragUrl, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            // Internal server-to-server hop. rag-search runs with a
-            // service-role client and is no longer callable anonymously, so
-            // present a privileged credential rather than the anon key —
-            // which any client could also send.
-            "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
-          },
+          headers: ragHeaders,
           body: JSON.stringify({ query: prompt, match_count: 5, match_threshold: 0.35 }),
         });
 

@@ -9,9 +9,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CaveatFormSheet extends ConsumerStatefulWidget {
+  /// The caveat being edited. Null when filing a new one.
   final Caveat? caveat;
 
-  const CaveatFormSheet({super.key, this.caveat});
+  /// A lapsed caveat to copy the court and parties from, filing it afresh
+  /// from today. A caveat dies at 90 days and the only remedy is to file
+  /// again — re-typing the same court and party names each quarter is the
+  /// part advocates actually skip.
+  final Caveat? refileFrom;
+
+  const CaveatFormSheet({super.key, this.caveat, this.refileFrom});
 
   @override
   ConsumerState<CaveatFormSheet> createState() => _CaveatFormSheetState();
@@ -34,29 +41,30 @@ class _CaveatFormSheetState extends ConsumerState<CaveatFormSheet> {
   @override
   void initState() {
     super.initState();
-    _courtNameController = TextEditingController(
-      text: widget.caveat?.courtName ?? '',
-    );
-    _caseTypeController = TextEditingController(
-      text: widget.caveat?.caseType ?? '',
-    );
+    // Editing uses the caveat's own values; a re-file copies everything
+    // except the dates and the caveat number, which the court issues anew.
+    final source = widget.caveat ?? widget.refileFrom;
+
+    _courtNameController = TextEditingController(text: source?.courtName ?? '');
+    _caseTypeController = TextEditingController(text: source?.caseType ?? '');
     _caveatorNameController = TextEditingController(
-      text: widget.caveat?.caveatorName ?? '',
+      text: source?.caveatorName ?? '',
     );
     _opponentNameController = TextEditingController(
-      text: widget.caveat?.opponentName ?? '',
+      text: source?.opponentName ?? '',
     );
     _subjectMatterController = TextEditingController(
-      text: widget.caveat?.subjectMatter ?? '',
+      text: source?.subjectMatter ?? '',
     );
     _caveatNumberController = TextEditingController(
       text: widget.caveat?.caveatNumber ?? '',
     );
-    _notesController = TextEditingController(text: widget.caveat?.notes ?? '');
+    _notesController = TextEditingController(text: source?.notes ?? '');
 
     if (widget.caveat != null) {
       _filingDate = widget.caveat!.filingDate;
     }
+    // A re-file keeps today's date — that is the whole point of re-filing.
   }
 
   @override

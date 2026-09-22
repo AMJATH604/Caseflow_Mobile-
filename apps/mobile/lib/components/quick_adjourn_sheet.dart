@@ -63,9 +63,11 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
       if (newHearing != null) {}
 
       if (mounted) {
-        ref.invalidate(hearingsProvider);
-        ref.invalidate(casesProvider);
-        ref.invalidate(dashboardStatsProvider);
+        // One bump refreshes every data provider, caseDetailProvider
+        // included — see the matching note in dashboard_court_diary.dart.
+        // Invalidating only hearings/cases/dashboardStats left the Case
+        // Dossier showing the pre-adjourn hearing date.
+        ref.read(dataRefreshProvider.notifier).state++;
 
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(

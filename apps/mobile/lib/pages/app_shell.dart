@@ -10,6 +10,7 @@ import '../components/app_sidebar.dart';
 import '../components/global_search_delegate.dart';
 import '../components/profile_avatar.dart';
 import '../components/profile_detail_sheet.dart';
+import '../services/back_interceptors.dart';
 import '../services/providers.dart';
 import '../services/supabase_service.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -52,6 +53,11 @@ class _AppShellState extends ConsumerState<AppShell> {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
+
+        // A screen may be showing something the router cannot see — Tools
+        // renders a tool by state, not by route. Ask before treating this as
+        // navigation, or back from an open tool skips to the dashboard.
+        if (BackInterceptors.handleBackPress()) return;
 
         final location = GoRouterState.of(context).matchedLocation;
 

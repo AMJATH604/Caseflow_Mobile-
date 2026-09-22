@@ -1,6 +1,5 @@
 import '../../models/strategy_models.dart';
 import 'base_repository.dart';
-import '../audit_logger.dart';
 
 /// Repository for case strategy board operations.
 ///
@@ -106,12 +105,9 @@ class StrategyRepository {
     // Log activity
     await _logActivity(task.id, user.id, 'created');
 
-    AuditLogger.log(
-      action: AuditAction.create,
-      entity: 'strategy_tasks',
-      entityId: task.id,
-      details: {'title': task.title, 'case_id': task.caseId},
-    );
+    // Audited by trg_audit_strategy_tasks. The removed call wrote the task
+    // title into audit_logs; the trigger records ids and changed column names
+    // only, keeping privileged content out of the admin console's feed.
 
     return task;
   }
@@ -136,12 +132,7 @@ class StrategyRepository {
       );
     }
 
-    AuditLogger.log(
-      action: AuditAction.update,
-      entity: 'strategy_tasks',
-      entityId: taskId,
-      details: {'updated_fields': updates.keys.toList()},
-    );
+    // Audited by trg_audit_strategy_tasks.
   }
 
   // ─── Move Task (Stage Change) ─────────────────────────
@@ -205,11 +196,8 @@ class StrategyRepository {
   // ─── Delete Task (Soft) ───────────────────────────────
 
   static Future<void> deleteTask(String taskId) async {
-    AuditLogger.log(
-      action: AuditAction.delete,
-      entity: 'strategy_tasks',
-      entityId: taskId,
-    );
+    // Soft delete, so trg_audit_strategy_tasks records it as an update whose
+    // changed column is deleted_at — which is what actually happened.
     await BaseRepository.softDelete('strategy_tasks', taskId);
   }
 

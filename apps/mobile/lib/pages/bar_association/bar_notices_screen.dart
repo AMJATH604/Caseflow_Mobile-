@@ -36,7 +36,6 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
   Color _categoryColor(String cat) {
     switch (cat) {
       case 'urgent': return _C.danger;
-      case 'election': return _C.violet;
       case 'event': return _C.info;
       case 'holiday': return _C.accent;
       default: return _C.primary;
@@ -106,7 +105,6 @@ class _BarNoticesScreenState extends ConsumerState<BarNoticesScreen> {
                 _buildChip('all', 'All', null),
                 _buildChip('urgent', '🔴 Urgent', _C.danger),
                 _buildChip('general', '📌 General', _C.primary),
-                _buildChip('election', '🗳️ Election', _C.violet),
                 _buildChip('event', '📅 Event', _C.info),
                 _buildChip('holiday', '🏖️ Holiday', _C.accent),
               ],

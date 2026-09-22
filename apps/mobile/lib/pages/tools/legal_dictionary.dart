@@ -85,8 +85,13 @@ class _LegalDictionaryState extends State<LegalDictionary> {
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Column(
-      children: [
+    // One scroll: search, categories, A–Z and the count move with the terms
+    // instead of staying fixed above them.
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Column(
+            children: [
         // Search bar
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -199,11 +204,15 @@ class _LegalDictionaryState extends State<LegalDictionary> {
           ),
         ),
 
+            ],
+          ),
+        ),
+
         // Terms list
-        Expanded(
-          child:
-              _filteredTerms.isEmpty
-                  ? Center(
+        _filteredTerms.isEmpty
+                  ? SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -219,15 +228,18 @@ class _LegalDictionaryState extends State<LegalDictionary> {
                         ),
                       ],
                     ),
+                  ),
                   )
-                  : ListView.builder(
+                  : SliverPadding(
                     padding: const EdgeInsets.fromLTRB(16, 4, 16, 100),
-                    itemCount: _filteredTerms.length,
-                    itemBuilder:
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
                         (ctx, i) =>
                             _buildTermCard(_filteredTerms[i], i, isDark),
+                        childCount: _filteredTerms.length,
+                      ),
+                    ),
                   ),
-        ),
       ],
     );
   }

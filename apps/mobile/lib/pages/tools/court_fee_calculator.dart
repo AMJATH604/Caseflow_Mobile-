@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/court_fee_rules.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CourtFeeCalculator extends StatefulWidget {
@@ -24,6 +25,9 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
   String _courtType = 'sub_court';
   String _partitionType = 'joint_possession'; // NEW: joint vs excluded
   String _appealType = 'decree'; // NEW: from decree vs from order
+  // Art. 226 and Art. 227 carry different fees — ₹1,000 and ₹500 — and the
+  // calculator charged ₹1,000 for both, doubling the fee on a 227.
+  String _writArticle = '226';
 
   int? _fee2017;
   int? _fee1955;
@@ -64,8 +68,9 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
       'icon': Icons.assignment_outlined,
     },
     {
+      // A §138 filing is a criminal complaint, not a petition.
       'id': 'ni_act',
-      'label': 'NI Act §138 Petition',
+      'label': 'NI Act §138 Complaint (Cheque)',
       'icon': Icons.credit_card_outlined,
     },
     {
@@ -94,8 +99,13 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
     final amount =
         double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0;
     double fee2017 = 0;
-    double fee1955 = 0;
+    // Null where the earlier Act has no comparable entry — the result card
+    // shows a dash rather than a number that was never the rule.
+    double? fee1955 = 0;
     String basis = '';
+    // Reset per calculation; the NI Act row overrides it below.
+    var oldLabel = '1955 Act (Old)';
+    if (_category == 'ni_act') oldLabel = 'Pre-2017 (Art. 20)';
     final List<String> notes = [];
 
     switch (_category) {
@@ -163,9 +173,26 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
         break;
 
       case 'writ':
-        fee2017 = 1000;
-        fee1955 = 200;
-        basis = 'Schedule II — Writ Petition under Art. 226: ₹1,000';
+        // s.12(3)(vi) of the 2017 Amendment Act substituted Art. 11(r) with
+        // two entries: "(i) Petition to the High Court under Article 226 of
+        // the Constitution for a Writ other than Writ of Habeas Corpus. One
+        // thousand rupees. (ii) Petition to the High Court under Article 227
+        // of the Constitution. Five hundred rupees."
+        final isArticle226 = _writArticle == '226';
+        fee2017 = isArticle226 ? 1000 : 500;
+        fee1955 = isArticle226 ? 200 : 100;
+        basis = isArticle226
+            ? 'Schedule II, Art. 11(r)(i) — Writ under Art. 226: ₹1,000'
+            : 'Schedule II, Art. 11(r)(ii) — Petition under Art. 227: ₹500';
+        if (isArticle226) {
+          // The entry excludes habeas corpus, which the calculator has no
+          // row for; saying so is cheaper than a wrong number.
+          notes.add(
+            'Excludes a writ of habeas corpus, which this entry does not '
+            'cover.',
+          );
+        }
+        notes.add('Filed in the High Court, not a trial court.');
         break;
 
       case 'application':
@@ -179,9 +206,22 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
         break;
 
       case 'ni_act':
-        fee2017 = (amount * 0.03).clamp(0, 100000);
-        fee1955 = amount * 0.01;
-        basis = 'NI Act §138 complaint — 3% of cheque amount, max ₹1,00,000';
+        // Schedule II, Art. 20 — the §138 complaint has its own entry, and
+        // Schedule II is the criminal schedule. The Schedule I 3% that used
+        // to be applied here belongs to civil suits.
+        //
+        // Both forms of Art. 20 are shown: the 2017 substitution is current
+        // law, and the 2003 slab is what a filing made before the amendment
+        // would have cost.
+        fee2017 = NiActComplaintFee.forAmount(amount).toDouble();
+        fee1955 = NiActComplaintFee.legacyForAmount(amount).toDouble();
+        basis = NiActComplaintFee.basis();
+        notes.add(NiActComplaintFee.legacyBasis());
+        notes.add(
+          'This is the criminal complaint fee only. A separate suit to '
+          'recover the cheque amount (Order XXXVII CPC) is charged at 3% — '
+          'use "Money Suit (Recovery)" for that.',
+        );
         break;
 
       case 'revision':
@@ -205,11 +245,19 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
 
     setState(() {
       _fee2017 = fee2017.round();
-      _fee1955 = fee1955.round();
+      _fee1955 = fee1955?.round();
+      _oldColumnLabel = oldLabel;
       _legalBasis = basis;
       _notes = notes;
     });
   }
+
+  /// A dash where the pre-2017 Act has no comparable figure, so the old
+  /// column never shows a rupee amount that was not actually the rule.
+  String _oldColumnLabel = '1955 Act (Old)';
+
+  String get _fee1955Display =>
+      _fee1955 == null ? '—' : formatCurrency.format(_fee1955);
 
   bool get _needsAmountInput =>
       [
@@ -239,9 +287,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
     sb.writeln(
       'Court Fee (2017 Act) : ${formatCurrency.format(_fee2017 ?? 0)}',
     );
-    sb.writeln(
-      'Court Fee (1955 Act) : ${formatCurrency.format(_fee1955 ?? 0)}',
-    );
+    sb.writeln('Court Fee ($_oldColumnLabel) : $_fee1955Display');
     sb.writeln('──────────────────────────────────────');
     sb.writeln('Legal Basis: $_legalBasis');
     for (var n in _notes) {
@@ -292,6 +338,18 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
               Text(
                 'Select the type of case to calculate court fee as per TN Court Fees & Suits Valuation Act',
                 style: TextStyle(fontSize: 12.sp, color: Colors.grey[500]),
+              ),
+              SizedBox(height: 6.h),
+              // Court fees are a State subject — every state has its own
+              // schedule, and every figure here is Tamil Nadu's.
+              Text(
+                'Rates as per the Tamil Nadu Court-Fees & Suits Valuation '
+                'Act, 1955 (as amended, 2017). Other states differ.',
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.grey[500],
+                ),
               ),
               Divider(height: 20.h),
 
@@ -407,6 +465,22 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                 ],
               ],
 
+              if (_category == 'writ') ...[
+                SizedBox(height: 16.h),
+                _buildSegmentedToggle(
+                  label: 'Constitutional Article',
+                  options: {
+                    '226': 'Art. 226 (Writ)',
+                    '227': 'Art. 227 (Supervisory)',
+                  },
+                  selected: _writArticle,
+                  onChanged: (v) {
+                    setState(() => _writArticle = v);
+                    _calculateFee();
+                  },
+                ),
+              ],
+
               if (_category == 'appeal') ...[
                 SizedBox(height: 16.h),
                 _buildSegmentedToggle(
@@ -449,10 +523,11 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                     fontWeight: FontWeight.w700,
                   ),
                   decoration: InputDecoration(
-                    labelText:
-                        _category == 'partition'
-                            ? "Plaintiff's Share Value (₹)"
-                            : 'Subject Matter Value / Claim Amount (₹)',
+                    labelText: switch (_category) {
+                      'partition' => "Plaintiff's Share Value (₹)",
+                      'ni_act' => 'Cheque Amount (₹)',
+                      _ => 'Subject Matter Value / Claim Amount (₹)',
+                    },
                     prefixText: '₹ ',
                     prefixStyle: GoogleFonts.inter(
                       fontSize: 18.sp,
@@ -486,7 +561,7 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                   children: [
                     Expanded(
                       child: _buildFeeCard(
-                        '2017 Amendment',
+                        _category == 'ni_act' ? 'Current (2017)' : '2017 Amendment',
                         formatCurrency.format(_fee2017 ?? 0),
                         true,
                         isDark,
@@ -495,8 +570,8 @@ class _CourtFeeCalculatorState extends State<CourtFeeCalculator> {
                     SizedBox(width: 12.w),
                     Expanded(
                       child: _buildFeeCard(
-                        '1955 Act (Old)',
-                        formatCurrency.format(_fee1955 ?? 0),
+                        _oldColumnLabel,
+                        _fee1955Display,
                         false,
                         isDark,
                       ),

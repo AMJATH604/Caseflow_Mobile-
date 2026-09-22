@@ -462,21 +462,34 @@ class DashboardScreen extends ConsumerWidget {
                 ],
               ),
               SizedBox(height: 12.h),
+              // Same four equal slots as the row above. Invitations used to sit
+              // at its natural width against the left edge while New Case was
+              // centred in its slot, so the two columns did not line up.
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildActionButton(
-                    context,
-                    Icons.mail_rounded,
-                    l10n.get('invitations'),
-                    Colors.purple,
-                    () {
-                      context.push('/collaborator-invitations');
-                    },
-                    badgeCount:
-                        ref.watch(pendingInvitationsCountProvider).valueOrNull ??
-                            0,
+                  Expanded(
+                    child: _buildActionButton(
+                      context,
+                      Icons.mail_rounded,
+                      l10n.get('invitations'),
+                      Colors.purple,
+                      () {
+                        context.push('/collaborator-invitations');
+                      },
+                      badgeCount:
+                          ref
+                              .watch(pendingInvitationsCountProvider)
+                              .valueOrNull ??
+                          0,
+                    ),
                   ),
+                  SizedBox(width: 8.w),
+                  const Expanded(child: SizedBox.shrink()),
+                  SizedBox(width: 8.w),
+                  const Expanded(child: SizedBox.shrink()),
+                  SizedBox(width: 8.w),
+                  const Expanded(child: SizedBox.shrink()),
                 ],
               ),
               SizedBox(height: 32.h),
@@ -1018,8 +1031,12 @@ class DashboardScreen extends ConsumerWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(18.r),
+      // Fixed height and top-anchored content: sized by its label, a card whose
+      // word wrapped ("Hearings", "Payments") grew taller than its neighbours
+      // and its icon sat lower, so the Jump To row looked uneven.
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        height: 100.h,
+        padding: EdgeInsets.fromLTRB(6.w, 16.h, 6.w, 8.h),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -1036,27 +1053,40 @@ class DashboardScreen extends ConsumerWidget {
           boxShadow: AppTheme.shadowSm,
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Icon(icon, color: accentColor, size: 26),
             SizedBox(height: 8.h),
-            // Tamil labels are longer than the English ones, so the label has
-            // to wrap inside the card rather than stretch it.
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.outfit(
-                fontWeight: FontWeight.w600,
-                fontSize: 13.sp,
-                color: const Color(0xFF1E293B),
-                height: 1.2,
-              ).indicSafe,
-            ),
+            _buildFeatureLabel(label),
           ],
         ),
       ),
+    );
+  }
+
+  /// A single word never wraps — Flutter would split it mid-word ("Payme/nts")
+  /// — so it shrinks to fit instead. Multi-word labels (the Tamil ones) may
+  /// still use two lines.
+  Widget _buildFeatureLabel(String label) {
+    final style = GoogleFonts.outfit(
+      fontWeight: FontWeight.w600,
+      fontSize: 13.sp,
+      color: const Color(0xFF1E293B),
+      height: 1.2,
+    ).indicSafe;
+
+    if (!label.trim().contains(' ')) {
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(label, maxLines: 1, style: style),
+      );
+    }
+    return Text(
+      label,
+      textAlign: TextAlign.center,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: style,
     );
   }
 

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Users, FileText, Copy, CreditCard, Bell, Settings, LogOut, X } from "lucide-react";
+import { Receipt, FileText, LogOut, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -8,12 +8,12 @@ interface MobileMoreSheetProps {
     onClose: () => void;
 }
 
+// Secondary console destinations. The advocate tools previously listed here
+// (Clients, E-Filing, Certified Copies, Payments, Notifications) were removed
+// from the operator console.
 const menuItems = [
-    { title: "Clients", url: "/clients", icon: Users, color: "bg-blue-500", desc: "Manage clients" },
-    { title: "E-Filing", url: "/efiling", icon: FileText, color: "bg-emerald-500", desc: "Filing records" },
-    { title: "Certified Copies", url: "/certified-copies", icon: Copy, color: "bg-amber-500", desc: "CC applications" },
-    { title: "Payments", url: "/payments", icon: CreditCard, color: "bg-purple-500", desc: "Track payments" },
-    { title: "Notifications", url: "/notifications", icon: Bell, color: "bg-rose-500", desc: "Activity feed" },
+    { title: "Stamp Values", url: "/stamp-values", icon: Receipt, color: "bg-amber-500", desc: "Reference data" },
+    { title: "Legal Templates", url: "/legal-templates", icon: FileText, color: "bg-emerald-500", desc: "Template library" },
 ];
 
 export function MobileMoreSheet({ open, onClose }: MobileMoreSheetProps) {

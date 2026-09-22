@@ -561,11 +561,15 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
 
                         if (newHearing != null) {}
 
-                        ref.invalidate(hearingsProvider);
-                        ref.invalidate(
-                          casesProvider,
-                        ); // Invalidate cases to refresh status
-                        ref.invalidate(dashboardStatsProvider);
+                        // One bump refreshes every data provider rather than
+                        // a hand-listed few. Adjourning writes a new
+                        // next_hearing_date onto the case, but only
+                        // hearings/cases/dashboardStats were invalidated —
+                        // caseDetailProvider was not, so the Case Dossier
+                        // went on showing the old date from its cached
+                        // CaseModel, and the Legal Repository status counts
+                        // went stale on a disposed or dismissed case.
+                        ref.read(dataRefreshProvider.notifier).state++;
 
                         if (context.mounted) {
                           if (!isFinal) {

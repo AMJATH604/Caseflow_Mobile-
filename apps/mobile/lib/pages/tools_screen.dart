@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/analytics_service.dart';
+import '../services/back_interceptors.dart';
 import '../theme/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import '../components/epay_court_fee_sheet.dart';
@@ -12,7 +13,6 @@ import 'tools/limitation_calculator.dart';
 // import 'tools/ocr_tool.dart'; // Mobile-only
 import 'tools/bare_acts_screen.dart';
 import 'tools/case_import_export_screen.dart';
-// import 'tools/generic_pdf_tool.dart'; // Mobile-only
 import 'tools/broadcast_node.dart';
 import 'tools/associate_hub.dart';
 import 'tools/court_holiday_list.dart';
@@ -23,6 +23,7 @@ import 'tools/mact_calculator.dart';
 import 'tools/maintenance_calculator.dart';
 import 'tools/legal_dictionary.dart';
 import 'tools/english_dictionary.dart';
+import 'cross_exam_sessions_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ToolsScreen extends ConsumerStatefulWidget {
@@ -35,121 +36,35 @@ class ToolsScreen extends ConsumerStatefulWidget {
 class _ToolsScreenState extends ConsumerState<ToolsScreen> {
   String? _activeToolId;
 
-  final List<Map<String, dynamic>> _documentTools = [
-    {
-      'id': 'officepdf',
-      'title': 'Word to PDF',
-      'desc': 'Convert DOCX to PDF',
-      'icon': Icons.picture_as_pdf,
-      'color': Colors.blue,
-      'ext': ['doc', 'docx'],
-      'target': 'pdf',
-      'plan': 'pro',
-    },
-    {
-      'id': 'pdfword',
-      'title': 'PDF to Word',
-      'desc': 'Convert PDF to DOCX',
-      'icon': Icons.description,
-      'color': Colors.indigo,
-      'ext': ['pdf'],
-      'target': 'docx',
-      'plan': 'pro',
-    },
-    {
-      'id': 'pdfocr',
-      'title': 'OCR (Searchable)',
-      'desc': 'Make PDF searchable',
-      'icon': Icons.document_scanner,
-      'color': Colors.green,
-      'ext': ['pdf'],
-      'target': 'pdf',
-      'params': {'ocr_language': 'eng'},
-      'plan': 'pro',
-    },
-    {
-      'id': 'ocr',
-      'title': 'OCR Scanner',
-      'desc': 'Extract text from photo',
-      'icon': Icons.camera_alt,
-      'color': Colors.cyan,
-      'plan': 'pro',
-    },
-    {
-      'id': 'merge',
-      'title': 'Merge PDF',
-      'desc': 'Combine multiple PDFs',
-      'icon': Icons.call_merge,
-      'color': Colors.orange,
-      'ext': ['pdf'],
-      'target': 'pdf',
-      'plan': 'pro',
-    },
-    {
-      'id': 'split',
-      'title': 'Split PDF',
-      'desc': 'Separate PDF pages',
-      'icon': Icons.call_split,
-      'color': Colors.red,
-      'ext': ['pdf'],
-      'target': 'zip',
-      'plan': 'pro',
-    },
-    {
-      'id': 'compress',
-      'title': 'Compress PDF',
-      'desc': 'Reduce file size',
-      'icon': Icons.compress,
-      'color': Colors.teal,
-      'ext': ['pdf'],
-      'target': 'pdf',
-      'plan': 'pro',
-    },
-    {
-      'id': 'imagepdf',
-      'title': 'JPG to PDF',
-      'desc': 'Images to PDF',
-      'icon': Icons.image,
-      'color': Colors.deepPurple,
-      'ext': ['jpg', 'jpeg', 'png'],
-      'target': 'pdf',
-      'plan': 'pro',
-    },
-    {
-      'id': 'pdfjpg',
-      'title': 'PDF to JPG',
-      'desc': 'Extract images',
-      'icon': Icons.collections,
-      'color': Colors.pink,
-      'ext': ['pdf'],
-      'target': 'zip',
-      'plan': 'pro',
-    },
-    {
-      'id': 'watermark',
-      'title': 'Watermark',
-      'desc': 'Add stamp to PDF',
-      'icon': Icons.branding_watermark,
-      'color': Colors.blueGrey,
-      'ext': ['pdf'],
-      'target': 'pdf',
-      'params': {'text': 'CASEFLOW'},
-      'plan': 'pro',
-    },
-    {
-      'id': 'rotate',
-      'title': 'Rotate PDF',
-      'desc': 'Fix orientation',
-      'icon': Icons.rotate_right,
-      'color': Colors.amber,
-      'ext': ['pdf'],
-      'target': 'pdf',
-      'params': {'rotate': 90},
-      'plan': 'pro',
-    },
-  ];
+  /// Back closes the open tool first. Tools are rendered from state, not the
+  /// router, so without this the shell treats back as "leave the Tools tab".
+  bool _handleBackPress() {
+    if (_activeToolId == null) return false;
+    setState(() => _activeToolId = null);
+    return true;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    BackInterceptors.add(_handleBackPress);
+  }
+
+  @override
+  void dispose() {
+    BackInterceptors.remove(_handleBackPress);
+    super.dispose();
+  }
 
   final List<Map<String, dynamic>> _legalTools = [
+    {
+      'id': 'cross_exam',
+      'title': 'Cross-Exam Prep',
+      'desc': 'Prepare witness questions',
+      'icon': Icons.gavel_rounded,
+      'color': const Color(0xFFDC2626),
+      'plan': 'pro',
+    },
     {
       'id': 'ai_chat',
       'title': 'AI Legal Assistant',
@@ -369,17 +284,6 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
             isMobile,
           ),
           SizedBox(height: 20.h),
-          if (!kIsWeb) ...[
-            _buildToolSection(
-              'Document Tools',
-              _documentTools.where((t) {
-                // Hide OCR and generic PDF tools on web for now
-                return !['pdfocr', 'ocr'].contains(t['id']);
-              }).toList(),
-              isMobile,
-            ),
-            SizedBox(height: 20.h),
-          ],
           // Separate Chambers sections for high visibility
           _buildToolSection('Digital Chambers', [_chambersTools[0]], isMobile),
           SizedBox(height: 20.h),
@@ -520,6 +424,12 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
 
     if (tool['id'] == 'ai_chat') {
       context.push('/ai-chat');
+    } else if (tool['id'] == 'cross_exam') {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const CrossExamSessionsScreen(),
+        ),
+      );
     } else if (tool['id'] == 'advocate_directory') {
       context.push('/advocate-directory');
     } else if (tool['id'] == 'epay_court_fee') {
@@ -534,90 +444,70 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
   }
 
   Widget _buildToolView() {
-    final allTools = [..._documentTools, ..._legalTools, ..._chambersTools];
+    final allTools = [..._legalTools, ..._chambersTools];
     final tool = allTools.firstWhere((t) => t['id'] == _activeToolId);
     Widget toolWidget;
     final String title = tool['title'];
 
-    if (tool.containsKey('ext')) {
-      /*
-      toolWidget = GenericPdfTool(
-        toolId: tool['id'],
-        title: tool['title'],
-        description: tool['desc'],
-        icon: tool['icon'],
-        allowedExtensions: List<String>.from(tool['ext']),
-        targetExtension: tool['target'],
-        toolParams: tool['params'],
-      );
-      */
-      toolWidget = const Center(
-        child: Text('PDF Tools are currently mobile-only. Check back soon!'),
-      );
-    } else {
-      switch (_activeToolId) {
-        case 'court-fee':
-          toolWidget = const CourtFeeCalculator();
-          break;
-        case 'interest':
-          toolWidget = const InterestCalculator();
-          break;
-        case 'delay':
-          toolWidget = const DelayCalculator();
-          break;
-        case 'limitation':
-          toolWidget = const LimitationCalculator();
-          break;
-        case 'partition_calculator':
-          toolWidget = const PartitionCalculator();
-          break;
-        case 'mact_calculator':
-          toolWidget = const MactCalculator();
-          break;
-        case 'maintenance_calculator':
-          toolWidget = const MaintenanceCalculator();
-          break;
-        case 'legal_dictionary':
-          toolWidget = const LegalDictionary();
-          break;
-        case 'english_dictionary':
-          toolWidget = const EnglishDictionary();
-          break;
-        case 'bare_acts':
-          toolWidget = const BareActsLibraryScreen();
-          break;
-        case 'import_export':
-          toolWidget =
-              kIsWeb
-                  ? const Center(
-                    child: Text('Import/Export is currently mobile-only.'),
-                  )
-                  : const CaseImportExportScreen();
-          break;
-        case 'ocr':
-          // toolWidget = const OcrTool();
-          toolWidget = const Center(
-            child: Text('OCR Scanner is currently mobile-only.'),
-          );
-          break;
-        case 'broadcast':
-          toolWidget = const BroadcastNode();
-          break;
-        case 'associate':
-          toolWidget = const AssociateHub();
-          break;
-        case 'holiday_list':
-          toolWidget = const CourtHolidayList();
-          break;
-        case 'legal_templates':
-          toolWidget = const LegalTemplatesScreen();
-          break;
-        case 'stamp_values':
-          toolWidget = const StampValueScreen();
-          break;
-        default:
-          toolWidget = Center(child: Text('Tool: $_activeToolId'));
-      }
+    switch (_activeToolId) {
+      case 'court-fee':
+        toolWidget = const CourtFeeCalculator();
+        break;
+      case 'interest':
+        toolWidget = const InterestCalculator();
+        break;
+      case 'delay':
+        toolWidget = const DelayCalculator();
+        break;
+      case 'limitation':
+        toolWidget = const LimitationCalculator();
+        break;
+      case 'partition_calculator':
+        toolWidget = const PartitionCalculator();
+        break;
+      case 'mact_calculator':
+        toolWidget = const MactCalculator();
+        break;
+      case 'maintenance_calculator':
+        toolWidget = const MaintenanceCalculator();
+        break;
+      case 'legal_dictionary':
+        toolWidget = const LegalDictionary();
+        break;
+      case 'english_dictionary':
+        toolWidget = const EnglishDictionary();
+        break;
+      case 'bare_acts':
+        toolWidget = const BareActsLibraryScreen();
+        break;
+      case 'import_export':
+        toolWidget =
+            kIsWeb
+                ? const Center(
+                  child: Text('Import/Export is currently mobile-only.'),
+                )
+                : const CaseImportExportScreen();
+        break;
+      case 'broadcast':
+        toolWidget = const BroadcastNode();
+        break;
+      case 'associate':
+        toolWidget = const AssociateHub();
+        break;
+      case 'holiday_list':
+        toolWidget = const CourtHolidayList();
+        break;
+      case 'legal_templates':
+        toolWidget = const LegalTemplatesScreen();
+        break;
+      case 'stamp_values':
+        toolWidget = const StampValueScreen();
+        break;
+      case 'cross_exam':
+        toolWidget = const CrossExamSessionsScreen();
+        break;
+      default:
+        toolWidget = Center(child: Text('Tool: $_activeToolId'));
     }
 
     final isMobile = MediaQuery.of(context).size.width < 768;

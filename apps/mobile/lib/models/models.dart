@@ -691,6 +691,78 @@ class FirmMember {
   );
 }
 
+/// A firm the current user has joined as an associate, with its senior and
+/// accepted associates. Names only — see `get_my_senior_firms` on the server.
+class SeniorFirm {
+  final String ownerId;
+  final String ownerName;
+  final String? ownerAvatarUrl;
+  final DateTime joinedAt;
+  final List<TeamMate> teammates;
+
+  const SeniorFirm({
+    required this.ownerId,
+    required this.ownerName,
+    this.ownerAvatarUrl,
+    required this.joinedAt,
+    this.teammates = const [],
+  });
+
+  factory SeniorFirm.fromJson(Map<String, dynamic> json) => SeniorFirm(
+    ownerId: json['owner_id'] ?? '',
+    ownerName: json['owner_name'] ?? 'Senior Advocate',
+    ownerAvatarUrl: json['owner_avatar_url'],
+    joinedAt: parseDateOr(json['joined_at'], DateTime.now()),
+    teammates: ((json['teammates'] as List?) ?? const [])
+        .map((t) => TeamMate.fromJson(Map<String, dynamic>.from(t as Map)))
+        .toList(),
+  );
+}
+
+/// One person in the Digital Chambers room, flattened from either the firm
+/// owner's view of [FirmMember] or an associate's view of [SeniorFirm] so the
+/// members sheet renders one list regardless of which role is looking.
+///
+/// Name and avatar only — `profiles` restricts contact columns to the owner.
+class ChambersMember {
+  final String id;
+  final String name;
+  final String? avatarUrl;
+  final bool isSenior;
+  final bool isMe;
+
+  const ChambersMember({
+    required this.id,
+    required this.name,
+    this.avatarUrl,
+    required this.isSenior,
+    this.isMe = false,
+  });
+
+  String get roleLabel => isSenior ? 'Senior' : 'Associate';
+}
+
+class TeamMate {
+  final String memberId;
+  final String name;
+  final String? avatarUrl;
+  final bool isMe;
+
+  const TeamMate({
+    required this.memberId,
+    required this.name,
+    this.avatarUrl,
+    this.isMe = false,
+  });
+
+  factory TeamMate.fromJson(Map<String, dynamic> json) => TeamMate(
+    memberId: json['member_id'] ?? '',
+    name: json['name'] ?? 'Associate',
+    avatarUrl: json['avatar_url'],
+    isMe: json['is_me'] == true,
+  );
+}
+
 class CaseComment with ChatMessageData {
   final String id;
   final String? caseId;

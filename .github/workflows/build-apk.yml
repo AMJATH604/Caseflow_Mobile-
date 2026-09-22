@@ -2,7 +2,7 @@ name: Build CaseFlow APK
 
 on:
   push:
-    branches: [main]
+    branches: [main, security/auth-hardening]
     tags: ['v*']
   workflow_dispatch:  # Allow manual trigger
 
@@ -67,7 +67,7 @@ jobs:
           flutter build apk --release \
             --android-skip-build-dependency-validation \
             --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
-            --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+            --dart-define=SUPABASE_PUBLISHABLE_KEY="${{ secrets.SUPABASE_PUBLISHABLE_KEY || secrets.SUPABASE_ANON_KEY }}"
 
       - name: Collect Release APKs
         run: |

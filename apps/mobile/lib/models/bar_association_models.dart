@@ -81,6 +81,17 @@ class BarMember {
   final bool isCaseflowUser;
   final DateTime createdAt;
 
+  /// When the membership lapses. A lapsed membership is why a welfare claim
+  /// gets refused, so this is the date the app counts down to.
+  final DateTime? membershipExpiresOn;
+  final String? enrolmentDateIso;
+  final String welfareFundStatus;
+  final String? welfareFundNumber;
+  final String? idCardNumber;
+  final DateTime? idCardValidUntil;
+  final String memberClass;
+  final String? bloodGroup;
+
   BarMember({
     required this.id,
     required this.associationId,
@@ -96,7 +107,60 @@ class BarMember {
     this.feePaidUntil,
     this.isCaseflowUser = false,
     required this.createdAt,
+    this.membershipExpiresOn,
+    this.enrolmentDateIso,
+    this.welfareFundStatus = 'unknown',
+    this.welfareFundNumber,
+    this.idCardNumber,
+    this.idCardValidUntil,
+    this.memberClass = 'advocate',
+    this.bloodGroup,
   });
+
+  /// Days until the membership lapses; negative once it has. Null when the
+  /// association has not recorded an expiry.
+  int? get daysUntilExpiry {
+    final expiry = membershipExpiresOn;
+    if (expiry == null) return null;
+    final today = DateTime.now();
+    final a = DateTime(today.year, today.month, today.day);
+    final b = DateTime(expiry.year, expiry.month, expiry.day);
+    return b.difference(a).inDays;
+  }
+
+  bool get hasLapsed => (daysUntilExpiry ?? 1) < 0;
+
+  /// Inside the window where renewing still protects a welfare claim.
+  bool get isLapsingSoon {
+    final d = daysUntilExpiry;
+    return d != null && d >= 0 && d <= 30;
+  }
+
+  bool get isClerk => memberClass == 'clerk';
+
+  bool get hasValidIdCard {
+    final until = idCardValidUntil;
+    return idCardNumber != null &&
+        until != null &&
+        until.isAfter(DateTime.now());
+  }
+
+  String get welfareFundLabel {
+    switch (welfareFundStatus) {
+      case 'active':
+        return 'Active';
+      case 'arrears':
+        return 'In arrears';
+      case 'not_enrolled':
+        return 'Not enrolled';
+      case 'retired':
+        return 'Retired';
+      case 'claimed':
+        return 'Claimed';
+      default:
+        return 'Not recorded';
+    }
+  }
 
   bool get isFeePaidForCurrentYear {
     final currentYear = DateTime.now().year;
@@ -127,6 +191,18 @@ class BarMember {
     mobile: json['mobile'] ?? '',
     email: json['email'],
     photoUrl: json['photo_url'],
+    membershipExpiresOn: json['membership_expires_on'] != null
+        ? DateTime.parse(json['membership_expires_on'])
+        : null,
+    enrolmentDateIso: json['enrolment_date'],
+    welfareFundStatus: json['welfare_fund_status'] ?? 'unknown',
+    welfareFundNumber: json['welfare_fund_number'],
+    idCardNumber: json['id_card_number'],
+    idCardValidUntil: json['id_card_valid_until'] != null
+        ? DateTime.parse(json['id_card_valid_until'])
+        : null,
+    memberClass: json['member_class'] ?? 'advocate',
+    bloodGroup: json['blood_group'],
     membershipType: json['membership_type'] ?? 'regular',
     status: json['status'] ?? 'active',
     joinedYear: json['joined_year'],
@@ -188,8 +264,6 @@ class BarNotice {
         return 'General';
       case 'urgent':
         return '🔴 Urgent';
-      case 'election':
-        return '🗳️ Election';
       case 'event':
         return '📅 Event';
       case 'holiday':
@@ -287,208 +361,67 @@ class BarFeePayment {
   };
 }
 
-class BarElection {
+/// A death announced by the association.
+///
+/// Separate from a notice: the shape is fixed, the association keeps it as a
+/// record, and by convention the bar does not take up work that day — so the
+/// meeting time matters as much as the fact.
+class BarCondolence {
   final String id;
   final String associationId;
-  final String title;
-  final String? description;
-  final DateTime nominationStart;
-  final DateTime nominationEnd;
-  final DateTime votingStart;
-  final DateTime votingEnd;
-  final String status;
-  final bool resultsPublished;
-  final DateTime createdAt;
+  final String? memberId;
+  final String deceasedName;
+  final String? enrolmentNumber;
+  final DateTime dateOfDeath;
+  final int? age;
+  final String? message;
+  final DateTime? meetingAt;
+  final String? meetingVenue;
+  final bool noWorkResolution;
+  final DateTime publishedAt;
 
-  BarElection({
+  BarCondolence({
     required this.id,
     required this.associationId,
-    required this.title,
-    this.description,
-    required this.nominationStart,
-    required this.nominationEnd,
-    required this.votingStart,
-    required this.votingEnd,
-    this.status = 'draft',
-    this.resultsPublished = false,
-    required this.createdAt,
+    this.memberId,
+    required this.deceasedName,
+    this.enrolmentNumber,
+    required this.dateOfDeath,
+    this.age,
+    this.message,
+    this.meetingAt,
+    this.meetingVenue,
+    required this.noWorkResolution,
+    required this.publishedAt,
   });
 
-  bool get isVotingOpen {
-    final now = DateTime.now();
-    return status == 'voting' &&
-        now.isAfter(votingStart) &&
-        now.isBefore(votingEnd);
-  }
-
-  bool get isNominationOpen {
-    final now = DateTime.now();
-    return status == 'nominations' &&
-        now.isAfter(nominationStart) &&
-        now.isBefore(nominationEnd);
-  }
-
-  bool get isCompleted => status == 'completed';
-
-  String get statusLabel {
-    switch (status) {
-      case 'draft':
-        return 'Draft';
-      case 'nominations':
-        return 'Nominations Open';
-      case 'voting':
-        return 'Voting Open';
-      case 'completed':
-        return resultsPublished ? 'Results Published' : 'Completed';
-      case 'cancelled':
-        return 'Cancelled';
-      default:
-        return status;
-    }
-  }
-
-  factory BarElection.fromJson(Map<String, dynamic> json) => BarElection(
+  factory BarCondolence.fromJson(Map<String, dynamic> json) => BarCondolence(
     id: json['id'] ?? '',
     associationId: json['association_id'] ?? '',
-    title: json['title'] ?? '',
-    description: json['description'],
-    nominationStart: parseDateOr(json['nomination_start'], DateTime.now()),
-    nominationEnd: parseDateOr(json['nomination_end'], DateTime.now()),
-    votingStart: parseDateOr(json['voting_start'], DateTime.now()),
-    votingEnd: parseDateOr(json['voting_end'], DateTime.now()),
-    status: json['status'] ?? 'draft',
-    resultsPublished: json['results_published'] ?? false,
-    createdAt: parseDateOr(json['created_at'], DateTime.now()),
+    memberId: json['member_id'],
+    deceasedName: json['deceased_name'] ?? '',
+    enrolmentNumber: json['enrolment_number'],
+    dateOfDeath: DateTime.parse(json['date_of_death']),
+    age: json['age'],
+    message: json['message'],
+    meetingAt: json['meeting_at'] != null
+        ? DateTime.parse(json['meeting_at']).toLocal()
+        : null,
+    meetingVenue: json['meeting_venue'],
+    noWorkResolution: json['no_work_resolution'] ?? false,
+    publishedAt: json['published_at'] != null
+        ? DateTime.parse(json['published_at']).toLocal()
+        : DateTime.now(),
   );
 
-  Map<String, dynamic> toJson() => {
-    'association_id': associationId,
-    'title': title,
-    'description': description,
-    'nomination_start': nominationStart.toIso8601String(),
-    'nomination_end': nominationEnd.toIso8601String(),
-    'voting_start': votingStart.toIso8601String(),
-    'voting_end': votingEnd.toIso8601String(),
-    'status': status,
-    'results_published': resultsPublished,
-  };
-}
-
-class BarElectionPost {
-  final String id;
-  final String electionId;
-  final String postName;
-  final int maxWinners;
-  final DateTime createdAt;
-
-  BarElectionPost({
-    required this.id,
-    required this.electionId,
-    required this.postName,
-    this.maxWinners = 1,
-    required this.createdAt,
-  });
-
-  factory BarElectionPost.fromJson(Map<String, dynamic> json) =>
-      BarElectionPost(
-        id: json['id'] ?? '',
-        electionId: json['election_id'] ?? '',
-        postName: json['post_name'] ?? '',
-        maxWinners: json['max_winners'] ?? 1,
-        createdAt: parseDateOr(json['created_at'], DateTime.now()),
-      );
-
-  Map<String, dynamic> toJson() => {
-    'election_id': electionId,
-    'post_name': postName,
-    'max_winners': maxWinners,
-  };
-}
-
-class BarNomination {
-  final String id;
-  final String postId;
-  final String nomineeMemberId;
-  final String? proposerMemberId;
-  final String? seconderMemberId;
-  final String status;
-  final String? bio;
-  final String? photoUrl;
-  final DateTime createdAt;
-  // Joined fields
-  final String? nomineeName;
-  final String? proposerName;
-  final String? seconderName;
-  final int? voteCount;
-
-  BarNomination({
-    required this.id,
-    required this.postId,
-    required this.nomineeMemberId,
-    this.proposerMemberId,
-    this.seconderMemberId,
-    this.status = 'pending',
-    this.bio,
-    this.photoUrl,
-    required this.createdAt,
-    this.nomineeName,
-    this.proposerName,
-    this.seconderName,
-    this.voteCount,
-  });
-
-  bool get isApproved => status == 'approved';
-
-  factory BarNomination.fromJson(Map<String, dynamic> json) => BarNomination(
-    id: json['id'] ?? '',
-    postId: json['post_id'] ?? '',
-    nomineeMemberId: json['nominee_member_id'] ?? '',
-    proposerMemberId: json['proposer_member_id'],
-    seconderMemberId: json['seconder_member_id'],
-    status: json['status'] ?? 'pending',
-    bio: json['bio'],
-    photoUrl: json['photo_url'],
-    createdAt: parseDateOr(json['created_at'], DateTime.now()),
-    nomineeName: json['nominee']?['name'],
-    proposerName: json['proposer']?['name'],
-    seconderName: json['seconder']?['name'],
-    voteCount: json['vote_count'],
-  );
-
-  Map<String, dynamic> toJson() => {
-    'post_id': postId,
-    'nominee_member_id': nomineeMemberId,
-    'proposer_member_id': proposerMemberId,
-    'seconder_member_id': seconderMemberId,
-    'status': status,
-    'bio': bio,
-    'photo_url': photoUrl,
-  };
-}
-
-class BarVoterParticipation {
-  final String id;
-  final String electionId;
-  final String memberId;
-  final DateTime votedAt;
-  final bool otpVerified;
-
-  BarVoterParticipation({
-    required this.id,
-    required this.electionId,
-    required this.memberId,
-    required this.votedAt,
-    this.otpVerified = false,
-  });
-
-  factory BarVoterParticipation.fromJson(Map<String, dynamic> json) =>
-      BarVoterParticipation(
-        id: json['id'] ?? '',
-        electionId: json['election_id'] ?? '',
-        memberId: json['member_id'] ?? '',
-        votedAt: parseDateOr(json['voted_at'], DateTime.now()),
-        otpVerified: json['otp_verified'] ?? false,
-      );
+  /// Today's condolences are the ones that change whether an advocate goes
+  /// to court, so the UI leads with them.
+  bool get isToday {
+    final now = DateTime.now();
+    return dateOfDeath.year == now.year &&
+        dateOfDeath.month == now.month &&
+        dateOfDeath.day == now.day;
+  }
 }
 
 class BarEvent {

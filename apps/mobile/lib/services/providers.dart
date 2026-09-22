@@ -8,14 +8,17 @@ import 'supabase_service.dart';
 import 'retry_helper.dart';
 import 'offline_cache_service.dart';
 import 'repositories/base_repository.dart';
+import 'repositories/profile_repository.dart';
 import '../models/models.dart';
 import '../models/case_dossier_models.dart';
 import '../models/caveat_models.dart';
 import '../models/notification_models.dart';
 import '../models/strategy_models.dart';
+import '../models/cross_exam_models.dart';
 import 'caveat_service.dart';
 import 'locale_service.dart';
 import 'repositories/strategy_repository.dart';
+import 'repositories/cross_exam_repository.dart';
 import 'firm_service.dart';
 import 'collaborator_service.dart';
 
@@ -291,12 +294,6 @@ final casePaymentsProvider = FutureProvider.family<List<Payment>, String>((
   return RetryHelper.retry(() => SupabaseService.fetchPayments(caseId: caseId));
 });
 
-final efilingProvider = FutureProvider<List<EFilingRecord>>((ref) async {
-  ref.watch(authStateProvider);
-  ref.watch(dataRefreshProvider); // ← watches refresh trigger
-  return RetryHelper.retry(() => SupabaseService.fetchEfilingRecords());
-});
-
 final caseEfilingProvider = FutureProvider.family<List<EFilingRecord>, String>((
   ref,
   caseId,
@@ -421,6 +418,15 @@ final caveatsProvider = FutureProvider<List<Caveat>>((ref) async {
 // ─── UI State ────────────────────────────────────────
 
 final navigationIndexProvider = StateProvider<int>((ref) => 0);
+
+/// Display names for a set of profile ids, e.g. the seniors whose firm shared
+/// a case. Keyed by a sorted, comma-joined id list so one set shares one fetch.
+final profileNamesProvider =
+    FutureProvider.family<Map<String, String>, String>((ref, idsKey) async {
+  ref.watch(authStateProvider);
+  if (idsKey.isEmpty) return const {};
+  return ProfileRepository.fetchDisplayNames(idsKey.split(','));
+});
 final pageTitleProvider = StateProvider<String>((ref) => 'CaseFlow');
 final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.light);
 
@@ -501,13 +507,13 @@ final barEventsProvider =
       );
     });
 
-/// Active election for an association.
-final barElectionProvider =
-    FutureProvider.family<BarElection?, String>((ref, assocId) async {
+/// Condolences published by an association.
+final barCondolencesProvider =
+    FutureProvider.family<List<BarCondolence>, String>((ref, assocId) async {
       ref.watch(authStateProvider);
       ref.watch(dataRefreshProvider);
       return RetryHelper.retry(
-        () => BarAssociationRepository.getActiveElection(assocId),
+        () => BarAssociationRepository.getCondolences(assocId),
       );
     });
 
@@ -558,4 +564,35 @@ final strategyBoardSummaryProvider =
       ref.watch(dataRefreshProvider);
       return StrategyRepository.fetchBoardSummary(caseId);
     });
+
+// ─── Cross-Examination Prep ─────────────────────────
+
+/// All cross-examination sessions across all cases for the current user/firm.
+final crossExamSessionsProvider =
+    FutureProvider<List<CrossExamSession>>((ref) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(() => CrossExamRepository.fetchAllSessions());
+    });
+
+/// Cross-examination sessions for a specific case.
+final crossExamCaseSessionsProvider =
+    FutureProvider.family<List<CrossExamSession>, String>((ref, caseId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(
+        () => CrossExamRepository.fetchSessionsForCase(caseId),
+      );
+    });
+
+/// Questions for a specific cross-examination session.
+final crossExamQuestionsProvider =
+    FutureProvider.family<List<CrossExamQuestion>, String>((ref, sessionId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(
+        () => CrossExamRepository.fetchQuestions(sessionId),
+      );
+    });
+
 

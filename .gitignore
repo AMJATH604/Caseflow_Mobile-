@@ -63,6 +63,8 @@ out/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+*.timestamp-*.mjs
+*.timestamp-*.js
 
 # ─── Build Artifacts ──────────────────────────────────────────
 *.apk
@@ -74,3 +76,7 @@ yarn-error.log*
 /scratch/
 /releases/
 /caseflow_flutter/
+
+# Local debug output (analyzer/build logs). A service_role key was once
+# committed here as logs/sr.txt — never track this directory again.
+apps/mobile/logs/

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../components/screen_back_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -70,6 +71,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Padding(
+                  padding: EdgeInsets.only(top: 4.h, right: 4.w),
+                  child: const ScreenBackButton(),
+                ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

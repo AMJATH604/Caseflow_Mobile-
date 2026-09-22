@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../case_picker_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -219,12 +220,10 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                       // ─── Case Selector ───
                       casesAsync.when(
                         data:
-                            (cases) => DropdownButtonFormField<String>(
-                              initialValue: _selectedCaseId,
-                              style: GoogleFonts.inter(
-                                color: AppTheme.primary,
-                                fontSize: 15.sp,
-                              ),
+                            (cases) => CasePickerField(
+                              cases: cases,
+                              value: _selectedCaseId,
+                              sheetTitle: 'Select case for payment',
                               decoration: InputDecoration(
                                 labelText: 'Select Case',
                                 prefixIcon: const Icon(
@@ -235,21 +234,7 @@ class _LogPaymentDialogState extends ConsumerState<LogPaymentDialog> {
                                   alpha: 0.5,
                                 ),
                               ),
-                              items:
-                                  cases
-                                      .map(
-                                        (c) => DropdownMenuItem(
-                                          value: c.id,
-                                          child: Text(
-                                            c.caseTitle.isEmpty
-                                                ? (c.caseNumber ??
-                                                    'Case #${c.id.substring(0, 4)}')
-                                                : c.caseTitle,
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
-                              onChanged: _onCaseSelected,
+                              onSelected: (c) => _onCaseSelected(c.id),
                               validator: (v) => v == null ? 'Required' : null,
                             ),
                         loading: () => const LinearProgressIndicator(),

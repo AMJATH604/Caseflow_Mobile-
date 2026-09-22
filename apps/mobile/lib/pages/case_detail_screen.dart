@@ -11,6 +11,7 @@ import '../components/case_witnesses_tab.dart';
 import 'evidence_lab_screen.dart';
 
 import '../components/case_header.dart';
+import '../components/pinned_header_delegate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CaseDetailScreen extends ConsumerStatefulWidget {
@@ -51,22 +52,65 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
           if (caseData == null) {
             return const Center(child: Text('Case not found.'));
           }
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CaseHeader(
-                caseData: caseData,
-                onBack: () => Navigator.pop(context),
-              ),
-              SizedBox(height: 16.h),
-              Row(
-                children: [
-                  Expanded(child: _buildTabBar()),
-                  _buildOverflowMenu(),
-                ],
-              ),
-              Expanded(
-                child: TabBarView(
+          // One scroll for the whole dossier: the case header scrolls away and
+          // the tab bar sticks to the top. Previously the header and tab bar
+          // were fixed and each tab scrolled only in the space left below.
+          return SafeArea(
+            bottom: false,
+            child: NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                SliverToBoxAdapter(
+                  child: CaseHeader(
+                    caseData: caseData,
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: PinnedHeaderDelegate(
+                    height: 72.h,
+                    backgroundColor: AppTheme.primaryLight,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 16.h, bottom: 12.h),
+                      child: Row(
+                        children: [
+                          // With the header scrolled away its back button is
+                          // gone too, so the pinned bar carries one — plus the
+                          // case number, so it is clear which case this is.
+                          if (innerBoxIsScrolled) ...[
+                            IconButton(
+                              tooltip: 'Back',
+                              visualDensity: VisualDensity.compact,
+                              onPressed: () => Navigator.pop(context),
+                              icon: Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                size: 18.sp,
+                                color: AppTheme.primary,
+                              ),
+                            ),
+                            ConstrainedBox(
+                              constraints: BoxConstraints(maxWidth: 96.w),
+                              child: Text(
+                                caseData.caseNumber ?? caseData.caseTitle,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                          Expanded(child: _buildTabBar()),
+                          _buildOverflowMenu(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+              body: TabBarView(
                   controller: _tabController,
                   children: [
                     CaseDossierTab(caseId: widget.id, caseData: caseData),
@@ -79,8 +123,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
                     CasePaymentsTab(caseId: widget.id),
                   ],
                 ),
-              ),
-            ],
+            ),
           );
         },
         loading:

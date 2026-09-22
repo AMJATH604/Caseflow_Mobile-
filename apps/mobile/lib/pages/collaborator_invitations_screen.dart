@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/collaborator_service.dart';
 import '../services/firm_service.dart';
+import '../services/supabase_service.dart';
 import '../services/providers.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
@@ -95,9 +96,62 @@ class _CollaboratorInvitationsScreenState
   }
 
   // ─── Firm invitation response ──────────────────────────────
-  Future<void> _acceptFirm(String id) async {
+
+  Future<bool?> _confirmTeamSwitch({
+    required String newSenior,
+    String? currentSenior,
+    required int ledAssociates,
+  }) {
+    final lines = <String>[
+      if (currentSenior != null)
+        "Joining $newSenior's team will remove you from $currentSenior's team. "
+            "You'll lose access to $currentSenior's firm cases.",
+      if (ledAssociates > 0)
+        'You lead $ledAssociates associate${ledAssociates == 1 ? '' : 's'}. '
+            "They'll stay in your team, but you'll be working inside $newSenior's firm.",
+    ];
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text("Join $newSenior's team?"),
+        content: Text(lines.join('\n\n')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    );
+  }
+  Future<void> _acceptFirm(FirmMember invitation) async {
+    final newSenior = invitation.ownerName ?? 'this firm';
     try {
-      await FirmService.acceptInvitation(id);
+      // One team at a time — warn before the switch rather than after it.
+      final currentTeams = (await FirmService.fetchMySeniorFirms())
+          .where((f) => f.ownerId != invitation.ownerId)
+          .toList();
+      final profile = await SupabaseService.fetchProfile();
+      final ledAssociates = profile.isFirmOwner
+          ? (await FirmService.fetchFirmMembers())
+              .where((m) => m.status == 'accepted')
+              .length
+          : 0;
+
+      if (currentTeams.isNotEmpty || ledAssociates > 0) {
+        final confirmed = await _confirmTeamSwitch(
+          newSenior: newSenior,
+          currentSenior: currentTeams.isNotEmpty ? currentTeams.first.ownerName : null,
+          ledAssociates: ledAssociates,
+        );
+        if (confirmed != true) return;
+      }
+
+      final leftTeams = await FirmService.acceptInvitation(invitation.id);
 
       // Joining a firm changes the user's profile, visible cases, hearings and
       // dashboard stats — refresh them immediately so there's no lag.
@@ -105,10 +159,17 @@ class _CollaboratorInvitationsScreenState
       ref.invalidate(casesProvider);
       ref.invalidate(dashboardStatsProvider);
       ref.invalidate(hearingsProvider);
+      ref.read(dataRefreshProvider.notifier).state++;
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Joined firm successfully!')),
+          SnackBar(
+            content: Text(
+              leftTeams.isEmpty
+                  ? "You joined $newSenior's team"
+                  : "You left ${leftTeams.join(', ')}'s team and joined $newSenior's team",
+            ),
+          ),
         );
         _loadInvitations();
       }
@@ -280,7 +341,7 @@ class _CollaboratorInvitationsScreenState
               SizedBox(width: 12.w),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () => _acceptFirm(invitation.id),
+                  onPressed: () => _acceptFirm(invitation),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.accent,
                     foregroundColor: Colors.black,

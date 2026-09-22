@@ -7,7 +7,12 @@ import DashboardPage from '@/pages/DashboardPage';
 import MembersPage from '@/pages/MembersPage';
 import NoticesPage from '@/pages/NoticesPage';
 import FeesPage from '@/pages/FeesPage';
-import ElectionsPage from '@/pages/ElectionsPage';
+import RenewalsPage from '@/pages/RenewalsPage';
+import ClerksPage from '@/pages/ClerksPage';
+import IdCardsPage from '@/pages/IdCardsPage';
+import WelfarePage from '@/pages/WelfarePage';
+import StipendPage from '@/pages/StipendPage';
+import CondolencesPage from '@/pages/CondolencesPage';
 import EventsPage from '@/pages/EventsPage';
 import SettingsPage from '@/pages/SettingsPage';
 
@@ -52,9 +57,14 @@ export default function App() {
       >
         <Route index element={<DashboardPage />} />
         <Route path="members" element={<MembersPage />} />
+        <Route path="renewals" element={<RenewalsPage />} />
+        <Route path="clerks" element={<ClerksPage />} />
+        <Route path="id-cards" element={<IdCardsPage />} />
+        <Route path="welfare" element={<WelfarePage />} />
+        <Route path="stipend" element={<StipendPage />} />
+        <Route path="condolences" element={<CondolencesPage />} />
         <Route path="notices" element={<NoticesPage />} />
         <Route path="fees" element={<FeesPage />} />
-        <Route path="elections" element={<ElectionsPage />} />
         <Route path="events" element={<EventsPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>

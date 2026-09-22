@@ -19,27 +19,17 @@ final advocateSearchProvider = FutureProvider.family<
     final district = parts[1] == 'All' ? null : parts[1];
     final searchQuery = parts[2];
 
-    var query = Supabase.instance.client
-        .from('profiles')
-        .select(
-          'id, full_name, email, mobile_number, practice_state, practice_district, office_address, registration_number, avatar_url',
+    // Contact details are served only for advocates who opted into the
+    // directory, through a server function rather than a direct table read.
+    final response = await Supabase.instance.client
+        .rpc(
+          'search_advocate_directory',
+          params: {
+            'p_state': state,
+            'p_district': district,
+            'p_query': searchQuery,
+          },
         )
-        .eq('is_public_directory_enabled', true);
-
-    if (state != null && state.isNotEmpty) {
-      query = query.eq('practice_state', state);
-    }
-
-    if (district != null && district.isNotEmpty) {
-      query = query.eq('practice_district', district);
-    }
-
-    if (searchQuery.isNotEmpty) {
-      query = query.ilike('full_name', '%$searchQuery%');
-    }
-
-    final response = await query
-        .order('full_name')
         .timeout(
           const Duration(seconds: 15),
           onTimeout:
@@ -72,24 +62,6 @@ class _AdvocateDirectoryScreenState
   @override
   void initState() {
     super.initState();
-    _setupRealtimeListener();
-  }
-
-  void _setupRealtimeListener() {
-    _channel =
-        Supabase.instance.client
-            .channel('public:profiles')
-            .onPostgresChanges(
-              event: PostgresChangeEvent.all,
-              schema: 'public',
-              table: 'profiles',
-              callback: (payload) {
-                final filterKey =
-                    '$_selectedState|$_selectedDistrict|$_searchQuery';
-                ref.invalidate(advocateSearchProvider(filterKey));
-              },
-            )
-            .subscribe();
   }
 
   @override
@@ -150,25 +122,33 @@ class _AdvocateDirectoryScreenState
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
-      body: Column(
-        children: [
-          _buildFilterHeader(isDark),
-          Expanded(
-            child: advocatesAsync.when(
+      // One scroll: the filters and search move with the advocate list. They
+      // stay part of the scroll in every state — typing a search reloads the
+      // list, and the search box must not disappear while that happens.
+      body: RefreshIndicator(
+        onRefresh: () async => ref.invalidate(advocateSearchProvider(filterKey)),
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(child: _buildFilterHeader(isDark)),
+            ...advocatesAsync.when(
               data: (advocates) {
                 if (advocates.isEmpty) {
-                  return _buildEmptyState(isDark);
+                  return [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: _buildEmptyState(isDark),
+                    ),
+                  ];
                 }
-                return RefreshIndicator(
-                  onRefresh:
-                      () async =>
-                          ref.invalidate(advocateSearchProvider(filterKey)),
-                  child: ListView.builder(
-                    padding: EdgeInsets.all(16.r),
-                    itemCount: advocates.length + 1, // +1 for count header
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        return Padding(
+                return [
+                  SliverPadding(
+                    padding: EdgeInsets.fromLTRB(16.r, 16.r, 16.r, 32.h),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          if (index == 0) {
+                            return Padding(
                           padding: EdgeInsets.only(bottom: 12.h),
                           child: Row(
                             children: [
@@ -193,14 +173,19 @@ class _AdvocateDirectoryScreenState
                             ],
                           ),
                         );
-                      }
-                      return _buildAdvocateCard(advocates[index - 1], isDark);
-                    },
+                          }
+                          return _buildAdvocateCard(advocates[index - 1], isDark);
+                        },
+                        childCount: advocates.length + 1, // +1 for count header
+                      ),
+                    ),
                   ),
-                );
+                ];
               },
-              loading:
-                  () => Center(
+              loading: () => [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -216,10 +201,17 @@ class _AdvocateDirectoryScreenState
                       ],
                     ),
                   ),
-              error: (e, st) => _buildErrorState(e, filterKey, isDark),
+                ),
+              ],
+              error: (e, st) => [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _buildErrorState(e, filterKey, isDark),
+                ),
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

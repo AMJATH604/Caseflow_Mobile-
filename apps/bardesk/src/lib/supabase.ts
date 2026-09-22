@@ -14,11 +14,15 @@ import { createClient } from '@supabase/supabase-js';
  * silent fallback to production. Failing fast is the fix.
  */
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// The publishable key (sb_publishable_…) replaces the legacy JWT anon key,
+// which is being retired. The old variable name is still read so an existing
+// .env keeps building, but it must hold the publishable key.
+const supabaseAnonKey =
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error(
-    'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY ' +
+    'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY ' +
       'in your environment (see .env.example) before building BarDesk.',
   );
 }

@@ -66,8 +66,13 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
+      // One scroll: search, A–Z and the count move with the words instead of
+      // staying fixed above them.
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
           // Search bar
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
@@ -172,11 +177,15 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
 
           SizedBox(height: 8.h),
 
+              ],
+            ),
+          ),
+
           // Words List
-          Expanded(
-            child:
-                _filteredWords.isEmpty
-                    ? Center(
+          _filteredWords.isEmpty
+                    ? SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -194,11 +203,14 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                           ),
                         ],
                       ),
+                    ),
                     )
-                    : ListView.builder(
+                    : SliverPadding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                      itemCount: _filteredWords.length,
-                      itemBuilder: (context, index) {
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                      childCount: _filteredWords.length,
+                      (context, index) {
                         final w = _filteredWords[index];
                         final bool isExpanded = _expandedIndex == index;
 
@@ -421,8 +433,9 @@ class _EnglishDictionaryState extends State<EnglishDictionary> {
                           ),
                         );
                       },
+                        ),
+                      ),
                     ),
-          ),
         ],
       ),
     );

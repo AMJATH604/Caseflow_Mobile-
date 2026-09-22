@@ -7,8 +7,8 @@
 // is configured, every request is rejected.
 //
 // Accepted credentials (in order of preference):
-//   1. `Authorization: Bearer <SUPABASE_SERVICE_ROLE_KEY>` — Supabase database
-//      webhooks and pg_net/pg_cron jobs send this.
+//   1. A Supabase secret key — the legacy service_role JWT as
+//      `Authorization: Bearer`, or a new `sb_secret_…` key on `apikey`.
 //   2. `Authorization: Bearer <CRON_SECRET>` — external schedulers, manual
 //      admin triggers.
 //   3. `x-supabase-webhook-secret: <WEBHOOK_SECRET>` — custom webhook configs.
@@ -27,6 +27,7 @@
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { allSecretKeys, publishableKey } from "./keys.ts";
 
 /**
  * Length-safe, constant-time string comparison.
@@ -96,16 +97,16 @@ export async function verifyWebhookAuth(
   const token = bearerToken(authHeader);
   const webhookSecretHeader = req.headers.get("x-supabase-webhook-secret");
 
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const serviceKeys = allSecretKeys();
   const cronSecret = Deno.env.get("CRON_SECRET");
   const webhookSecret = Deno.env.get("WEBHOOK_SECRET");
 
   // ─── Fail closed: refuse to run without a configured credential ─────
   // Previously this branch allowed the request through "for backward
   // compatibility", which meant an unconfigured deployment was fully open.
-  if (!serviceRoleKey && !cronSecret && !webhookSecret) {
+  if (serviceKeys.length === 0 && !cronSecret && !webhookSecret) {
     console.error(
-      "AUTH_GUARD: no SUPABASE_SERVICE_ROLE_KEY, CRON_SECRET, or WEBHOOK_SECRET " +
+      "AUTH_GUARD: no Supabase secret key, CRON_SECRET, or WEBHOOK_SECRET " +
         "is configured. Refusing all requests. Set one with: " +
         "supabase secrets set CRON_SECRET=<random>",
     );
@@ -118,8 +119,14 @@ export async function verifyWebhookAuth(
     );
   }
 
-  // ─── Mode 1: Supabase service-role key ──────────────────────────────
-  if (timingSafeEqual(token, serviceRoleKey)) return null;
+  // ─── Mode 1: Supabase secret key ────────────────────────────────────
+  // Legacy service_role JWTs arrive as a Bearer token. The new sb_secret_…
+  // keys cannot travel in Authorization (the gateway parses it as a JWT), so
+  // they arrive on the `apikey` header instead.
+  const apikeyHeader = req.headers.get("apikey");
+  for (const key of serviceKeys) {
+    if (timingSafeEqual(token, key) || timingSafeEqual(apikeyHeader, key)) return null;
+  }
 
   // ─── Mode 2: CRON_SECRET bearer token ───────────────────────────────
   if (timingSafeEqual(token, cronSecret)) return null;
@@ -140,10 +147,10 @@ export async function verifyWebhookAuth(
   // checking a signature. We now validate the token against Supabase Auth.
   if (allowUserJwt && token) {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const supabaseAnonKey = publishableKey();
 
     if (!supabaseUrl || !supabaseAnonKey) {
-      return unauthorized("allowUserJwt set but SUPABASE_URL/ANON_KEY missing");
+      return unauthorized("allowUserJwt set but SUPABASE_URL/publishable key missing");
     }
 
     try {

@@ -74,14 +74,6 @@ class AppSidebar extends ConsumerWidget {
                 _buildMenuItem(
                   context,
                   ref,
-                  3,
-                  Icons.upload_file_rounded,
-                  'E-Filing',
-                  '/efiling',
-                ),
-                _buildMenuItem(
-                  context,
-                  ref,
                   4,
                   Icons.calendar_month_rounded,
                   'Schedule',

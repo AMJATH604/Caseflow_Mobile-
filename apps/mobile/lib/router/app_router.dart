@@ -10,7 +10,6 @@ import '../pages/case_detail_screen.dart';
 import '../pages/clients_screen.dart';
 import '../pages/hearings_screen.dart';
 import '../pages/payments_screen.dart';
-import '../pages/efiling_screen.dart';
 import '../pages/certified_copies_screen.dart';
 import '../pages/portals_screen.dart';
 import '../pages/tools_screen.dart';
@@ -35,11 +34,11 @@ import '../pages/chambers_chat_screen.dart';
 import '../pages/chat_hub_screen.dart';
 import '../pages/dm_chat_screen.dart';
 import '../pages/settings_screen.dart';
+import '../pages/cross_exam_sessions_screen.dart';
 
 import '../pages/bar_association/bar_association_home_screen.dart';
 import '../pages/bar_association/bar_notices_screen.dart';
 import '../pages/bar_association/bar_fee_payment_screen.dart';
-import '../pages/bar_association/bar_election_screen.dart';
 import '../pages/bar_association/bar_membership_card_screen.dart';
 import '../pages/bar_association/bar_events_screen.dart';
 
@@ -198,10 +197,6 @@ final appRouter = GoRouter(
           builder: (context, state) => const PaymentsScreen(),
         ),
         GoRoute(
-          path: '/efiling',
-          builder: (context, state) => EFilingScreen(),
-        ),
-        GoRoute(
           path: '/certified-copies',
           builder: (context, state) => const CertifiedCopiesScreen(),
         ),
@@ -259,6 +254,13 @@ final appRouter = GoRouter(
           path: '/legal-pulse',
           builder: (context, state) => const LegalPulseScreen(),
         ),
+        GoRoute(
+          path: '/cross-exam',
+          builder: (context, state) {
+            final caseId = state.uri.queryParameters['caseId'];
+            return CrossExamSessionsScreen(caseId: caseId);
+          },
+        ),
         // ─── Bar Association Routes ──────────────────────
         GoRoute(
           path: '/bar-association',
@@ -276,13 +278,6 @@ final appRouter = GoRouter(
           builder: (context, state) {
             final assocId = state.uri.queryParameters['assocId'] ?? '';
             return BarFeePaymentScreen(associationId: assocId);
-          },
-        ),
-        GoRoute(
-          path: '/bar-elections',
-          builder: (context, state) {
-            final assocId = state.uri.queryParameters['assocId'] ?? '';
-            return BarElectionScreen(associationId: assocId);
           },
         ),
         GoRoute(

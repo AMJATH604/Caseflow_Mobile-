@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../models/case_dossier_models.dart';
 import '../../services/providers.dart';
 import '../../services/supabase_service.dart';
+import '../../services/storage_links.dart';
 import '../../theme/app_theme.dart';
 import 'dossier_shared.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -321,7 +322,11 @@ class _InterimOrdersSectionState extends ConsumerState<InterimOrdersSection> {
                         order.documentUrl != null
                             ? GestureDetector(
                               onTap: () async {
-                                final uri = Uri.parse(order.documentUrl!);
+                                final uri = Uri.parse(
+                                  await StorageLinks.resolve(
+                                    order.documentUrl!,
+                                  ),
+                                );
                                 if (await canLaunchUrl(uri)) {
                                   await launchUrl(
                                     uri,

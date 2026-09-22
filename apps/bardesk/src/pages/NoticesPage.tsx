@@ -136,7 +136,7 @@ export default function NoticesPage() {
       ) : (
         <div className="space-y-3">
           {list.map((notice) => {
-            const style = categoryStyle(notice.category);
+            const style = categoryStyle(notice.category ?? "general");
             return (
               <article
                 key={notice.id}
@@ -173,7 +173,7 @@ export default function NoticesPage() {
                   </p>
 
                   <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                    <span>{formatDateTime(notice.published_at)}</span>
+                    <span>{notice.published_at ? formatDateTime(notice.published_at) : "Not published"}</span>
                     <span aria-hidden>·</span>
                     <span data-numeric>{notice.read_count} read</span>
                     {notice.fcm_sent && (

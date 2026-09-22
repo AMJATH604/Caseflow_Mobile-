@@ -1,4 +1,5 @@
 import 'dart:convert';
+import '../components/screen_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -179,6 +180,8 @@ class _PortalsScreenState extends State<PortalsScreen>
         children: [
           Row(
             children: [
+              const ScreenBackButton(color: Colors.white),
+              SizedBox(width: 4.w),
               Container(
                 padding: EdgeInsets.all(10.r),
                 decoration: BoxDecoration(

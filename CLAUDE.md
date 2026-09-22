@@ -97,7 +97,7 @@ Three **non-canonical** SQL directories exist and must not be added to: `apps/da
 
 `EnvConfig` (`apps/mobile/lib/utils/env_config.dart`) reads `String.fromEnvironment` **with hardcoded production defaults**. Running `flutter run` without `--dart-define` therefore connects to the live Supabase project against real client data. Pass dart-defines deliberately.
 
-Only the Supabase URL and anon key are client-side (the anon key is public and protected by RLS). Gemini and iLovePDF keys live as edge-function secrets and are reached through `gemini-proxy` / `pdf-proxy`.
+Only the Supabase URL and anon key are client-side (the anon key is public and protected by RLS). The Gemini key lives as an edge-function secret and is reached through `gemini-proxy`.
 
 ## Web dashboard gotchas
 

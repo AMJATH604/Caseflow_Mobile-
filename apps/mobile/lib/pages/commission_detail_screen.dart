@@ -9,12 +9,14 @@ import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../services/back_interceptors.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../models/commission_models.dart';
 import '../services/commission_service.dart';
+import '../services/storage_links.dart';
 import '../theme/app_theme.dart';
 import 'commissions_screen.dart';
 import 'commission_report_screen.dart';
@@ -59,13 +61,22 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   @override
   void initState() {
     super.initState();
+    BackInterceptors.add(_handleBackPress);
     _tabs = TabController(length: 8, vsync: this);
     _load();
     _initSpeech();
   }
 
+  /// Back closes an open field visit before leaving the commission.
+  bool _handleBackPress() {
+    if (_activeVisitId == null) return false;
+    setState(() => _activeVisitId = null);
+    return true;
+  }
+
   @override
   void dispose() {
+    BackInterceptors.remove(_handleBackPress);
     _tabs.dispose();
     _speech.cancel();
     _audioPlayer.dispose();
@@ -1118,7 +1129,9 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                       onPressed: () async {
                         final url = doc['url'] as String?;
                         if (url != null) {
-                          final uri = Uri.parse(url);
+                          final uri = Uri.parse(
+                            await StorageLinks.resolve(url),
+                          );
                           if (await canLaunchUrl(uri)) {
                             await launchUrl(
                               uri,
@@ -1444,7 +1457,9 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
 
     try {
       setState(() => _currentlyPlayingId = w.id);
-      await _audioPlayer.play(UrlSource(w.audioUrl!));
+      await _audioPlayer.play(
+        UrlSource(await StorageLinks.resolve(w.audioUrl!)),
+      );
       _audioPlayer.onPlayerComplete.listen((_) {
         if (mounted) setState(() => _currentlyPlayingId = null);
       });

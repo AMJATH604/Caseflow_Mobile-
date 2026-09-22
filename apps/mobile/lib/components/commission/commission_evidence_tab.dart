@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../models/commission_models.dart';
 import '../../theme/app_theme.dart';
+import '../secure_network_image.dart';
 
 /// Displays the evidence photo grid for a commission.
 ///
@@ -151,7 +152,7 @@ class CommissionEvidenceTab extends StatelessWidget {
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(13.r),
                 ),
-                child: Image.network(
+                child: SecureNetworkImage(
                   ev.fileUrl,
                   fit: BoxFit.cover,
                   width: double.infinity,

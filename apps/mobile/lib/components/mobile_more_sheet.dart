@@ -89,13 +89,6 @@ class MobileMoreSheet extends ConsumerWidget {
               ),
               _buildMenuItem(
                 context,
-                Icons.description,
-                'E-Filing',
-                Colors.green,
-                '/efiling',
-              ),
-              _buildMenuItem(
-                context,
                 Icons.copy,
                 'CC Copies',
                 Colors.amber,
@@ -220,7 +213,10 @@ class MobileMoreSheet extends ConsumerWidget {
     return InkWell(
       onTap: () {
         Navigator.pop(context);
-        context.go(route);
+        // push, not go: these are screens one level deeper, not tabs. `go`
+        // replaces the location, so back had nothing to pop and the shell
+        // sent the user to the dashboard instead of back to where they were.
+        context.push(route);
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

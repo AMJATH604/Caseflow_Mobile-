@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../components/chambers_members_sheet.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
@@ -15,6 +16,8 @@ import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/supabase_service.dart';
+import '../services/storage_links.dart';
+import '../components/secure_network_image.dart';
 import '../services/repositories/discussion_repository.dart';
 import '../services/providers.dart';
 import '../models/models.dart';
@@ -595,7 +598,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
         _localPaths[url] = localPath;
 
         await Dio().download(
-          url,
+          await StorageLinks.resolve(url),
           localPath,
           onReceiveProgress: (received, total) {
             if (total > 0 && mounted) {
@@ -704,7 +707,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
               maxScale: 4.0,
               child: isLocal
                   ? Image.file(File(pathOrUrl), fit: BoxFit.contain)
-                  : Image.network(
+                  : SecureNetworkImage(
                       pathOrUrl,
                       fit: BoxFit.contain,
                       loadingBuilder: (_, child, progress) {
@@ -741,7 +744,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
     if (await File(localPath).exists()) {
       await _audioPlayer.play(DeviceFileSource(localPath));
     } else {
-      await _audioPlayer.play(UrlSource(url));
+      await _audioPlayer.play(UrlSource(await StorageLinks.resolve(url)));
       _downloadInBackground(url, 'voice_message.m4a');
     }
   }
@@ -991,17 +994,23 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
         foregroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leadingWidth: 28,
-        leading: Padding(
-          padding: EdgeInsets.only(left: 4.w),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 22),
-            onPressed: () => Navigator.pop(context),
-          ),
+        // 44px, not 28: an IconButton's minimum tap target is 48px, so the
+        // back arrow was being squeezed and sat off-centre against the title.
+        leadingWidth: 44.w,
+        leading: IconButton(
+          tooltip: 'Back',
+          padding: EdgeInsets.zero,
+          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 22),
+          onPressed: () => Navigator.pop(context),
         ),
-        titleSpacing: 0,
-        title: Row(
-          children: [
+        titleSpacing: 4.w,
+        // Tapping the title opens the members list — the usual chat gesture,
+        // and previously this was plain text that did nothing.
+        title: InkWell(
+          onTap: () => showChambersMembersSheet(context),
+          borderRadius: BorderRadius.circular(8.r),
+          child: Row(
+            children: [
             Container(
               width: 40.w,
               height: 40.w,
@@ -1019,6 +1028,10 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                // Centred against the 40px avatar and sized to the two lines,
+                // which previously sat unevenly in the app bar's full height.
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     'Digital Chambers',
@@ -1026,8 +1039,12 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
+                      height: 1.2,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  SizedBox(height: 2.h),
                   typingText != null
                       ? Text(
                           typingText,
@@ -1050,7 +1067,15 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
                 ],
               ),
             ),
-          ],
+            // Quiet affordance that the header opens something.
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 20.sp,
+              color: Colors.white54,
+            ),
+            SizedBox(width: 4.w),
+            ],
+          ),
         ),
         actions: [
           if (_isUploading)

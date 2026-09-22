@@ -8,9 +8,17 @@
 // Usage: node scripts/run_embeddings.js
 // ═══════════════════════════════════════════════════════════
 
-const SUPABASE_URL = "https://asrjqsnyezvcakvkokcl.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzcmpxc255ZXp2Y2Frdmtva2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NTQ1MjYsImV4cCI6MjA4NzUzMDUyNn0._W7YwzwxA2m83VxITvQMDVUSbTlnJi1Ij389Sxp-Mls";
-const GEMINI_API_KEY = "AQ.Ab8RN6Jx0zJre_d_jJPGPs4a5fNgIGIyjs8cqll-P9WzZ6vczw";
+// Credentials come from the environment. This file used to hardcode a Gemini
+// API key and the Supabase key, committing both to git for every clone.
+//
+//   SUPABASE_URL=… SUPABASE_KEY=sb_publishable_… GEMINI_API_KEY=… node scripts/run_embeddings.js
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !GEMINI_API_KEY) {
+  console.error("Set SUPABASE_URL, SUPABASE_KEY and GEMINI_API_KEY in the environment.");
+  process.exit(1);
+}
 const EMBEDDING_MODEL = "gemini-embedding-001";
 
 // ─── Text Chunking ──────────────────────────────────────────

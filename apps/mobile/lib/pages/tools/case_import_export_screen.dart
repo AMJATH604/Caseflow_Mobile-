@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../components/case_picker_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:file_picker/file_picker.dart';
@@ -10,6 +11,7 @@ import '../../services/case_import_service.dart';
 import '../../services/providers.dart';
 import '../../models/models.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/party_labels.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CaseImportExportScreen extends ConsumerStatefulWidget {
@@ -20,445 +22,769 @@ class CaseImportExportScreen extends ConsumerStatefulWidget {
       _CaseImportExportScreenState();
 }
 
-class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _CaseImportExportScreenState
+    extends ConsumerState<CaseImportExportScreen> {
+  // Export and Import are each a short sequence — pick a thing, pick a
+  // format, run it — so the screen is laid out as numbered steps rather than
+  // two tabs of stacked cards. Step 2 stays dimmed until step 1 is answered,
+  // which is what tells the user there is a next step at all.
+  bool _isImportMode = false;
+
   String? _selectedCaseId;
+  CaseModel? _selectedCase;
+  String _exportFormat = 'pdf';
+  String _importSource = 'ecourts';
+  bool _showECourtsHelp = false;
+
   bool _isProcessing = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
+  // ─── PALETTE ────────────────────────────────────────────
+  // Near-monochrome with a single accent. The previous design gave every
+  // action its own saturated gradient, which both flattened the hierarchy
+  // (nothing could stand out when everything shouted) and produced unreadable
+  // dark-on-bright text where a light-card colour had been pasted onto one.
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+  bool get _isDark => Theme.of(context).brightness == Brightness.dark;
+  Color get _surface => _isDark ? const Color(0xFF111827) : Colors.white;
+  Color get _sunken => _isDark ? const Color(0xFF0B1220) : const Color(0xFFF8FAFC);
+  Color get _border => _isDark ? Colors.white12 : const Color(0xFFE2E8F0);
+  Color get _ink => _isDark ? Colors.white : const Color(0xFF0F172A);
+  Color get _muted => _isDark ? Colors.white60 : const Color(0xFF64748B);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 4.w),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1E293B),
-            borderRadius: BorderRadius.circular(14.r),
-            boxShadow: AppTheme.cardShadow,
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: _buildModeSwitch(),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 16.h),
+            child: _isImportMode ? _buildImportFlow() : _buildExportFlow(),
           ),
-          child: TabBar(
-            controller: _tabController,
-            labelColor: Colors.white,
-            unselectedLabelColor: AppTheme.primary,
-            indicator: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-              ),
-              borderRadius: BorderRadius.circular(14.r),
+        ),
+        _buildActionBar(),
+      ],
+    );
+  }
+
+  // ─── MODE SWITCH ────────────────────────────────────────
+
+  Widget _buildModeSwitch() {
+    return Container(
+      padding: EdgeInsets.all(4.r),
+      decoration: BoxDecoration(
+        color: _sunken,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: _border),
+      ),
+      child: Row(
+        children: [
+          _buildModeTab('Export', Icons.ios_share_rounded, false),
+          _buildModeTab('Import', Icons.download_rounded, true),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModeTab(String label, IconData icon, bool importMode) {
+    final selected = _isImportMode == importMode;
+    return Expanded(
+      child: GestureDetector(
+        onTap: _isProcessing
+            ? null
+            : () => setState(() => _isImportMode = importMode),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          padding: EdgeInsets.symmetric(vertical: 9.h),
+          decoration: BoxDecoration(
+            color: selected ? _surface : Colors.transparent,
+            borderRadius: BorderRadius.circular(7.r),
+            border: Border.all(
+              color: selected ? _border : Colors.transparent,
             ),
-            indicatorSize: TabBarIndicatorSize.tab,
-            dividerColor: Colors.transparent,
-            tabs: [
-              Tab(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.upload_rounded, size: 18),
-                    SizedBox(width: 6.w),
-                    Text(
-                      'Export',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 15.sp,
+                color: selected ? AppTheme.accent : _muted,
               ),
-              Tab(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.download_rounded, size: 18),
-                    SizedBox(width: 6.w),
-                    Text(
-                      'Import',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ],
+              SizedBox(width: 7.w),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  color: selected ? _ink : _muted,
                 ),
               ),
             ],
           ),
         ),
-        SizedBox(height: 16.h),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [_buildExportTab(), _buildImportTab()],
+      ),
+    );
+  }
+
+  // ─── STEP SCAFFOLDING ───────────────────────────────────
+
+  /// A numbered step with a rail down its left edge. [enabled] false dims the
+  /// whole step without removing it, so the shape of the flow stays visible
+  /// before the earlier steps are answered.
+  Widget _buildStep({
+    required int number,
+    required String title,
+    String? caption,
+    required Widget child,
+    bool enabled = true,
+    bool isLast = false,
+  }) {
+    return Opacity(
+      opacity: enabled ? 1 : 0.4,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              children: [
+                Container(
+                  width: 24.w,
+                  height: 24.w,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: enabled
+                        ? AppTheme.accent.withValues(alpha: 0.12)
+                        : _sunken,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: enabled
+                          ? AppTheme.accent.withValues(alpha: 0.35)
+                          : _border,
+                    ),
+                  ),
+                  child: Text(
+                    '$number',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w800,
+                      color: enabled ? AppTheme.accent : _muted,
+                    ),
+                  ),
+                ),
+                if (!isLast)
+                  Expanded(
+                    child: Container(
+                      width: 1.5,
+                      margin: EdgeInsets.symmetric(vertical: 4.h),
+                      color: _border,
+                    ),
+                  ),
+              ],
+            ),
+            SizedBox(width: 14.w),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(bottom: isLast ? 0 : 24.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                        color: _muted,
+                      ),
+                    ),
+                    if (caption != null) ...[
+                      SizedBox(height: 4.h),
+                      Text(
+                        caption,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: _muted,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                    SizedBox(height: 12.h),
+                    IgnorePointer(ignoring: !enabled, child: child),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// A selectable option row. Selection is shown by the accent border and the
+  /// radio dot, not by filling the row with colour.
+  Widget _buildChoiceRow({
+    required bool selected,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    String? badge,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
+        margin: EdgeInsets.only(bottom: 8.h),
+        padding: EdgeInsets.all(14.r),
+        decoration: BoxDecoration(
+          color: selected ? AppTheme.accent.withValues(alpha: 0.05) : _surface,
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(
+            color: selected ? AppTheme.accent : _border,
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 20.sp,
+              color: selected ? AppTheme.accent : _muted,
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w700,
+                            color: _ink,
+                          ),
+                        ),
+                      ),
+                      if (badge != null) ...[
+                        SizedBox(width: 8.w),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6.w,
+                            vertical: 2.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _sunken,
+                            borderRadius: BorderRadius.circular(4.r),
+                            border: Border.all(color: _border),
+                          ),
+                          child: Text(
+                            badge,
+                            style: TextStyle(
+                              fontSize: 9.sp,
+                              fontWeight: FontWeight.w700,
+                              fontFamily: 'monospace',
+                              color: _muted,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  SizedBox(height: 3.h),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: _muted,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: 10.w),
+            Container(
+              width: 18.w,
+              height: 18.w,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: selected ? AppTheme.accent : _border,
+                  width: 1.5,
+                ),
+              ),
+              child: selected
+                  ? Center(
+                      child: Container(
+                        width: 8.w,
+                        height: 8.w,
+                        decoration: const BoxDecoration(
+                          color: AppTheme.accent,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    )
+                  : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── EXPORT FLOW ────────────────────────────────────────
+
+  Widget _buildExportFlow() {
+    final casesAsync = ref.watch(casesProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildStep(
+          number: 1,
+          title: 'Choose a case',
+          child: casesAsync.when(
+            data: (cases) => _selectedCase == null
+                ? CasePickerField(
+                    cases: cases,
+                    value: _selectedCaseId,
+                    sheetTitle: 'Select case to export',
+                    decoration: InputDecoration(
+                      hintText: 'Search by case number or party',
+                      hintStyle: TextStyle(fontSize: 13.sp, color: _muted),
+                      prefixIcon: Icon(Icons.search_rounded, size: 18.sp),
+                      filled: true,
+                      fillColor: _surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.r),
+                        borderSide: BorderSide(color: _border),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.r),
+                        borderSide: BorderSide(color: _border),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 14.w,
+                        vertical: 13.h,
+                      ),
+                    ),
+                    onSelected: (c) => setState(() {
+                      _selectedCaseId = c.id;
+                      _selectedCase = c;
+                    }),
+                  )
+                : _buildSelectedCaseRow(),
+            loading: () => _buildInlineLoader(),
+            error: (e, _) => _buildInlineError('Could not load your cases.'),
+          ),
+        ),
+        _buildStep(
+          number: 2,
+          title: 'Choose a format',
+          enabled: _selectedCase != null,
+          isLast: true,
+          child: Column(
+            children: [
+              _buildChoiceRow(
+                selected: _exportFormat == 'pdf',
+                icon: Icons.picture_as_pdf_outlined,
+                title: 'PDF report',
+                subtitle:
+                    'Readable summary of the case, hearings, payments and documents. For sharing or filing.',
+                badge: '.pdf',
+                onTap: () => setState(() => _exportFormat = 'pdf'),
+              ),
+              _buildChoiceRow(
+                selected: _exportFormat == 'json',
+                icon: Icons.data_object_rounded,
+                title: 'CaseFlow backup',
+                subtitle:
+                    'Complete data backup that can be restored into CaseFlow later.',
+                badge: '.json',
+                onTap: () => setState(() => _exportFormat = 'json'),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 
-  // ─── EXPORT TAB ─────────────────────────────────────────
+  Widget _buildSelectedCaseRow() {
+    final c = _selectedCase!;
+    final number = CaseLabels.number(c);
 
-  Widget _buildExportTab() {
-    final casesAsync = ref.watch(casesProvider);
-
-    return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 4.w),
-      child: Column(
+    return Container(
+      padding: EdgeInsets.all(14.r),
+      decoration: BoxDecoration(
+        color: _surface,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: AppTheme.accent.withValues(alpha: 0.4)),
+      ),
+      child: Row(
         children: [
-          // Case selector
-          Container(
-            padding: EdgeInsets.all(20.r),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(20.r),
-              boxShadow: AppTheme.cardShadow,
-            ),
+          Icon(
+            Icons.check_circle_rounded,
+            size: 18.sp,
+            color: AppTheme.accent,
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(10.r),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                        ),
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: const Icon(
-                        Icons.upload_file_rounded,
-                        color: Color(0xFF1E293B),
-                        size: 20,
+                if (number != null) ...[
+                  Text(
+                    number,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w800,
+                      fontFamily: 'monospace',
+                      color: AppTheme.accent,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                ],
+                Text(
+                  CaseLabels.title(c),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: _ink,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 8.w),
+          TextButton(
+            onPressed: _isProcessing
+                ? null
+                : () => setState(() {
+                      _selectedCase = null;
+                      _selectedCaseId = null;
+                    }),
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 10.w),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text('Change', style: TextStyle(fontSize: 12.sp)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── IMPORT FLOW ────────────────────────────────────────
+
+  Widget _buildImportFlow() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildStep(
+          number: 1,
+          title: 'Where is the data from?',
+          child: Column(
+            children: [
+              _buildChoiceRow(
+                selected: _importSource == 'ecourts',
+                icon: Icons.account_balance_outlined,
+                title: 'eCourts export',
+                subtitle:
+                    'The mycases.txt file saved from the eCourts Services app.',
+                badge: '.txt',
+                onTap: () => setState(() => _importSource = 'ecourts'),
+              ),
+              if (_importSource == 'ecourts') _buildECourtsHelp(),
+              _buildChoiceRow(
+                selected: _importSource == 'caseflow',
+                icon: Icons.restore_rounded,
+                title: 'CaseFlow backup',
+                subtitle:
+                    'A .caseflow.json file exported from CaseFlow earlier.',
+                badge: '.json',
+                onTap: () => setState(() => _importSource = 'caseflow'),
+              ),
+            ],
+          ),
+        ),
+        _buildStep(
+          number: 2,
+          title: 'Choose the file',
+          caption:
+              'Nothing is saved until you have reviewed what the file contains.',
+          isLast: true,
+          child: _buildFileDropTarget(),
+        ),
+      ],
+    );
+  }
+
+  /// Collapsed by default and shown only under the eCourts option — the
+  /// instructions used to sit permanently at the bottom of the tab, where they
+  /// were equally present whether or not they applied.
+  Widget _buildECourtsHelp() {
+    return Container(
+      margin: EdgeInsets.only(bottom: 8.h),
+      decoration: BoxDecoration(
+        color: _sunken,
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: _border),
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () => setState(() => _showECourtsHelp = !_showECourtsHelp),
+            borderRadius: BorderRadius.circular(10.r),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 11.h),
+              child: Row(
+                children: [
+                  Icon(Icons.help_outline_rounded, size: 15.sp, color: _muted),
+                  SizedBox(width: 9.w),
+                  Expanded(
+                    child: Text(
+                      'How do I get this file?',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        color: _ink,
                       ),
                     ),
-                    SizedBox(width: 12.w),
+                  ),
+                  Icon(
+                    _showECourtsHelp
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    size: 18.sp,
+                    color: _muted,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_showECourtsHelp)
+            Padding(
+              padding: EdgeInsets.fromLTRB(14.w, 0, 14.w, 14.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final step in const [
+                    'Open the eCourts Services app',
+                    'Go to My Cases → Saved Cases',
+                    'Tap Export',
+                    'Save the mycases.txt file',
+                    'Come back here and choose it',
+                  ])
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 6.h),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '·  ',
+                            style: TextStyle(fontSize: 12.sp, color: _muted),
+                          ),
+                          Expanded(
+                            child: Text(
+                              step,
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: _muted,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFileDropTarget() {
+    final isECourts = _importSource == 'ecourts';
+    final ext = isECourts ? '.txt' : '.json';
+
+    return GestureDetector(
+      onTap: _isProcessing ? null : _runAction,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 28.h, horizontal: 16.w),
+        decoration: BoxDecoration(
+          color: _sunken,
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(color: _border),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons.upload_file_outlined,
+              size: 28.sp,
+              color: AppTheme.accent,
+            ),
+            SizedBox(height: 10.h),
+            Text(
+              'Choose a $ext file',
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                color: _ink,
+              ),
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              isECourts ? 'mycases.txt' : 'backup.caseflow.json',
+              style: TextStyle(
+                fontSize: 11.sp,
+                fontFamily: 'monospace',
+                color: _muted,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── ACTION BAR ─────────────────────────────────────────
+
+  bool get _canRun =>
+      !_isProcessing && (_isImportMode || _selectedCase != null);
+
+  String get _actionLabel {
+    if (_isImportMode) {
+      return _importSource == 'ecourts'
+          ? 'Choose eCourts file'
+          : 'Choose backup file';
+    }
+    return _exportFormat == 'pdf' ? 'Export PDF report' : 'Export backup';
+  }
+
+  void _runAction() {
+    if (!_canRun) return;
+    if (_isImportMode) {
+      if (_importSource == 'ecourts') {
+        _importFromECourts();
+      } else {
+        _importFromCaseFlow();
+      }
+      return;
+    }
+    if (_exportFormat == 'pdf') {
+      _exportAsPdf();
+    } else {
+      _exportAsJson();
+    }
+  }
+
+  Widget _buildActionBar() {
+    return Container(
+      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 16.h),
+      decoration: BoxDecoration(
+        color: _surface,
+        border: Border(top: BorderSide(color: _border)),
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        height: 46.h,
+        child: ElevatedButton(
+          onPressed: _canRun ? _runAction : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppTheme.accent,
+            foregroundColor: Colors.white,
+            disabledBackgroundColor: _sunken,
+            disabledForegroundColor: _muted,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+          ),
+          child: _isProcessing
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 16.w,
+                      height: 16.w,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
                     Text(
-                      'Export Case',
+                      'Working…',
                       style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
+                )
+              : Text(
+                  _actionLabel,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-                SizedBox(height: 16.h),
-                Text(
-                  'Select a case to export its complete data.',
-                  style: TextStyle(color: Colors.grey, fontSize: 13.sp),
-                ),
-                SizedBox(height: 16.h),
-                casesAsync.when(
-                  data:
-                      (cases) => DropdownButtonFormField<String>(
-                        initialValue: _selectedCaseId,
-                        decoration: InputDecoration(
-                          labelText: 'Select Case',
-                          prefixIcon: const Icon(Icons.work_outlined, size: 20),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 14,
-                          ),
-                        ),
-                        items:
-                            cases
-                                .map(
-                                  (c) => DropdownMenuItem(
-                                    value: c.id,
-                                    child: Text(
-                                      c.caseTitle,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                        onChanged: (v) => setState(() => _selectedCaseId = v),
-                      ),
-                  loading:
-                      () => const Center(child: CircularProgressIndicator()),
-                  error: (e, _) => Text('Error: $e'),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 16.h),
-
-          // Export actions
-          if (_selectedCaseId != null) ...[
-            _buildExportCard(
-              icon: Icons.picture_as_pdf_rounded,
-              title: 'Export as PDF',
-              subtitle:
-                  'Professional report with all case details, hearings, payments & documents',
-              gradient: [Color(0xFFe74c3c), Color(0xFFc0392b)],
-              onTap: _isProcessing ? null : () => _exportAsPdf(),
-            ),
-            SizedBox(height: 12.h),
-            _buildExportCard(
-              icon: Icons.data_object_rounded,
-              title: 'Export as JSON',
-              subtitle:
-                  'Full data backup — can be re-imported into CaseFlow later',
-              gradient: const [Color(0xFF27ae60), Color(0xFF2ecc71)],
-              onTap: _isProcessing ? null : () => _exportAsJson(),
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildExportCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required List<Color> gradient,
-    VoidCallback? onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16.r),
-      child: Container(
-        padding: EdgeInsets.all(18.r),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(colors: gradient),
-          borderRadius: BorderRadius.circular(16.r),
-          boxShadow: [
-            BoxShadow(
-              color: gradient[0].withValues(alpha: 0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+  // ─── SMALL STATES ───────────────────────────────────────
+
+  Widget _buildInlineLoader() => Padding(
+        padding: EdgeInsets.symmetric(vertical: 18.h),
+        child: const Center(
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: AppTheme.accent,
             ),
-          ],
+          ),
+        ),
+      );
+
+  Widget _buildInlineError(String message) => Container(
+        padding: EdgeInsets.all(14.r),
+        decoration: BoxDecoration(
+          color: AppTheme.error.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(color: AppTheme.error.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
-            Container(
-              padding: EdgeInsets.all(10.r),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Icon(icon, color: const Color(0xFF1E293B), size: 22),
-            ),
-            SizedBox(width: 14.w),
+            Icon(Icons.error_outline_rounded, size: 17.sp, color: AppTheme.error),
+            SizedBox(width: 10.w),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: Color(0xFF1E293B),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15.sp,
-                    ),
-                  ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 11.sp,
-                    ),
-                  ),
-                ],
+              child: Text(
+                message,
+                style: TextStyle(fontSize: 12.sp, color: _ink),
               ),
             ),
-            if (_isProcessing)
-              SizedBox(
-                width: 20.w,
-                height: 20.h,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            else
-              Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.white.withValues(alpha: 0.7),
-                size: 16,
-              ),
           ],
         ),
-      ),
-    );
-  }
-
-  // ─── IMPORT TAB ─────────────────────────────────────────
-
-  Widget _buildImportTab() {
-    return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 4.w),
-      child: Column(
-        children: [
-          _buildImportCard(
-            icon: Icons.account_balance_rounded,
-            title: 'Import from eCourts',
-            subtitle: 'Import case data from eCourts mycases.txt export file',
-            gradient: [Color(0xFF2980b9), Color(0xFF3498db)],
-            filetype: 'txt',
-            onTap: _isProcessing ? null : () => _importFromECourts(),
-          ),
-          SizedBox(height: 16.h),
-          _buildImportCard(
-            icon: Icons.restore_rounded,
-            title: 'Restore from CaseFlow Backup',
-            subtitle: 'Import a previously exported .caseflow.json backup file',
-            gradient: [Color(0xFF8e44ad), Color(0xFF9b59b6)],
-            filetype: 'json',
-            onTap: _isProcessing ? null : () => _importFromCaseFlow(),
-          ),
-          SizedBox(height: 24.h),
-
-          // Instructions
-          Container(
-            padding: EdgeInsets.all(16.r),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF3E0),
-              borderRadius: BorderRadius.circular(14.r),
-              border: Border.all(
-                color: const Color(0xFFFFCC02).withValues(alpha: 0.3),
-              ),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(
-                  Icons.info_outline,
-                  color: Color(0xFFFF9800),
-                  size: 20,
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'How to export from eCourts?',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13.sp,
-                        ),
-                      ),
-                      SizedBox(height: 4.h),
-                      Text(
-                        '1. Open eCourts Services app\n'
-                        '2. Go to My Cases → Saved Cases\n'
-                        '3. Tap the Export button\n'
-                        '4. Save the mycases.txt file\n'
-                        '5. Use it here to import',
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          color: Colors.grey[700],
-                          height: 1.5.h,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImportCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required List<Color> gradient,
-    required String filetype,
-    VoidCallback? onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16.r),
-      child: Container(
-        padding: EdgeInsets.all(20.r),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
-          borderRadius: BorderRadius.circular(16.r),
-          boxShadow: AppTheme.cardShadow,
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(12.r),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: gradient),
-                borderRadius: BorderRadius.circular(14.r),
-              ),
-              child: Icon(icon, color: const Color(0xFF1E293B), size: 24),
-            ),
-            SizedBox(width: 14.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15.sp,
-                    ),
-                  ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    subtitle,
-                    style: TextStyle(color: Colors.grey[500], fontSize: 11.sp),
-                  ),
-                  SizedBox(height: 6.h),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: gradient[0].withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(6.r),
-                    ),
-                    child: Text(
-                      '.$filetype',
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                        color: gradient[0],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (_isProcessing)
-              SizedBox(
-                width: 20.w,
-                height: 20.h,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            else
-              Icon(
-                Icons.file_upload_outlined,
-                color: Colors.grey[400],
-                size: 22,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
+      );
 
   // ─── ACTIONS ────────────────────────────────────────────
 
@@ -675,8 +1001,12 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
     final Map<int, String> selectedRoles = {};
     // Map to store whether each case is selected for import
     final Map<int, bool> selectedCases = {};
+    // Deliberately no default role. Every case used to start as
+    // 'petitioner', and since nobody flips ninety radio buttons the client
+    // silently became the first name in "X vs Y" — wrong for every case where
+    // the advocate acts for the other side. Import stays disabled until each
+    // selected case has an answer.
     for (int i = 0; i < cases.length; i++) {
-      selectedRoles[i] = 'petitioner';
       selectedCases[i] = true; // All selected by default
     }
 
@@ -687,6 +1017,20 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
             builder: (context, setDialogState) {
               final selectedCount = selectedCases.values.where((v) => v).length;
               final allSelected = selectedCount == cases.length;
+              // Selected cases still missing a side.
+              final unanswered = <int>[
+                for (int i = 0; i < cases.length; i++)
+                  if (selectedCases[i] == true && selectedRoles[i] == null) i,
+              ];
+              final canImport = selectedCount > 0 && unanswered.isEmpty;
+
+              void setAll(String role) {
+                setDialogState(() {
+                  for (int i = 0; i < cases.length; i++) {
+                    if (selectedCases[i] == true) selectedRoles[i] = role;
+                  }
+                });
+              }
 
               return AlertDialog(
                 shape: RoundedRectangleBorder(
@@ -744,7 +1088,102 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                           ),
                         ],
                       ),
-                      SizedBox(height: 8.h),
+                      SizedBox(height: 10.h),
+                      // Answer once for the whole batch; individual cases can
+                      // still differ below.
+                      Container(
+                        padding: EdgeInsets.all(12.r),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0F4FF),
+                          borderRadius: BorderRadius.circular(10.r),
+                          border: Border.all(
+                            color: const Color(0xFF2980b9).withValues(alpha: 0.15),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Which side do you appear for?',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF1A237E),
+                              ),
+                            ),
+                            SizedBox(height: 3.h),
+                            Text(
+                              'Your client is taken from this. Set it for all, '
+                              'then change any that differ.',
+                              style: TextStyle(
+                                fontSize: 10.5.sp,
+                                color: Colors.blueGrey[600],
+                                height: 1.35,
+                              ),
+                            ),
+                            SizedBox(height: 9.h),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: selectedCount > 0
+                                        ? () => setAll('petitioner')
+                                        : null,
+                                    style: OutlinedButton.styleFrom(
+                                      visualDensity: VisualDensity.compact,
+                                      foregroundColor: const Color(0xFF2980b9),
+                                    ),
+                                    child: Text(
+                                      'All: first party',
+                                      style: TextStyle(fontSize: 10.5.sp),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 8.w),
+                                Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: selectedCount > 0
+                                        ? () => setAll('respondent')
+                                        : null,
+                                    style: OutlinedButton.styleFrom(
+                                      visualDensity: VisualDensity.compact,
+                                      foregroundColor: const Color(0xFF2980b9),
+                                    ),
+                                    child: Text(
+                                      'All: second party',
+                                      style: TextStyle(fontSize: 10.5.sp),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (unanswered.isNotEmpty) ...[
+                        SizedBox(height: 8.h),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline_rounded,
+                              size: 14,
+                              color: Colors.orange[700],
+                            ),
+                            SizedBox(width: 6.w),
+                            Expanded(
+                              child: Text(
+                                '${unanswered.length} case(s) still need a side',
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.orange[800],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                      SizedBox(height: 10.h),
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxHeight: 350),
                         child: ListView.builder(
@@ -757,6 +1196,10 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                                 cnr != null && existingCnrs.contains(cnr);
                             final currentRole = selectedRoles[i];
                             final isSelected = selectedCases[i] ?? true;
+                            final labels = PartyLabels.forCase(
+                              caseNumber: c['case_number'],
+                              caseType: c['case_type'],
+                            );
 
                             return Container(
                               margin: EdgeInsets.only(bottom: 12.h),
@@ -853,67 +1296,70 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                                   ),
                                   if (isSelected) ...[
                                     SizedBox(height: 10.h),
-                                    // Role Switcher
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Representing:',
-                                          style: TextStyle(
-                                            fontSize: 11.sp,
-                                            fontWeight: FontWeight.w500,
+                                    // Role switcher, worded for this case's
+                                    // type: a civil suit has a plaintiff, a
+                                    // cheque complaint a complainant. The
+                                    // names are shown on the buttons because
+                                    // "I appear for Amjath" needs no
+                                    // translation, and translating in the head
+                                    // is where the wrong side gets chosen.
+                                    Text(
+                                      'I appear for:',
+                                      style: TextStyle(
+                                        fontSize: 11.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: currentRole == null
+                                            ? Colors.orange[800]
+                                            : Colors.blueGrey[700],
+                                      ),
+                                    ),
+                                    SizedBox(height: 6.h),
+                                    SegmentedButton<String>(
+                                      emptySelectionAllowed: true,
+                                      segments: [
+                                        ButtonSegment(
+                                          value: 'petitioner',
+                                          label: Text(
+                                            c['petitioner'] ?? labels.first,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(fontSize: 10.sp),
                                           ),
                                         ),
-                                        SizedBox(width: 8.w),
-                                        Expanded(
-                                          child: SegmentedButton<String>(
-                                            segments: [
-                                              ButtonSegment(
-                                                value: 'petitioner',
-                                                label: Text(
-                                                  'Petitioner',
-                                                  style: TextStyle(
-                                                    fontSize: 10.sp,
-                                                  ),
-                                                ),
-                                              ),
-                                              ButtonSegment(
-                                                value: 'respondent',
-                                                label: Text(
-                                                  'Respondent',
-                                                  style: TextStyle(
-                                                    fontSize: 10.sp,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                            selected: {currentRole!},
-                                            onSelectionChanged: (val) {
-                                              setDialogState(
-                                                () =>
-                                                    selectedRoles[i] =
-                                                        val.first,
-                                              );
-                                            },
-                                            style: SegmentedButton.styleFrom(
-                                              visualDensity:
-                                                  VisualDensity.compact,
-                                              padding: EdgeInsets.zero,
-                                            ),
+                                        ButtonSegment(
+                                          value: 'respondent',
+                                          label: Text(
+                                            c['respondent'] ?? labels.second,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(fontSize: 10.sp),
                                           ),
                                         ),
                                       ],
+                                      selected: currentRole == null
+                                          ? <String>{}
+                                          : {currentRole},
+                                      onSelectionChanged: (val) {
+                                        setDialogState(
+                                          () => selectedRoles[i] = val.first,
+                                        );
+                                      },
+                                      style: SegmentedButton.styleFrom(
+                                        visualDensity: VisualDensity.compact,
+                                        padding: EdgeInsets.zero,
+                                      ),
                                     ),
                                     Divider(height: 20.h, thickness: 0.5),
                                     if (c['petitioner'] != null)
                                       _previewDetailRow(
                                         Icons.person_rounded,
-                                        "Petitioner: ${c['petitioner']}",
+                                        "${labels.first}: ${c['petitioner']}",
                                         isBold: currentRole == 'petitioner',
                                       ),
                                     if (c['respondent'] != null)
                                       _previewDetailRow(
                                         Icons.person_off_rounded,
-                                        "Respondent: ${c['respondent']}",
+                                        "${labels.second}: ${c['respondent']}",
                                         isBold: currentRole == 'respondent',
                                       ),
                                     if (c['cnr_number'] != null)
@@ -939,13 +1385,11 @@ class _CaseImportExportScreenState extends ConsumerState<CaseImportExportScreen>
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
-                          selectedCount > 0
-                              ? const Color(0xFF2980b9)
-                              : Colors.grey,
+                          canImport ? const Color(0xFF2980b9) : Colors.grey,
                       foregroundColor: Colors.white,
                     ),
                     onPressed:
-                        selectedCount > 0
+                        canImport
                             ? () {
                               // Only pass selected cases
                               final filteredRoles = <int, String>{};

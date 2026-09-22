@@ -101,7 +101,7 @@ flutter analyze                 # Static analysis
 
 ## 🔒 Security Guidelines
 
-1. **API Keys**: All third-party keys (Gemini, iLovePDF) must be Supabase Edge Function secrets
+1. **API Keys**: All third-party keys (e.g. Gemini) must be Supabase Edge Function secrets
 2. **Supabase Anon Key**: Safe for client — it's a public key protected by RLS
 3. **secrets.dart**: Must ONLY contain Supabase URL and anon key
 4. **RLS**: Every new table must have Row Level Security policies
@@ -111,13 +111,10 @@ flutter analyze                 # Static analysis
 ### Edge Functions
 ```bash
 supabase functions deploy gemini-proxy
-supabase functions deploy pdf-proxy
 supabase functions deploy send-hearing-reminders
 
 # Set secrets
 supabase secrets set GEMINI_API_KEY=<key>
-supabase secrets set ILOVEPDF_PUBLIC_KEY=<key>
-supabase secrets set ILOVEPDF_SECRET_KEY=<key>
 ```
 
 ### Mobile APK
