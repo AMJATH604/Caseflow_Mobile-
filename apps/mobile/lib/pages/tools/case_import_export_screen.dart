@@ -46,7 +46,8 @@ class _CaseImportExportScreenState
 
   bool get _isDark => Theme.of(context).brightness == Brightness.dark;
   Color get _surface => _isDark ? const Color(0xFF111827) : Colors.white;
-  Color get _sunken => _isDark ? const Color(0xFF0B1220) : const Color(0xFFF8FAFC);
+  Color get _sunken =>
+      _isDark ? const Color(0xFF0B1220) : const Color(0xFFF8FAFC);
   Color get _border => _isDark ? Colors.white12 : const Color(0xFFE2E8F0);
   Color get _ink => _isDark ? Colors.white : const Color(0xFF0F172A);
   Color get _muted => _isDark ? Colors.white60 : const Color(0xFF64748B);
@@ -93,18 +94,17 @@ class _CaseImportExportScreenState
     final selected = _isImportMode == importMode;
     return Expanded(
       child: GestureDetector(
-        onTap: _isProcessing
-            ? null
-            : () => setState(() => _isImportMode = importMode),
+        onTap:
+            _isProcessing
+                ? null
+                : () => setState(() => _isImportMode = importMode),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
           padding: EdgeInsets.symmetric(vertical: 9.h),
           decoration: BoxDecoration(
             color: selected ? _surface : Colors.transparent,
             borderRadius: BorderRadius.circular(7.r),
-            border: Border.all(
-              color: selected ? _border : Colors.transparent,
-            ),
+            border: Border.all(color: selected ? _border : Colors.transparent),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -156,14 +156,16 @@ class _CaseImportExportScreenState
                   height: 24.w,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: enabled
-                        ? AppTheme.accent.withValues(alpha: 0.12)
-                        : _sunken,
+                    color:
+                        enabled
+                            ? AppTheme.accent.withValues(alpha: 0.12)
+                            : _sunken,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: enabled
-                          ? AppTheme.accent.withValues(alpha: 0.35)
-                          : _border,
+                      color:
+                          enabled
+                              ? AppTheme.accent.withValues(alpha: 0.35)
+                              : _border,
                     ),
                   ),
                   child: Text(
@@ -250,11 +252,7 @@ class _CaseImportExportScreenState
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              size: 20.sp,
-              color: selected ? AppTheme.accent : _muted,
-            ),
+            Icon(icon, size: 20.sp, color: selected ? AppTheme.accent : _muted),
             SizedBox(width: 12.w),
             Expanded(
               child: Column(
@@ -320,18 +318,19 @@ class _CaseImportExportScreenState
                   width: 1.5,
                 ),
               ),
-              child: selected
-                  ? Center(
-                      child: Container(
-                        width: 8.w,
-                        height: 8.w,
-                        decoration: const BoxDecoration(
-                          color: AppTheme.accent,
-                          shape: BoxShape.circle,
+              child:
+                  selected
+                      ? Center(
+                        child: Container(
+                          width: 8.w,
+                          height: 8.w,
+                          decoration: const BoxDecoration(
+                            color: AppTheme.accent,
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                      ),
-                    )
-                  : null,
+                      )
+                      : null,
             ),
           ],
         ),
@@ -351,36 +350,42 @@ class _CaseImportExportScreenState
           number: 1,
           title: 'Choose a case',
           child: casesAsync.when(
-            data: (cases) => _selectedCase == null
-                ? CasePickerField(
-                    cases: cases,
-                    value: _selectedCaseId,
-                    sheetTitle: 'Select case to export',
-                    decoration: InputDecoration(
-                      hintText: 'Search by case number or party',
-                      hintStyle: TextStyle(fontSize: 13.sp, color: _muted),
-                      prefixIcon: Icon(Icons.search_rounded, size: 18.sp),
-                      filled: true,
-                      fillColor: _surface,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.r),
-                        borderSide: BorderSide(color: _border),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.r),
-                        borderSide: BorderSide(color: _border),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 14.w,
-                        vertical: 13.h,
-                      ),
-                    ),
-                    onSelected: (c) => setState(() {
-                      _selectedCaseId = c.id;
-                      _selectedCase = c;
-                    }),
-                  )
-                : _buildSelectedCaseRow(),
+            data:
+                (cases) =>
+                    _selectedCase == null
+                        ? CasePickerField(
+                          cases: cases,
+                          value: _selectedCaseId,
+                          sheetTitle: 'Select case to export',
+                          decoration: InputDecoration(
+                            hintText: 'Search by case number or party',
+                            hintStyle: TextStyle(
+                              fontSize: 13.sp,
+                              color: _muted,
+                            ),
+                            prefixIcon: Icon(Icons.search_rounded, size: 18.sp),
+                            filled: true,
+                            fillColor: _surface,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.r),
+                              borderSide: BorderSide(color: _border),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.r),
+                              borderSide: BorderSide(color: _border),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 14.w,
+                              vertical: 13.h,
+                            ),
+                          ),
+                          onSelected:
+                              (c) => setState(() {
+                                _selectedCaseId = c.id;
+                                _selectedCase = c;
+                              }),
+                        )
+                        : _buildSelectedCaseRow(),
             loading: () => _buildInlineLoader(),
             error: (e, _) => _buildInlineError('Could not load your cases.'),
           ),
@@ -430,11 +435,7 @@ class _CaseImportExportScreenState
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.check_circle_rounded,
-            size: 18.sp,
-            color: AppTheme.accent,
-          ),
+          Icon(Icons.check_circle_rounded, size: 18.sp, color: AppTheme.accent),
           SizedBox(width: 12.w),
           Expanded(
             child: Column(
@@ -468,9 +469,10 @@ class _CaseImportExportScreenState
           ),
           SizedBox(width: 8.w),
           TextButton(
-            onPressed: _isProcessing
-                ? null
-                : () => setState(() {
+            onPressed:
+                _isProcessing
+                    ? null
+                    : () => setState(() {
                       _selectedCase = null;
                       _selectedCaseId = null;
                     }),
@@ -715,35 +717,36 @@ class _CaseImportExportScreenState
               borderRadius: BorderRadius.circular(10.r),
             ),
           ),
-          child: _isProcessing
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 16.w,
-                      height: 16.w,
-                      child: const CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
+          child:
+              _isProcessing
+                  ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 16.w,
+                        height: 16.w,
+                        child: const CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 10.w),
-                    Text(
-                      'Working…',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w700,
+                      SizedBox(width: 10.w),
+                      Text(
+                        'Working…',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
+                    ],
+                  )
+                  : Text(
+                    _actionLabel,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w700,
                     ),
-                  ],
-                )
-              : Text(
-                  _actionLabel,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w700,
                   ),
-                ),
         ),
       ),
     );
@@ -752,39 +755,36 @@ class _CaseImportExportScreenState
   // ─── SMALL STATES ───────────────────────────────────────
 
   Widget _buildInlineLoader() => Padding(
-        padding: EdgeInsets.symmetric(vertical: 18.h),
-        child: const Center(
-          child: SizedBox(
-            width: 20,
-            height: 20,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: AppTheme.accent,
-            ),
-          ),
+    padding: EdgeInsets.symmetric(vertical: 18.h),
+    child: const Center(
+      child: SizedBox(
+        width: 20,
+        height: 20,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: AppTheme.accent,
         ),
-      );
+      ),
+    ),
+  );
 
   Widget _buildInlineError(String message) => Container(
-        padding: EdgeInsets.all(14.r),
-        decoration: BoxDecoration(
-          color: AppTheme.error.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(10.r),
-          border: Border.all(color: AppTheme.error.withValues(alpha: 0.3)),
+    padding: EdgeInsets.all(14.r),
+    decoration: BoxDecoration(
+      color: AppTheme.error.withValues(alpha: 0.06),
+      borderRadius: BorderRadius.circular(10.r),
+      border: Border.all(color: AppTheme.error.withValues(alpha: 0.3)),
+    ),
+    child: Row(
+      children: [
+        Icon(Icons.error_outline_rounded, size: 17.sp, color: AppTheme.error),
+        SizedBox(width: 10.w),
+        Expanded(
+          child: Text(message, style: TextStyle(fontSize: 12.sp, color: _ink)),
         ),
-        child: Row(
-          children: [
-            Icon(Icons.error_outline_rounded, size: 17.sp, color: AppTheme.error),
-            SizedBox(width: 10.w),
-            Expanded(
-              child: Text(
-                message,
-                style: TextStyle(fontSize: 12.sp, color: _ink),
-              ),
-            ),
-          ],
-        ),
-      );
+      ],
+    ),
+  );
 
   // ─── ACTIONS ────────────────────────────────────────────
 
@@ -908,9 +908,7 @@ class _CaseImportExportScreenState
                 content: Text('${result.summary} — opening Dashboard...'),
                 backgroundColor:
                     result.hearingsSkipped > 0 ? Colors.orange : Colors.green,
-                duration: Duration(
-                  seconds: result.hearingsSkipped > 0 ? 4 : 2,
-                ),
+                duration: Duration(seconds: result.hearingsSkipped > 0 ? 4 : 2),
               ),
             );
             await Future.delayed(const Duration(milliseconds: 300));
@@ -1006,8 +1004,30 @@ class _CaseImportExportScreenState
     // silently became the first name in "X vs Y" — wrong for every case where
     // the advocate acts for the other side. Import stays disabled until each
     // selected case has an answer.
+    //
+    // The one exception is a case already in the app whose side was an actual
+    // answer. The eCourts export carries no advocate names, so the file itself
+    // can never say which side the advocate is on — but re-syncing a case the
+    // advocate already answered for should not make them answer again.
+    //
+    // Only cases saved on or after the day that answer became mandatory are
+    // trusted. Before it, every import stored 'petitioner' whether or not
+    // anyone chose it, and pre-filling from those would quietly bring back the
+    // very default that was removed.
+    final answeredSince = DateTime(2026, 9, 17);
+    final savedRoles = <String, String>{
+      for (final c in existingCases)
+        if (c.cnrNumber != null && !c.createdAt.isBefore(answeredSince))
+          c.cnrNumber!: c.representationType.name,
+    };
+    final prefilled = <int>{};
     for (int i = 0; i < cases.length; i++) {
       selectedCases[i] = true; // All selected by default
+      final saved = savedRoles[cases[i]['cnr_number']];
+      if (saved == 'petitioner' || saved == 'respondent') {
+        selectedRoles[i] = saved!;
+        prefilled.add(i);
+      }
     }
 
     return showDialog<Map<int, String>>(
@@ -1024,10 +1044,15 @@ class _CaseImportExportScreenState
               ];
               final canImport = selectedCount > 0 && unanswered.isEmpty;
 
+              // Leaves saved answers alone: "all first party" is a shortcut for
+              // the cases still to be answered, and must not overwrite a side
+              // the advocate already gave for a case they are re-syncing.
               void setAll(String role) {
                 setDialogState(() {
                   for (int i = 0; i < cases.length; i++) {
-                    if (selectedCases[i] == true) selectedRoles[i] = role;
+                    if (selectedCases[i] == true && !prefilled.contains(i)) {
+                      selectedRoles[i] = role;
+                    }
                   }
                 });
               }
@@ -1097,7 +1122,9 @@ class _CaseImportExportScreenState
                           color: const Color(0xFFF0F4FF),
                           borderRadius: BorderRadius.circular(10.r),
                           border: Border.all(
-                            color: const Color(0xFF2980b9).withValues(alpha: 0.15),
+                            color: const Color(
+                              0xFF2980b9,
+                            ).withValues(alpha: 0.15),
                           ),
                         ),
                         child: Column(
@@ -1113,8 +1140,12 @@ class _CaseImportExportScreenState
                             ),
                             SizedBox(height: 3.h),
                             Text(
-                              'Your client is taken from this. Set it for all, '
-                              'then change any that differ.',
+                              prefilled.isEmpty
+                                  ? 'Your client is taken from this. Set it for '
+                                      'all, then change any that differ.'
+                                  : 'Your client is taken from this. '
+                                      '${prefilled.length} case(s) you already '
+                                      'answered keep their saved side.',
                               style: TextStyle(
                                 fontSize: 10.5.sp,
                                 color: Colors.blueGrey[600],
@@ -1126,9 +1157,10 @@ class _CaseImportExportScreenState
                               children: [
                                 Expanded(
                                   child: OutlinedButton(
-                                    onPressed: selectedCount > 0
-                                        ? () => setAll('petitioner')
-                                        : null,
+                                    onPressed:
+                                        selectedCount > 0
+                                            ? () => setAll('petitioner')
+                                            : null,
                                     style: OutlinedButton.styleFrom(
                                       visualDensity: VisualDensity.compact,
                                       foregroundColor: const Color(0xFF2980b9),
@@ -1142,9 +1174,10 @@ class _CaseImportExportScreenState
                                 SizedBox(width: 8.w),
                                 Expanded(
                                   child: OutlinedButton(
-                                    onPressed: selectedCount > 0
-                                        ? () => setAll('respondent')
-                                        : null,
+                                    onPressed:
+                                        selectedCount > 0
+                                            ? () => setAll('respondent')
+                                            : null,
                                     style: OutlinedButton.styleFrom(
                                       visualDensity: VisualDensity.compact,
                                       foregroundColor: const Color(0xFF2980b9),
@@ -1294,6 +1327,47 @@ class _CaseImportExportScreenState
                                       ),
                                     ],
                                   ),
+                                  // Number and court, always visible: they are
+                                  // what decides whether to tick the case at
+                                  // all. Two cases can share parties, and a
+                                  // transferred case appears once per court
+                                  // with the same number, so neither alone is
+                                  // enough to tell rows apart.
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                      left: 36.w,
+                                      top: 3.h,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          c['case_number'] ?? 'No case number',
+                                          style: TextStyle(
+                                            fontSize: 12.sp,
+                                            fontWeight: FontWeight.w700,
+                                            color:
+                                                c['case_number'] == null
+                                                    ? Colors.orange[800]
+                                                    : isSelected
+                                                    ? Colors.blueGrey[800]
+                                                    : Colors.grey,
+                                          ),
+                                        ),
+                                        if (c['court_name'] != null)
+                                          Text(
+                                            c['court_name']!,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontSize: 10.5.sp,
+                                              color: Colors.blueGrey[500],
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
                                   if (isSelected) ...[
                                     SizedBox(height: 10.h),
                                     // Role switcher, worded for this case's
@@ -1308,9 +1382,10 @@ class _CaseImportExportScreenState
                                       style: TextStyle(
                                         fontSize: 11.sp,
                                         fontWeight: FontWeight.w600,
-                                        color: currentRole == null
-                                            ? Colors.orange[800]
-                                            : Colors.blueGrey[700],
+                                        color:
+                                            currentRole == null
+                                                ? Colors.orange[800]
+                                                : Colors.blueGrey[700],
                                       ),
                                     ),
                                     SizedBox(height: 6.h),
@@ -1336,19 +1411,46 @@ class _CaseImportExportScreenState
                                           ),
                                         ),
                                       ],
-                                      selected: currentRole == null
-                                          ? <String>{}
-                                          : {currentRole},
+                                      selected:
+                                          currentRole == null
+                                              ? <String>{}
+                                              : {currentRole},
                                       onSelectionChanged: (val) {
-                                        setDialogState(
-                                          () => selectedRoles[i] = val.first,
-                                        );
+                                        setDialogState(() {
+                                          selectedRoles[i] = val.first;
+                                          // Once changed by hand it is the
+                                          // advocate's answer, not the saved
+                                          // one, and the hint must not claim
+                                          // otherwise.
+                                          prefilled.remove(i);
+                                        });
                                       },
                                       style: SegmentedButton.styleFrom(
                                         visualDensity: VisualDensity.compact,
                                         padding: EdgeInsets.zero,
                                       ),
                                     ),
+                                    if (prefilled.contains(i))
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 5.h),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.check_circle_rounded,
+                                              size: 13,
+                                              color: Colors.green[700],
+                                            ),
+                                            SizedBox(width: 4.w),
+                                            Text(
+                                              'As you saved it earlier',
+                                              style: TextStyle(
+                                                fontSize: 10.sp,
+                                                color: Colors.green[800],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     Divider(height: 20.h, thickness: 0.5),
                                     if (c['petitioner'] != null)
                                       _previewDetailRow(
@@ -1471,7 +1573,10 @@ class _CaseImportExportScreenState
                 SizedBox(height: 16.h),
                 Text(
                   'Will import:',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.sp),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13.sp,
+                  ),
                 ),
                 SizedBox(height: 8.h),
                 _importStatRow(Icons.gavel, 'Hearings', summary['hearings']!),

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'supabase_service.dart';
 import 'repositories/base_repository.dart';
 import '../models/models.dart';
+import '../utils/ecourts_case_number.dart';
 
 /// Outcome of a batch import.
 ///
@@ -147,17 +148,12 @@ class CaseImportService {
       result['district'] = data['district_name'].toString();
     }
 
-    // Case Number Formatting (Type + No + Year)
-    if (data['type_name'] != null &&
-        data['reg_no'] != null &&
-        data['reg_year'] != null) {
-      result['case_number'] =
-          "${data['type_name']}/${data['reg_no']}/${data['reg_year']}";
-    } else if (data['case_no'] != null) {
-      result['case_number'] = data['case_no'].toString();
-    } else if (data['case_number'] != null) {
-      result['case_number'] = data['case_number'].toString();
-    }
+    // Case number as the court board shows it. Joining type/reg_no/reg_year
+    // directly printed OS/300194/2014 for OS 194/2014 (reg_no carries a
+    // series digit) and EP/0/0 for a filed-but-unregistered case — see
+    // ECourtsCaseNumber for how each is recovered.
+    final caseNumber = ECourtsCaseNumber.fromJson(data);
+    if (caseNumber != null) result['case_number'] = caseNumber;
 
     // Dates
     //
