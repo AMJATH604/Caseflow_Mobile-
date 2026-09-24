@@ -2,7 +2,7 @@ name: Build CaseFlow iOS (IPA)
 
 on:
   push:
-    branches: [main, security/auth-hardening]
+    branches: [main, development, security/auth-hardening]
     tags: ['v*']
   workflow_dispatch:
     inputs:
