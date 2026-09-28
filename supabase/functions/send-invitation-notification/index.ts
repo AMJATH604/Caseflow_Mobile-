@@ -260,13 +260,12 @@ Deno.serve(async (req: Request) => {
                   body: notifBody,
                   route,
                 },
+                // Priority only — see send-hearing-reminders. A
+                // notification block here makes Android draw a second, empty
+                // card beside the app's own, and this one even borrowed the
+                // hearing-reminder channel.
                 android: {
                   priority: "HIGH",
-                  notification: {
-                    channel_id: "hearing_reminders_v2",
-                    sound: "default",
-                    default_vibrate_timings: true,
-                  },
                 },
                 apns: {
                   payload: {

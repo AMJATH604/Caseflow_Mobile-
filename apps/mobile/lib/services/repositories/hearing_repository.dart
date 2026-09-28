@@ -182,7 +182,49 @@ class HearingRepository {
     return newHearing;
   }
 
+  /// Deletes a hearing and points its case at whatever hearing is now next.
+  ///
+  /// Deleting the row alone left `cases.next_hearing_date` on the removed
+  /// date, so the Case Dossier and the case list went on announcing a hearing
+  /// that no longer existed. That is the usual reason for deleting at all —
+  /// undoing a wrong adjournment — so the stale date was exactly the one the
+  /// advocate was trying to get rid of.
   static Future<void> deleteHearing(String id) async {
+    BaseRepository.requireAuth();
+
+    final row =
+        await _client
+            .from('hearings')
+            .select('case_id')
+            .eq('id', id)
+            .maybeSingle();
+
     await _client.from('hearings').delete().eq('id', id);
+
+    final caseId = row?['case_id'];
+    if (caseId != null) await resyncNextHearingDate(caseId.toString());
+  }
+
+  /// Sets `cases.next_hearing_date` to the earliest hearing still listed from
+  /// today on, or clears it when none is left.
+  static Future<void> resyncNextHearingDate(String caseId) async {
+    final today = BaseRepository.normalizeDateStr(
+      DateTime.now().toIso8601String(),
+    );
+
+    final next =
+        await _client
+            .from('hearings')
+            .select('hearing_date')
+            .eq('case_id', caseId)
+            .gte('hearing_date', today!)
+            .order('hearing_date')
+            .limit(1)
+            .maybeSingle();
+
+    await _client
+        .from('cases')
+        .update({'next_hearing_date': next?['hearing_date']})
+        .eq('id', caseId);
   }
 }

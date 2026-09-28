@@ -436,6 +436,49 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                   ),
                                 ),
                               ),
+                            // Shown whatever the status, unlike Adjourn: the
+                            // point is to undo a wrong adjournment, and the
+                            // hearing it leaves behind is exactly one that
+                            // may already read "adjourned".
+                            SizedBox(width: 6.w),
+                            InkWell(
+                              onTap: () => _confirmDelete(context, h),
+                              borderRadius: BorderRadius.circular(8.r),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.error.withValues(alpha: 0.08),
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  border: Border.all(
+                                    color: AppTheme.error.withValues(
+                                      alpha: 0.15,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.delete_outline_rounded,
+                                      size: 13,
+                                      color: AppTheme.error,
+                                    ),
+                                    SizedBox(width: 4.w),
+                                    Text(
+                                      'DELETE',
+                                      style: TextStyle(
+                                        fontSize: 9.sp,
+                                        fontWeight: FontWeight.w900,
+                                        color: AppTheme.error,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -462,6 +505,53 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
         return AppTheme.error;
       default:
         return AppTheme.accent;
+    }
+  }
+
+  Future<void> _confirmDelete(BuildContext context, Hearing hearing) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (ctx) => AlertDialog(
+            title: const Text('Delete this hearing?'),
+            content: Text(
+              '${hearing.caseTitle ?? 'This case'} on '
+              '${DateFormat('dd MMM yyyy').format(hearing.hearingDate)} '
+              'will be removed from the Court Diary and the Hearings page. '
+              'This cannot be undone.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                style: TextButton.styleFrom(foregroundColor: AppTheme.error),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      // Also moves the case's next hearing date to the next one still
+      // listed, or clears it when none is left.
+      await SupabaseService.deleteHearing(hearing.id);
+      // Refreshes the Hearings page, the case list and the Dossier together.
+      ref.read(dataRefreshProvider.notifier).state++;
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Hearing deleted')));
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Could not delete: $e')));
+      }
     }
   }
 

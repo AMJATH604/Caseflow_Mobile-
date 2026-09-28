@@ -351,13 +351,7 @@ class FcmService {
         mePerson,
         conversationTitle: isChat ? 'Digital Chambers' : null,
         groupConversation: isChat,
-        messages: [
-          Message(
-            body,
-            DateTime.now(),
-            senderPerson,
-          ),
-        ],
+        messages: [Message(body, DateTime.now(), senderPerson)],
       );
     } else {
       styleInformation = BigTextStyleInformation(
@@ -373,11 +367,7 @@ class FcmService {
         const AndroidNotificationAction(
           'action_reply',
           'Reply',
-          inputs: [
-            AndroidNotificationActionInput(
-              label: 'Type a reply...',
-            ),
-          ],
+          inputs: [AndroidNotificationActionInput(label: 'Type a reply...')],
           showsUserInterface: false,
         ),
         const AndroidNotificationAction(
@@ -400,19 +390,28 @@ class FcmService {
       color: const Color(0xFF00A884),
       category: AndroidNotificationCategory.message,
       actions: actions,
-      groupKey: isDm
-          ? 'dm_${data['conversation_id']}'
-          : (isChat ? 'chat_${data['firm_id']}' : null),
+      groupKey:
+          isDm
+              ? 'dm_${data['conversation_id']}'
+              : (isChat ? 'chat_${data['firm_id']}' : null),
     );
 
     final details = NotificationDetails(android: androidDetails);
 
     // Use a unique ID based on conversation/channel/hearing
-    final notifId = isDm
-        ? (data['conversation_id']?.hashCode ?? DateTime.now().millisecondsSinceEpoch) % 2147483647
-        : isChat
-            ? (data['firm_id']?.hashCode ?? DateTime.now().millisecondsSinceEpoch) % 2147483647
-            : (data['hearing_id']?.hashCode ?? data['caveat_id']?.hashCode ?? DateTime.now().millisecondsSinceEpoch) % 2147483647;
+    final notifId =
+        isDm
+            ? (data['conversation_id']?.hashCode ??
+                    DateTime.now().millisecondsSinceEpoch) %
+                2147483647
+            : isChat
+            ? (data['firm_id']?.hashCode ??
+                    DateTime.now().millisecondsSinceEpoch) %
+                2147483647
+            : (data['hearing_id']?.hashCode ??
+                    data['caveat_id']?.hashCode ??
+                    DateTime.now().millisecondsSinceEpoch) %
+                2147483647;
 
     await _localNotifications.show(
       notifId.abs(),
@@ -427,7 +426,9 @@ class FcmService {
 
   /// Handle notification tap & quick actions — inline reply / mark read / deep-link.
   static void _onNotificationTap(NotificationResponse response) async {
-    debugPrint('FCM: Notification action/tap received: ${response.actionId}, payload: ${response.payload}');
+    debugPrint(
+      'FCM: Notification action/tap received: ${response.actionId}, payload: ${response.payload}',
+    );
 
     if (response.payload == null) return;
 
@@ -459,9 +460,11 @@ class FcmService {
             await SupabaseService.postDiscussion({
               'firm_id': firmId,
               'message': replyText,
-              'case_id': data['case_id'] != null && data['case_id'].toString().isNotEmpty
-                  ? data['case_id']
-                  : null,
+              'case_id':
+                  data['case_id'] != null &&
+                          data['case_id'].toString().isNotEmpty
+                      ? data['case_id']
+                      : null,
               'sender_name': profile?.fullName ?? 'Team Member',
             });
             debugPrint('FCM: Quick reply sent to Chambers $firmId');
@@ -522,7 +525,11 @@ class FcmService {
     });
   }
 
-  static void _performNavigation(BuildContext ctx, String type, Map<String, dynamic> data) {
+  static void _performNavigation(
+    BuildContext ctx,
+    String type,
+    Map<String, dynamic> data,
+  ) {
     try {
       if (type == 'dm_message') {
         // ─── 1-on-1 DM notification → open DM chat ──────────
@@ -538,14 +545,13 @@ class FcmService {
         debugPrint('FCM: Pushing route /chambers-chat');
         GoRouter.of(ctx).push('/chambers-chat');
       } else if (type == 'hearing_reminder' || type == 'court_diary') {
-        // ─── Court Diary / Hearing Reminder → open case ─────
-        final caseId = data['case_id'];
-        if (caseId != null && caseId.toString().isNotEmpty) {
-          debugPrint('FCM: Pushing route /cases/$caseId');
-          GoRouter.of(ctx).push('/cases/$caseId');
-        } else {
-          debugPrint('FCM: case_id is null for hearing notification');
-        }
+        // ─── Court Diary / Hearing Reminder → Hearings tab ──
+        // A reminder is about the day's list, not one case, and the case is a
+        // tap away from there. `go`, not `push`: Hearings is a bottom-nav tab,
+        // and pushing it would stack a second copy over whatever was open
+        // instead of switching tabs.
+        debugPrint('FCM: Going to /hearings');
+        GoRouter.of(ctx).go('/hearings');
       } else if (type == 'caveat_reminder') {
         // ─── Caveat Reminder → open caveats screen ──────────
         final route = data['route']?.toString() ?? '/caveats';
@@ -571,7 +577,9 @@ class FcmService {
           debugPrint('FCM: Fallback → $route');
           GoRouter.of(ctx).push(route.toString());
         } else {
-          debugPrint('FCM: Unknown notification type "$type" with no matching payload');
+          debugPrint(
+            'FCM: Unknown notification type "$type" with no matching payload',
+          );
         }
       }
     } catch (e) {
@@ -606,20 +614,21 @@ class FcmService {
 
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (context) => _NotificationBanner(
-        title: title,
-        body: body,
-        channelContext: data?['channel'] ?? '',
-        onDismiss: () {
-          entry.remove();
-          if (_currentOverlay == entry) _currentOverlay = null;
-        },
-        onTap: () {
-          entry.remove();
-          if (_currentOverlay == entry) _currentOverlay = null;
-          if (data != null) _navigateToChat(data);
-        },
-      ),
+      builder:
+          (context) => _NotificationBanner(
+            title: title,
+            body: body,
+            channelContext: data?['channel'] ?? '',
+            onDismiss: () {
+              entry.remove();
+              if (_currentOverlay == entry) _currentOverlay = null;
+            },
+            onTap: () {
+              entry.remove();
+              if (_currentOverlay == entry) _currentOverlay = null;
+              if (data != null) _navigateToChat(data);
+            },
+          ),
     );
 
     _currentOverlay = entry;
@@ -713,9 +722,10 @@ class _NotificationBannerState extends State<_NotificationBanner>
                 ),
               ],
               border: Border.all(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.06)
-                    : Colors.black.withValues(alpha: 0.04),
+                color:
+                    isDark
+                        ? Colors.white.withValues(alpha: 0.06)
+                        : Colors.black.withValues(alpha: 0.04),
               ),
             ),
             child: Row(
@@ -751,9 +761,10 @@ class _NotificationBannerState extends State<_NotificationBanner>
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 14.sp,
-                                color: isDark
-                                    ? Colors.white
-                                    : const Color(0xFF0F172A),
+                                color:
+                                    isDark
+                                        ? Colors.white
+                                        : const Color(0xFF0F172A),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -764,9 +775,10 @@ class _NotificationBannerState extends State<_NotificationBanner>
                             'now',
                             style: TextStyle(
                               fontSize: 11.sp,
-                              color: isDark
-                                  ? const Color(0xFF64748B)
-                                  : const Color(0xFF94A3B8),
+                              color:
+                                  isDark
+                                      ? const Color(0xFF64748B)
+                                      : const Color(0xFF94A3B8),
                             ),
                           ),
                         ],
@@ -776,9 +788,10 @@ class _NotificationBannerState extends State<_NotificationBanner>
                         widget.body,
                         style: TextStyle(
                           fontSize: 13.sp,
-                          color: isDark
-                              ? const Color(0xFF94A3B8)
-                              : const Color(0xFF64748B),
+                          color:
+                              isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : const Color(0xFF64748B),
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -808,7 +821,9 @@ void notificationTapBackground(NotificationResponse response) async {
   // requireAuth() always threw, and the reply was lost while Android kept
   // spinning on the notification waiting for us to finish.
   DartPluginRegistrant.ensureInitialized();
-  debugPrint('FCM: Background notification action: ${response.actionId}, input: ${response.input}');
+  debugPrint(
+    'FCM: Background notification action: ${response.actionId}, input: ${response.input}',
+  );
 
   if (response.payload == null) return;
 
@@ -828,7 +843,9 @@ void notificationTapBackground(NotificationResponse response) async {
     // throws and the reply is lost.
     final session = await _ensureBackgroundSession();
     if (session == null) {
-      throw StateError('no authenticated Supabase session in background isolate');
+      throw StateError(
+        'no authenticated Supabase session in background isolate',
+      );
     }
 
     if (response.actionId == 'action_reply' &&
@@ -852,9 +869,10 @@ void notificationTapBackground(NotificationResponse response) async {
         await SupabaseService.postDiscussion({
           'firm_id': firmId,
           'message': replyText,
-          'case_id': data['case_id'] != null && data['case_id'].toString().isNotEmpty
-              ? data['case_id']
-              : null,
+          'case_id':
+              data['case_id'] != null && data['case_id'].toString().isNotEmpty
+                  ? data['case_id']
+                  : null,
           'sender_name': profile?.fullName ?? 'Team Member',
         });
         debugPrint('FCM: Background quick reply sent to Chambers $firmId');
@@ -864,7 +882,9 @@ void notificationTapBackground(NotificationResponse response) async {
         final conversationId = data['conversation_id'];
         if (conversationId != null) {
           await SupabaseService.markDirectMessagesRead(conversationId);
-          debugPrint('FCM: Marked DM conversation $conversationId as read in background');
+          debugPrint(
+            'FCM: Marked DM conversation $conversationId as read in background',
+          );
         }
       }
     }
@@ -876,7 +896,9 @@ void notificationTapBackground(NotificationResponse response) async {
       await localNotif.cancel(response.id!);
     }
   } catch (e, stack) {
-    debugPrint('FCM: Error handling background notification response: $e\n$stack');
+    debugPrint(
+      'FCM: Error handling background notification response: $e\n$stack',
+    );
     await _notifyBackgroundActionFailed(response, data, e);
   }
 }
@@ -962,12 +984,14 @@ Future<void> _notifyBackgroundActionFailed(
   if (attempted.isEmpty) return;
 
   final type = data['type'] ?? '';
-  final channelId = type == 'chat_message'
-      ? FcmService._chamberChannelId
-      : FcmService._dmChannelId;
-  final channelName = type == 'chat_message'
-      ? FcmService._chamberChannelName
-      : FcmService._dmChannelName;
+  final channelId =
+      type == 'chat_message'
+          ? FcmService._chamberChannelId
+          : FcmService._dmChannelId;
+  final channelName =
+      type == 'chat_message'
+          ? FcmService._chamberChannelName
+          : FcmService._dmChannelName;
 
   try {
     final plugin = FlutterLocalNotificationsPlugin();
@@ -979,8 +1003,7 @@ Future<void> _notifyBackgroundActionFailed(
     await plugin.show(
       // Reuse the original id so this replaces the message card rather than
       // stacking a second one under it.
-      response.id ??
-          DateTime.now().millisecondsSinceEpoch % 2147483647,
+      response.id ?? DateTime.now().millisecondsSinceEpoch % 2147483647,
       'Reply not sent',
       'Tap to open the chat and send it again: "$attempted"',
       NotificationDetails(
@@ -1002,6 +1025,8 @@ Future<void> _notifyBackgroundActionFailed(
       payload: response.payload,
     );
   } catch (e) {
-    debugPrint('FCM: Could not surface failed-reply notification: $e ($reason)');
+    debugPrint(
+      'FCM: Could not surface failed-reply notification: $e ($reason)',
+    );
   }
 }

@@ -71,148 +71,180 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
       initialChildSize: 0.85,
       minChildSize: 0.5,
       maxChildSize: 0.95,
-      builder: (context, scrollController) => Container(
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF0F172A) : Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 30,
-              offset: const Offset(0, -8),
+      builder:
+          (context, scrollController) => Container(
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0F172A) : Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(32.r)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 30,
+                  offset: const Offset(0, -8),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: profile == null
-            ? const Center(
-                child: CircularProgressIndicator(color: AppTheme.accent),
-              )
-            : FadeTransition(
-                opacity: _fadeIn,
-                child: SlideTransition(
-                  position: _slideUp,
-                  child: SingleChildScrollView(
-                    controller: scrollController,
-                    child: Column(
-                      children: [
-                        // ─── Drag Handle ──────────────────
-                        SizedBox(height: 12.h),
-                        Container(
-                          width: 40.w,
-                          height: 4.h,
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? Colors.white24
-                                : const Color(0xFFE2E8F0),
-                            borderRadius: BorderRadius.circular(2.r),
-                          ),
-                        ),
-                        SizedBox(height: 8.h),
-
-                        // ─── Hero Header ──────────────────
-                        _buildHeroHeader(context, profile, isDark),
-
-                        // ─── Professional Info ────────────
-                        _buildSection(
-                          context,
-                          isDark,
-                          title: 'Professional Details',
-                          icon: Icons.badge_rounded,
-                          iconColor: const Color(0xFF6366F1),
+            child:
+                profile == null
+                    ? const Center(
+                      child: CircularProgressIndicator(color: AppTheme.accent),
+                    )
+                    : FadeTransition(
+                      opacity: _fadeIn,
+                      child: SlideTransition(
+                        position: _slideUp,
+                        // The details scroll; Settings and Sign Out do not. They sat at
+                        // the end of the scroll, below every card, so signing out
+                        // meant scrolling past the whole profile first.
+                        child: Column(
                           children: [
-                            if (profile.registrationNumber != null)
-                              _buildInfoRow(
-                                isDark,
-                                icon: Icons.numbers_rounded,
-                                label: 'Bar Registration',
-                                value: profile.registrationNumber!,
-                                accentColor: const Color(0xFF6366F1),
-                              ),
-                            if (profile.practiceState != null)
-                              _buildInfoRow(
-                                isDark,
-                                icon: Icons.location_on_rounded,
-                                label: 'Practice State',
-                                value: profile.practiceState!,
-                                accentColor: const Color(0xFF0EA5E9),
-                              ),
-                            if (profile.practiceDistrict != null)
-                              _buildInfoRow(
-                                isDark,
-                                icon: Icons.map_rounded,
-                                label: 'District',
-                                value: profile.practiceDistrict!,
-                                accentColor: const Color(0xFF14B8A6),
-                              ),
-                            if (profile.officeAddress != null)
-                              _buildInfoRow(
-                                isDark,
-                                icon: Icons.business_rounded,
-                                label: 'Office Address',
-                                value: profile.officeAddress!,
-                                accentColor: const Color(0xFFF59E0B),
-                              ),
-                            if (profile.registrationNumber == null &&
-                                profile.practiceState == null &&
-                                profile.practiceDistrict == null &&
-                                profile.officeAddress == null)
-                              Padding(
-                                padding: EdgeInsets.all(16.r),
-                                child: Text(
-                                  'No professional details added yet',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 13.sp,
-                                    color: isDark
-                                        ? Colors.white38
-                                        : const Color(0xFF94A3B8),
-                                  ),
+                            Expanded(
+                              child: SingleChildScrollView(
+                                controller: scrollController,
+                                child: Column(
+                                  children: [
+                                    // ─── Drag Handle ──────────────────
+                                    SizedBox(height: 12.h),
+                                    Container(
+                                      width: 40.w,
+                                      height: 4.h,
+                                      decoration: BoxDecoration(
+                                        color:
+                                            isDark
+                                                ? Colors.white24
+                                                : const Color(0xFFE2E8F0),
+                                        borderRadius: BorderRadius.circular(
+                                          2.r,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 8.h),
+
+                                    // ─── Hero Header ──────────────────
+                                    _buildHeroHeader(context, profile, isDark),
+
+                                    // ─── Professional Info ────────────
+                                    _buildSection(
+                                      context,
+                                      isDark,
+                                      title: 'Professional Details',
+                                      icon: Icons.badge_rounded,
+                                      iconColor: const Color(0xFF6366F1),
+                                      children: [
+                                        if (profile.registrationNumber != null)
+                                          _buildInfoRow(
+                                            isDark,
+                                            icon: Icons.numbers_rounded,
+                                            label: 'Bar Registration',
+                                            value: profile.registrationNumber!,
+                                            accentColor: const Color(
+                                              0xFF6366F1,
+                                            ),
+                                          ),
+                                        if (profile.practiceState != null)
+                                          _buildInfoRow(
+                                            isDark,
+                                            icon: Icons.location_on_rounded,
+                                            label: 'Practice State',
+                                            value: profile.practiceState!,
+                                            accentColor: const Color(
+                                              0xFF0EA5E9,
+                                            ),
+                                          ),
+                                        if (profile.practiceDistrict != null)
+                                          _buildInfoRow(
+                                            isDark,
+                                            icon: Icons.map_rounded,
+                                            label: 'District',
+                                            value: profile.practiceDistrict!,
+                                            accentColor: const Color(
+                                              0xFF14B8A6,
+                                            ),
+                                          ),
+                                        if (profile.officeAddress != null)
+                                          _buildInfoRow(
+                                            isDark,
+                                            icon: Icons.business_rounded,
+                                            label: 'Office Address',
+                                            value: profile.officeAddress!,
+                                            accentColor: const Color(
+                                              0xFFF59E0B,
+                                            ),
+                                          ),
+                                        if (profile.registrationNumber ==
+                                                null &&
+                                            profile.practiceState == null &&
+                                            profile.practiceDistrict == null &&
+                                            profile.officeAddress == null)
+                                          Padding(
+                                            padding: EdgeInsets.all(16.r),
+                                            child: Text(
+                                              'No professional details added yet',
+                                              style: GoogleFonts.inter(
+                                                fontSize: 13.sp,
+                                                color:
+                                                    isDark
+                                                        ? Colors.white38
+                                                        : const Color(
+                                                          0xFF94A3B8,
+                                                        ),
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+
+                                    // ─── Contact Info ─────────────────
+                                    _buildSection(
+                                      context,
+                                      isDark,
+                                      title: 'Contact',
+                                      icon: Icons.contact_mail_rounded,
+                                      iconColor: const Color(0xFF10B981),
+                                      children: [
+                                        if (profile.email != null)
+                                          _buildInfoRow(
+                                            isDark,
+                                            icon: Icons.email_rounded,
+                                            label: 'Email',
+                                            value: profile.email!,
+                                            accentColor: const Color(
+                                              0xFF10B981,
+                                            ),
+                                            copyable: true,
+                                          ),
+                                        if (profile.mobileNumber != null)
+                                          _buildInfoRow(
+                                            isDark,
+                                            icon: Icons.phone_rounded,
+                                            label: 'Mobile',
+                                            value: profile.mobileNumber!,
+                                            accentColor: const Color(
+                                              0xFF2563EB,
+                                            ),
+                                            copyable: true,
+                                          ),
+                                      ],
+                                    ),
+
+                                    // ─── Subscription Info ────────────
+                                    _buildSubscriptionCard(
+                                      context,
+                                      profile,
+                                      isDark,
+                                    ),
+
+                                    SizedBox(height: 24.h),
+                                  ],
                                 ),
                               ),
+                            ),
+                            _buildPinnedActions(context, isDark),
                           ],
                         ),
-
-                        // ─── Contact Info ─────────────────
-                        _buildSection(
-                          context,
-                          isDark,
-                          title: 'Contact',
-                          icon: Icons.contact_mail_rounded,
-                          iconColor: const Color(0xFF10B981),
-                          children: [
-                            if (profile.email != null)
-                              _buildInfoRow(
-                                isDark,
-                                icon: Icons.email_rounded,
-                                label: 'Email',
-                                value: profile.email!,
-                                accentColor: const Color(0xFF10B981),
-                                copyable: true,
-                              ),
-                            if (profile.mobileNumber != null)
-                              _buildInfoRow(
-                                isDark,
-                                icon: Icons.phone_rounded,
-                                label: 'Mobile',
-                                value: profile.mobileNumber!,
-                                accentColor: const Color(0xFF2563EB),
-                                copyable: true,
-                              ),
-                          ],
-                        ),
-
-                        // ─── Subscription Info ────────────
-                        _buildSubscriptionCard(context, profile, isDark),
-
-                        // ─── Actions ──────────────────────
-                        _buildActionsSection(context, isDark),
-
-                        SizedBox(height: 40.h),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              ),
-      ),
+          ),
     );
   }
 
@@ -228,11 +260,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
       padding: EdgeInsets.all(24.r),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [
-            Color(0xFF0F172A),
-            Color(0xFF1E3A5F),
-            Color(0xFF312E81),
-          ],
+          colors: [Color(0xFF0F172A), Color(0xFF1E3A5F), Color(0xFF312E81)],
           stops: [0.0, 0.5, 1.0],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -296,20 +324,21 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                       ),
                     ],
                   ),
-                  child: _isUploadingPhoto
-                      ? SizedBox(
-                          width: 14.w,
-                          height: 14.h,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
+                  child:
+                      _isUploadingPhoto
+                          ? SizedBox(
+                            width: 14.w,
+                            height: 14.h,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                          : const Icon(
+                            Icons.camera_alt_rounded,
                             color: Colors.white,
+                            size: 14,
                           ),
-                        )
-                      : const Icon(
-                          Icons.camera_alt_rounded,
-                          color: Colors.white,
-                          size: 14,
-                        ),
                 ),
               ),
             ],
@@ -347,13 +376,15 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildBadge(
-                icon: profile.isAdvocate
-                    ? Icons.gavel_rounded
-                    : Icons.person_rounded,
+                icon:
+                    profile.isAdvocate
+                        ? Icons.gavel_rounded
+                        : Icons.person_rounded,
                 label: profile.isAdvocate ? 'ADVOCATE' : 'CITIZEN',
-                colors: profile.isAdvocate
-                    ? [const Color(0xFF6366F1), const Color(0xFF818CF8)]
-                    : [const Color(0xFF10B981), const Color(0xFF34D399)],
+                colors:
+                    profile.isAdvocate
+                        ? [const Color(0xFF6366F1), const Color(0xFF818CF8)]
+                        : [const Color(0xFF10B981), const Color(0xFF34D399)],
               ),
               SizedBox(width: 10.w),
               _buildBadge(
@@ -425,9 +456,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(20.r),
         border: Border.all(
-          color: isDark
-              ? const Color(0xFF334155)
-              : const Color(0xFFE2E8F0),
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
         ),
         boxShadow: [
           BoxShadow(
@@ -459,9 +488,10 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                   style: GoogleFonts.inter(
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w800,
-                    color: isDark
-                        ? const Color(0xFF94A3B8)
-                        : const Color(0xFF64748B),
+                    color:
+                        isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B),
                     letterSpacing: 1.2,
                   ),
                 ),
@@ -507,9 +537,10 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                   style: GoogleFonts.inter(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w700,
-                    color: isDark
-                        ? const Color(0xFF64748B)
-                        : const Color(0xFF94A3B8),
+                    color:
+                        isDark
+                            ? const Color(0xFF64748B)
+                            : const Color(0xFF94A3B8),
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -544,17 +575,19 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
               child: Container(
                 padding: EdgeInsets.all(6.r),
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? const Color(0xFF334155)
-                      : const Color(0xFFF1F5F9),
+                  color:
+                      isDark
+                          ? const Color(0xFF334155)
+                          : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Icon(
                   Icons.copy_rounded,
                   size: 14,
-                  color: isDark
-                      ? const Color(0xFF94A3B8)
-                      : const Color(0xFF64748B),
+                  color:
+                      isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF64748B),
                 ),
               ),
             ),
@@ -590,8 +623,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
 
     String statusText = 'Free Plan';
     if (profile.isTrialActive) {
-      final daysLeft =
-          profile.trialEndsAt!.difference(DateTime.now()).inDays;
+      final daysLeft = profile.trialEndsAt!.difference(DateTime.now()).inDays;
       statusText = 'Trial · $daysLeft days left';
     } else if (profile.isSubscriptionActive) {
       statusText =
@@ -642,9 +674,10 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
                   statusText,
                   style: GoogleFonts.inter(
                     fontSize: 12.sp,
-                    color: isDark
-                        ? const Color(0xFF94A3B8)
-                        : const Color(0xFF64748B),
+                    color:
+                        isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B),
                   ),
                 ),
               ],
@@ -652,10 +685,7 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
           ),
           if (profile.isFree)
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 8,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
@@ -685,33 +715,49 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
 
   // ─── ACTIONS ────────────────────────────────────────
 
-  Widget _buildActionsSection(BuildContext context, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-      child: Column(
-        children: [
-          _buildActionButton(
-            isDark,
-            icon: Icons.settings_rounded,
-            label: 'Settings',
-            color: const Color(0xFF64748B),
-            onTap: () {
-              Navigator.pop(context);
-              GoRouter.of(context).go('/settings');
-            },
+  /// Settings and Sign Out side by side, pinned under the scrolling details.
+  Widget _buildPinnedActions(BuildContext context, bool isDark) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
           ),
-          SizedBox(height: 12.h),
-          _buildActionButton(
-            isDark,
-            icon: Icons.logout_rounded,
-            label: 'Sign Out',
-            color: const Color(0xFFEF4444),
-            onTap: () async {
-              Navigator.pop(context);
-              await SupabaseService.signOut();
-            },
-          ),
-        ],
+        ),
+      ),
+      padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 12.h),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: [
+            Expanded(
+              child: _buildActionButton(
+                isDark,
+                icon: Icons.settings_rounded,
+                label: 'Settings',
+                color: const Color(0xFF64748B),
+                onTap: () {
+                  Navigator.pop(context);
+                  GoRouter.of(context).go('/settings');
+                },
+              ),
+            ),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: _buildActionButton(
+                isDark,
+                icon: Icons.logout_rounded,
+                label: 'Sign Out',
+                color: const Color(0xFFEF4444),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await SupabaseService.signOut();
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -728,37 +774,32 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16.r),
+        // Sized for half the sheet's width: the two sit side by side, so the
+        // label is centred and allowed to shrink rather than sharing a row
+        // with a spacer and a chevron that no longer fit.
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 13.h),
           decoration: BoxDecoration(
             color: color.withValues(alpha: isDark ? 0.1 : 0.06),
-            borderRadius: BorderRadius.circular(16.r),
+            borderRadius: BorderRadius.circular(14.r),
             border: Border.all(color: color.withValues(alpha: 0.15)),
           ),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                padding: EdgeInsets.all(8.r),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10.r),
+              Icon(icon, color: color, size: 18),
+              SizedBox(width: 8.w),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.inter(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                  ),
                 ),
-                child: Icon(icon, color: color, size: 18),
-              ),
-              SizedBox(width: 14.w),
-              Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                  color: color,
-                ),
-              ),
-              const Spacer(),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: color.withValues(alpha: 0.6),
-                size: 20,
               ),
             ],
           ),
@@ -774,66 +815,67 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: EdgeInsets.all(24.r),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E293B) : Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40.w,
-              height: 4.h,
-              decoration: BoxDecoration(
-                color: isDark ? Colors.white24 : Colors.grey[300],
-                borderRadius: BorderRadius.circular(2.r),
-              ),
+      builder:
+          (ctx) => Container(
+            padding: EdgeInsets.all(24.r),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E293B) : Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
             ),
-            SizedBox(height: 20.h),
-            Text(
-              'Update Profile Photo',
-              style: GoogleFonts.outfit(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : const Color(0xFF0F172A),
-              ),
-            ),
-            SizedBox(height: 20.h),
-            Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: _buildPhotoOption(
-                    isDark: isDark,
-                    icon: Icons.camera_alt_rounded,
-                    label: 'Camera',
-                    color: const Color(0xFF2563EB),
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      _uploadPhoto(context, profile, ImageSource.camera);
-                    },
+                Container(
+                  width: 40.w,
+                  height: 4.h,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white24 : Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2.r),
                   ),
                 ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: _buildPhotoOption(
-                    isDark: isDark,
-                    icon: Icons.photo_library_rounded,
-                    label: 'Gallery',
-                    color: const Color(0xFF059669),
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      _uploadPhoto(context, profile, ImageSource.gallery);
-                    },
+                SizedBox(height: 20.h),
+                Text(
+                  'Update Profile Photo',
+                  style: GoogleFonts.outfit(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
                 ),
+                SizedBox(height: 20.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildPhotoOption(
+                        isDark: isDark,
+                        icon: Icons.camera_alt_rounded,
+                        label: 'Camera',
+                        color: const Color(0xFF2563EB),
+                        onTap: () {
+                          Navigator.pop(ctx);
+                          _uploadPhoto(context, profile, ImageSource.camera);
+                        },
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: _buildPhotoOption(
+                        isDark: isDark,
+                        icon: Icons.photo_library_rounded,
+                        label: 'Gallery',
+                        color: const Color(0xFF059669),
+                        onTap: () {
+                          Navigator.pop(ctx);
+                          _uploadPhoto(context, profile, ImageSource.gallery);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16.h),
               ],
             ),
-            SizedBox(height: 16.h),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
@@ -898,11 +940,12 @@ class _ProfileDetailSheetState extends ConsumerState<ProfileDetailSheet>
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.check_circle_rounded,
-                    color: Colors.white, size: 18),
+                Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
                 SizedBox(width: 10.w),
-                Text('Photo updated!',
-                    style: GoogleFonts.inter(fontSize: 13.sp)),
+                Text(
+                  'Photo updated!',
+                  style: GoogleFonts.inter(fontSize: 13.sp),
+                ),
               ],
             ),
             backgroundColor: const Color(0xFF059669),

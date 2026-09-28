@@ -238,7 +238,9 @@ Deno.serve(async (req: Request) => {
             type: "hearing_reminder",
             title: content.title,
             body: content.body,
-            route: h.case_id ? `/cases/${h.case_id}` : undefined,
+            // The Hearings tab, same as tapping the push: a reminder is about
+            // the day's list, and the case is one tap further from there.
+            route: "/hearings",
             payload: {
               hearing_id: h.id,
               case_id: h.case_id,
@@ -331,13 +333,15 @@ Deno.serve(async (req: Request) => {
                       hearing_id: hearing.id,
                       reminder_type: reminder_type,
                     },
+                    // Priority only. An `android.notification` block here —
+                    // even one carrying just a channel and a sound — makes the
+                    // message a notification message, so Android drew its own
+                    // empty card beside the app's rich one, bundled the two
+                    // under a "CaseFlow" group header, and left that header
+                    // behind when the reminder was swiped away. The channel
+                    // and sound are the app's to set when it renders.
                     android: {
                       priority: "HIGH",
-                      notification: {
-                        channel_id: "hearing_reminders_v2",
-                        sound: "default",
-                        default_vibrate_timings: true,
-                      },
                     },
                     apns: {
                       payload: {
