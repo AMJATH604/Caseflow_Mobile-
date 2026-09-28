@@ -67,7 +67,7 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>CaseFlow requires camera access to capture evidence photos.</string>
+	<string>CaseFlow uses the camera to scan documents for e-filing and to capture evidence photos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>CaseFlow requires photo library access to upload existing evidence.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

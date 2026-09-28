@@ -2,6 +2,17 @@
 
 All notable changes to the CaseFlow project are documented here.
 
+## [Unreleased]
+
+### 📄 Document Tools (mobile)
+- New **Document Tools** section in the Tools tab, free for every plan, running on the device (files leave the phone only when saved to a case or shared):
+  - **Scan to PDF**: camera scanner with automatic edge detection (ML Kit on Android, VisionKit on iOS)
+  - **Images to PDF**: photos and WhatsApp images, one per page; orientation fixed, 200/300 DPI, grey or colour, A4 or image size
+  - **Merge**, **Split** (pick pages, one file per range, every N pages), **Organize** (reorder, delete, rotate), **Rotate**
+  - **Page Numbers** in Times New Roman: bottom centre/right or top right, skip cover pages, custom start
+- Every result can be opened, shared, saved to the phone, renamed or **saved to a case's Documents** (never overwrites an existing document)
+- PDF engine: `syncfusion_flutter_pdf` (Community Licence) behind `lib/services/document_tools/`, run in background isolates; thumbnails via `printing`
+
 ## [1.6.0] — 2026-07-05
 
 ### 🎨 Responsive UI

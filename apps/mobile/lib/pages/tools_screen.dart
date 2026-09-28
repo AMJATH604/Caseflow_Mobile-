@@ -23,6 +23,11 @@ import 'tools/mact_calculator.dart';
 import 'tools/maintenance_calculator.dart';
 import 'tools/legal_dictionary.dart';
 import 'tools/english_dictionary.dart';
+import 'tools/document_tools/images_to_pdf_tool.dart';
+import 'tools/document_tools/merge_pdf_tool.dart';
+import 'tools/document_tools/organize_pdf_tool.dart';
+import 'tools/document_tools/page_numbers_tool.dart';
+import 'tools/document_tools/split_pdf_tool.dart';
 import 'cross_exam_sessions_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -55,6 +60,67 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
     BackInterceptors.remove(_handleBackPress);
     super.dispose();
   }
+
+  /// PDF tools for preparing e-filing documents. They run on the device, so
+  /// files never leave the phone unless the user saves them to a case.
+  final List<Map<String, dynamic>> _documentTools = [
+    {
+      'id': 'doc_scan',
+      'title': 'Scan to PDF',
+      'desc': 'Camera scanner',
+      'icon': Icons.document_scanner_rounded,
+      'color': const Color(0xFF0EA5E9),
+      'plan': 'free',
+    },
+    {
+      'id': 'doc_images_to_pdf',
+      'title': 'Images to PDF',
+      'desc': 'Photos, WhatsApp',
+      'icon': Icons.image_rounded,
+      'color': const Color(0xFFF59E0B),
+      'plan': 'free',
+    },
+    {
+      'id': 'doc_merge',
+      'title': 'Merge PDF',
+      'desc': 'Combine files',
+      'icon': Icons.merge_rounded,
+      'color': const Color(0xFF8B5CF6),
+      'plan': 'free',
+    },
+    {
+      'id': 'doc_split',
+      'title': 'Split PDF',
+      'desc': 'Extract pages',
+      'icon': Icons.call_split_rounded,
+      'color': const Color(0xFFEF4444),
+      'plan': 'free',
+    },
+    {
+      'id': 'doc_organize',
+      'title': 'Organize Pages',
+      'desc': 'Reorder, delete',
+      'icon': Icons.view_list_rounded,
+      'color': const Color(0xFF10B981),
+      'plan': 'free',
+    },
+    {
+      'id': 'doc_rotate',
+      'title': 'Rotate PDF',
+      'desc': 'Fix sideways pages',
+      'icon': Icons.rotate_right_rounded,
+      'color': const Color(0xFF6366F1),
+      'plan': 'free',
+    },
+    {
+      'id': 'doc_page_numbers',
+      'title': 'Page Numbers',
+      'desc': 'Number pages',
+      'icon': Icons.format_list_numbered_rounded,
+      'color': const Color(0xFF2563EB),
+      'plan': 'free',
+    },
+  ];
 
   final List<Map<String, dynamic>> _legalTools = [
     {
@@ -276,6 +342,16 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
             ),
           ),
           _buildToolSection(
+            'Document Tools',
+            _documentTools.where((t) {
+              // The camera scanner is a phone feature.
+              if (kIsWeb && t['id'] == 'doc_scan') return false;
+              return true;
+            }).toList(),
+            isMobile,
+          ),
+          SizedBox(height: 20.h),
+          _buildToolSection(
             'Legal Tools',
             _legalTools.where((t) {
               if (kIsWeb && t['id'] == 'import_export') return false;
@@ -444,7 +520,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
   }
 
   Widget _buildToolView() {
-    final allTools = [..._legalTools, ..._chambersTools];
+    final allTools = [..._documentTools, ..._legalTools, ..._chambersTools];
     final tool = allTools.firstWhere((t) => t['id'] == _activeToolId);
     Widget toolWidget;
     final String title = tool['title'];
@@ -505,6 +581,27 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
         break;
       case 'cross_exam':
         toolWidget = const CrossExamSessionsScreen();
+        break;
+      case 'doc_scan':
+        toolWidget = const ImagesToPdfTool(mode: ImageSourceMode.scan);
+        break;
+      case 'doc_images_to_pdf':
+        toolWidget = const ImagesToPdfTool(mode: ImageSourceMode.images);
+        break;
+      case 'doc_merge':
+        toolWidget = const MergePdfTool();
+        break;
+      case 'doc_split':
+        toolWidget = const SplitPdfTool();
+        break;
+      case 'doc_organize':
+        toolWidget = const OrganizePdfTool();
+        break;
+      case 'doc_rotate':
+        toolWidget = const OrganizePdfTool(mode: PageEditorMode.rotate);
+        break;
+      case 'doc_page_numbers':
+        toolWidget = const PageNumbersTool();
         break;
       default:
         toolWidget = Center(child: Text('Tool: $_activeToolId'));
