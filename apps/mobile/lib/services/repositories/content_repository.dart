@@ -165,6 +165,13 @@ class ContentRepository {
         );
   }
 
+  /// The bytes of one of the case's documents (the bucket is private, so
+  /// this goes through the authenticated client rather than a public link).
+  static Future<Uint8List> downloadDocument(String caseId, String fileName) {
+    BaseRepository.requireAuth();
+    return _client.storage.from('case-documents').download('$caseId/$fileName');
+  }
+
   static Future<void> deleteDocument(String caseId, String fileName) async {
     await _client.storage.from('case-documents').remove(['$caseId/$fileName']);
   }

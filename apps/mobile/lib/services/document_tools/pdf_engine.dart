@@ -7,7 +7,7 @@ library;
 
 import 'dart:math' as math;
 import 'dart:typed_data';
-import 'dart:ui' show Offset, Rect, Size;
+import 'dart:ui' show Rect, Size;
 
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
@@ -28,7 +28,26 @@ class PageRef {
   final int source;
   final int page;
   final int rotation;
-  const PageRef(this.source, this.page, {this.rotation = 0});
+
+  /// Scale the page onto A4 inside the [PageFit] margins (see
+  /// [PdfEngine.composePages]).
+  final bool fit;
+  const PageRef(this.source, this.page, {this.rotation = 0, this.fit = false});
+}
+
+/// Blank space kept around page content, in points, as the reader sees the
+/// page (so "left" stays the binding edge however the page is rotated).
+class PageFit {
+  final double left;
+  final double top;
+  final double right;
+  final double bottom;
+  const PageFit({this.left = 0, this.top = 0, this.right = 0, this.bottom = 0});
+
+  static const none = PageFit();
+
+  /// Centimetres to points.
+  static double cm(double value) => value * 72 / 2.54;
 }
 
 enum NumberPosition { bottomCenter, bottomRight, topRight }
@@ -95,15 +114,22 @@ class PdfEngine {
   /// fields, bookmarks and annotations survive. Otherwise each page is copied
   /// as a template, which keeps text and images (still searchable) but drops
   /// interactive elements.
-  static Uint8List composePages(List<Uint8List> sources, List<PageRef> pages) {
+  ///
+  /// Pages marked [PageRef.fit] are scaled (up or down, keeping proportions)
+  /// onto an A4 sheet of the same orientation, inside [fit]'s margins.
+  static Uint8List composePages(
+    List<Uint8List> sources,
+    List<PageRef> pages, {
+    PageFit fit = PageFit.none,
+  }) {
     if (pages.isEmpty) {
       throw const DocumentToolException('Keep at least one page');
     }
-    final inPlace = pages.every((p) => p.source == pages.first.source) &&
+    final inPlace = pages.every((p) => p.source == pages.first.source && !p.fit) &&
         _isIncreasing(pages.map((p) => p.page).toList());
     return inPlace
         ? _editInPlace(sources[pages.first.source], pages)
-        : _copyPages(sources, pages);
+        : _copyPages(sources, pages, fit);
   }
 
   /// All pages of every file in [pdfs], one after another.
@@ -118,7 +144,7 @@ class PdfEngine {
         refs.add(PageRef(s, p));
       }
     }
-    return _copyPages(pdfs, refs);
+    return _copyPages(pdfs, refs, PageFit.none);
   }
 
   /// One output file per range.
@@ -282,7 +308,7 @@ class PdfEngine {
     }
   }
 
-  static Uint8List _copyPages(List<Uint8List> sources, List<PageRef> pages) {
+  static Uint8List _copyPages(List<Uint8List> sources, List<PageRef> pages, PageFit fit) {
     final opened = <int, PdfDocument>{};
     final out = PdfDocument();
     final rotations = <int>[];
@@ -296,13 +322,22 @@ class PdfEngine {
         }
         final page = src.pages[ref.page];
         final template = page.createTemplate();
-        final size = template.size;
+        final angle = _degrees(page.rotation);
+        final size = ref.fit
+            ? (template.size.width > template.size.height
+                ? Size(a4Size.height, a4Size.width)
+                : a4Size)
+            : template.size;
         if (section == null || sectionSize != size) {
           section = _newSection(out, size);
           sectionSize = size;
         }
-        section.pages.add().graphics.drawPdfTemplate(template, Offset.zero, size);
-        rotations.add(_degrees(page.rotation) + ref.rotation);
+        final box = ref.fit
+            ? _unrotatedBox(size, fit, angle)
+            : Rect.fromLTWH(0, 0, size.width, size.height);
+        final placed = ref.fit ? _fit(template.size, box) : box;
+        section.pages.add().graphics.drawPdfTemplate(template, placed.topLeft, placed.size);
+        rotations.add(angle + ref.rotation);
       }
       final copied = _save(out);
       if (rotations.every((r) => r % 360 == 0)) return copied;
@@ -352,6 +387,18 @@ class PdfEngine {
         g.translateTransform(raw.width, 0);
         g.rotateTransform(-270);
     }
+  }
+
+  /// The margin box of an unrotated [page] whose reader sees it turned by
+  /// [angle]: the visual left margin sits on a different raw edge per angle.
+  static Rect _unrotatedBox(Size page, PageFit m, int angle) {
+    final (l, t, r, b) = switch (angle) {
+      90 => (m.top, m.right, m.bottom, m.left),
+      180 => (m.right, m.bottom, m.left, m.top),
+      270 => (m.bottom, m.left, m.top, m.right),
+      _ => (m.left, m.top, m.right, m.bottom),
+    };
+    return Rect.fromLTRB(l, t, page.width - r, page.height - b);
   }
 
   static Rect _fit(Size content, Rect box) {

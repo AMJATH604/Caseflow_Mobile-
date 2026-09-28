@@ -27,6 +27,7 @@ import 'tools/document_tools/images_to_pdf_tool.dart';
 import 'tools/document_tools/merge_pdf_tool.dart';
 import 'tools/document_tools/organize_pdf_tool.dart';
 import 'tools/document_tools/page_numbers_tool.dart';
+import 'tools/document_tools/prepare_efiling_screen.dart';
 import 'tools/document_tools/split_pdf_tool.dart';
 import 'cross_exam_sessions_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -64,6 +65,14 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
   /// PDF tools for preparing e-filing documents. They run on the device, so
   /// files never leave the phone unless the user saves them to a case.
   final List<Map<String, dynamic>> _documentTools = [
+    {
+      'id': 'doc_prepare_efiling',
+      'title': 'Prepare e-Filing',
+      'desc': 'Court-ready PDF',
+      'icon': Icons.fact_check_rounded,
+      'color': const Color(0xFF059669),
+      'plan': 'free',
+    },
     {
       'id': 'doc_scan',
       'title': 'Scan to PDF',
@@ -506,6 +515,8 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
           builder: (_) => const CrossExamSessionsScreen(),
         ),
       );
+    } else if (tool['id'] == 'doc_prepare_efiling') {
+      PrepareEfilingScreen.open(context);
     } else if (tool['id'] == 'advocate_directory') {
       context.push('/advocate-directory');
     } else if (tool['id'] == 'epay_court_fee') {

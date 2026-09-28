@@ -4,6 +4,7 @@ library;
 
 import 'dart:io';
 
+import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
@@ -84,6 +85,34 @@ class DocumentFiles {
     return _toToolFiles(result);
   }
 
+  /// The camera scanner is a phone feature.
+  static bool get canScan => !kIsWeb;
+
+  /// Pages scanned with the camera (edges found and straightened by ML Kit
+  /// on Android, VisionKit on iOS), as JPEGs. Empty if cancelled.
+  static Future<List<ToolFile>> scanPages() async {
+    try {
+      final paths = await CunningDocumentScanner.getPictures(
+        scannerSource: ScannerSource.camera,
+      );
+      if (paths == null) return const [];
+      final stamp = DateTime.now().millisecondsSinceEpoch;
+      final files = [
+        for (var i = 0; i < paths.length; i++)
+          ToolFile('scan_${stamp}_${i + 1}.jpg', await File(paths[i]).readAsBytes()),
+      ];
+      // The scanner keeps its own copies; the pages are in memory now.
+      await CunningDocumentScanner.cleanCache().catchError((_) {});
+      return files;
+    } on CunningDocumentScannerException catch (e) {
+      throw DocumentToolException(
+        e.code == 'permission_denied'
+            ? 'CaseFlow needs camera access to scan. Allow it in your phone settings.'
+            : 'The scanner could not start: ${e.message}',
+      );
+    }
+  }
+
   /// Images from the phone's photo picker.
   static Future<List<ToolFile>> pickImagesFromGallery() async {
     final picked = await ImagePicker().pickMultiImage();
@@ -140,6 +169,10 @@ class DocumentFiles {
     await SupabaseService.uploadDocument(caseId, file.bytes, name);
     return name;
   }
+
+  /// One of the case's existing documents, for reuse in a tool.
+  static Future<ToolFile> fromCase(String caseId, String fileName) async =>
+      ToolFile(fileName, await SupabaseService.downloadDocument(caseId, fileName));
 
   /// Throws if [file] is over the case-documents limit.
   static void checkCaseDocumentSize(ToolFile file) {

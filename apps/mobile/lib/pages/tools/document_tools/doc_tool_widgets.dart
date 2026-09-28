@@ -267,11 +267,25 @@ class ToolResultView extends StatefulWidget {
   final List<ToolFile> files;
   final String headline;
   final VoidCallback onStartOver;
+  final String startOverLabel;
+  final IconData startOverIcon;
+
+  /// Save straight into this case instead of asking which one.
+  final CaseTarget? caseTarget;
+
+  /// Extra content above the files (e.g. checks) and below them.
+  final List<Widget> header;
+  final List<Widget> footer;
   const ToolResultView({
     super.key,
     required this.files,
     required this.headline,
     required this.onStartOver,
+    this.startOverLabel = 'Start over',
+    this.startOverIcon = Icons.refresh_rounded,
+    this.caseTarget,
+    this.header = const [],
+    this.footer = const [],
   });
 
   @override
@@ -312,8 +326,8 @@ class _ToolResultViewState extends State<ToolResultView> {
     return DocToolLayout(
       action: OutlinedButton.icon(
         onPressed: widget.onStartOver,
-        icon: const Icon(Icons.refresh_rounded),
-        label: const Text('Start over'),
+        icon: Icon(widget.startOverIcon),
+        label: Text(widget.startOverLabel),
         style: OutlinedButton.styleFrom(minimumSize: Size(double.infinity, 46.h)),
       ),
       children: [
@@ -330,6 +344,7 @@ class _ToolResultViewState extends State<ToolResultView> {
           ],
         ),
         SizedBox(height: 16.h),
+        ...widget.header,
         for (var i = 0; i < _files.length; i++)
           FileCard(
             name: _files[i].name,
@@ -345,15 +360,17 @@ class _ToolResultViewState extends State<ToolResultView> {
           ),
         if (!multiple) ...[
           SizedBox(height: 8.h),
-          _ResultButtons(file: _files.single, onSave: _saveToDevice, run: _run),
+          _ResultButtons(
+            file: _files.single,
+            target: widget.caseTarget,
+            onSave: _saveToDevice,
+            run: _run,
+          ),
         ] else ...[
           SizedBox(height: 8.h),
-          OutlinedButton.icon(
-            onPressed: () => SaveToCaseSheet.show(context, _files),
-            icon: const Icon(Icons.folder_shared_outlined),
-            label: Text('Save all ${_files.length} to a case'),
-          ),
+          SaveToCaseButton(files: _files, target: widget.caseTarget),
         ],
+        ...widget.footer,
       ],
     );
   }
@@ -401,47 +418,35 @@ class _RenameDialogState extends State<_RenameDialog> {
 
 class _ResultButtons extends StatelessWidget {
   final ToolFile file;
+  final CaseTarget? target;
   final Future<void> Function(ToolFile) onSave;
   final Future<void> Function(Future<void> Function()) run;
-  const _ResultButtons({required this.file, required this.onSave, required this.run});
+  const _ResultButtons({
+    required this.file,
+    required this.target,
+    required this.onSave,
+    required this.run,
+  });
 
   @override
   Widget build(BuildContext context) {
-    Widget button(IconData icon, String label, VoidCallback onTap, {bool primary = false}) =>
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.all(4.r),
-            child: primary
-                ? ElevatedButton.icon(
-                    onPressed: onTap,
-                    icon: Icon(icon, size: 18),
-                    label: Text(label),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.accent,
-                      foregroundColor: Colors.white,
-                      minimumSize: Size(0, 46.h),
-                    ),
-                  )
-                : OutlinedButton.icon(
-                    onPressed: onTap,
-                    icon: Icon(icon, size: 18),
-                    label: Text(label),
-                    style: OutlinedButton.styleFrom(minimumSize: Size(0, 46.h)),
-                  ),
-          ),
-        );
+    Widget button(IconData icon, String label, VoidCallback onTap) => Expanded(
+      child: Padding(
+        padding: EdgeInsets.all(4.r),
+        child: OutlinedButton.icon(
+          onPressed: onTap,
+          icon: Icon(icon, size: 18),
+          label: Text(label),
+          style: OutlinedButton.styleFrom(minimumSize: Size(0, 46.h)),
+        ),
+      ),
+    );
 
     return Column(
       children: [
-        Row(
-          children: [
-            button(
-              Icons.folder_shared_outlined,
-              'Save to case',
-              () => SaveToCaseSheet.show(context, [file]),
-              primary: true,
-            ),
-          ],
+        Padding(
+          padding: EdgeInsets.all(4.r),
+          child: SaveToCaseButton(files: [file], target: target),
         ),
         Row(
           children: [

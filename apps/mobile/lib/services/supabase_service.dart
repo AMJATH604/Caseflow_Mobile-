@@ -208,6 +208,9 @@ class SupabaseService {
     String fileName,
   ) => ContentRepository.uploadDocument(caseId, file, fileName);
 
+  static Future<Uint8List> downloadDocument(String caseId, String fileName) =>
+      ContentRepository.downloadDocument(caseId, fileName);
+
   static Future<void> deleteDocument(String caseId, String fileName) =>
       ContentRepository.deleteDocument(caseId, fileName);
 

@@ -4,7 +4,15 @@ All notable changes to the CaseFlow project are documented here.
 
 ## [Unreleased]
 
-### 📄 Document Tools (mobile)
+### ⚖️ Prepare for e-Filing (mobile)
+- Guided flow from a case's **Documents** tab (saves straight into that case) or the **Prepare e-Filing** tile in Tools
+- Collect documents in filing order from PDFs, the camera scanner, photos or the case's existing files; name each (Plaint, Vakalatnama, Affidavit…)
+- **Tamil Nadu District Courts** preset (eCourts eFiling 3.0): A4, 3.5 cm left / 2.5 cm other margins, page numbers bottom centre
+- Builds one court-ready PDF: pages fitted to A4 (optionally shrunk into the court margins, correct on rotated pages), an **index page** in Times New Roman with each document's page range, page numbers matching the index, and a **bookmark** per document
+- Stays under the portal's size limit (20 MB by default, editable) by splitting into as few files as possible, each with its own index
+- **e-Filing check**: A4, file size, scanned pages without searchable text (OCR arrives with the server tools), numbering, bookmarks, digitally signed inputs, margins
+- Shows the rows for the portal's **Pleadings › Indexing** form (Index Title / From / To) per file, with Copy
+
 - New **Document Tools** section in the Tools tab, free for every plan, running on the device (files leave the phone only when saved to a case or shared):
   - **Scan to PDF**: camera scanner with automatic edge detection (ML Kit on Android, VisionKit on iOS)
   - **Images to PDF**: photos and WhatsApp images, one per page; orientation fixed, 200/300 DPI, grey or colour, A4 or image size

@@ -6,6 +6,7 @@ import '../services/providers.dart';
 import '../services/supabase_service.dart';
 import '../services/storage_links.dart';
 import '../theme/app_theme.dart';
+import '../pages/tools/document_tools/prepare_efiling_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Self-contained Documents tab for a case.
@@ -150,6 +151,18 @@ class CaseDocumentsTab extends ConsumerWidget {
                   style: const TextStyle(color: Color(0xFF1E293B)),
                 ),
               ),
+        ),
+        Positioned(
+          bottom: 24.h,
+          left: 24.w,
+          child: FloatingActionButton.extended(
+            heroTag: 'prepare_efiling',
+            onPressed: () => PrepareEfilingScreen.open(context, caseId: caseId),
+            backgroundColor: const Color(0xFF059669),
+            foregroundColor: Colors.white,
+            icon: const Icon(Icons.fact_check_rounded),
+            label: const Text('Prepare e-Filing'),
+          ),
         ),
         Positioned(
           bottom: 24.h,

@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -52,29 +49,6 @@ class _ImagesToPdfToolState extends State<ImagesToPdfTool> {
     }
   }
 
-  Future<List<ToolFile>> _scan() async {
-    try {
-      final paths = await CunningDocumentScanner.getPictures(
-        scannerSource: ScannerSource.camera,
-      );
-      if (paths == null) return const [];
-      final stamp = DateTime.now().millisecondsSinceEpoch;
-      final files = [
-        for (var i = 0; i < paths.length; i++)
-          ToolFile('scan_${stamp}_${i + 1}.jpg', await File(paths[i]).readAsBytes()),
-      ];
-      // The scanner keeps its own copies; the pages are in memory now.
-      await CunningDocumentScanner.cleanCache().catchError((_) {});
-      return files;
-    } on CunningDocumentScannerException catch (e) {
-      throw DocumentToolException(
-        e.code == 'permission_denied'
-            ? 'CaseFlow needs camera access to scan. Allow it in your phone settings.'
-            : 'The scanner could not start: ${e.message}',
-      );
-    }
-  }
-
   Future<void> _create() async {
     setState(() => _busy = true);
     try {
@@ -113,7 +87,7 @@ class _ImagesToPdfToolState extends State<ImagesToPdfTool> {
       children: [
         if (_isScan)
           OutlinedButton.icon(
-            onPressed: _adding ? null : () => _addFrom(_scan),
+            onPressed: _adding ? null : () => _addFrom(DocumentFiles.scanPages),
             icon: const Icon(Icons.document_scanner_outlined),
             label: Text(_items.isEmpty ? 'Scan' : 'Scan more'),
           ),
@@ -152,7 +126,7 @@ class _ImagesToPdfToolState extends State<ImagesToPdfTool> {
             subtitle: _isScan ? 'Uses the camera' : 'From the gallery',
             onTap: _adding
                 ? () {}
-                : () => _addFrom(_isScan ? _scan : DocumentFiles.pickImagesFromGallery),
+                : () => _addFrom(_isScan ? DocumentFiles.scanPages : DocumentFiles.pickImagesFromGallery),
           ),
           SizedBox(height: 12.h),
           addButtons,
