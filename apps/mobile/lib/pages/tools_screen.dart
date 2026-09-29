@@ -10,7 +10,6 @@ import 'tools/court_fee_calculator.dart';
 import 'tools/interest_calculator.dart';
 import 'tools/delay_calculator.dart';
 import 'tools/limitation_calculator.dart';
-// import 'tools/ocr_tool.dart'; // Mobile-only
 import 'tools/bare_acts_screen.dart';
 import 'tools/case_import_export_screen.dart';
 import 'tools/broadcast_node.dart';
@@ -28,6 +27,8 @@ import 'tools/document_tools/merge_pdf_tool.dart';
 import 'tools/document_tools/organize_pdf_tool.dart';
 import 'tools/document_tools/page_numbers_tool.dart';
 import 'tools/document_tools/prepare_efiling_screen.dart';
+import 'tools/document_tools/server_tool_screen.dart';
+import '../services/document_tools/server_tools_client.dart';
 import 'tools/document_tools/split_pdf_tool.dart';
 import 'cross_exam_sessions_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -129,6 +130,32 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       'color': const Color(0xFF2563EB),
       'plan': 'free',
     },
+  ];
+
+  /// Tools that run on the CaseFlow document server; listed only when this
+  /// build knows the server's address (DOC_TOOLS_API_URL).
+  static final List<Map<String, dynamic>> _serverTools = [
+    for (final (tool, desc, color) in const [
+      (ServerTool.wordToPdf, 'Pleadings to PDF', Color(0xFF2563EB)),
+      (ServerTool.ocr, 'Searchable scans', Color(0xFF0D9488)),
+      (ServerTool.compress, 'Fit upload limit', Color(0xFFDC2626)),
+      (ServerTool.pdfToWord, 'Editable Word', Color(0xFF1D4ED8)),
+      (ServerTool.pdfToExcel, 'Tables to Excel', Color(0xFF059669)),
+      (ServerTool.excelToPdf, 'Sheets to PDF', Color(0xFF16A34A)),
+      (ServerTool.powerpointToPdf, 'Slides to PDF', Color(0xFFEA580C)),
+      (ServerTool.protect, 'Add a password', Color(0xFF7C3AED)),
+      (ServerTool.unlock, 'Remove password', Color(0xFF9333EA)),
+      (ServerTool.repair, 'Fix damaged PDF', Color(0xFF64748B)),
+    ])
+      {
+        'id': 'srv_${tool.slug}',
+        'title': tool.title,
+        'desc': desc,
+        'icon': tool.icon,
+        'color': color,
+        'plan': 'free',
+        'server': tool,
+      },
   ];
 
   final List<Map<String, dynamic>> _legalTools = [
@@ -360,6 +387,10 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
             isMobile,
           ),
           SizedBox(height: 20.h),
+          if (ServerToolsClient.isConfigured) ...[
+            _buildToolSection('Convert & OCR', _serverTools, isMobile),
+            SizedBox(height: 20.h),
+          ],
           _buildToolSection(
             'Legal Tools',
             _legalTools.where((t) {
@@ -531,7 +562,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
   }
 
   Widget _buildToolView() {
-    final allTools = [..._documentTools, ..._legalTools, ..._chambersTools];
+    final allTools = [..._documentTools, ..._serverTools, ..._legalTools, ..._chambersTools];
     final tool = allTools.firstWhere((t) => t['id'] == _activeToolId);
     Widget toolWidget;
     final String title = tool['title'];
@@ -615,7 +646,10 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
         toolWidget = const PageNumbersTool();
         break;
       default:
-        toolWidget = Center(child: Text('Tool: $_activeToolId'));
+        final server = tool['server'];
+        toolWidget = server is ServerTool
+            ? ServerToolScreen(tool: server)
+            : Center(child: Text('Tool: $_activeToolId'));
     }
 
     final isMobile = MediaQuery.of(context).size.width < 768;

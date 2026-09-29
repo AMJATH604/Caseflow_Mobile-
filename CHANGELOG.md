@@ -4,7 +4,15 @@ All notable changes to the CaseFlow project are documented here.
 
 ## [Unreleased]
 
-### ⚖️ Prepare for e-Filing (mobile)
+### ☁️ Convert & OCR (mobile, via the CaseFlow document server)
+- New **Convert & OCR** tools, shown when the build has `DOC_TOOLS_API_URL` (CI: repository variable `DOC_TOOLS_API_URL`):
+  - **Word, Excel, PowerPoint to PDF** (Tamil and Hindi text kept), **OCR** (English, Tamil, Hindi; straightens scans), **Compress** (shows the saving)
+  - **PDF to Word**, **PDF to Excel**, **Protect**, **Unlock**, **Repair**
+- **Prepare for e-Filing** can now OCR its scanned documents and rebuild, so the filing is searchable. OCR runs on the documents, not the numbered filing, whose page numbers would hide scanned pages.
+- Jobs send the user's sign-in token (per-user limits on the server) and are deleted from the server as soon as the result is downloaded; upload/processing/download progress with Cancel
+- Results can be Word or Excel files as well as PDFs: open, share, save, rename and save-to-case keep the right type
+- Removed the placeholder Word to PDF screen (it only waited 3 seconds) and the unused on-device OCR screen, together with the `google_mlkit_text_recognition` package and its bundled models
+
 - Guided flow from a case's **Documents** tab (saves straight into that case) or the **Prepare e-Filing** tile in Tools
 - Collect documents in filing order from PDFs, the camera scanner, photos or the case's existing files; name each (Plaint, Vakalatnama, Affidavit…)
 - **Tamil Nadu District Courts** preset (eCourts eFiling 3.0): A4, 3.5 cm left / 2.5 cm other margins, page numbers bottom centre

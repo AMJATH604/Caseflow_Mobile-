@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../models/models.dart';
 import '../../../services/document_tools/document_files.dart';
 import '../../../services/document_tools/document_tools_service.dart';
+import '../../../services/document_tools/server_tools_client.dart';
 import '../../../services/providers.dart';
 import '../../../theme/app_theme.dart';
 import 'doc_tool_widgets.dart';
@@ -14,9 +16,9 @@ import 'save_to_case_sheet.dart';
 /// One document of the filing, in filing order.
 class _Part {
   String title;
-  final ToolFile file;
+  ToolFile file;
   final int pageCount;
-  final String source;
+  String source;
   _Part(this.title, this.file, this.pageCount, this.source);
 }
 
@@ -79,6 +81,12 @@ class _PrepareEfilingScreenState extends ConsumerState<PrepareEfilingScreen> {
   FilingResult? _result;
   List<ToolFile>? _files;
 
+  // OCR of scanned documents (runs on the document server).
+  final Set<String> _ocrLanguages = {'eng', 'tam'};
+  CancelToken? _ocrCancel;
+  String? _ocrStatus;
+  JobProgress? _ocrProgress;
+
   @override
   void initState() {
     super.initState();
@@ -97,6 +105,7 @@ class _PrepareEfilingScreenState extends ConsumerState<PrepareEfilingScreen> {
 
   @override
   void dispose() {
+    _ocrCancel?.cancel();
     _maxMb.dispose();
     _heading.dispose();
     _subheading.dispose();
@@ -250,6 +259,60 @@ class _PrepareEfilingScreenState extends ConsumerState<PrepareEfilingScreen> {
     }
   }
 
+  /// OCRs the documents that have scanned pages, then rebuilds the filing
+  /// from the searchable versions.
+  Future<void> _ocrAndRebuild(List<int> documents) async {
+    final client = ServerToolsClient.shared;
+    if (client == null || _ocrLanguages.isEmpty) return;
+    final cancel = CancelToken();
+    final parts = [for (final i in documents) _parts[i]];
+    setState(() => _ocrCancel = cancel);
+    try {
+      for (var n = 0; n < parts.length; n++) {
+        final part = parts[n];
+        setState(() {
+          _ocrStatus = 'OCR ${n + 1} of ${parts.length}: ${part.title}';
+          _ocrProgress = null;
+        });
+        final output = await client.run(
+          'ocr-pdf',
+          [part.file],
+          options: {
+            'languages': [
+              for (final l in const ['eng', 'tam', 'hin'])
+                if (_ocrLanguages.contains(l)) l,
+            ],
+            'mode': 'skip',
+            'clean_up': true,
+          },
+          cancel: cancel,
+          onProgress: (p) {
+            if (mounted) setState(() => _ocrProgress = p);
+          },
+        );
+        part
+          ..file = ToolFile(part.file.name, output.file.bytes)
+          ..source = '${part.source} · OCR';
+      }
+      if (!mounted) return;
+      setState(() => _ocrStatus = 'Rebuilding the filing…');
+      await _prepare();
+      if (mounted) showToolMessage(context, 'Scanned pages are now searchable');
+    } on DocumentToolException catch (e) {
+      if (mounted && !cancel.isCancelled) showToolError(context, e);
+    } catch (e) {
+      if (mounted) showToolError(context, e);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _ocrCancel = null;
+          _ocrStatus = null;
+          _ocrProgress = null;
+        });
+      }
+    }
+  }
+
   Future<bool> _confirmDiscard() async {
     final discard = await showDialog<bool>(
       context: context,
@@ -316,7 +379,23 @@ class _PrepareEfilingScreenState extends ConsumerState<PrepareEfilingScreen> {
                     _result = null;
                     _files = null;
                   }),
-                  header: [_ChecksCard(checks: _result!.checks), SizedBox(height: 16.h)],
+                  header: [
+                    _ChecksCard(checks: _result!.checks),
+                    SizedBox(height: 12.h),
+                    if (_result!.documentsWithoutText.isNotEmpty && ServerToolsClient.isConfigured)
+                      _OcrCard(
+                        documents: [for (final i in _result!.documentsWithoutText) _parts[i].title],
+                        languages: _ocrLanguages,
+                        onLanguagesChanged: () => setState(() {}),
+                        status: _ocrStatus,
+                        progress: _ocrProgress,
+                        onRun: _ocrCancel == null && !_busy
+                            ? () => _ocrAndRebuild(_result!.documentsWithoutText)
+                            : null,
+                        onCancel: _ocrCancel?.cancel,
+                      ),
+                    SizedBox(height: 4.h),
+                  ],
                   footer: [
                     SizedBox(height: 20.h),
                     for (var i = 0; i < _files!.length; i++)
@@ -503,6 +582,93 @@ class _PrepareEfilingScreenState extends ConsumerState<PrepareEfilingScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Offers OCR for the scanned documents: runs on the document server, then
+/// the filing is rebuilt so numbers, index and bookmarks stay right.
+class _OcrCard extends StatelessWidget {
+  final List<String> documents;
+  final Set<String> languages;
+  final VoidCallback onLanguagesChanged;
+  final String? status;
+  final JobProgress? progress;
+  final VoidCallback? onRun;
+  final VoidCallback? onCancel;
+  const _OcrCard({
+    required this.documents,
+    required this.languages,
+    required this.onLanguagesChanged,
+    required this.status,
+    required this.progress,
+    required this.onRun,
+    required this.onCancel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final running = status != null;
+    return Container(
+      margin: EdgeInsets.only(bottom: 12.h),
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        color: AppTheme.warning.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: AppTheme.warning.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Make scanned pages searchable',
+            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w800),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            'OCR ${documents.join(', ')} on the CaseFlow document server, then rebuild '
+            'the filing. Choose the languages in these documents:',
+            style: TextStyle(fontSize: 11.sp, color: mutedText(context), height: 1.35),
+          ),
+          SizedBox(height: 6.h),
+          Wrap(
+            spacing: 8.w,
+            children: [
+              for (final (code, name) in const [('eng', 'English'), ('tam', 'Tamil'), ('hin', 'Hindi')])
+                FilterChip(
+                  label: Text(name),
+                  selected: languages.contains(code),
+                  onSelected: running
+                      ? null
+                      : (on) {
+                          on ? languages.add(code) : languages.remove(code);
+                          onLanguagesChanged();
+                        },
+                ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          if (running) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    progress == null ? status! : '$status · ${progress!.label}',
+                    style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                TextButton(onPressed: onCancel, child: const Text('Cancel')),
+              ],
+            ),
+            LinearProgressIndicator(value: progress?.fraction),
+          ] else
+            FilledButton.icon(
+              onPressed: languages.isEmpty ? null : onRun,
+              icon: const Icon(Icons.text_fields_rounded),
+              label: const Text('Make searchable & rebuild'),
+            ),
+        ],
+      ),
     );
   }
 }

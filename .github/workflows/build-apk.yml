@@ -67,7 +67,8 @@ jobs:
           flutter build apk --release \
             --android-skip-build-dependency-validation \
             --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
-            --dart-define=SUPABASE_PUBLISHABLE_KEY="${{ secrets.SUPABASE_PUBLISHABLE_KEY || secrets.SUPABASE_ANON_KEY }}"
+            --dart-define=SUPABASE_PUBLISHABLE_KEY="${{ secrets.SUPABASE_PUBLISHABLE_KEY || secrets.SUPABASE_ANON_KEY }}" \
+            --dart-define=DOC_TOOLS_API_URL="${{ vars.DOC_TOOLS_API_URL }}"
 
       - name: Collect Release APKs
         run: |

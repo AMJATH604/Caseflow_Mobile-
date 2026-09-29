@@ -152,6 +152,8 @@ void main() {
     final check = result.checks.firstWhere((c) => c.title.contains('without searchable text'));
     expect(check.level, CheckLevel.warning);
     expect(check.detail, startsWith('Pages 5, 6.'));
+    // The sale deed (document 1) is the one to OCR.
+    expect(result.documentsWithoutText, [1]);
   });
 
   test('splits into files under the size limit with per-file indexes', () {

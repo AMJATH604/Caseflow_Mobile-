@@ -11,6 +11,16 @@ bool _isDark(BuildContext context) => Theme.of(context).brightness == Brightness
 Color mutedText(BuildContext context) =>
     _isDark(context) ? const Color(0xFFCBD5E1) : Colors.black54;
 
+/// An icon for the file's type: PDF, Word, Excel or other.
+Widget fileTypeIcon(ToolFile file) => switch (file.extension) {
+  'pdf' => const Icon(Icons.picture_as_pdf_rounded, color: AppTheme.error, size: 28),
+  'doc' || 'docx' || 'odt' || 'rtf' => const Icon(Icons.description_rounded, color: Color(0xFF2563EB), size: 28),
+  'xls' || 'xlsx' || 'ods' => const Icon(Icons.table_chart_rounded, color: Color(0xFF059669), size: 28),
+  'ppt' || 'pptx' || 'odp' => const Icon(Icons.slideshow_rounded, color: Color(0xFFEA580C), size: 28),
+  'jpg' || 'jpeg' || 'png' => const Icon(Icons.image_rounded, color: Color(0xFF7C3AED), size: 28),
+  _ => const Icon(Icons.insert_drive_file_rounded, size: 28),
+};
+
 /// Shows a tool failure in words the user can act on.
 void showToolError(BuildContext context, Object error) {
   final message = error is DocumentToolException
@@ -307,11 +317,14 @@ class _ToolResultViewState extends State<ToolResultView> {
     final file = _files[index];
     final name = await showDialog<String>(
       context: context,
-      builder: (_) => _RenameDialog(initial: baseName(file.name)),
+      builder: (_) => _RenameDialog(initial: baseName(file.name), extension: file.extension),
     );
     if (name == null || name.trim().isEmpty) return;
     setState(() {
-      _files = [..._files]..[index] = ToolFile(safeFileName(name), file.bytes);
+      _files = [..._files]..[index] = ToolFile(
+        safeFileName(name, extension: file.extension),
+        file.bytes,
+      );
     });
   }
 
@@ -349,6 +362,7 @@ class _ToolResultViewState extends State<ToolResultView> {
           FileCard(
             name: _files[i].name,
             subtitle: _files[i].sizeLabel,
+            leading: fileTypeIcon(_files[i]),
             actions: [
               IconButton(
                 tooltip: 'Rename',
@@ -380,7 +394,8 @@ class _ToolResultViewState extends State<ToolResultView> {
 /// closing animation, not while the field is still on screen.
 class _RenameDialog extends StatefulWidget {
   final String initial;
-  const _RenameDialog({required this.initial});
+  final String extension;
+  const _RenameDialog({required this.initial, required this.extension});
 
   @override
   State<_RenameDialog> createState() => _RenameDialogState();
@@ -402,7 +417,7 @@ class _RenameDialogState extends State<_RenameDialog> {
       content: TextField(
         controller: _controller,
         autofocus: true,
-        decoration: const InputDecoration(suffixText: '.pdf'),
+        decoration: InputDecoration(suffixText: '.${widget.extension}'),
         onSubmitted: (v) => Navigator.pop(context, v),
       ),
       actions: [

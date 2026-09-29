@@ -125,7 +125,13 @@ class FilingCheck {
 class FilingResult {
   final List<FilingFile> files;
   final List<FilingCheck> checks;
-  const FilingResult(this.files, this.checks);
+
+  /// Indexes of the documents (in filing order) that have scanned pages
+  /// without searchable text: the ones to OCR before rebuilding. OCR must
+  /// run on the documents, not the finished filing, whose page numbers
+  /// would make every page look like it already has text.
+  final List<int> documentsWithoutText;
+  const FilingResult(this.files, this.checks, [this.documentsWithoutText = const []]);
 
   int get totalPages => files.fold(0, (sum, f) => sum + f.pageCount);
 }
@@ -175,6 +181,13 @@ class EFilingBuilder {
       for (final i in report.textlessPages)
         if (i >= indexPages) i + 1,
     ];
+    final documentsWithoutText = <int>[];
+    var first = indexPages + 1;
+    for (var i = 0; i < parts.length; i++) {
+      final last = first + counts[i] - 1;
+      if (textless.any((p) => p >= first && p <= last)) documentsWithoutText.add(i);
+      first = last + 1;
+    }
 
     // 3. Page numbers on every page, index included, so printed numbers
     //    match the page numbers the portal's indexing form asks for.
@@ -216,6 +229,7 @@ class EFilingBuilder {
     return FilingResult(
       files,
       _checks(options, files, report, textless, signed, totalPages),
+      documentsWithoutText,
     );
   }
 
@@ -455,8 +469,7 @@ class EFilingBuilder {
         FilingCheck(
           CheckLevel.warning,
           '${textless.length} scanned page${textless.length == 1 ? '' : 's'} without searchable text',
-          'Pages ${_list(textless)}. Courts prefer OCR (searchable) scans; '
-              'OCR is coming to CaseFlow in the next update.',
+          'Pages ${_list(textless)}. Courts prefer searchable (OCR) scans.',
         ),
       if (options.pageNumbers)
         const FilingCheck(CheckLevel.ok, 'Pages numbered', 'Bottom centre, matching the index.')

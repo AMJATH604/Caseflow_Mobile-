@@ -51,6 +51,12 @@ class EnvConfig {
               ? _anonDefine
               : 'sb_publishable_g8UbCM_UoYqvLn8DbGIBCA_QGG3U9nT');
 
+  /// The CaseFlow document server (Word→PDF, OCR, compression...), e.g.
+  /// `https://tools.example.in`, given with `--dart-define=DOC_TOOLS_API_URL=…`.
+  /// Empty when not set: the server-side tools are then hidden, so a build
+  /// without a server never shows tools that cannot work.
+  static const String docToolsApiUrl = String.fromEnvironment('DOC_TOOLS_API_URL');
+
   // Validation helper
   static bool get isConfigured =>
       supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;

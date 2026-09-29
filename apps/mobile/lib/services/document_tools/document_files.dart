@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../supabase_service.dart';
 import 'pdf_engine.dart' show DocumentToolException;
@@ -25,7 +26,31 @@ class ToolFile {
   const ToolFile(this.name, this.bytes);
 
   String get sizeLabel => formatBytes(bytes.length);
+
+  /// Lower-case extension without the dot, e.g. `pdf`, `docx`.
+  String get extension {
+    final dot = name.lastIndexOf('.');
+    return dot > 0 ? name.substring(dot + 1).toLowerCase() : 'pdf';
+  }
+
+  bool get isPdf => extension == 'pdf';
+
+  String get mimeType => _mimeTypes[extension] ?? 'application/octet-stream';
+
+  /// A short label for the file type, e.g. "Word".
+  String get kindLabel => _kindLabels[extension] ?? extension.toUpperCase();
 }
+
+const _mimeTypes = {
+  'pdf': 'application/pdf',
+  'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'jpg': 'image/jpeg',
+  'jpeg': 'image/jpeg',
+  'png': 'image/png',
+};
+
+const _kindLabels = {'pdf': 'PDF', 'docx': 'Word', 'xlsx': 'Excel'};
 
 String formatBytes(int bytes) {
   if (bytes < 1024) return '$bytes B';
@@ -85,6 +110,17 @@ class DocumentFiles {
     return _toToolFiles(result);
   }
 
+  /// One file of the given types (extensions without dots).
+  static Future<ToolFile?> pickFile(List<String> extensions) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: extensions,
+      withData: true,
+    );
+    final files = _toToolFiles(result);
+    return files.isEmpty ? null : files.single;
+  }
+
   /// The camera scanner is a phone feature.
   static bool get canScan => !kIsWeb;
 
@@ -130,28 +166,35 @@ class DocumentFiles {
   }
 
   /// The share sheet on phones; a download on web.
-  static Future<void> share(ToolFile file) =>
-      Printing.sharePdf(bytes: file.bytes, filename: file.name);
+  static Future<void> share(ToolFile file) async {
+    if (file.isPdf) {
+      await Printing.sharePdf(bytes: file.bytes, filename: file.name);
+      return;
+    }
+    await Share.shareXFiles([
+      XFile.fromData(file.bytes, name: file.name, mimeType: file.mimeType),
+    ], fileNameOverrides: [file.name]);
+  }
 
   /// Asks where to save and writes the file. Returns false if cancelled.
   static Future<bool> saveToDevice(ToolFile file) async {
     final path = await FilePicker.platform.saveFile(
-      dialogTitle: 'Save PDF',
+      dialogTitle: 'Save ${file.kindLabel} file',
       fileName: file.name,
       type: FileType.custom,
-      allowedExtensions: const ['pdf'],
+      allowedExtensions: [file.extension],
       bytes: file.bytes,
     );
     return path != null;
   }
 
-  /// Opens the file in the phone's PDF viewer.
+  /// Opens the file in the phone's viewer for its type.
   static Future<void> open(ToolFile file) async {
     final dir = await getTemporaryDirectory();
     final out = File('${dir.path}/document_tools/${file.name}');
     await out.parent.create(recursive: true);
     await out.writeAsBytes(file.bytes, flush: true);
-    final result = await OpenFile.open(out.path, type: 'application/pdf');
+    final result = await OpenFile.open(out.path, type: file.mimeType);
     if (result.type != ResultType.done) {
       throw Exception(result.message);
     }
@@ -165,7 +208,10 @@ class DocumentFiles {
     required Iterable<String> existingNames,
   }) async {
     checkCaseDocumentSize(file);
-    final name = uniqueFileName(safeFileName(file.name), existingNames);
+    final name = uniqueFileName(
+      safeFileName(file.name, extension: file.extension),
+      existingNames,
+    );
     await SupabaseService.uploadDocument(caseId, file.bytes, name);
     return name;
   }

@@ -208,6 +208,21 @@ class SupabaseService {
     String fileName,
   ) => ContentRepository.uploadDocument(caseId, file, fileName);
 
+  /// The signed-in user's access token for CaseFlow's own services (e.g. the
+  /// document server), refreshed first if it is about to expire.
+  static Future<String?> freshAccessToken() async {
+    final session = client.auth.currentSession;
+    if (session == null) return null;
+    final expiresAt = session.expiresAt;
+    final soon = DateTime.now().add(const Duration(seconds: 60));
+    if (expiresAt != null &&
+        DateTime.fromMillisecondsSinceEpoch(expiresAt * 1000).isBefore(soon)) {
+      final refreshed = await client.auth.refreshSession();
+      return refreshed.session?.accessToken;
+    }
+    return session.accessToken;
+  }
+
   static Future<Uint8List> downloadDocument(String caseId, String fileName) =>
       ContentRepository.downloadDocument(caseId, fileName);
 
