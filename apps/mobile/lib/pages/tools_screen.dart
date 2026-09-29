@@ -22,14 +22,18 @@ import 'tools/mact_calculator.dart';
 import 'tools/maintenance_calculator.dart';
 import 'tools/legal_dictionary.dart';
 import 'tools/english_dictionary.dart';
+import 'tools/document_tools/compare_pdf_tool.dart';
 import 'tools/document_tools/images_to_pdf_tool.dart';
 import 'tools/document_tools/merge_pdf_tool.dart';
 import 'tools/document_tools/organize_pdf_tool.dart';
+import 'tools/document_tools/page_editor_tool.dart';
 import 'tools/document_tools/page_numbers_tool.dart';
+import 'tools/document_tools/pdf_to_images_tool.dart';
 import 'tools/document_tools/prepare_efiling_screen.dart';
 import 'tools/document_tools/server_tool_screen.dart';
 import '../services/document_tools/server_tools_client.dart';
 import 'tools/document_tools/split_pdf_tool.dart';
+import 'tools/document_tools/watermark_tool.dart';
 import 'cross_exam_sessions_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -128,6 +132,46 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       'desc': 'Number pages',
       'icon': Icons.format_list_numbered_rounded,
       'color': const Color(0xFF2563EB),
+      'plan': 'free',
+    },
+    {
+      'id': 'doc_sign',
+      'title': 'Sign PDF',
+      'desc': 'Signature, date, seal',
+      'icon': Icons.draw_rounded,
+      'color': const Color(0xFF1E3A8A),
+      'plan': 'free',
+    },
+    {
+      'id': 'doc_edit',
+      'title': 'Edit PDF',
+      'desc': 'Text, whiteout, redact',
+      'icon': Icons.edit_note_rounded,
+      'color': const Color(0xFFEA580C),
+      'plan': 'free',
+    },
+    {
+      'id': 'doc_watermark',
+      'title': 'Watermark',
+      'desc': 'Draft, copy, confidential',
+      'icon': Icons.branding_watermark_rounded,
+      'color': const Color(0xFF64748B),
+      'plan': 'free',
+    },
+    {
+      'id': 'doc_compare',
+      'title': 'Compare PDF',
+      'desc': 'What changed',
+      'icon': Icons.compare_rounded,
+      'color': const Color(0xFF0891B2),
+      'plan': 'free',
+    },
+    {
+      'id': 'doc_pdf_to_jpg',
+      'title': 'PDF to JPG',
+      'desc': 'Pages as images',
+      'icon': Icons.photo_rounded,
+      'color': const Color(0xFFD97706),
       'plan': 'free',
     },
   ];
@@ -644,6 +688,21 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
         break;
       case 'doc_page_numbers':
         toolWidget = const PageNumbersTool();
+        break;
+      case 'doc_sign':
+        toolWidget = const PageEditorTool(mode: MarkupMode.sign);
+        break;
+      case 'doc_edit':
+        toolWidget = const PageEditorTool(mode: MarkupMode.edit);
+        break;
+      case 'doc_watermark':
+        toolWidget = const WatermarkTool();
+        break;
+      case 'doc_compare':
+        toolWidget = const ComparePdfTool();
+        break;
+      case 'doc_pdf_to_jpg':
+        toolWidget = const PdfToImagesTool();
         break;
       default:
         final server = tool['server'];

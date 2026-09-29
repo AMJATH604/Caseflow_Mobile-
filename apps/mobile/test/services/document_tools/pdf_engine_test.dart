@@ -318,6 +318,46 @@ void main() {
         throwsA(isA<DocumentToolException>()),
       );
     });
+
+    test('rgbaToJpeg encodes rendered page pixels', () {
+      // All transparent: must come out white, not black.
+      final rgba = Uint8List(4 * 3 * 2);
+      final jpeg = ImagePrep.rgbaToJpeg((rgba, 3, 2, 90));
+      final decoded = img.decodeJpg(jpeg)!;
+      expect([decoded.width, decoded.height], [3, 2]);
+      expect(decoded.getPixel(1, 1).r, greaterThan(240));
+    });
+
+    group('signatureFromPhoto', () {
+      Uint8List photo({required int paper, required int ink}) {
+        final p = img.Image(width: 200, height: 120);
+        img.fill(p, color: img.ColorRgb8(paper, paper, paper));
+        img.fillRect(p, x1: 60, y1: 50, x2: 140, y2: 60, color: img.ColorRgb8(ink, ink, ink + 40));
+        return Uint8List.fromList(img.encodeJpg(p, quality: 95));
+      }
+
+      for (final (label, paper) in [('white paper', 250), ('paper in shadow', 175)]) {
+        test('keeps the ink and clears the paper ($label)', () {
+          final png = img.decodePng(ImagePrep.signatureFromPhoto(photo(paper: paper, ink: 20)))!;
+          // Cropped to the stroke plus a little padding.
+          expect(png.width, inInclusiveRange(81, 95));
+          expect(png.height, inInclusiveRange(11, 25));
+          expect(png.getPixel(0, 0).a, 0, reason: 'paper is transparent');
+          final middle = png.getPixel(png.width ~/ 2, png.height ~/ 2);
+          expect(middle.a, 255);
+          expect(middle.b, greaterThan(middle.r), reason: 'ink keeps its blue tint');
+        });
+      }
+
+      test('a blank page is refused', () {
+        final blank = img.Image(width: 50, height: 50);
+        img.fill(blank, color: img.ColorRgb8(250, 250, 250));
+        expect(
+          () => ImagePrep.signatureFromPhoto(Uint8List.fromList(img.encodePng(blank))),
+          throwsA(isA<DocumentToolException>()),
+        );
+      });
+    });
   });
 }
 

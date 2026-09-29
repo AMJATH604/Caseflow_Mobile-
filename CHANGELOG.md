@@ -4,7 +4,15 @@ All notable changes to the CaseFlow project are documented here.
 
 ## [Unreleased]
 
-### ☁️ Convert & OCR (mobile, via the CaseFlow document server)
+### ✍️ Sign, Edit, Watermark, Compare, PDF to JPG (mobile, on the device)
+- **Sign PDF**: place a signature drawn with a finger, typed in a script font, or photographed on paper (paper removed automatically; also for seals), plus the date or text, on one page or every page. Signatures can be saved on the phone for reuse; they are never uploaded. The screen explains that portal filings are signed with Aadhaar eSign or DSC.
+- **Edit PDF**: add text (English stays real, searchable text; Tamil and Hindi are drawn with the phone's fonts), white out, highlight, draw boxes, add images; drag, resize, undo, copy to all pages
+- **Real redaction**: pages with whiteout are flattened to images by default, so covered text (e.g. an Aadhaar number) cannot be copied out of the PDF
+- **Watermark**: DRAFT / COPY / CONFIDENTIAL or any text (Tamil included), diagonal or straight, with a live preview
+- **Compare PDF**: word-by-word differences between two versions with context and page numbers (Myers diff; minimal, memory bounded by the number of changes), copyable summary
+- **PDF to JPG**: chosen pages at screen, standard or print quality
+- Marks and watermarks land where they were placed on screen on rotated pages too
+
 - New **Convert & OCR** tools, shown when the build has `DOC_TOOLS_API_URL` (CI: repository variable `DOC_TOOLS_API_URL`):
   - **Word, Excel, PowerPoint to PDF** (Tamil and Hindi text kept), **OCR** (English, Tamil, Hindi; straightens scans), **Compress** (shows the saving)
   - **PDF to Word**, **PDF to Excel**, **Protect**, **Unlock**, **Repair**

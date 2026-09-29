@@ -99,7 +99,7 @@ class PdfEngine {
   PdfEngine._();
 
   static int pageCount(Uint8List pdf) {
-    final doc = _open(pdf);
+    final doc = open(pdf);
     try {
       return doc.pages.count;
     } finally {
@@ -163,7 +163,7 @@ class PdfEngine {
 
   /// Stamps page numbers, drawn upright however each page is rotated.
   static Uint8List addPageNumbers(Uint8List pdf, PageNumberOptions options) {
-    final doc = _open(pdf);
+    final doc = open(pdf);
     try {
       final count = doc.pages.count;
       final numbered = count - options.skipFirst;
@@ -262,7 +262,9 @@ class PdfEngine {
 
   // ── Implementation ───────────────────────────────────────────────
 
-  static PdfDocument _open(Uint8List bytes) {
+  /// Loads [bytes], turning Syncfusion's errors into messages for the user.
+  /// The caller must dispose the document.
+  static PdfDocument open(Uint8List bytes) {
     try {
       return PdfDocument(inputBytes: bytes);
     } on ArgumentError catch (e) {
@@ -283,7 +285,7 @@ class PdfEngine {
   }
 
   static Uint8List _editInPlace(Uint8List pdf, List<PageRef> pages) {
-    final doc = _open(pdf);
+    final doc = open(pdf);
     try {
       final keep = {for (final p in pages) p.page: p.rotation};
       for (final p in pages) {
@@ -316,7 +318,7 @@ class PdfEngine {
       PdfSection? section;
       Size? sectionSize;
       for (final ref in pages) {
-        final src = opened[ref.source] ??= _open(sources[ref.source]);
+        final src = opened[ref.source] ??= open(sources[ref.source]);
         if (ref.page >= src.pages.count) {
           throw const DocumentToolException('A selected page does not exist');
         }
