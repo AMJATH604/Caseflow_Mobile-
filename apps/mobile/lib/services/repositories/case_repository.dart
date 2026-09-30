@@ -78,6 +78,61 @@ class CaseRepository {
     return response.map((json) => CaseModel.fromJson(json)).toList();
   }
 
+  /// Searches **every** visible case on the server, not the pages loaded so far.
+  ///
+  /// The Legal Repository filtered its loaded rows in memory, and the list
+  /// loads twenty at a time — so a case further down could not be found
+  /// until the user had scrolled far enough to load it.
+  ///
+  /// The query is split into words and matched as `%w1%w2%`, so "OS 194" finds
+  /// `OS/194/2014` and "murugan krishnan" finds "Murugan vs Krishnan": what an
+  /// advocate types rarely matches the stored punctuation exactly.
+  static Future<List<CaseModel>> searchCases(
+    String query, {
+    int limit = 100,
+  }) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return [];
+
+    final words =
+        BaseRepository.sanitizeFilterValue(query)
+            .split(RegExp(r'[^\p{L}\p{N}]+', unicode: true))
+            .where((w) => w.isNotEmpty)
+            .toList();
+    if (words.isEmpty) return [];
+    final pattern = '%${words.join('%')}%';
+
+    // The client's name lives in another table, so resolve matching client
+    // ids first and fold them into the case filter. RLS limits these to the
+    // user's own clients.
+    final clientRows = await _client
+        .from('clients')
+        .select('id')
+        .ilike('name', pattern)
+        .limit(200);
+    final clientIds = [for (final r in clientRows as List) r['id'] as String];
+
+    final text = [
+      'case_title.ilike.$pattern',
+      'case_number.ilike.$pattern',
+      'cnr_number.ilike.$pattern',
+      'court_name.ilike.$pattern',
+      'opposing_party.ilike.$pattern',
+      if (clientIds.isNotEmpty) 'client_id.in.(${clientIds.join(',')})',
+    ].join(',');
+    final visible = await _visibilityFilter(user.id, user.email);
+
+    // One `or` holding both groups ANDed, rather than two `.or()` calls, so
+    // the visibility rule can never be replaced by the text match.
+    final rows = await _client
+        .from('cases')
+        .select('*, clients(name)')
+        .or('and(or($visible),or($text))')
+        .order('created_at', ascending: false)
+        .limit(limit);
+    return [for (final j in rows as List) CaseModel.fromJson(j)];
+  }
+
   static Future<CaseModel> fetchCaseById(String id) async {
     final response =
         await _client
@@ -162,8 +217,9 @@ class CaseRepository {
     if (error is PostgrestException) {
       return error.code == '23505' &&
           (error.message.contains('cases_unique_number_per_court') ||
-              (error.details?.toString() ?? '')
-                  .contains('cases_unique_number_per_court'));
+              (error.details?.toString() ?? '').contains(
+                'cases_unique_number_per_court',
+              ));
     }
     return error.toString().contains('cases_unique_number_per_court');
   }

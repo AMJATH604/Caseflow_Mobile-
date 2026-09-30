@@ -421,6 +421,17 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
               ],
             ),
           ),
+          // Order is deliberate: the legal tools are what an advocate opens
+          // most, document utilities next, then chambers, and recruiting last.
+          _buildToolSection(
+            'Legal Tools',
+            _legalTools.where((t) {
+              if (kIsWeb && t['id'] == 'import_export') return false;
+              return true;
+            }).toList(),
+            isMobile,
+          ),
+          SizedBox(height: 20.h),
           _buildToolSection(
             'Document Tools',
             _documentTools.where((t) {
@@ -435,15 +446,6 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
             _buildToolSection('Convert & OCR', _serverTools, isMobile),
             SizedBox(height: 20.h),
           ],
-          _buildToolSection(
-            'Legal Tools',
-            _legalTools.where((t) {
-              if (kIsWeb && t['id'] == 'import_export') return false;
-              return true;
-            }).toList(),
-            isMobile,
-          ),
-          SizedBox(height: 20.h),
           // Separate Chambers sections for high visibility
           _buildToolSection('Digital Chambers', [_chambersTools[0]], isMobile),
           SizedBox(height: 20.h),

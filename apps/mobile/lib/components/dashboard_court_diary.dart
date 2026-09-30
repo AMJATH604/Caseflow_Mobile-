@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../services/supabase_service.dart';
 import '../services/providers.dart';
+import '../services/paginated_providers.dart';
 
 import '../models/models.dart';
 import '../theme/app_theme.dart';
@@ -323,8 +324,14 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
 
                         SizedBox(height: 8.h),
 
-                        // ── Purpose / Stage row ──
-                        Row(
+                        // ── Purpose / Stage labels ──
+                        // Labels on their own line, actions on the next. All
+                        // five used to share one Row, and on a phone the two
+                        // buttons were squeezed up against a Spacer.
+                        Wrap(
+                          spacing: 6.w,
+                          runSpacing: 6.h,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -346,7 +353,6 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                               ),
                             ),
                             if (h.stage != null) ...[
-                              SizedBox(width: 6.w),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
@@ -369,7 +375,6 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                             if (h.isTeamCase(
                               ref.read(userProvider)?.id ?? '',
                             )) ...[
-                              SizedBox(width: 6.w),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 6,
@@ -394,89 +399,39 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
                                 ),
                               ),
                             ],
-                            Spacer(),
-                            if (h.status != 'adjourned' &&
-                                h.status != 'closed' &&
-                                h.status != 'disposed')
-                              InkWell(
-                                onTap: () => _showAdjournDialog(context, h),
-                                borderRadius: BorderRadius.circular(8.r),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.withValues(alpha: 0.08),
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    border: Border.all(
-                                      color: Colors.blue.withValues(
-                                        alpha: 0.15,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
+                          ],
+                        ),
+                        SizedBox(height: 12.h),
+
+                        // ── Actions: two equal halves ──
+                        Row(
+                          children: [
+                            Expanded(
+                              child:
+                                  (h.status != 'adjourned' &&
+                                          h.status != 'closed' &&
+                                          h.status != 'disposed')
+                                      ? _diaryAction(
                                         Icons.event_repeat_rounded,
-                                        size: 13,
-                                        color: Colors.blue,
-                                      ),
-                                      SizedBox(width: 4.w),
-                                      Text(
                                         'ADJOURN',
-                                        style: TextStyle(
-                                          fontSize: 9.sp,
-                                          fontWeight: FontWeight.w900,
-                                          color: Colors.blue,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                                        AppTheme.accent,
+                                        () => _showAdjournDialog(context, h),
+                                      )
+                                      // Keeps Delete in the right half, so it
+                                      // never sits where Adjourn usually is.
+                                      : const SizedBox.shrink(),
+                            ),
+                            SizedBox(width: 10.w),
                             // Shown whatever the status, unlike Adjourn: the
                             // point is to undo a wrong adjournment, and the
-                            // hearing it leaves behind is exactly one that
-                            // may already read "adjourned".
-                            SizedBox(width: 6.w),
-                            InkWell(
-                              onTap: () => _confirmDelete(context, h),
-                              borderRadius: BorderRadius.circular(8.r),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 5,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.error.withValues(alpha: 0.08),
-                                  borderRadius: BorderRadius.circular(8.r),
-                                  border: Border.all(
-                                    color: AppTheme.error.withValues(
-                                      alpha: 0.15,
-                                    ),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.delete_outline_rounded,
-                                      size: 13,
-                                      color: AppTheme.error,
-                                    ),
-                                    SizedBox(width: 4.w),
-                                    Text(
-                                      'DELETE',
-                                      style: TextStyle(
-                                        fontSize: 9.sp,
-                                        fontWeight: FontWeight.w900,
-                                        color: AppTheme.error,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                            // hearing it leaves behind may already read
+                            // "adjourned".
+                            Expanded(
+                              child: _diaryAction(
+                                Icons.delete_outline_rounded,
+                                'DELETE',
+                                AppTheme.error,
+                                () => _confirmDelete(context, h),
                               ),
                             ),
                           ],
@@ -506,6 +461,47 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
       default:
         return AppTheme.accent;
     }
+  }
+
+  /// A full-width, fixed-height action, so Adjourn and Delete are the same
+  /// size and a comfortable tap target side by side.
+  Widget _diaryAction(
+    IconData icon,
+    String label,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return Material(
+      color: color.withValues(alpha: 0.08),
+      borderRadius: BorderRadius.circular(10.r),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10.r),
+        child: Container(
+          height: 38.h,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10.r),
+            border: Border.all(color: color.withValues(alpha: 0.22)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 15, color: color),
+              SizedBox(width: 6.w),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.4,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _confirmDelete(BuildContext context, Hearing hearing) async {
@@ -539,8 +535,8 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
       // Also moves the case's next hearing date to the next one still
       // listed, or clears it when none is left.
       await SupabaseService.deleteHearing(hearing.id);
-      // Refreshes the Hearings page, the case list and the Dossier together.
-      ref.read(dataRefreshProvider.notifier).state++;
+      // Only what this touched; the rest of the dashboard stays still.
+      refreshAfterHearingChange(ref, hearing.caseId);
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
@@ -651,15 +647,11 @@ class _DashboardCourtDiaryState extends ConsumerState<DashboardCourtDiary> {
 
                         if (newHearing != null) {}
 
-                        // One bump refreshes every data provider rather than
-                        // a hand-listed few. Adjourning writes a new
-                        // next_hearing_date onto the case, but only
-                        // hearings/cases/dashboardStats were invalidated —
-                        // caseDetailProvider was not, so the Case Dossier
-                        // went on showing the old date from its cached
-                        // CaseModel, and the Legal Repository status counts
-                        // went stale on a disposed or dismissed case.
-                        ref.read(dataRefreshProvider.notifier).state++;
+                        // Refreshes what adjourning touches — hearings, this
+                        // case, the Dossier, the status counts — and nothing
+                        // else. The global dataRefreshProvider bump used here
+                        // reloaded the whole dashboard to move one date.
+                        refreshAfterHearingChange(ref, hearing.caseId);
 
                         if (context.mounted) {
                           if (!isFinal) {

@@ -36,13 +36,13 @@ class CasesPaginatedNotifier extends PaginatedNotifier<CaseModel> {
 }
 
 final paginatedCasesProvider =
-    StateNotifierProvider<CasesPaginatedNotifier, PaginatedState<CaseModel>>(
-  (ref) {
-    ref.watch(authStateProvider);
-    ref.watch(dataRefreshProvider);
-    return CasesPaginatedNotifier();
-  },
-);
+    StateNotifierProvider<CasesPaginatedNotifier, PaginatedState<CaseModel>>((
+      ref,
+    ) {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return CasesPaginatedNotifier();
+    });
 
 // ─── Hearings ───────────────────────────────────────────
 
@@ -56,13 +56,13 @@ class HearingsPaginatedNotifier extends PaginatedNotifier<Hearing> {
 }
 
 final paginatedHearingsProvider =
-    StateNotifierProvider<HearingsPaginatedNotifier, PaginatedState<Hearing>>(
-  (ref) {
-    ref.watch(authStateProvider);
-    ref.watch(dataRefreshProvider);
-    return HearingsPaginatedNotifier();
-  },
-);
+    StateNotifierProvider<HearingsPaginatedNotifier, PaginatedState<Hearing>>((
+      ref,
+    ) {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return HearingsPaginatedNotifier();
+    });
 
 // ─── Payments ───────────────────────────────────────────
 
@@ -76,13 +76,13 @@ class PaymentsPaginatedNotifier extends PaginatedNotifier<Payment> {
 }
 
 final paginatedPaymentsProvider =
-    StateNotifierProvider<PaymentsPaginatedNotifier, PaginatedState<Payment>>(
-  (ref) {
-    ref.watch(authStateProvider);
-    ref.watch(dataRefreshProvider);
-    return PaymentsPaginatedNotifier();
-  },
-);
+    StateNotifierProvider<PaymentsPaginatedNotifier, PaginatedState<Payment>>((
+      ref,
+    ) {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return PaymentsPaginatedNotifier();
+    });
 
 // ─── Clients ────────────────────────────────────────────
 
@@ -95,11 +95,36 @@ class ClientsPaginatedNotifier extends PaginatedNotifier<ClientModel> {
   }
 }
 
-final paginatedClientsProvider =
-    StateNotifierProvider<ClientsPaginatedNotifier, PaginatedState<ClientModel>>(
-  (ref) {
-    ref.watch(authStateProvider);
-    ref.watch(dataRefreshProvider);
-    return ClientsPaginatedNotifier();
-  },
-);
+final paginatedClientsProvider = StateNotifierProvider<
+  ClientsPaginatedNotifier,
+  PaginatedState<ClientModel>
+>((ref) {
+  ref.watch(authStateProvider);
+  ref.watch(dataRefreshProvider);
+  return ClientsPaginatedNotifier();
+});
+
+// ─── Targeted refresh ───────────────────────────────────
+
+/// Refreshes exactly what adjourning or deleting one case's hearing touches.
+///
+/// Bumping [dataRefreshProvider] for this rebuilt every provider watching it —
+/// thirty-odd — and a rebuild caused by a changed dependency is a *reload*,
+/// which each `.when` renders as its loading state. So moving one date made
+/// the whole dashboard flash to spinners and back. `invalidate` is a
+/// *refresh*: the widgets keep showing their current data until the new data
+/// lands, and nothing outside this list is touched.
+///
+/// [caseDetailProvider] is here on purpose. The global bump was adopted
+/// because a narrower list once left it out, and the Case Dossier went on
+/// showing the pre-adjournment date.
+void refreshAfterHearingChange(WidgetRef ref, String caseId) {
+  ref.invalidate(hearingsProvider);
+  ref.invalidate(caseHearingsProvider(caseId));
+  ref.invalidate(caseDetailProvider(caseId));
+  ref.invalidate(casesProvider);
+  ref.invalidate(caseStatusCountsProvider);
+  ref.invalidate(dashboardStatsProvider);
+  ref.invalidate(paginatedHearingsProvider);
+  ref.invalidate(paginatedCasesProvider);
+}

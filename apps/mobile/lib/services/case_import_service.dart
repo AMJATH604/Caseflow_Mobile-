@@ -362,13 +362,27 @@ class CaseImportService {
           opposingParty = respondent;
         }
 
-        // Find or Create Client (from cache)
-        String? clientId = clientCache[clientName.toLowerCase()];
+        // Find or create the client — the party on the advocate's side only.
+        //
+        // A re-synced case whose side has not changed keeps the client it
+        // already has, rather than being matched by name again: the client
+        // may have been renamed or merged since, and a name lookup would then
+        // create a second one.
+        final keepsClient =
+            existingCase != null &&
+            existingCase.clientId.isNotEmpty &&
+            existingCase.representationType.name == representationType;
+        String? clientId =
+            keepsClient
+                ? existingCase.clientId
+                : clientCache[clientName.toLowerCase()];
+        String? createdClientId;
         if (clientId == null) {
           final newClient = await SupabaseService.createClient({
             'name': clientName,
           });
           clientId = newClient.id;
+          createdClientId = clientId;
           clientCache[clientName.toLowerCase()] = clientId;
         }
 
@@ -394,16 +408,32 @@ class CaseImportService {
         };
 
         String caseId;
-        if (existingCase != null) {
-          await SupabaseService.updateCase(existingCase.id, caseData);
-          caseId = existingCase.id;
-        } else {
-          final created = await SupabaseService.createCase(caseData);
-          caseId = created.id;
-          // Update cache
-          if (cnr != null && cnr.isNotEmpty) {
-            existingCnrs[cnr] = created;
+        try {
+          if (existingCase != null) {
+            await SupabaseService.updateCase(existingCase.id, caseData);
+            caseId = existingCase.id;
+          } else {
+            final created = await SupabaseService.createCase(caseData);
+            caseId = created.id;
+            // Update cache
+            if (cnr != null && cnr.isNotEmpty) {
+              existingCnrs[cnr] = created;
+            }
           }
+        } catch (_) {
+          // The client was created for this case alone, a moment ago, and the
+          // case never saved — most often the duplicate-case rule. Left in
+          // place it is a client with no case, which is how 60 of them had
+          // collected in the directory. No other case can be using it yet.
+          if (createdClientId != null) {
+            clientCache.remove(clientName.toLowerCase());
+            try {
+              await SupabaseService.deleteClient(createdClientId);
+            } catch (e) {
+              debugPrint('Import: could not remove orphan client: $e');
+            }
+          }
+          rethrow;
         }
 
         // Create Hearing if a usable date exists.

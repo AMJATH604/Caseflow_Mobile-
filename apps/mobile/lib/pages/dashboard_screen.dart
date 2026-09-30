@@ -58,9 +58,7 @@ class DashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      floatingActionButton: isMobile
-          ? _buildChatFab(context)
-          : null,
+      floatingActionButton: isMobile ? _buildChatFab(context) : null,
       body: RefreshIndicator(
         onRefresh: () async {
           // Increment global refresh trigger — this causes ALL providers to re-compute
@@ -162,11 +160,12 @@ class DashboardScreen extends ConsumerWidget {
                           SizedBox(height: 4.h),
                           Text(
                             DateFormat('EEEE, d MMMM y').format(DateTime.now()),
-                            style: GoogleFonts.inter(
-                              color: Colors.white.withValues(alpha: 0.6),
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.w500,
-                            ).indicSafe,
+                            style:
+                                GoogleFonts.inter(
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w500,
+                                ).indicSafe,
                           ),
                         ],
                       ),
@@ -198,26 +197,27 @@ class DashboardScreen extends ConsumerWidget {
                           SizedBox(width: 6.w),
                           Text(
                             l10n.get('online').toUpperCase(),
-                            style: GoogleFonts.inter(
-                              fontSize: 8.sp,
-                              fontWeight: FontWeight.w800,
-                              color: const Color(0xFF10B981),
-                              letterSpacing: 1,
-                            ).indicSafe,
+                            style:
+                                GoogleFonts.inter(
+                                  fontSize: 8.sp,
+                                  fontWeight: FontWeight.w800,
+                                  color: const Color(0xFF10B981),
+                                  letterSpacing: 1,
+                                ).indicSafe,
                           ),
                         ],
                       ),
                     ),
                   ],
                 ),
-
               ],
             ),
           ),
         ),
 
         // ─── Profile Completion Nudge ────────────────────
-        if (profileAsync.valueOrNull != null && profileAsync.valueOrNull!.avatarUrl == null)
+        if (profileAsync.valueOrNull != null &&
+            profileAsync.valueOrNull!.avatarUrl == null)
           _buildProfileNudgeBanner(context, ref, profileAsync.valueOrNull!),
 
         // ─── Hero KPI Cards (2x2 Grid) ────────────────────
@@ -331,13 +331,15 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ),
               SizedBox(height: 16.h),
-              // Equal-width slots. With spaceBetween each card sized itself to
-              // its label, so the longer Tamil words expanded until the four
-              // cards touched with no gap left between them.
+              // The same tile as Quick Actions below, in the same four equal
+              // slots with the same gaps, so the two rows read as one set. Jump
+              // To used a 100-tall card of its own, twice the visual weight of
+              // the actions under it.
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: _buildFeatureCard(
+                    child: _buildActionButton(
                       context,
                       Icons.business_center_rounded,
                       l10n.get('nav_cases'),
@@ -347,9 +349,9 @@ class DashboardScreen extends ConsumerWidget {
                       },
                     ),
                   ),
-                  SizedBox(width: 10.w),
+                  SizedBox(width: 8.w),
                   Expanded(
-                    child: _buildFeatureCard(
+                    child: _buildActionButton(
                       context,
                       Icons.people_alt_rounded,
                       l10n.get('clients'),
@@ -359,9 +361,9 @@ class DashboardScreen extends ConsumerWidget {
                       },
                     ),
                   ),
-                  SizedBox(width: 10.w),
+                  SizedBox(width: 8.w),
                   Expanded(
-                    child: _buildFeatureCard(
+                    child: _buildActionButton(
                       context,
                       Icons.gavel_rounded,
                       l10n.get('nav_hearings'),
@@ -371,9 +373,9 @@ class DashboardScreen extends ConsumerWidget {
                       },
                     ),
                   ),
-                  SizedBox(width: 10.w),
+                  SizedBox(width: 8.w),
                   Expanded(
-                    child: _buildFeatureCard(
+                    child: _buildActionButton(
                       context,
                       Icons.credit_card_rounded,
                       l10n.get('payments'),
@@ -563,10 +565,11 @@ class DashboardScreen extends ConsumerWidget {
                   SizedBox(height: 2.h),
                   Text(
                     'Add a photo to stand out in the directory',
-                    style: GoogleFonts.inter(
-                      fontSize: 11.sp,
-                      color: const Color(0xFF64748B),
-                    ).indicSafe,
+                    style:
+                        GoogleFonts.inter(
+                          fontSize: 11.sp,
+                          color: const Color(0xFF64748B),
+                        ).indicSafe,
                   ),
                 ],
               ),
@@ -585,11 +588,12 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                   child: Text(
                     'Add Photo',
-                    style: GoogleFonts.inter(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ).indicSafe,
+                    style:
+                        GoogleFonts.inter(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ).indicSafe,
                   ),
                 ),
               ),
@@ -608,74 +612,75 @@ class DashboardScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: EdgeInsets.all(24.r),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40.w,
-              height: 4.h,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2.r),
-              ),
+      builder:
+          (ctx) => Container(
+            padding: EdgeInsets.all(24.r),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
             ),
-            SizedBox(height: 20.h),
-            Text(
-              'Add Profile Photo',
-              style: GoogleFonts.outfit(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF0F172A),
-              ),
-            ),
-            SizedBox(height: 20.h),
-            Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: _buildDashboardPhotoOption(
-                    icon: Icons.camera_alt_rounded,
-                    label: 'Camera',
-                    color: const Color(0xFF2563EB),
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      _uploadDashboardPhoto(
-                        context,
-                        ref,
-                        profile,
-                        ImageSource.camera,
-                      );
-                    },
+                Container(
+                  width: 40.w,
+                  height: 4.h,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2.r),
                   ),
                 ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: _buildDashboardPhotoOption(
-                    icon: Icons.photo_library_rounded,
-                    label: 'Gallery',
-                    color: const Color(0xFF059669),
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      _uploadDashboardPhoto(
-                        context,
-                        ref,
-                        profile,
-                        ImageSource.gallery,
-                      );
-                    },
+                SizedBox(height: 20.h),
+                Text(
+                  'Add Profile Photo',
+                  style: GoogleFonts.outfit(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF0F172A),
                   ),
                 ),
+                SizedBox(height: 20.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildDashboardPhotoOption(
+                        icon: Icons.camera_alt_rounded,
+                        label: 'Camera',
+                        color: const Color(0xFF2563EB),
+                        onTap: () {
+                          Navigator.pop(ctx);
+                          _uploadDashboardPhoto(
+                            context,
+                            ref,
+                            profile,
+                            ImageSource.camera,
+                          );
+                        },
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: _buildDashboardPhotoOption(
+                        icon: Icons.photo_library_rounded,
+                        label: 'Gallery',
+                        color: const Color(0xFF059669),
+                        onTap: () {
+                          Navigator.pop(ctx);
+                          _uploadDashboardPhoto(
+                            context,
+                            ref,
+                            profile,
+                            ImageSource.gallery,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16.h),
               ],
             ),
-            SizedBox(height: 16.h),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
@@ -701,11 +706,12 @@ class DashboardScreen extends ConsumerWidget {
             SizedBox(height: 6.h),
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ).indicSafe,
+              style:
+                  GoogleFonts.inter(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                  ).indicSafe,
             ),
           ],
         ),
@@ -893,12 +899,13 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                     child: Text(
                       'BETA UNLOCKED',
-                      style: GoogleFonts.inter(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.accent,
-                        letterSpacing: 1,
-                      ).indicSafe,
+                      style:
+                          GoogleFonts.inter(
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.accent,
+                            letterSpacing: 1,
+                          ).indicSafe,
                     ),
                   ),
               loading: () => const SizedBox(),
@@ -1007,10 +1014,7 @@ class DashboardScreen extends ConsumerWidget {
               ),
             ),
             SizedBox(width: 32.w),
-            Expanded(
-              flex: 1,
-              child: Column(children: [DashboardCourtDiary()]),
-            ),
+            Expanded(flex: 1, child: Column(children: [DashboardCourtDiary()])),
           ],
         ),
       ],
@@ -1020,75 +1024,6 @@ class DashboardScreen extends ConsumerWidget {
   // ─── HELPERS ─────────────────────────────────────────
 
   // _buildHeaderStat removed — stats now shown only in KPI cards
-
-  Widget _buildFeatureCard(
-    BuildContext context,
-    IconData icon,
-    String label,
-    Color accentColor,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(18.r),
-      // Fixed height and top-anchored content: sized by its label, a card whose
-      // word wrapped ("Hearings", "Payments") grew taller than its neighbours
-      // and its icon sat lower, so the Jump To row looked uneven.
-      child: Container(
-        height: 100.h,
-        padding: EdgeInsets.fromLTRB(6.w, 16.h, 6.w, 8.h),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              accentColor.withValues(alpha: 0.08),
-              accentColor.withValues(alpha: 0.03),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(18.r),
-          border: Border.all(
-            color: accentColor.withValues(alpha: 0.1),
-          ),
-          boxShadow: AppTheme.shadowSm,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Icon(icon, color: accentColor, size: 26),
-            SizedBox(height: 8.h),
-            _buildFeatureLabel(label),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// A single word never wraps — Flutter would split it mid-word ("Payme/nts")
-  /// — so it shrinks to fit instead. Multi-word labels (the Tamil ones) may
-  /// still use two lines.
-  Widget _buildFeatureLabel(String label) {
-    final style = GoogleFonts.outfit(
-      fontWeight: FontWeight.w600,
-      fontSize: 13.sp,
-      color: const Color(0xFF1E293B),
-      height: 1.2,
-    ).indicSafe;
-
-    if (!label.trim().contains(' ')) {
-      return FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(label, maxLines: 1, style: style),
-      );
-    }
-    return Text(
-      label,
-      textAlign: TextAlign.center,
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
-      style: style,
-    );
-  }
 
   Widget _buildActionButton(
     BuildContext context,
@@ -1118,9 +1053,7 @@ class DashboardScreen extends ConsumerWidget {
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(18.r),
-                  border: Border.all(
-                    color: color.withValues(alpha: 0.15),
-                  ),
+                  border: Border.all(color: color.withValues(alpha: 0.15)),
                   boxShadow: AppTheme.shadowSm,
                 ),
                 child: Icon(icon, color: color, size: 24),
@@ -1130,7 +1063,10 @@ class DashboardScreen extends ConsumerWidget {
                   top: -6,
                   right: -6,
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 6.w,
+                      vertical: 2.h,
+                    ),
                     constraints: BoxConstraints(minWidth: 20.w),
                     decoration: BoxDecoration(
                       color: const Color(0xFFEF4444),
@@ -1163,12 +1099,13 @@ class DashboardScreen extends ConsumerWidget {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.inter(
-                color: const Color(0xFF64748B),
-                fontSize: 11.sp,
-                fontWeight: FontWeight.w600,
-                height: 1.25,
-              ).indicSafe,
+              style:
+                  GoogleFonts.inter(
+                    color: const Color(0xFF64748B),
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w600,
+                    height: 1.25,
+                  ).indicSafe,
             ),
           ],
         ],

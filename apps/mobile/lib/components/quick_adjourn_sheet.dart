@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../services/supabase_service.dart';
-import '../services/providers.dart';
+import '../services/paginated_providers.dart';
 
 import '../theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -63,11 +63,9 @@ class _QuickAdjournSheetState extends ConsumerState<QuickAdjournSheet> {
       if (newHearing != null) {}
 
       if (mounted) {
-        // One bump refreshes every data provider, caseDetailProvider
-        // included — see the matching note in dashboard_court_diary.dart.
-        // Invalidating only hearings/cases/dashboardStats left the Case
-        // Dossier showing the pre-adjourn hearing date.
-        ref.read(dataRefreshProvider.notifier).state++;
+        // Only what adjourning touches, Case Dossier included — see
+        // refreshAfterHearingChange. The global bump reloaded everything.
+        refreshAfterHearingChange(ref, widget.hearing.caseId);
 
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(

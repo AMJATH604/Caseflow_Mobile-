@@ -87,6 +87,9 @@ class SupabaseService {
 
   static Future<List<CaseModel>> fetchCases() => CaseRepository.fetchCases();
 
+  static Future<List<CaseModel>> searchCases(String query) =>
+      CaseRepository.searchCases(query);
+
   static Future<Map<String, int>> fetchCaseStatusCounts() =>
       CaseRepository.fetchCaseStatusCounts();
 
