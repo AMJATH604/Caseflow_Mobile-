@@ -7,13 +7,8 @@ Shared visual language for `apps/dashboard` (CaseFlow Admin) and
 
 | File | Purpose |
 | --- | --- |
-| `tokens.css` | Every colour, shadow and chart value, for light and dark. The source of truth for the admin surfaces (dashboard, BarDesk): navy and brass. |
-| `themes/product.css` | The same token names with the advocate product's values — CaseFlow blue on slate, matching the mobile app. Used by `apps/web` *instead of* `tokens.css`. |
-| `tailwind.preset.ts` | Maps those variables onto Tailwind utilities, plus the type scale, radii and animation. Shared by every web app, whichever theme it imports. |
-
-A theme file must define **every** token `tokens.css` defines, in both `:root`
-and `.dark`. The preset maps names, not values, so a token a theme forgets
-resolves to nothing rather than falling back to the admin colour.
+| `tokens.css` | Every colour, shadow and chart value, for light and dark. The source of truth. |
+| `tailwind.preset.ts` | Maps those variables onto Tailwind utilities, plus the type scale, radii and animation. |
 
 ## Consuming it
 

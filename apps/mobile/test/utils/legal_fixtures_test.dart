@@ -1,7 +1,7 @@
 // Runs the Flutter implementations against the worked examples shared with
-// the web app (packages/legal-fixtures). The web test
-// apps/web/src/legal/fixtures.test.ts runs the same files, so a rule that
-// changes on one platform and not the other fails here or there.
+// the web app (packages/legal-fixtures). The web repo, caseflow_web_app,
+// runs a copy of the same files in src/legal/fixtures.test.ts, so a rule
+// that changes on one platform and not the other fails here or there.
 import 'dart:convert';
 import 'dart:io';
 
