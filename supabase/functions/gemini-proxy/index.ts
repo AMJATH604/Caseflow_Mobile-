@@ -105,6 +105,10 @@ const ALLOWED_ORIGINS = [
   "https://asrjqsnyezvcakvkokcl.supabase.co",  // Supabase project
   "http://localhost:5173",                        // Local dashboard dev
   "http://localhost:3000",                        // Alternative local dev
+  "http://localhost:5175",                        // caseflow_web_app dev server
+  // The web app's deployed origins, comma-separated, without redeploying:
+  //   supabase secrets set WEB_APP_ORIGINS=https://app.example.in
+  ...(Deno.env.get("WEB_APP_ORIGINS") ?? "").split(",").map((o) => o.trim()).filter(Boolean),
 ];
 
 function getCorsHeaders(origin: string | null): Record<string, string> {
@@ -118,6 +122,10 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
+    // The web app reads the streamed answer's sources and remaining quota from
+    // these headers; a browser hides non-simple headers unless exposed.
+    "Access-Control-Expose-Headers": "X-RateLimit-Remaining, X-RAG-Sources",
+    "Vary": "Origin",
   };
 }
 
@@ -321,11 +329,13 @@ Deno.serve(async (req: Request) => {
           "Cache-Control": "no-cache",
           "Connection": "keep-alive",
           "X-RateLimit-Remaining": String(rateCheck.remaining),
-          "X-RAG-Sources": JSON.stringify(ragSources.map((s: any) => ({
+          // Percent-encoded: header values are Latin-1, and a source name with
+          // an em dash or Tamil text would otherwise be garbled (or rejected).
+          "X-RAG-Sources": encodeURIComponent(JSON.stringify(ragSources.map((s: any) => ({
             ref: s.source_ref,
             type: s.source_type,
             similarity: s.similarity,
-          }))),
+          })))),
         },
       });
     }
