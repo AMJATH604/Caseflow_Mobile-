@@ -1,0 +1,43 @@
+{
+  "rule": "Tamil Nadu Court-Fees and Suits Valuation Act, 1955 — Schedule II, Article 20 (NI Act §138 complaint)",
+  "current": {
+    "basis": "As substituted by the TN Court-Fees (Amendment) Act, 2017: half per cent ad valorem, maximum ₹10,000. Fractions round UP to the rupee (§21-A).",
+    "cases": [
+      { "amount": 0, "fee": 0, "note": "nothing payable on nothing" },
+      { "amount": -1, "fee": 0 },
+      { "amount": 1, "fee": 1, "note": "0.005 rounds up to ₹1" },
+      { "amount": 100, "fee": 1 },
+      { "amount": 201, "fee": 2, "note": "1.005 rounds up" },
+      { "amount": 33333, "fee": 167, "note": "166.665 rounds up" },
+      { "amount": 50000, "fee": 250 },
+      { "amount": 100000, "fee": 500 },
+      { "amount": 500000, "fee": 2500 },
+      { "amount": 1000000, "fee": 5000 },
+      { "amount": 1500000, "fee": 7500, "note": "the showreel's example" },
+      { "amount": 1999999, "fee": 10000 },
+      { "amount": 2000000, "fee": 10000, "note": "the cap is reached exactly here" },
+      { "amount": 2000001, "fee": 10000 },
+      { "amount": 10000000, "fee": 10000 }
+    ]
+  },
+  "legacy": {
+    "basis": "Article 20 as it stood 2003–2017: ₹25 for every ₹50,000 or part, maximum ₹1,000.",
+    "cases": [
+      { "amount": 0, "fee": 0 },
+      { "amount": -1, "fee": 0 },
+      { "amount": 1, "fee": 25 },
+      { "amount": 49999, "fee": 25 },
+      { "amount": 50000, "fee": 25, "note": "the boundary belongs to the lower slab" },
+      { "amount": 50000.01, "fee": 50 },
+      { "amount": 50001, "fee": 50 },
+      { "amount": 60000, "fee": 50 },
+      { "amount": 100000, "fee": 50 },
+      { "amount": 100001, "fee": 75 },
+      { "amount": 110000, "fee": 75 },
+      { "amount": 500000, "fee": 250 },
+      { "amount": 1950000, "fee": 975 },
+      { "amount": 2000000, "fee": 1000 },
+      { "amount": 10000000, "fee": 1000 }
+    ]
+  }
+}

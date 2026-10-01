@@ -1,0 +1,22 @@
+{
+  "rule": "The case number as the court board shows it, recovered from an eCourts export record.",
+  "basis": "case_no packs type(4) + series(2) + number(5) + year(4); the number is the 5 digits after the series. reg_no carries a series digit on older cases (300194 → 194). A filed-but-unregistered case shows its filing number, marked.",
+  "cases": [
+    { "input": { "type_name": "OS", "case_no": "231700003842021", "reg_no": "384", "reg_year": "2021" }, "expected": "OS/384/2021" },
+    { "input": { "type_name": "OS", "case_no": "231703001942014", "reg_no": "300194", "reg_year": "2014" }, "expected": "OS/194/2014", "note": "series digit dropped" },
+    { "input": { "type_name": "SC", "case_no": "232106006382018", "reg_no": "600638", "reg_year": "2018" }, "expected": "SC/638/2018" },
+    { "input": { "type_name": "EP", "case_no": "230801001202017", "reg_no": "100120", "reg_year": "2017" }, "expected": "EP/120/2017" },
+    { "input": { "type_name": "HMOP", "case_no": "231002000842020", "reg_no": "200084", "reg_year": "2020" }, "expected": "HMOP/84/2020" },
+    { "input": { "type_name": "OS", "case_no": "231704003422016", "reg_no": "400342", "reg_year": "2016" }, "expected": "OS/342/2016" },
+    { "input": { "type_name": "OS", "case_no": "231702000142004", "reg_no": "200014", "reg_year": "2004" }, "expected": "OS/14/2004" },
+    { "input": { "type_name": "CRLMP", "case_no": "232500011642025", "reg_no": "1164", "reg_year": "2025" }, "expected": "CRLMP/1164/2025" },
+    { "input": { "type_name": "MCOP", "case_no": "231500000142026", "reg_no": "14", "reg_year": "2026" }, "expected": "MCOP/14/2026" },
+    { "input": { "type_name": "OS", "case_no": null, "reg_no": 300194, "reg_year": 2014 }, "expected": "OS/194/2014", "note": "no case_no: reg_no with the series stripped" },
+    { "input": { "type_name": "EP", "case_no": null, "reg_year": 0, "reg_no": 0, "fil_year": "2026", "fil_no": "1122" }, "expected": "EP/1122/2026 (filed)", "note": "used to print EP/0/0" },
+    { "input": { "type_name": "OS", "reg_no": 0, "reg_year": 0, "fil_no": 0, "fil_year": 0 }, "expected": null, "note": "never a zero number" },
+    { "input": { "case_number": "O.S. 448/2022" }, "expected": "O.S. 448/2022", "note": "already formatted elsewhere" },
+    { "input": { "case_no": "STC 12/2024" }, "expected": "STC 12/2024" },
+    { "input": { "case_no": "231700003842021" }, "expected": "384/2021", "note": "no type" },
+    { "input": { "type_name": "null", "case_no": "231700003842021" }, "expected": "384/2021", "note": "the literal string null some exports carry" }
+  ]
+}
