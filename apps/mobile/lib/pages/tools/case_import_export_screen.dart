@@ -1048,19 +1048,6 @@ class _CaseImportExportScreenState
               ];
               final canImport = selectedCount > 0 && unanswered.isEmpty;
 
-              // Leaves saved answers alone: "all first party" is a shortcut for
-              // the cases still to be answered, and must not overwrite a side
-              // the advocate already gave for a case they are re-syncing.
-              void setAll(String role) {
-                setDialogState(() {
-                  for (int i = 0; i < cases.length; i++) {
-                    if (selectedCases[i] == true && !prefilled.contains(i)) {
-                      selectedRoles[i] = role;
-                    }
-                  }
-                });
-              }
-
               return Scaffold(
                 appBar: AppBar(
                   leading: IconButton(
@@ -1113,86 +1100,6 @@ class _CaseImportExportScreenState
                             ),
                           ),
                         ],
-                      ),
-                      SizedBox(height: 10.h),
-                      // Answer once for the whole batch; individual cases can
-                      // still differ below.
-                      Container(
-                        padding: EdgeInsets.all(12.r),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF0F4FF),
-                          borderRadius: BorderRadius.circular(10.r),
-                          border: Border.all(
-                            color: const Color(
-                              0xFF2980b9,
-                            ).withValues(alpha: 0.15),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Which side do you appear for?',
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF1A237E),
-                              ),
-                            ),
-                            SizedBox(height: 3.h),
-                            Text(
-                              prefilled.isEmpty
-                                  ? 'Your client is taken from this. Set it for '
-                                      'all, then change any that differ.'
-                                  : 'Your client is taken from this. '
-                                      '${prefilled.length} case(s) you already '
-                                      'answered keep their saved side.',
-                              style: TextStyle(
-                                fontSize: 10.5.sp,
-                                color: Colors.blueGrey[600],
-                                height: 1.35,
-                              ),
-                            ),
-                            SizedBox(height: 9.h),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed:
-                                        selectedCount > 0
-                                            ? () => setAll('petitioner')
-                                            : null,
-                                    style: OutlinedButton.styleFrom(
-                                      visualDensity: VisualDensity.compact,
-                                      foregroundColor: const Color(0xFF2980b9),
-                                    ),
-                                    child: Text(
-                                      'All: first party',
-                                      style: TextStyle(fontSize: 10.5.sp),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 8.w),
-                                Expanded(
-                                  child: OutlinedButton(
-                                    onPressed:
-                                        selectedCount > 0
-                                            ? () => setAll('respondent')
-                                            : null,
-                                    style: OutlinedButton.styleFrom(
-                                      visualDensity: VisualDensity.compact,
-                                      foregroundColor: const Color(0xFF2980b9),
-                                    ),
-                                    child: Text(
-                                      'All: second party',
-                                      style: TextStyle(fontSize: 10.5.sp),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
                       ),
                       if (unanswered.isNotEmpty) ...[
                         SizedBox(height: 8.h),
