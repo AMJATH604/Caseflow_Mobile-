@@ -1,7 +1,9 @@
 -- ═══════════════════════════════════════════════════════════════
 -- Evidence Lab: the columns the apps write
 --
--- ⚠️ NOT YET APPLIED. Review, then `supabase db push`.
+-- Applied to production 2026-10-03, on its own in a transaction with
+-- `supabase db query --linked --file`. Not via `db push`: the remote history
+-- uses dashboard timestamps, so push would re-run every local migration.
 --
 -- The Evidence Lab tables predate tracked migrations. Their live columns
 -- (from the generated types) are:

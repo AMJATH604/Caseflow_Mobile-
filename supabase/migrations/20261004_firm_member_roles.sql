@@ -1,7 +1,9 @@
 -- ═══════════════════════════════════════════════════════════════
 -- Firm member roles: junior and clerk
 --
--- ⚠️ NOT YET APPLIED. Review, then `supabase db push`.
+-- Applied to production 2026-10-03, on its own in a transaction with
+-- `supabase db query --linked --file`. Not via `db push`: the remote history
+-- uses dashboard timestamps, so push would re-run every local migration.
 --
 -- A senior can now invite someone as a junior or as a clerk. Both work inside
 -- the senior's firm and see its cases; the difference:
