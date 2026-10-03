@@ -8,7 +8,8 @@ import '../../../services/document_tools/server_tools_client.dart';
 import '../../../theme/app_theme.dart';
 import 'doc_tool_widgets.dart';
 
-/// The tools that run on the CaseFlow document server.
+/// The tools that need the CaseFlow document server. (Compress, Protect,
+/// Unlock and Repair run on the phone: see `pdf_maintenance_tools.dart`.)
 enum ServerTool {
   wordToPdf(
     'word-to-pdf',
@@ -26,14 +27,6 @@ enum ServerTool {
     ['pdf', 'jpg', 'jpeg', 'png'],
     'Choose a scanned PDF or photo',
     Icons.text_fields_rounded,
-  ),
-  compress(
-    'compress-pdf',
-    'Compress PDF',
-    'Shrink a PDF to fit the e-Filing upload limit, mostly by reducing scanned images.',
-    ['pdf'],
-    'Choose a PDF',
-    Icons.compress_rounded,
   ),
   pdfToWord(
     'pdf-to-word',
@@ -66,30 +59,6 @@ enum ServerTool {
     ['ppt', 'pptx', 'odp'],
     'Choose a PowerPoint file',
     Icons.slideshow_rounded,
-  ),
-  protect(
-    'protect-pdf',
-    'Protect PDF',
-    'Lock a PDF with a password before sending it to a client. CaseFlow does not keep the password.',
-    ['pdf'],
-    'Choose a PDF',
-    Icons.lock_rounded,
-  ),
-  unlock(
-    'unlock-pdf',
-    'Unlock PDF',
-    'Remove the password from a PDF you have the password for, so it can be merged or filed.',
-    ['pdf'],
-    'Choose a locked PDF',
-    Icons.lock_open_rounded,
-  ),
-  repair(
-    'repair-pdf',
-    'Repair PDF',
-    'Fix a PDF that will not open or that the e-Filing portal rejects as damaged.',
-    ['pdf'],
-    'Choose a PDF',
-    Icons.build_rounded,
   );
 
   final String slug;
@@ -130,12 +99,8 @@ class _ServerToolScreenState extends State<ServerToolScreen> {
   final Set<String> _languages = {'eng', 'tam'};
   bool _cleanUp = true;
   bool _redoText = false;
-  String _level = 'recommended';
   String _layout = 'pages';
   final _pages = TextEditingController();
-  final _password = TextEditingController();
-  final _confirm = TextEditingController();
-  bool _showPassword = false;
 
   ServerTool get _tool => widget.tool;
 
@@ -144,8 +109,6 @@ class _ServerToolScreenState extends State<ServerToolScreen> {
     // Leaving mid-job cancels it; the client then deletes it on the server.
     _cancel?.cancel();
     _pages.dispose();
-    _password.dispose();
-    _confirm.dispose();
     super.dispose();
   }
 
@@ -176,28 +139,10 @@ class _ServerToolScreenState extends State<ServerToolScreen> {
           'mode': _redoText ? 'force' : 'skip',
           'clean_up': _cleanUp,
         };
-      case ServerTool.compress:
-        return {'level': _level};
       case ServerTool.excelToPdf:
         return {'layout': _layout};
       case ServerTool.pdfToExcel:
         return {'pages': _pages.text.trim()};
-      case ServerTool.protect:
-        if (_password.text.length < 4) {
-          setState(() => _error = 'Use at least 4 characters');
-          return null;
-        }
-        if (_password.text != _confirm.text) {
-          setState(() => _error = 'The two passwords do not match');
-          return null;
-        }
-        return {'password': _password.text};
-      case ServerTool.unlock:
-        if (_password.text.isEmpty) {
-          setState(() => _error = 'Enter the PDF password');
-          return null;
-        }
-        return {'password': _password.text};
       default:
         return const {};
     }
@@ -243,8 +188,6 @@ class _ServerToolScreenState extends State<ServerToolScreen> {
   void _reset() => setState(() {
     _input = null;
     _output = null;
-    _password.clear();
-    _confirm.clear();
   });
 
   @override
@@ -323,23 +266,10 @@ class _ServerToolScreenState extends State<ServerToolScreen> {
     );
   }
 
-  String _headline(ServerOutput output) {
-    if (_tool == ServerTool.compress) {
-      final before = _input!.bytes.length;
-      final after = output.file.bytes.length;
-      final saved = before == 0 ? 0 : ((before - after) / before * 100).round();
-      return saved > 0
-          ? 'Compressed ${formatBytes(before)} → ${formatBytes(after)} ($saved% smaller)'
-          : 'Already as small as it can be';
-    }
-    return switch (_tool) {
-      ServerTool.ocr => 'Text is now searchable',
-      ServerTool.protect => 'Password added',
-      ServerTool.unlock => 'Password removed',
-      ServerTool.repair => 'PDF repaired',
-      _ => 'Converted to ${output.file.kindLabel}',
-    };
-  }
+  String _headline(ServerOutput output) => switch (_tool) {
+    ServerTool.ocr => 'Text is now searchable',
+    _ => 'Converted to ${output.file.kindLabel}',
+  };
 
   List<Widget> _optionsFields() {
     switch (_tool) {
@@ -381,29 +311,6 @@ class _ServerToolScreenState extends State<ServerToolScreen> {
             onChanged: (v) => setState(() => _redoText = v),
           ),
         ];
-      case ServerTool.compress:
-        return [
-          const SectionLabel('Compression'),
-          RadioGroup<String>(
-            groupValue: _level,
-            onChanged: (v) => setState(() => _level = v ?? _level),
-            child: Column(
-              children: [
-                for (final (value, title, detail) in const [
-                  ('low', 'Light', 'Best quality; small saving'),
-                  ('recommended', 'Recommended', 'Clear to read, much smaller (150 DPI)'),
-                  ('extreme', 'Strong', 'Smallest file; fine print may blur'),
-                ])
-                  RadioListTile<String>(
-                    contentPadding: EdgeInsets.zero,
-                    value: value,
-                    title: Text(title),
-                    subtitle: Text(detail),
-                  ),
-              ],
-            ),
-          ),
-        ];
       case ServerTool.excelToPdf:
         return [
           const SectionLabel('Layout'),
@@ -423,37 +330,6 @@ class _ServerToolScreenState extends State<ServerToolScreen> {
               hintText: 'e.g. 1-3, 5 (blank for all)',
             ),
           ),
-        ];
-      case ServerTool.protect:
-      case ServerTool.unlock:
-        return [
-          SizedBox(height: 12.h),
-          TextField(
-            controller: _password,
-            obscureText: !_showPassword,
-            autocorrect: false,
-            enableSuggestions: false,
-            decoration: InputDecoration(
-              labelText: _tool == ServerTool.protect ? 'New password' : 'PDF password',
-              suffixIcon: IconButton(
-                tooltip: _showPassword ? 'Hide password' : 'Show password',
-                icon: Icon(_showPassword ? Icons.visibility_off : Icons.visibility),
-                onPressed: () => setState(() => _showPassword = !_showPassword),
-              ),
-            ),
-            onChanged: (_) => setState(() => _error = null),
-          ),
-          if (_tool == ServerTool.protect) ...[
-            SizedBox(height: 8.h),
-            TextField(
-              controller: _confirm,
-              obscureText: !_showPassword,
-              autocorrect: false,
-              enableSuggestions: false,
-              decoration: const InputDecoration(labelText: 'Type it again'),
-              onChanged: (_) => setState(() => _error = null),
-            ),
-          ],
         ];
       default:
         return const [];

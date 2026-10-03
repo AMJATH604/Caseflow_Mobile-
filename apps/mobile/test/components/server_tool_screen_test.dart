@@ -94,13 +94,6 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('compression reports the saving', (tester) async {
-    await _pump(tester, ServerTool.compress, file: _pdf);
-    await _tapAndRun(tester, find.text('Compress PDF'));
-    // 10 bytes in, 4 bytes back from the fake server.
-    await _waitFor(tester, find.textContaining('60% smaller'));
-  });
-
   testWidgets('a server failure is shown and the tool stays usable', (tester) async {
     await _pump(
       tester,
@@ -111,17 +104,6 @@ void main() {
     await _tapAndRun(tester, find.text('Word to PDF'));
     await _waitFor(tester, find.text('This Word file is damaged.'));
     expect(find.text('Word to PDF'), findsWidgets);
-  });
-
-  testWidgets('protect checks the passwords before uploading', (tester) async {
-    final server = FakeServer();
-    await _pump(tester, ServerTool.protect, file: _pdf, server: server);
-    await tester.enterText(find.byType(TextField).at(0), 'secret1');
-    await tester.enterText(find.byType(TextField).at(1), 'secret2');
-    await tester.tap(find.text('Protect PDF'));
-    await tester.pump();
-    expect(find.text('The two passwords do not match'), findsOneWidget);
-    expect(server.log, isEmpty);
   });
 
   testWidgets('OCR needs at least one language', (tester) async {

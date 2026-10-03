@@ -13,6 +13,7 @@ import 'efiling.dart';
 import 'image_prep.dart';
 import 'overlays.dart';
 import 'page_ranges.dart';
+import 'pdf_maintenance.dart';
 import 'pdf_engine.dart';
 
 export 'compare.dart';
@@ -20,6 +21,7 @@ export 'efiling.dart';
 export 'image_prep.dart';
 export 'overlays.dart';
 export 'page_ranges.dart';
+export 'pdf_maintenance.dart';
 export 'pdf_engine.dart';
 
 class DocumentToolsService {
@@ -42,14 +44,32 @@ class DocumentToolsService {
   static Future<Uint8List> watermark(Uint8List pdf, WatermarkOptions options) =>
       compute(_watermark, (pdf, options));
 
-  static Future<Uint8List> rgbaToJpeg(Uint8List rgba, int width, int height, {int quality = 88}) =>
-      compute(ImagePrep.rgbaToJpeg, (rgba, width, height, quality));
+  static Future<Uint8List> rgbaToJpeg(
+    Uint8List rgba,
+    int width,
+    int height, {
+    int quality = 88,
+    bool grayscale = false,
+  }) => compute(ImagePrep.rgbaToJpeg, (rgba, width, height, quality, grayscale));
 
   static Future<Uint8List> signatureFromPhoto(Uint8List photo) =>
       compute(ImagePrep.signatureFromPhoto, photo);
 
   static Future<Uint8List> flattenPages(Uint8List pdf, Map<int, Uint8List> images) =>
       compute(_flatten, (pdf, images));
+
+  static Future<Uint8List> protect(Uint8List pdf, String password) =>
+      compute(_protect, (pdf, password));
+
+  static Future<Uint8List> unlock(Uint8List pdf, String password) =>
+      compute(_unlock, (pdf, password));
+
+  /// A readable copy of a damaged PDF, or null if only re-rendering can help.
+  static Future<Uint8List?> repair(Uint8List pdf) => compute(PdfRepair.repair, pdf);
+
+  static Future<List<int>> scannedPages(Uint8List pdf) => compute(PdfCompression.scannedPages, pdf);
+
+  static Future<Uint8List> compressionRewrite(Uint8List pdf) => compute(PdfCompression.rewrite, pdf);
 
   static Future<Comparison> compare(Uint8List oldPdf, Uint8List newPdf) =>
       compute(_compare, (oldPdf, newPdf));
@@ -86,6 +106,10 @@ Uint8List _overlays((Uint8List, List<PageOverlay>) a) => PdfOverlays.apply(a.$1,
 Uint8List _watermark((Uint8List, WatermarkOptions) a) => PdfOverlays.watermark(a.$1, a.$2);
 
 Uint8List _flatten((Uint8List, Map<int, Uint8List>) a) => PdfOverlays.flattenPages(a.$1, a.$2);
+
+Uint8List _protect((Uint8List, String) a) => PdfProtection.protect(a.$1, a.$2);
+
+Uint8List _unlock((Uint8List, String) a) => PdfProtection.unlock(a.$1, a.$2);
 
 Comparison _compare((Uint8List, Uint8List) a) => PdfCompare.compare(a.$1, a.$2);
 

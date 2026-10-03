@@ -17,13 +17,14 @@ class PageRendering {
     return PdfRasterImage(raster);
   }
 
-  /// Pages as JPEGs, one at a time so a long PDF never sits in memory
-  /// uncompressed.
+  /// Pages as JPEGs (all pages when [pages] is null), one at a time so a
+  /// long PDF never sits in memory uncompressed.
   static Stream<Uint8List> jpegs(
     Uint8List pdf,
-    List<int> pages, {
+    List<int>? pages, {
     double dpi = 150,
     int quality = 88,
+    bool grayscale = false,
   }) async* {
     await for (final raster in Printing.raster(pdf, pages: pages, dpi: dpi)) {
       yield await DocumentToolsService.rgbaToJpeg(
@@ -31,6 +32,7 @@ class PageRendering {
         raster.width,
         raster.height,
         quality: quality,
+        grayscale: grayscale,
       );
     }
   }

@@ -322,7 +322,7 @@ void main() {
     test('rgbaToJpeg encodes rendered page pixels', () {
       // All transparent: must come out white, not black.
       final rgba = Uint8List(4 * 3 * 2);
-      final jpeg = ImagePrep.rgbaToJpeg((rgba, 3, 2, 90));
+      final jpeg = ImagePrep.rgbaToJpeg((rgba, 3, 2, 90, false));
       final decoded = img.decodeJpg(jpeg)!;
       expect([decoded.width, decoded.height], [3, 2]);
       expect(decoded.getPixel(1, 1).r, greaterThan(240));

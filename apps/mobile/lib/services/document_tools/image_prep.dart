@@ -78,8 +78,8 @@ class ImagePrep {
   }
 
   /// Raw RGBA pixels (as rendered from a PDF page) to a JPEG.
-  static Uint8List rgbaToJpeg((Uint8List, int, int, int) input) {
-    final (rgba, width, height, quality) = input;
+  static Uint8List rgbaToJpeg((Uint8List, int, int, int, bool) input) {
+    final (rgba, width, height, quality, grayscale) = input;
     final image = img.Image.fromBytes(
       width: width,
       height: height,
@@ -91,7 +91,7 @@ class ImagePrep {
     final page = img.Image(width: width, height: height);
     img.fill(page, color: img.ColorRgb8(255, 255, 255));
     img.compositeImage(page, image);
-    return img.encodeJpg(page, quality: quality);
+    return img.encodeJpg(grayscale ? img.grayscale(page) : page, quality: quality);
   }
 
   /// A signature or seal photographed on paper, as a PNG with the paper

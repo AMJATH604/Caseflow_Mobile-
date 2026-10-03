@@ -28,6 +28,7 @@ import 'tools/document_tools/merge_pdf_tool.dart';
 import 'tools/document_tools/organize_pdf_tool.dart';
 import 'tools/document_tools/page_editor_tool.dart';
 import 'tools/document_tools/page_numbers_tool.dart';
+import 'tools/document_tools/pdf_maintenance_tools.dart';
 import 'tools/document_tools/pdf_to_images_tool.dart';
 import 'tools/document_tools/prepare_efiling_screen.dart';
 import 'tools/document_tools/server_tool_screen.dart';
@@ -167,6 +168,38 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       'plan': 'free',
     },
     {
+      'id': 'doc_compress',
+      'title': 'Compress PDF',
+      'desc': 'Fit upload limit',
+      'icon': Icons.compress_rounded,
+      'color': const Color(0xFFDC2626),
+      'plan': 'free',
+    },
+    {
+      'id': 'doc_protect',
+      'title': 'Protect PDF',
+      'desc': 'Add a password',
+      'icon': Icons.lock_rounded,
+      'color': const Color(0xFF7C3AED),
+      'plan': 'free',
+    },
+    {
+      'id': 'doc_unlock',
+      'title': 'Unlock PDF',
+      'desc': 'Remove password',
+      'icon': Icons.lock_open_rounded,
+      'color': const Color(0xFF9333EA),
+      'plan': 'free',
+    },
+    {
+      'id': 'doc_repair',
+      'title': 'Repair PDF',
+      'desc': 'Fix damaged PDF',
+      'icon': Icons.build_rounded,
+      'color': const Color(0xFF64748B),
+      'plan': 'free',
+    },
+    {
       'id': 'doc_pdf_to_jpg',
       'title': 'PDF to JPG',
       'desc': 'Pages as images',
@@ -182,14 +215,10 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
     for (final (tool, desc, color) in const [
       (ServerTool.wordToPdf, 'Pleadings to PDF', Color(0xFF2563EB)),
       (ServerTool.ocr, 'Searchable scans', Color(0xFF0D9488)),
-      (ServerTool.compress, 'Fit upload limit', Color(0xFFDC2626)),
       (ServerTool.pdfToWord, 'Editable Word', Color(0xFF1D4ED8)),
       (ServerTool.pdfToExcel, 'Tables to Excel', Color(0xFF059669)),
       (ServerTool.excelToPdf, 'Sheets to PDF', Color(0xFF16A34A)),
       (ServerTool.powerpointToPdf, 'Slides to PDF', Color(0xFFEA580C)),
-      (ServerTool.protect, 'Add a password', Color(0xFF7C3AED)),
-      (ServerTool.unlock, 'Remove password', Color(0xFF9333EA)),
-      (ServerTool.repair, 'Fix damaged PDF', Color(0xFF64748B)),
     ])
       {
         'id': 'srv_${tool.slug}',
@@ -588,9 +617,7 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       context.push('/ai-chat');
     } else if (tool['id'] == 'cross_exam') {
       Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => const CrossExamSessionsScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => const CrossExamSessionsScreen()),
       );
     } else if (tool['id'] == 'doc_prepare_efiling') {
       PrepareEfilingScreen.open(context);
@@ -608,7 +635,12 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
   }
 
   Widget _buildToolView() {
-    final allTools = [..._documentTools, ..._serverTools, ..._legalTools, ..._chambersTools];
+    final allTools = [
+      ..._documentTools,
+      ..._serverTools,
+      ..._legalTools,
+      ..._chambersTools,
+    ];
     final tool = allTools.firstWhere((t) => t['id'] == _activeToolId);
     Widget toolWidget;
     final String title = tool['title'];
@@ -703,14 +735,27 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
       case 'doc_compare':
         toolWidget = const ComparePdfTool();
         break;
+      case 'doc_compress':
+        toolWidget = const CompressPdfTool();
+        break;
+      case 'doc_protect':
+        toolWidget = const PasswordPdfTool(mode: PasswordMode.protect);
+        break;
+      case 'doc_unlock':
+        toolWidget = const PasswordPdfTool(mode: PasswordMode.unlock);
+        break;
+      case 'doc_repair':
+        toolWidget = const RepairPdfTool();
+        break;
       case 'doc_pdf_to_jpg':
         toolWidget = const PdfToImagesTool();
         break;
       default:
         final server = tool['server'];
-        toolWidget = server is ServerTool
-            ? ServerToolScreen(tool: server)
-            : Center(child: Text('Tool: $_activeToolId'));
+        toolWidget =
+            server is ServerTool
+                ? ServerToolScreen(tool: server)
+                : Center(child: Text('Tool: $_activeToolId'));
     }
 
     final isMobile = MediaQuery.of(context).size.width < 768;
