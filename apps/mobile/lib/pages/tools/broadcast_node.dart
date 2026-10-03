@@ -189,7 +189,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
             width: 56.w,
             height: 56.h,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16.r),
             ),
             child: Icon(icon, color: color, size: 26),
@@ -317,7 +317,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                     ? AppTheme.accent
                     : (isDark
                         ? const Color(0xFFE2E8F0)
-                        : Colors.black.withOpacity(0.03)),
+                        : Colors.black.withValues(alpha: 0.03)),
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: Column(
@@ -329,7 +329,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                   style: TextStyle(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.accent.withOpacity(0.8),
+                    color: AppTheme.accent.withValues(alpha: 0.8),
                   ),
                 ),
 
@@ -378,7 +378,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                   Container(
                     padding: EdgeInsets.all(8.r),
                     decoration: BoxDecoration(
-                      color: (isMe ? Colors.black : Colors.white).withOpacity(
+                      color: (isMe ? Colors.black : Colors.white).withValues(alpha: 
                         0.1,
                       ),
                       borderRadius: BorderRadius.circular(8.r),
@@ -435,7 +435,7 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
                       color: (isMe
                               ? Colors.white
                               : (isDark ? Colors.white : Colors.black))
-                          .withOpacity(0.4),
+                          .withValues(alpha: 0.4),
                     ),
                   ),
                   if (msg.id.startsWith('temp'))
@@ -509,8 +509,8 @@ class _BroadcastNodeState extends ConsumerState<BroadcastNode> {
       decoration: BoxDecoration(
         color:
             Theme.of(context).brightness == Brightness.dark
-                ? Colors.black.withOpacity(0.2)
-                : Colors.black.withOpacity(0.02),
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.02),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(16.r)),
       ),
       child: Row(
