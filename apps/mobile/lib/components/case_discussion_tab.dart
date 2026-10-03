@@ -209,7 +209,6 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
   // ─── MESSAGE BUBBLE ──────────────────────────────────
   Widget _buildMessageBubble(CaseComment msg, bool isMe) {
     final timeStr = DateFormat('hh:mm a').format(msg.createdAt.toLocal());
-    final initial = (msg.senderName ?? 'A')[0].toUpperCase();
     final avatarColors = _getAvatarColors(msg.senderName);
 
     return Align(

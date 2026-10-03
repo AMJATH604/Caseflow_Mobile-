@@ -686,6 +686,9 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                       child: ElevatedButton(
                         onPressed: () async {
                           if (name.isEmpty) return;
+                          // The page's messenger: the sheet's context is gone
+                          // once it closes, so a save error was lost.
+                          final messenger = ScaffoldMessenger.of(this.context);
                           Navigator.pop(ctx);
                           try {
                             await SupabaseService.createWitnessNote({
@@ -697,7 +700,7 @@ class _CaseWitnessesTabState extends ConsumerState<CaseWitnessesTab> {
                             ref.invalidate(witnessNotesProvider(widget.caseId));
                           } catch (e) {
                             if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              messenger.showSnackBar(
                                 SnackBar(content: Text('Error: $e')),
                               );
                             }

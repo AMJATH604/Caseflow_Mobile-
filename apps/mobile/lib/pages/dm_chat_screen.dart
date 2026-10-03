@@ -968,6 +968,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen>
           if (!status.isGranted) {
             final storageStatus = await Permission.storage.request();
             if (!storageStatus.isGranted) {
+              if (!mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Permission denied to save media to gallery.'),
@@ -979,6 +980,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen>
         } else {
           final status = await Permission.storage.request();
           if (!status.isGranted) {
+            if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Permission denied to write to storage.'),
@@ -1421,7 +1423,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen>
                                       msg.id,
                                     );
                                     if (mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(this.context).showSnackBar(
                                         const SnackBar(
                                           content: Text('Message deleted'),
                                         ),
@@ -1429,7 +1431,7 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen>
                                     }
                                   } catch (e) {
                                     if (mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(this.context).showSnackBar(
                                         SnackBar(
                                           content: Text('Delete failed: $e'),
                                         ),

@@ -61,15 +61,21 @@ class ContentRepository {
         .from('bare_act_sections')
         .select('*, bare_acts(id, title, short_title)');
 
-    final bool isNumeric = RegExp(r'^\d*[a-zA-Z]?$').hasMatch(cleanQuery);
+    // Escaped for the PostgREST filter: "302, IPC" or "Art 21(1)" put a
+    // comma or brackets into .or() and the search failed outright.
+    final safeQuery = BaseRepository.sanitizeFilterValue(query);
+    final safeClean = BaseRepository.sanitizeFilterValue(cleanQuery);
+    if (safeQuery.isEmpty) return [];
+
+    final bool isNumeric = RegExp(r'^\d*[a-zA-Z]?$').hasMatch(safeClean);
 
     String orFilter;
-    if (isNumeric && cleanQuery.isNotEmpty) {
+    if (isNumeric && safeClean.isNotEmpty) {
       orFilter =
-          'section_number.ilike.$cleanQuery,section_number.ilike.$cleanQuery%,section_title.ilike.%$query%,section_text.ilike.%$query%';
+          'section_number.ilike.$safeClean,section_number.ilike.$safeClean%,section_title.ilike.%$safeQuery%,section_text.ilike.%$safeQuery%';
     } else {
       orFilter =
-          'section_title.ilike.%$query%,section_text.ilike.%$query%,section_number.ilike.%$query%';
+          'section_title.ilike.%$safeQuery%,section_text.ilike.%$safeQuery%,section_number.ilike.%$safeQuery%';
     }
 
     queryBuilder = queryBuilder.or(orFilter);
@@ -110,8 +116,10 @@ class ContentRepository {
   }
 
   static Future<List<LegalTemplate>> searchLegalTemplates(String query) async {
-    // Sanitize for safety
-    final sanitized = query.replaceAll(RegExp(r'[^\w\s]'), '');
+    // sanitizeFilterValue escapes the filter but keeps Tamil; the old
+    // [^\w\s] stripped every Tamil letter, leaving %% that matched all rows.
+    final sanitized = BaseRepository.sanitizeFilterValue(query);
+    if (sanitized.isEmpty) return [];
     final response = await _client
         .from('legal_templates')
         .select('*')

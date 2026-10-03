@@ -1640,6 +1640,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
     if (_evidence.isEmpty) return;
 
     await _ensureStoragePermission();
+    if (!mounted) return;
     setState(() => _loading = true);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -1714,6 +1715,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
 
   Future<void> _downloadSinglePhoto(CommissionEvidence ev) async {
     await _ensureStoragePermission();
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('📥 Downloading photo #${ev.sequenceNumber}...'),
@@ -1762,6 +1764,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   Future<void> _downloadSingleSketch(CommissionSketch sk) async {
     if (sk.sketchImageUrl == null) return;
     await _ensureStoragePermission();
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('📥 Downloading sketch: ${sk.title}...'),

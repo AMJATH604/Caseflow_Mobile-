@@ -256,7 +256,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                             .update({'is_public_directory_enabled': v}).eq(
                                 'id', userId);
                       }
-                    } catch (_) {}
+                    } catch (_) {
+                      // Not saved: put the switch back rather than show a
+                      // setting the directory does not have.
+                      if (!mounted) return;
+                      setState(() => _publicDirectory = !v);
+                      _saveBool('settings_public_directory', !v);
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Could not update the directory setting. '
+                            'Check your connection and try again.',
+                          ),
+                        ),
+                      );
+                    }
                   },
                 ),
               ]),
