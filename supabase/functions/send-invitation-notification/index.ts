@@ -22,7 +22,7 @@
 // are skipped — they'll see the invitation when they sign up.
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { getAccessToken, recordNotification } from "../_shared/fcm_utils.ts";
+import { apnsAlert, getAccessToken, recordNotification } from "../_shared/fcm_utils.ts";
 import { verifyWebhookAuth } from "../_shared/auth_guard.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { requireSecretKey } from "../_shared/keys.ts";
@@ -267,14 +267,8 @@ Deno.serve(async (req: Request) => {
                 android: {
                   priority: "HIGH",
                 },
-                apns: {
-                  payload: {
-                    aps: {
-                      sound: "default",
-                      badge: 1,
-                    },
-                  },
-                },
+                // iOS shows this text itself; see apnsAlert.
+                apns: apnsAlert(title, notifBody, { threadId: "invitations" }),
               },
             }),
           },

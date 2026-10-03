@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import {
+  apnsAlert,
   getAccessToken,
   initClients,
   sendFcmMessage,
@@ -108,12 +109,12 @@ Deno.serve(async (req: Request) => {
           android: {
             priority: kind === "condolence" ? "HIGH" : "NORMAL",
           },
-          apns: {
-            payload: { aps: { "content-available": 1 } },
-            headers: {
-              "apns-priority": kind === "condolence" ? "10" : "5",
-            },
-          },
+          // iOS shows this text itself; see apnsAlert. Bulletins go at
+          // normal priority (iOS may batch them); a condolence goes now.
+          apns: apnsAlert(title, message, {
+            threadId: `bar-${associationId}`,
+            priority: kind === "condolence" ? "10" : "5",
+          }),
         },
       };
 

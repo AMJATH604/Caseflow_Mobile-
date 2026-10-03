@@ -96,6 +96,48 @@ export async function getAccessToken(serviceAccount: any): Promise<string> {
   return tokenData.access_token;
 }
 
+// ─── iOS (APNs) half of a message ───────────────────────────────
+// Android and iOS need opposite things, and FCM lets one message carry both.
+//
+// Android: data-only, so the app draws its own rich notification (a
+// `notification` block made Android draw a second, empty card — 1a5e626,
+// reverted in 9e0903d). That stays: nothing here touches the top level or
+// the `android` block.
+//
+// iOS: a data-only push is a *silent* push. iOS throttles those, delays
+// them, and never delivers them to an app the user has swiped away, and the
+// app cannot draw a notification it is not woken for — so a reminder arrived
+// as a bare sound and badge, or not at all. iOS needs the text in `aps.alert`
+// so the system itself shows the banner, like WhatsApp's. The `data` fields
+// still travel with it, so a tap opens the right screen
+// (FcmService._handleMessageTap). While the app is open, iOS shows nothing
+// itself (presentation options are off) and the app draws its own, so there
+// is never a double.
+
+export function apnsAlert(
+  title: string,
+  body: string,
+  opts: {
+    /** Groups related notifications, e.g. one chat's messages. */
+    threadId?: string;
+    /** "10" (now) for reminders and messages; "5" for bulletins. */
+    priority?: "10" | "5";
+  } = {},
+) {
+  const aps: Record<string, unknown> = {
+    alert: { title, body },
+    sound: "default",
+  };
+  if (opts.threadId) aps["thread-id"] = opts.threadId;
+  return {
+    headers: {
+      "apns-push-type": "alert",
+      "apns-priority": opts.priority ?? "10",
+    },
+    payload: { aps },
+  };
+}
+
 // ─── FCM Token Cleanup ──────────────────────────────────────────
 // Removes invalid/expired FCM tokens from the database when FCM returns
 // NOT_FOUND or UNREGISTERED errors.

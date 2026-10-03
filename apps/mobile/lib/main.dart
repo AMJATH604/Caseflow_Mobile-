@@ -27,10 +27,17 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   debugPrint('FCM: Background message received: ${message.data}');
 
-  // Always show our rich WhatsApp-style notification with inline Reply
-  // and Mark Read action buttons. We use data-only FCM messages (no
-  // top-level `notification` block) so the OS never auto-displays a
-  // plain notification — all rendering is done here.
+  // On iOS the push carries its text in `aps.alert` and iOS shows it itself
+  // (see apnsAlert in the edge functions); drawing ours too would double it.
+  if (defaultTargetPlatform == TargetPlatform.iOS &&
+      message.notification != null) {
+    return;
+  }
+
+  // Android: show our rich WhatsApp-style notification with inline Reply
+  // and Mark Read action buttons. Android messages are data-only (no
+  // `notification` block) so the OS never auto-displays a plain
+  // notification — all rendering is done here.
   final fcm = FcmService();
   await fcm.initLocalNotifications();
   await fcm.showRichNotification(message);

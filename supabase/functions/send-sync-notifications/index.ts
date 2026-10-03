@@ -17,7 +17,7 @@
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { verifyWebhookAuth } from "../_shared/auth_guard.ts";
-import { getAccessToken, initClients, sendFcmMessage } from "../_shared/fcm_utils.ts";
+import { apnsAlert, getAccessToken, initClients, sendFcmMessage } from "../_shared/fcm_utils.ts";
 
 Deno.serve(async (req: Request) => {
   const authError = await verifyWebhookAuth(req);
@@ -69,9 +69,10 @@ Deno.serve(async (req: Request) => {
                 route: case_id ? `/cases/${case_id}` : "/cases",
               },
               android: { priority: "HIGH" },
-              apns: {
-                payload: { aps: { "content-available": 1, sound: "default" } },
-              },
+              // iOS shows this text itself; see apnsAlert.
+              apns: apnsAlert(String(title ?? "Case update"), String(message ?? ""), {
+                threadId: case_id ? `case-${case_id}` : "cases",
+              }),
             },
           },
           supabase,

@@ -104,6 +104,10 @@ class FcmService {
         debugPrint('FCM: Permission request error (continuing): $permError');
       }
 
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        await _prepareIos();
+      }
+
       // Get the FCM token with retry logic
       String? token;
       for (int i = 0; i < 3; i++) {
@@ -130,6 +134,42 @@ class FcmService {
       debugPrint('FCM: ❌ Token registration error: $e');
       debugPrint('FCM: Stack: $stack');
     }
+  }
+
+  /// iOS needs two things before pushes work as on Android.
+  ///
+  /// While the app is open, iOS must not show the push itself: the app draws
+  /// its own notification in [FirebaseMessaging.onMessage] (and leaves it out
+  /// when that chat is already on screen), so iOS showing one too would
+  /// double it. When the app is in the background or closed, iOS shows the
+  /// `aps.alert` text the server sends — the app is not involved.
+  ///
+  /// And Firebase can only issue a token once Apple has given the phone its
+  /// push token. On a first launch that can take a few seconds, and asking
+  /// for the FCM token before it arrives fails, which left the phone with no
+  /// token and no pushes at all.
+  Future<void> _prepareIos() async {
+    try {
+      await _messaging.setForegroundNotificationPresentationOptions(
+        alert: false,
+        badge: false,
+        sound: false,
+      );
+    } catch (e) {
+      debugPrint('FCM: iOS presentation options failed: $e');
+    }
+    for (var i = 0; i < 10; i++) {
+      try {
+        if (await _messaging.getAPNSToken() != null) return;
+      } catch (_) {
+        // Not ready yet.
+      }
+      await Future.delayed(const Duration(seconds: 1));
+    }
+    debugPrint(
+      'FCM: ⚠️ No APNs token after 10s. Check the Push Notifications '
+      'capability and the APNs key in Firebase.',
+    );
   }
 
   /// Setup FCM message listeners. Only registers once to avoid duplicates.
