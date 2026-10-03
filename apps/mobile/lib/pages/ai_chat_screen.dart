@@ -4,10 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as p;
-import '../theme/app_theme.dart';
 import '../services/gemini_service.dart';
 import '../services/analytics_service.dart';
 import '../components/ai_chat/ai_chat_widgets.dart';
+import '../components/ai_chat/ai_palette.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AiChatScreen extends StatefulWidget {
@@ -29,13 +29,32 @@ class _AiChatScreenState extends State<AiChatScreen>
   File? _pendingFile;
   bool _isLoadingHistory = true;
 
+  /// Whether the reader is at the latest message. While they are, a
+  /// streaming answer keeps the view at its end; once they scroll up to
+  /// reread, it stops pulling them down and offers a jump button instead.
+  bool _atBottom = true;
+
   @override
   void initState() {
     super.initState();
     // The composer draws an accent ring while focused, which only appears if
     // the field's focus changes rebuild it.
     _focusNode.addListener(_onFocusChanged);
+    _scrollController.addListener(_onScroll);
+    // The send button lights up as soon as there is something to send.
+    _controller.addListener(_onTextChanged);
     _loadChatHistory();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final pos = _scrollController.position;
+    final atBottom = pos.maxScrollExtent - pos.pixels < 120;
+    if (atBottom != _atBottom) setState(() => _atBottom = atBottom);
+  }
+
+  void _onTextChanged() {
+    if (mounted) setState(() {});
   }
 
   void _onFocusChanged() {
@@ -57,7 +76,9 @@ class _AiChatScreenState extends State<AiChatScreen>
 
   @override
   void dispose() {
+    _controller.removeListener(_onTextChanged);
     _controller.dispose();
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _focusNode.removeListener(_onFocusChanged);
     _focusNode.dispose();
@@ -88,7 +109,7 @@ class _AiChatScreenState extends State<AiChatScreen>
       onChunk: (fullText) {
         if (mounted) {
           setState(() {});
-          _scrollToBottom();
+          if (_atBottom) _scrollToBottom(smooth: false);
         }
       },
     );
@@ -101,14 +122,18 @@ class _AiChatScreenState extends State<AiChatScreen>
     }
   }
 
-  void _scrollToBottom() {
-    Future.delayed(const Duration(milliseconds: 150), () {
-      if (_scrollController.hasClients) {
+  void _scrollToBottom({bool smooth = true}) {
+    Future.delayed(const Duration(milliseconds: 60), () {
+      if (!_scrollController.hasClients) return;
+      final end = _scrollController.position.maxScrollExtent;
+      if (smooth) {
         _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent + 100,
-          duration: const Duration(milliseconds: 400),
+          end,
+          duration: const Duration(milliseconds: 350),
           curve: Curves.easeOutCubic,
         );
+      } else {
+        _scrollController.jumpTo(end);
       }
     });
   }
@@ -280,12 +305,12 @@ class _AiChatScreenState extends State<AiChatScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final c = AiPalette(isDark);
     final messages = _gemini.history;
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor:
-          isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF8FAFC),
+      backgroundColor: c.bg,
       drawer: AiChatDrawer(
         isDark: isDark,
         sessions: _gemini.sessions,
@@ -297,21 +322,33 @@ class _AiChatScreenState extends State<AiChatScreen>
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(isDark),
+            _buildHeader(c),
             Expanded(
               child: _isLoadingHistory
                   ? Center(
-                      child: CircularProgressIndicator(
-                        color: AppTheme.accent,
-                        strokeWidth: 2,
+                      child: SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          color: c.muted,
+                          strokeWidth: 2,
+                        ),
                       ),
                     )
                   : messages.isEmpty
-                      ? AiChatWelcome(
-                          isDark: isDark,
-                          onSendPrompt: _sendMessage,
-                        )
-                      : _buildChatList(isDark, messages),
+                      ? AiChatWelcome(isDark: isDark, onSendPrompt: _sendMessage)
+                      : Stack(
+                          children: [
+                            _buildChatList(isDark, messages),
+                            if (!_atBottom)
+                              Positioned(
+                                bottom: 12.h,
+                                left: 0,
+                                right: 0,
+                                child: Center(child: _buildJumpButton(c)),
+                              ),
+                          ],
+                        ),
             ),
             if (_pendingFile != null)
               AiFilePreview(
@@ -319,7 +356,7 @@ class _AiChatScreenState extends State<AiChatScreen>
                 isDark: isDark,
                 onRemove: () => setState(() => _pendingFile = null),
               ),
-            _buildInputBar(isDark),
+            _buildComposer(c),
           ],
         ),
       ),
@@ -327,141 +364,44 @@ class _AiChatScreenState extends State<AiChatScreen>
   }
 
   // ─── Header ──────────────────────────────────────────
-  Widget _buildHeader(bool isDark) {
-    final sessionTitle = _gemini.currentSessionTitle;
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161620) : Colors.white,
-        border: Border(
-          bottom: BorderSide(
-            color: isDark ? const Color(0xFF232330) : const Color(0xFFE2E8F0),
-          ),
-        ),
-      ),
+  /// Three things, as in ChatGPT: history, the conversation's name, new chat.
+  /// Deleting a chat lives in history (swipe or long-press), not up here.
+  Widget _buildHeader(AiPalette c) {
+    final title = _gemini.currentSessionTitle;
+    return SizedBox(
+      height: 52.h,
       child: Row(
         children: [
           IconButton(
             onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-            icon: Icon(
-              Icons.menu_rounded,
-              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
-              size: 24,
-            ),
-            tooltip: 'Chat History',
+            tooltip: 'Chat history',
+            icon: Icon(Icons.menu_rounded, color: c.ink, size: 24),
           ),
-          Container(
-            width: 34.w,
-            height: 34.h,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF6366F1), Color(0xFF22D3EE)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(10.r),
-            ),
-            child: const Icon(
-              Icons.auto_awesome,
-              color: Colors.white,
-              size: 18,
-            ),
-          ),
-          SizedBox(width: 10.w),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  sessionTitle ?? 'CaseFlow AI',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.outfit(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
-                  ),
-                ),
-                SizedBox(height: 1.h),
-                Row(
-                  children: [
-                    Container(
-                      width: 6.w,
-                      height: 6.h,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF10B981),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    SizedBox(width: 5.w),
-                    Text(
-                      'Powered by Gemini • Vision enabled',
-                      style: GoogleFonts.inter(
-                        fontSize: 10.sp,
-                        color: isDark
-                            ? const Color(0xFF94A3B8)
-                            : const Color(0xFF64748B),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+            child: Text(
+              (title == null || title.isEmpty || title == 'New Chat')
+                  ? 'CaseFlow AI'
+                  : title,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.inter(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: c.ink,
+              ),
             ),
           ),
           IconButton(
-            onPressed: () async {
-              await _gemini.startNewChat();
-              if (mounted) setState(() {});
-            },
-            icon: Icon(
-              Icons.edit_square,
-              color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
-              size: 20,
-            ),
-            tooltip: 'New Chat',
+            onPressed: _isSending
+                ? null
+                : () async {
+                    await _gemini.startNewChat();
+                    if (mounted) setState(() {});
+                  },
+            tooltip: 'New chat',
+            icon: Icon(Icons.edit_square, color: c.ink, size: 21),
           ),
-          if (_gemini.history.isNotEmpty)
-            IconButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                    title: const Text('Delete Chat?'),
-                    content: const Text(
-                      'This will permanently delete this conversation.',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          Navigator.pop(ctx);
-                          await _gemini.clearHistory();
-                          await _gemini.fetchSessions();
-                          if (mounted) setState(() {});
-                        },
-                        child: const Text(
-                          'Delete',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-              icon: Icon(
-                Icons.delete_outline_rounded,
-                color: isDark ? const Color(0xFF64748B) : Colors.black38,
-                size: 20,
-              ),
-            ),
         ],
       ),
     );
@@ -470,7 +410,7 @@ class _AiChatScreenState extends State<AiChatScreen>
   Widget _buildChatList(bool isDark, List<ChatMessage> messages) {
     return ListView.builder(
       controller: _scrollController,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      padding: EdgeInsets.fromLTRB(18.w, 8.h, 18.w, 24.h),
       itemCount: messages.length,
       itemBuilder: (context, index) {
         final msg = messages[index];
@@ -483,130 +423,126 @@ class _AiChatScreenState extends State<AiChatScreen>
     );
   }
 
-  Widget _buildInputBar(bool isDark) {
-    return Container(
-      padding: EdgeInsets.only(
-        left: 8.w,
-        right: 8.w,
-        top: 12.h,
-        bottom: MediaQuery.of(context).padding.bottom + 12,
-      ),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF161620) : Colors.white,
-        border: Border(
-          top: BorderSide(
-            color: isDark ? const Color(0xFF232330) : const Color(0xFFE2E8F0),
-          ),
+  Widget _buildJumpButton(AiPalette c) {
+    return Material(
+      color: c.bg,
+      shape: CircleBorder(side: BorderSide(color: c.border)),
+      elevation: 2,
+      shadowColor: Colors.black26,
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: _scrollToBottom,
+        child: Padding(
+          padding: EdgeInsets.all(8.r),
+          child: Icon(Icons.arrow_downward_rounded, size: 20, color: c.ink),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+      ),
+    );
+  }
+
+  // ─── Composer ────────────────────────────────────────
+  /// One rounded box holding attach, text and send, floating on the page;
+  /// the send button is a solid circle that lights up only when there is
+  /// something to send.
+  Widget _buildComposer(AiPalette c) {
+    final canSend = !_isSending &&
+        (_controller.text.trim().isNotEmpty || _pendingFile != null);
+    return Padding(
+      padding: EdgeInsets.fromLTRB(12.w, 4.h, 12.w, 6.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: c.surface,
+              borderRadius: BorderRadius.circular(26.r),
+              border: Border.all(
+                color: _focusNode.hasFocus ? c.faint : c.border,
+              ),
+            ),
+            padding: EdgeInsets.fromLTRB(4.w, 4.h, 6.w, 4.h),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                IconButton(
+                  tooltip: 'Attach a photo or document',
+                  onPressed: _isSending ? null : _showAttachmentOptions,
+                  icon: Icon(
+                    Icons.add_rounded,
+                    size: 24,
+                    color: _pendingFile != null ? c.ink : c.muted,
+                  ),
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    maxLines: 6,
+                    minLines: 1,
+                    textCapitalization: TextCapitalization.sentences,
+                    textInputAction: TextInputAction.newline,
+                    style: GoogleFonts.inter(
+                      fontSize: 15.sp,
+                      height: 1.45,
+                      color: c.ink,
+                    ),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: _pendingFile != null
+                          ? 'Ask about this file'
+                          : 'Message CaseFlow AI',
+                      hintStyle: GoogleFonts.inter(
+                        fontSize: 15.sp,
+                        color: c.faint,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 12.h),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 6.w),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 5.h),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 160),
+                    width: 36.r,
+                    height: 36.r,
+                    decoration: BoxDecoration(
+                      color: canSend || _isSending ? c.action : c.surfaceHigh,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      tooltip: _isSending ? 'Answering…' : 'Send',
+                      onPressed:
+                          canSend ? () => _sendMessage(_controller.text) : null,
+                      icon: _isSending
+                          ? SizedBox(
+                              width: 14.r,
+                              height: 14.r,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: c.onAction,
+                              ),
+                            )
+                          : Icon(
+                              Icons.arrow_upward_rounded,
+                              size: 20,
+                              color: canSend ? c.onAction : c.faint,
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 6.h),
+          Text(
+            'CaseFlow AI can make mistakes. Check important information.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(fontSize: 10.5.sp, color: c.faint),
           ),
         ],
-      ),
-      // One rounded field holding attach, text and send — the composer shape
-      // ChatGPT and Claude use. Three separate controls in a row read as a
-      // form; one container reads as a place to type.
-      child: Container(
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF0A0A0F) : const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(22.r),
-          border: Border.all(
-            color: _focusNode.hasFocus
-                ? AppTheme.accent.withValues(alpha: 0.5)
-                : (isDark
-                    ? const Color(0xFF232330)
-                    : const Color(0xFFE2E8F0)),
-            width: _focusNode.hasFocus ? 1.5 : 1,
-          ),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            IconButton(
-              tooltip: 'Attach',
-              onPressed: _isSending ? null : _showAttachmentOptions,
-              icon: Icon(
-                Icons.add_rounded,
-                color: _pendingFile != null
-                    ? AppTheme.accent
-                    : isDark
-                        ? const Color(0xFF64748B)
-                        : const Color(0xFF94A3B8),
-                size: 22,
-              ),
-            ),
-            Expanded(
-              child: TextField(
-                controller: _controller,
-                focusNode: _focusNode,
-                maxLines: 6,
-                minLines: 1,
-                textInputAction: TextInputAction.send,
-                onSubmitted: (text) => _sendMessage(text),
-                style: GoogleFonts.inter(
-                  fontSize: 14.sp,
-                  height: 1.45,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
-                ),
-                decoration: InputDecoration(
-                  isDense: true,
-                  hintText: _pendingFile != null
-                      ? 'Describe what to analyse…'
-                      : 'Ask about any Indian law…',
-                  hintStyle: GoogleFonts.inter(
-                    fontSize: 14.sp,
-                    color: isDark
-                        ? const Color(0xFF475569)
-                        : const Color(0xFF94A3B8),
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 12.h),
-                ),
-              ),
-            ),
-            SizedBox(width: 4.w),
-            Padding(
-              padding: EdgeInsets.only(bottom: 3.h),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                width: 34.w,
-                height: 34.w,
-                decoration: BoxDecoration(
-                  color: _isSending
-                      ? (isDark
-                          ? const Color(0xFF232330)
-                          : const Color(0xFFE2E8F0))
-                      : AppTheme.accent,
-                  borderRadius: BorderRadius.circular(17.r),
-                ),
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  tooltip: 'Send',
-                  onPressed:
-                      _isSending ? null : () => _sendMessage(_controller.text),
-                  icon: _isSending
-                      ? SizedBox(
-                          width: 15.w,
-                          height: 15.w,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: isDark ? Colors.white54 : Colors.black26,
-                          ),
-                        )
-                      : const Icon(
-                          Icons.arrow_upward_rounded,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

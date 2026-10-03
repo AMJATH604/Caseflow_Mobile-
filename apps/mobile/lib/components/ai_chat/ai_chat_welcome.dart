@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../services/gemini_service.dart';
+import 'ai_palette.dart';
 
-/// Welcome hero view shown when the AI chat history is empty.
-/// Displays branding, capabilities hint, and tappable suggestion cards.
+/// The empty conversation: one calm question in the middle, and a row of
+/// starting points just above where you type — as ChatGPT opens a new chat.
 class AiChatWelcome extends StatelessWidget {
   final bool isDark;
   final void Function(String prompt) onSendPrompt;
@@ -17,178 +18,128 @@ class AiChatWelcome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(24.r),
-      child: Column(
-        children: [
-          SizedBox(height: 24.h),
-          // Hero icon
-          Container(
-            width: 80.w,
-            height: 80.h,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xFF6366F1),
-                  Color(0xFF22D3EE),
-                  Color(0xFF34D399),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(24.r),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.3),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.auto_awesome,
-              color: Colors.white,
-              size: 36,
-            ),
-          ),
-          SizedBox(height: 24.h),
-          Text(
-            'CaseFlow AI',
-            style: GoogleFonts.outfit(
-              fontSize: 28.sp,
-              fontWeight: FontWeight.w800,
-              color: isDark ? Colors.white : const Color(0xFF0F172A),
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Your expert Indian legal assistant.\nAsk questions or share images of legal documents.',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 14.sp,
-              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-              height: 1.5.h,
-            ),
-          ),
-          SizedBox(height: 16.h),
-          // Image analysis hint
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-            decoration: BoxDecoration(
-              color: const Color(0xFF6366F1).withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(
-                color: const Color(0xFF6366F1).withValues(alpha: 0.15),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.image_search_rounded,
-                  size: 18,
-                  color: Color(0xFF6366F1),
-                ),
-                SizedBox(width: 8.w),
-                Text(
-                  '📸 Send photos of court orders, FIRs, or legal docs!',
-                  style: GoogleFonts.inter(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF6366F1),
+    final c = AiPalette(isDark);
+    return Column(
+      children: [
+        Expanded(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 32.w),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 44.r,
+                    height: 44.r,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: c.border),
+                    ),
+                    child: Icon(
+                      Icons.auto_awesome_outlined,
+                      size: 22,
+                      color: c.ink,
+                    ),
                   ),
-                ),
-              ],
+                  SizedBox(height: 18.h),
+                  Text(
+                    'How can I help with your case today?',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.outfit(
+                      fontSize: 24.sp,
+                      height: 1.25,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.4,
+                      color: c.ink,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'Ask about Indian law, or attach an order, FIR or deed.',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      fontSize: 13.sp,
+                      height: 1.45,
+                      color: c.muted,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          SizedBox(height: 32.h),
-          Text(
-            'TRY ASKING',
-            style: GoogleFonts.inter(
-              fontSize: 11.sp,
-              fontWeight: FontWeight.w800,
-              color: isDark ? const Color(0xFF475569) : const Color(0xFF94A3B8),
-              letterSpacing: 2,
-            ),
+        ),
+        SizedBox(
+          height: 78.h,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: 12.w),
+            itemCount: GeminiService.suggestedPrompts.length,
+            separatorBuilder: (_, __) => SizedBox(width: 8.w),
+            itemBuilder: (context, i) {
+              final p = GeminiService.suggestedPrompts[i];
+              return _SuggestionCard(
+                title: p['title']!,
+                prompt: p['prompt']!,
+                palette: c,
+                onTap: () => onSendPrompt(p['prompt']!),
+              );
+            },
           ),
-          SizedBox(height: 16.h),
-          ...GeminiService.suggestedPrompts.map(
-            (prompt) => _SuggestionCard(
-              prompt: prompt,
-              isDark: isDark,
-              onTap: () => onSendPrompt(prompt['prompt']!),
-            ),
-          ),
-        ],
-      ),
+        ),
+        SizedBox(height: 8.h),
+      ],
     );
   }
 }
 
-/// Single suggestion card with icon, title, and prompt text.
 class _SuggestionCard extends StatelessWidget {
-  final Map<String, String> prompt;
-  final bool isDark;
+  final String title;
+  final String prompt;
+  final AiPalette palette;
   final VoidCallback onTap;
 
   const _SuggestionCard({
+    required this.title,
     required this.prompt,
-    required this.isDark,
+    required this.palette,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 10.h),
+    return Material(
+      color: palette.surface,
+      borderRadius: BorderRadius.circular(16.r),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16.r),
         child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(16.r),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF161620) : Colors.white,
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(
-              color: isDark ? const Color(0xFF232330) : const Color(0xFFE2E8F0),
-            ),
-          ),
-          child: Row(
+          width: 210.w,
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(prompt['icon']!, style: TextStyle(fontSize: 22.sp)),
-              SizedBox(width: 14.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      prompt['title']!,
-                      style: GoogleFonts.inter(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w700,
-                        color: isDark ? Colors.white : const Color(0xFF0F172A),
-                      ),
-                    ),
-                    SizedBox(height: 3.h),
-                    Text(
-                      prompt['prompt']!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.inter(
-                        fontSize: 12.sp,
-                        color: isDark
-                            ? const Color(0xFF64748B)
-                            : const Color(0xFF94A3B8),
-                      ),
-                    ),
-                  ],
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  color: palette.ink,
                 ),
               ),
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 14,
-                color: isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1),
+              SizedBox(height: 3.h),
+              Text(
+                prompt,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 12.sp,
+                  height: 1.35,
+                  color: palette.muted,
+                ),
               ),
             ],
           ),

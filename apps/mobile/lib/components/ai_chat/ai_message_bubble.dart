@@ -3,11 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../theme/app_theme.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../services/gemini_service.dart';
 import 'ai_genui_cards.dart';
+import 'ai_palette.dart';
 
-/// A single AI or user message bubble with avatar, content, and action chips.
+/// One turn of the conversation.
+///
+/// Set the way ChatGPT sets it: your message is a soft rounded bubble on the
+/// right; the answer runs the full width with no bubble, avatar or label —
+/// a legal answer is paragraphs, headings and citations, and it reads best
+/// as a page. Copy and Share sit quietly under a finished answer.
 class AiMessageBubble extends StatelessWidget {
   final ChatMessage message;
   final bool isUser;
@@ -20,342 +26,197 @@ class AiMessageBubble extends StatelessWidget {
     required this.isDark,
   });
 
+  AiPalette get _c => AiPalette(isDark);
+
   @override
-  Widget build(BuildContext context) {
-    // Assistant replies run the full width of the column with no bubble,
-    // border or shadow — the way ChatGPT and Claude set them. A legal answer
-    // is several paragraphs with headings and citations, and a chat bubble
-    // squeezed it into a narrow column that then had to wrap every line.
-    // The user's turn stays a bubble, so the two are still easy to tell
-    // apart at a glance.
-    return isUser ? _buildUserTurn(context) : _buildAssistantTurn(context);
-  }
+  Widget build(BuildContext context) =>
+      isUser ? _buildUserTurn(context) : _buildAssistantTurn(context);
 
   Widget _buildUserTurn(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 18.h, left: 40.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 11.h),
-            decoration: BoxDecoration(
-              color: isDark
-                  ? const Color(0xFF1E293B)
-                  : const Color(0xFFEFF4FF),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16.r),
-                topRight: Radius.circular(16.r),
-                bottomLeft: Radius.circular(16.r),
-                bottomRight: Radius.circular(4.r),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (message.hasImage) ...[
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10.r),
-                    child: message.imagePath != null
-                        ? Image.file(
-                            File(message.imagePath!),
-                            width: 200.w,
-                            height: 150.h,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
-                              width: 200.w,
-                              height: 60.h,
-                              color: Colors.grey[300],
-                              child: const Center(
-                                child: Icon(Icons.broken_image),
-                              ),
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                  SizedBox(height: 8.h),
-                ],
-                SelectableText(
-                  message.text,
-                  style: GoogleFonts.inter(
-                    fontSize: 14.sp,
-                    height: 1.5,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+      padding: EdgeInsets.only(bottom: 20.h, left: 48.w),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 11.h),
+          decoration: BoxDecoration(
+            color: _c.surface,
+            borderRadius: BorderRadius.circular(22.r),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (message.hasImage && message.imagePath != null) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(14.r),
+                  child: Image.file(
+                    File(message.imagePath!),
+                    width: 200.w,
+                    height: 150.h,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      width: 200.w,
+                      height: 60.h,
+                      color: _c.surfaceHigh,
+                      child: Icon(Icons.broken_image_outlined, color: _c.muted),
+                    ),
                   ),
                 ),
+                SizedBox(height: 8.h),
               ],
-            ),
+              SelectableText(
+                message.text,
+                style: GoogleFonts.inter(
+                  fontSize: 15.sp,
+                  height: 1.5,
+                  color: _c.ink,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildAssistantTurn(BuildContext context) {
+    final streaming = message.isLoading && message.text.isNotEmpty;
     return Padding(
-      padding: EdgeInsets.only(bottom: 22.h),
+      padding: EdgeInsets.only(bottom: 24.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              _buildAiAvatar(),
-              SizedBox(width: 9.w),
-              Text(
-                'CaseFlow AI',
-                style: GoogleFonts.inter(
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w700,
-                  color: isDark
-                      ? const Color(0xFF94A3B8)
-                      : const Color(0xFF64748B),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 10.h),
-          if (message.isLoading)
-            _buildTypingIndicator()
+          if (message.isLoading && message.text.isEmpty)
+            const _ThinkingPulse()
           else ...[
-            _buildMessageContent(context),
-            if (message.hasSources) ...[
-              SizedBox(height: 12.h),
-              _buildSourceChips(context),
+            AiGenUiContent(text: message.text, isDark: isDark),
+            if (streaming) ...[
+              SizedBox(height: 6.h),
+              const _ThinkingPulse(compact: true),
             ],
-            SizedBox(height: 10.h),
-            _buildCopyChip(context),
+            if (!message.isLoading) ...[
+              if (message.hasSources) ...[
+                SizedBox(height: 14.h),
+                _buildSources(context),
+              ],
+              SizedBox(height: 8.h),
+              _buildActions(context),
+            ],
           ],
         ],
       ),
     );
   }
 
-  Widget _buildAiAvatar() {
-    return Container(
-      width: 32.w,
-      height: 32.h,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF6366F1), Color(0xFF22D3EE)],
-        ),
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      child: const Icon(
-        Icons.auto_awesome,
-        color: Colors.white,
-        size: 16,
-      ),
-    );
-  }
+  // ─── Actions under a finished answer ───────────────────────
 
-  // The user's own avatar is gone: their turn is right-aligned in a tinted
-  // bubble, which already says whose it is without spending a row on it.
+  Widget _buildActions(BuildContext context) {
+    Widget action(IconData icon, String tooltip, VoidCallback onTap) =>
+        IconButton(
+          tooltip: tooltip,
+          onPressed: onTap,
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.all(6.r),
+          constraints: const BoxConstraints(),
+          icon: Icon(icon, size: 17, color: _c.faint),
+        );
 
-  Widget _buildMessageContent(BuildContext context) {
-    if (isUser) {
-      return SelectableText(
-        message.text,
-        style: GoogleFonts.inter(
-          fontSize: 14.sp,
-          height: 1.6.h,
-          color: Colors.white,
-        ),
-      );
-    }
-
-    // Parse Gen UI tags: <genui-([a-z0-9\-]+)([^>]*)\/>
-    return AiGenUiContent(
-      text: message.text,
-      isDark: isDark,
-    );
-  }
-
-  Widget _buildCopyChip(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        InkWell(
-          onTap: () {
-            Clipboard.setData(ClipboardData(text: message.text));
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('Copied to clipboard'),
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                duration: const Duration(milliseconds: 1500),
-              ),
-            );
-          },
-          borderRadius: BorderRadius.circular(8.r),
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF232330) : const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(8.r),
+        action(Icons.content_copy_rounded, 'Copy', () {
+          Clipboard.setData(ClipboardData(text: message.text));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Copied'),
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(milliseconds: 1200),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.copy_rounded,
-                  size: 13,
-                  color: isDark
-                      ? const Color(0xFF94A3B8)
-                      : const Color(0xFF64748B),
-                ),
-                SizedBox(width: 5.w),
-                Text(
-                  'Copy',
-                  style: GoogleFonts.inter(
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
-                    color: isDark
-                        ? const Color(0xFF94A3B8)
-                        : const Color(0xFF64748B),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+          );
+        }),
+        SizedBox(width: 4.w),
+        action(Icons.ios_share_rounded, 'Share', () {
+          Share.share(message.text);
+        }),
       ],
     );
   }
 
-  /// Perplexity-style source citation chips — shows numbered legal sources
-  /// that were used to ground the AI's answer.
-  Widget _buildSourceChips(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  // ─── Sources ───────────────────────────────────────────────
+
+  /// The legal sources the answer was grounded in, as numbered pills.
+  Widget _buildSources(BuildContext context) {
+    return Wrap(
+      spacing: 6.w,
+      runSpacing: 6.h,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        // Header row
-        Row(
+        Text(
+          'Sources',
+          style: GoogleFonts.inter(
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w600,
+            color: _c.muted,
+          ),
+        ),
+        for (final entry in message.ragSources.asMap().entries)
+          _sourcePill(context, entry.key + 1, entry.value),
+      ],
+    );
+  }
+
+  Widget _sourcePill(BuildContext context, int n, Map<String, dynamic> source) {
+    final ref = source['ref'] as String? ?? 'Source';
+    return InkWell(
+      onTap: () => _showSourceDetail(context, ref, source),
+      borderRadius: BorderRadius.circular(20.r),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(4.w, 4.h, 10.w, 4.h),
+        decoration: BoxDecoration(
+          color: _c.surface,
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.library_books_rounded,
-              size: 12,
-              color: isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1),
+            Container(
+              width: 18.r,
+              height: 18.r,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: _c.cite.withValues(alpha: 0.14),
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                '$n',
+                style: GoogleFonts.inter(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w700,
+                  color: _c.cite,
+                ),
+              ),
             ),
-            SizedBox(width: 5.w),
-            Text(
-              'Sources',
-              style: GoogleFonts.inter(
-                fontSize: 11.sp,
-                fontWeight: FontWeight.w700,
-                color: isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1),
-                letterSpacing: 0.5,
+            SizedBox(width: 6.w),
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 180.w),
+              child: Text(
+                ref,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500,
+                  color: _c.ink,
+                ),
               ),
             ),
           ],
         ),
-        SizedBox(height: 6.h),
-        // Source chips in a wrap
-        Wrap(
-          spacing: 6.w,
-          runSpacing: 6.h,
-          children: message.ragSources.asMap().entries.map((entry) {
-            final idx = entry.key;
-            final source = entry.value;
-            final ref = source['ref'] as String? ?? 'Source';
-            final type = source['type'] as String? ?? 'bare_act';
-            final similarity = source['similarity'] as num? ?? 0;
-
-            // Icon based on source type
-            IconData icon;
-            Color chipColor;
-            switch (type) {
-              case 'template':
-                icon = Icons.description_rounded;
-                chipColor = const Color(0xFF059669);
-                break;
-              case 'dictionary':
-                icon = Icons.menu_book_rounded;
-                chipColor = const Color(0xFFD97706);
-                break;
-              default: // bare_act
-                icon = Icons.gavel_rounded;
-                chipColor = const Color(0xFF6366F1);
-            }
-
-            return InkWell(
-              onTap: () => _showSourceDetail(context, ref, source),
-              borderRadius: BorderRadius.circular(8.r),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? chipColor.withValues(alpha: 0.15)
-                      : chipColor.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8.r),
-                  border: Border.all(
-                    color: chipColor.withValues(alpha: 0.3),
-                    width: 0.5,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Numbered badge
-                    Container(
-                      width: 16.w,
-                      height: 16.h,
-                      decoration: BoxDecoration(
-                        color: chipColor,
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        '${idx + 1}',
-                        style: GoogleFonts.inter(
-                          fontSize: 9.sp,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 5.w),
-                    Icon(icon, size: 11, color: chipColor),
-                    SizedBox(width: 4.w),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 160.w),
-                      child: Text(
-                        ref,
-                        style: GoogleFonts.inter(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? chipColor.withValues(alpha: 0.9)
-                              : chipColor,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    SizedBox(width: 4.w),
-                    Text(
-                      '${(similarity * 100).round()}%',
-                      style: GoogleFonts.inter(
-                        fontSize: 9.sp,
-                        fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? const Color(0xFF64748B)
-                            : const Color(0xFF94A3B8),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
+      ),
     );
   }
 
-  /// Show source detail in a bottom sheet when a citation chip is tapped.
   void _showSourceDetail(
     BuildContext context,
     String ref,
@@ -365,101 +226,57 @@ class AiMessageBubble extends StatelessWidget {
     final actTitle = metadata['act_title'] as String? ?? '';
     final sectionNumber = metadata['section_number'] as String? ?? '';
     final sectionTitle = metadata['section_title'] as String? ?? '';
+    final similarity = source['similarity'] as num?;
 
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => DraggableScrollableSheet(
-        initialChildSize: 0.5,
-        minChildSize: 0.3,
-        maxChildSize: 0.85,
-        builder: (_, scrollController) => Container(
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-          ),
+      backgroundColor: _c.bg,
+      showDragHandle: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 24.h),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Handle bar
-              Container(
-                margin: EdgeInsets.only(top: 12.h),
-                width: 40.w,
-                height: 4.h,
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF3D3D50) : const Color(0xFFCBD5E1),
-                  borderRadius: BorderRadius.circular(2.r),
+              Text(
+                ref,
+                style: GoogleFonts.inter(
+                  fontSize: 17.sp,
+                  fontWeight: FontWeight.w700,
+                  color: _c.ink,
                 ),
               ),
-              // Title
-              Padding(
-                padding: EdgeInsets.all(16.r),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.gavel_rounded,
-                          size: 18,
-                          color: const Color(0xFF6366F1),
-                        ),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: Text(
-                            ref,
-                            style: GoogleFonts.inter(
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.w700,
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (actTitle.isNotEmpty) ...[
-                      SizedBox(height: 4.h),
-                      Text(
-                        actTitle,
-                        style: GoogleFonts.inter(
-                          fontSize: 12.sp,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                        ),
-                      ),
-                    ],
-                    if (sectionTitle.isNotEmpty) ...[
-                      SizedBox(height: 2.h),
-                      Text(
-                        'Section $sectionNumber: $sectionTitle',
-                        style: GoogleFonts.inter(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
-                        ),
-                      ),
-                    ],
-                  ],
+              if (actTitle.isNotEmpty) ...[
+                SizedBox(height: 6.h),
+                Text(
+                  actTitle,
+                  style: GoogleFonts.inter(fontSize: 13.sp, color: _c.muted),
                 ),
-              ),
-              Divider(
-                height: 1,
-                color: isDark ? const Color(0xFF2D2D3F) : const Color(0xFFE2E8F0),
-              ),
-              // This would show the full source content retrieved from RAG
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.all(16.r),
-                  child: SingleChildScrollView(
-                    controller: scrollController,
-                    child: SelectableText(
-                      'Source content retrieved from the CaseFlow legal knowledge base.\n\nThis section was matched with the AI query and used to ground the response in actual Indian law.',
-                      style: GoogleFonts.inter(
-                        fontSize: 13.sp,
-                        height: 1.7,
-                        color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
-                      ),
-                    ),
+              ],
+              if (sectionTitle.isNotEmpty) ...[
+                SizedBox(height: 2.h),
+                Text(
+                  'Section $sectionNumber: $sectionTitle',
+                  style: GoogleFonts.inter(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: _c.ink,
                   ),
+                ),
+              ],
+              SizedBox(height: 14.h),
+              Text(
+                'Matched from the CaseFlow legal library and used to ground '
+                'this answer'
+                '${similarity != null ? ' (${(similarity * 100).round()}% match)' : ''}.',
+                style: GoogleFonts.inter(
+                  fontSize: 13.sp,
+                  height: 1.5,
+                  color: _c.muted,
                 ),
               ),
             ],
@@ -468,43 +285,57 @@ class AiMessageBubble extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildTypingIndicator() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildDot(0),
-        SizedBox(width: 4.w),
-        _buildDot(1),
-        SizedBox(width: 4.w),
-        _buildDot(2),
-        SizedBox(width: 8.w),
-        Text(
-          'Thinking...',
-          style: GoogleFonts.inter(
-            fontSize: 12.sp,
-            color: const Color(0xFF94A3B8),
-            fontStyle: FontStyle.italic,
-          ),
-        ),
-      ],
-    );
+/// The breathing dot ChatGPT shows while it thinks: one circle, gently
+/// pulsing, for as long as the wait lasts.
+class _ThinkingPulse extends StatefulWidget {
+  final bool compact;
+  const _ThinkingPulse({this.compact = false});
+
+  @override
+  State<_ThinkingPulse> createState() => _ThinkingPulseState();
+}
+
+class _ThinkingPulseState extends State<_ThinkingPulse>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  )..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
   }
 
-  Widget _buildDot(int index) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: Duration(milliseconds: 600 + (index * 200)),
-      builder: (context, value, child) {
-        return Container(
-          width: 8.w,
-          height: 8.h,
-          decoration: BoxDecoration(
-            color: AppTheme.accent.withValues(alpha: 0.4 + (value * 0.6)),
-            shape: BoxShape.circle,
-          ),
-        );
-      },
+  @override
+  Widget build(BuildContext context) {
+    final c = AiPalette(Theme.of(context).brightness == Brightness.dark);
+    final size = widget.compact ? 9.0 : 13.0;
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: widget.compact ? 0 : 6.h),
+      child: AnimatedBuilder(
+        animation: _ctrl,
+        builder: (_, __) {
+          final t = Curves.easeInOut.transform(_ctrl.value);
+          return Semantics(
+            label: 'CaseFlow AI is thinking',
+            child: Transform.scale(
+              scale: 0.75 + 0.35 * t,
+              child: Container(
+                width: size,
+                height: size,
+                decoration: BoxDecoration(
+                  color: c.ink.withValues(alpha: 0.55 + 0.45 * t),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
