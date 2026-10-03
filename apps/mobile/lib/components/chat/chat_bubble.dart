@@ -13,6 +13,10 @@ import 'chat_document_bubble.dart';
 
 /// Premium WhatsApp-style chat bubble.
 ///
+/// Where one of my messages is on its way, as WhatsApp shows it: a clock
+/// while sending, ticks once saved, a red mark if it could not be sent.
+enum MessageSendState { sent, sending, failed }
+
 /// Renders a message bubble with proper tail shape, adaptive colors,
 /// and supports text, image, video, voice, and document content types.
 class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
@@ -29,6 +33,9 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
   /// Whether the message has been delivered to the recipient's device.
   /// Drives the single-tick (sent) vs double-tick (delivered/read) distinction.
   final bool isDelivered;
+
+  /// Sending / sent / failed, for my own messages.
+  final MessageSendState sendState;
 
   /// Optional sender name to display above the message (for group chats).
   final String? senderName;
@@ -76,6 +83,7 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
     this.showReadReceipt = false,
     this.isRead = false,
     this.isDelivered = false,
+    this.sendState = MessageSendState.sent,
     this.senderName,
     this.senderNameColor,
     this.onLongPress,
@@ -266,7 +274,18 @@ class ChatBubble<T extends ChatMessageData> extends StatelessWidget {
                         color: metaColor,
                       ),
                     ),
-                    if (showReadReceipt && isMe) ...[
+                    if (isMe && sendState != MessageSendState.sent) ...[
+                      SizedBox(width: 4.w),
+                      Icon(
+                        sendState == MessageSendState.sending
+                            ? Icons.schedule_rounded
+                            : Icons.error_rounded,
+                        size: 15.sp,
+                        color: sendState == MessageSendState.sending
+                            ? metaColor
+                            : const Color(0xFFEF4444),
+                      ),
+                    ] else if (showReadReceipt && isMe) ...[
                       SizedBox(width: 4.w),
                       // 3-state ticks:
                       //   sent      → single grey  ✓

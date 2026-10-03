@@ -26,6 +26,7 @@ import '../components/chat/chat_widgets.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart' as emoji;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../services/fcm_service.dart';
+import '../utils/message_id.dart';
 
 /// Full-screen WhatsApp-style chambers chat.
 class ChambersChatScreen extends ConsumerStatefulWidget {
@@ -58,6 +59,11 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
   RealtimeChannel? _reactionsChannel;
   UserProfile? _profile;
   final List<CaseComment> _optimisticNotices = [];
+
+  /// My messages not yet confirmed by the database (clock), and those that
+  /// could not be sent (red mark, Retry).
+  Set<String> _unsentIds = {};
+  final Set<String> _failedIds = {};
   CaseComment? _replyingTo;
   List<CaseComment> _currentMessagesList = [];
   int _lastMessageCount = 0;
@@ -205,8 +211,8 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
   }
 
   Future<void> _toggleReaction(String msgId, String emoji) async {
-    // Optimistic messages haven't hit the DB yet — can't react to them.
-    if (msgId.startsWith('temp_')) return;
+    // Messages not saved yet have nothing to react to.
+    if (_unsentIds.contains(msgId)) return;
     try {
       await SupabaseService.toggleMessageReaction(
         scope: 'chambers',
@@ -418,34 +424,98 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
             : _replyingTo?.message;
     final replySender = _replyingTo?.senderName;
 
+    // Shown at once with a clock, under the id it will be saved with.
+    final msg = CaseComment(
+      id: newMessageId(),
+      firmId: _firmId!,
+      senderId: _profile?.id ?? '',
+      message: text,
+      senderName: senderName,
+      createdAt: DateTime.now(),
+      replyToId: replyId,
+      replyToMessage: replyMessage,
+      replyToSender: replySender,
+    );
     setState(() {
-      _optimisticNotices.add(
-        CaseComment(
-          id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
-          firmId: _firmId!,
-          senderId: _profile?.id ?? '',
-          message: text,
-          senderName: senderName,
-          createdAt: DateTime.now(),
-          replyToId: replyId,
-          replyToMessage: replyMessage,
-          replyToSender: replySender,
-        ),
-      );
+      _optimisticNotices.add(msg);
       _replyingTo = null;
     });
     _msgController.clear();
     _scrollToBottom();
+    await _deliver(msg);
+  }
 
-    await SupabaseService.postDiscussion({
-      'firm_id': _firmId,
-      'message': text,
-      'case_id': null,
-      'sender_name': senderName,
-      'reply_to_id': replyId,
-      'reply_to_message': replyMessage,
-      'reply_to_sender': replySender,
-    });
+  /// Saves [msg] under the id its bubble already has, so the copy that comes
+  /// back from the database takes the bubble's place instead of joining it.
+  Future<void> _deliver(CaseComment msg) async {
+    if (_failedIds.remove(msg.id) && mounted) setState(() {});
+    try {
+      await SupabaseService.postDiscussion({
+        'id': msg.id,
+        'firm_id': msg.firmId,
+        'message': msg.message,
+        'case_id': null,
+        'sender_name': msg.senderName,
+        'reply_to_id': msg.replyToId,
+        'reply_to_message': msg.replyToMessage,
+        'reply_to_sender': msg.replyToSender,
+      });
+    } on PostgrestException catch (e) {
+      // A retry of a send that did reach the server: it is saved already.
+      if (e.code == '23505') return;
+      _markFailed(msg);
+    } catch (_) {
+      _markFailed(msg);
+    }
+  }
+
+  void _markFailed(CaseComment msg) {
+    if (!mounted) return;
+    setState(() => _failedIds.add(msg.id));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Message not sent. Check your connection.'),
+        action: SnackBarAction(label: 'Retry', onPressed: () => _deliver(msg)),
+      ),
+    );
+  }
+
+  /// Long-press on a message that is not saved: retry or remove it.
+  void _showUnsentActions(CaseComment msg) {
+    if (!_failedIds.contains(msg.id)) return; // Still sending.
+    showModalBottomSheet<void>(
+      context: context,
+      builder:
+          (ctx) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.refresh_rounded),
+                  title: const Text('Retry'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _deliver(msg);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.delete_outline_rounded,
+                    color: Color(0xFFEF4444),
+                  ),
+                  title: const Text('Delete'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    setState(() {
+                      _optimisticNotices.removeWhere((m) => m.id == msg.id);
+                      _failedIds.remove(msg.id);
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+    );
   }
 
   // ─── Send Attachment ────────────────────────────────
@@ -1115,14 +1185,19 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
                   ),
                   error: (e, _) => Center(child: Text('Error: $e')),
                   data: (messages) {
-                    // Combine database stream + local optimistic posts
-                    final combined = <CaseComment>[];
-                    combined.addAll(messages);
-                    for (final opt in _optimisticNotices) {
-                      if (!messages.any((m) => m.id == opt.id)) {
-                        combined.add(opt);
-                      }
-                    }
+                    // Saved messages, plus mine still on their way. A sent
+                    // message comes back with the id its bubble already has,
+                    // so it replaces the bubble and shows once.
+                    final savedIds = {for (final m in messages) m.id};
+                    _optimisticNotices.removeWhere(
+                      (o) => savedIds.contains(o.id),
+                    );
+                    _failedIds.removeAll(savedIds);
+                    _unsentIds = {for (final o in _optimisticNotices) o.id};
+                    final combined = <CaseComment>[
+                      ...messages,
+                      ..._optimisticNotices,
+                    ];
 
                     combined.sort((a, b) => a.createdAt.compareTo(b.createdAt));
                     _currentMessagesList = combined;
@@ -1179,6 +1254,12 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
                           showReadReceipt: true,
                           isDelivered: true,
                           isRead: _isReadByAll(msg),
+                          sendState:
+                              _failedIds.contains(msg.id)
+                                  ? MessageSendState.failed
+                                  : _unsentIds.contains(msg.id)
+                                  ? MessageSendState.sending
+                                  : MessageSendState.sent,
                           reactionCounts: _reactionCounts(msg.id),
                           myReactionEmoji: _myReaction(msg.id),
                           onReactionTap: (emoji) => _toggleReaction(msg.id, emoji),
@@ -1196,7 +1277,9 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
                           downloadProgress: _downloadProgress,
                           localFilesExist: _localFilesExist,
                           localPaths: _localPaths,
-                          onLongPress: () => ChatMessageOptions.show<CaseComment>(
+                          onLongPress: () => _unsentIds.contains(msg.id)
+                              ? _showUnsentActions(msg)
+                              : ChatMessageOptions.show<CaseComment>(
                             context,
                             message: msg,
                             isMe: isMe,

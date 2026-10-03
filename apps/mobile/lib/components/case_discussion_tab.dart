@@ -7,6 +7,7 @@ import '../models/models.dart';
 import '../theme/app_theme.dart';
 import 'profile_avatar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../utils/message_id.dart';
 
 /// Premium Discussion Tab — WhatsApp-grade chat with avatar circles,
 /// date separator pills, rounded bubbles, and glassmorphic input bar.
@@ -58,22 +59,19 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
     if (text.isEmpty) return;
 
     setState(() => _isSending = true);
+    // Made here and saved with the row, so the message shows at once and the
+    // copy that comes back from the database replaces it (matched by id, not
+    // by text, which hid a second "ok" behind the first).
+    final id = newMessageId();
     try {
       final profile = await SupabaseService.fetchProfile();
       final senderName = profile.fullName ?? 'Advocate';
-
-      await SupabaseService.postDiscussion({
-        'case_id': widget.caseId,
-        'firm_id': widget.firmId,
-        'message': text,
-        'sender_name': senderName,
-      });
-
       final currentUser = ref.read(userProvider);
+
       setState(() {
         _optimisticMessages.add(
           CaseComment(
-            id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+            id: id,
             caseId: widget.caseId,
             firmId: widget.firmId,
             senderId: currentUser?.id ?? '',
@@ -83,8 +81,15 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
           ),
         );
       });
-
       _messageController.clear();
+
+      await SupabaseService.postDiscussion({
+        'id': id,
+        'case_id': widget.caseId,
+        'firm_id': widget.firmId,
+        'message': text,
+        'sender_name': senderName,
+      });
       Future.delayed(const Duration(milliseconds: 100), () {
         if (_scrollController.hasClients) {
           _scrollController.animateTo(
@@ -96,9 +101,14 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        // Not sent: take the bubble back and return the text to the box.
+        setState(() => _optimisticMessages.removeWhere((m) => m.id == id));
+        if (_messageController.text.isEmpty) _messageController.text = text;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Message not sent. Check your connection.'),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isSending = false);
@@ -115,27 +125,9 @@ class _CaseDiscussionTabState extends ConsumerState<CaseDiscussionTab> {
         Expanded(
           child: discussionsAsync.when(
             data: (streamMessages) {
-              final pendingOptimistic =
-                  _optimisticMessages
-                      .where(
-                        (opt) =>
-                            !streamMessages.any(
-                              (s) =>
-                                  s.message == opt.message &&
-                                  s.senderId == opt.senderId,
-                            ),
-                      )
-                      .toList();
-              final allMessages = [...streamMessages, ...pendingOptimistic];
-
-              if (pendingOptimistic.length < _optimisticMessages.length) {
-                _optimisticMessages.removeWhere(
-                  (opt) => streamMessages.any(
-                    (s) =>
-                        s.message == opt.message && s.senderId == opt.senderId,
-                  ),
-                );
-              }
+              final savedIds = {for (final m in streamMessages) m.id};
+              _optimisticMessages.removeWhere((o) => savedIds.contains(o.id));
+              final allMessages = [...streamMessages, ..._optimisticMessages];
 
               if (allMessages.isEmpty) return _buildEmptyState();
 

@@ -25,6 +25,7 @@ import '../components/chat/chat_widgets.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart' as emoji;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../services/fcm_service.dart';
+import '../utils/message_id.dart';
 
 class DmChatScreen extends ConsumerStatefulWidget {
   final String conversationId;
@@ -53,6 +54,11 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen>
   UserProfile? _myProfile;
   Map<String, dynamic>? _partnerProfile;
   Stream<List<DirectMessage>>? _messagesStream;
+
+  /// My messages on their way (clock) and those that failed (red mark).
+  final List<DirectMessage> _pending = [];
+  Set<String> _unsentIds = {};
+  final Set<String> _failedIds = {};
 
   DirectMessage? _replyingTo;
   List<DirectMessage> _currentMessagesList = [];
@@ -390,6 +396,8 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen>
   }
 
   Future<void> _toggleReaction(String msgId, String emoji) async {
+    // Messages not saved yet have nothing to react to.
+    if (_unsentIds.contains(msgId)) return;
     try {
       await SupabaseService.toggleMessageReaction(
         scope: 'dm',
@@ -470,25 +478,96 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen>
         ? _myProfile?.fullName
         : _partnerProfile?['full_name'];
 
+    // Shown at once with a clock, under the id it will be saved with, as
+    // WhatsApp does; the saved row then takes its place.
+    final msg = DirectMessage(
+      id: newMessageId(),
+      conversationId: widget.conversationId,
+      senderId: _myProfile?.id ?? '',
+      message: text,
+      createdAt: DateTime.now(),
+      replyToId: replyId,
+      replyToMessage: replyMessage,
+      replyToSender: replySender,
+    );
     _msgController.clear();
-    setState(() => _replyingTo = null);
+    setState(() {
+      _pending.add(msg);
+      _replyingTo = null;
+    });
+    _scrollToBottom();
+    await _deliver(msg);
+  }
 
+  /// Saves [msg] under its own id. A failed send keeps the message on screen
+  /// with a red mark and Retry, instead of losing what was typed.
+  Future<void> _deliver(DirectMessage msg) async {
+    if (_failedIds.remove(msg.id) && mounted) setState(() {});
     try {
       await SupabaseService.sendDirectMessage(
-        widget.conversationId,
-        text,
-        replyToId: replyId,
-        replyToMessage: replyMessage,
-        replyToSender: replySender,
+        msg.conversationId,
+        msg.message,
+        id: msg.id,
+        replyToId: msg.replyToId,
+        replyToMessage: msg.replyToMessage,
+        replyToSender: msg.replyToSender,
       );
-      _scrollToBottom();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to send message: $e')),
-        );
-      }
+    } on PostgrestException catch (e) {
+      // A retry of a send that did reach the server: it is saved already.
+      if (e.code == '23505') return;
+      _markFailed(msg);
+    } catch (_) {
+      _markFailed(msg);
     }
+  }
+
+  void _markFailed(DirectMessage msg) {
+    if (!mounted) return;
+    setState(() => _failedIds.add(msg.id));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Message not sent. Check your connection.'),
+        action: SnackBarAction(label: 'Retry', onPressed: () => _deliver(msg)),
+      ),
+    );
+  }
+
+  /// Long-press on a message that is not saved: retry or remove it.
+  void _showUnsentActions(DirectMessage msg) {
+    if (!_failedIds.contains(msg.id)) return; // Still sending.
+    showModalBottomSheet<void>(
+      context: context,
+      builder:
+          (ctx) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.refresh_rounded),
+                  title: const Text('Retry'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _deliver(msg);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.delete_outline_rounded,
+                    color: Color(0xFFEF4444),
+                  ),
+                  title: const Text('Delete'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    setState(() {
+                      _pending.removeWhere((m) => m.id == msg.id);
+                      _failedIds.remove(msg.id);
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+    );
   }
 
   // ─── Send Attachment ────────────────────────────────
@@ -1188,7 +1267,15 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen>
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
 
-                final messages = snapshot.data ?? [];
+                // Saved messages, plus mine still on their way. A sent
+                // message comes back with the id its bubble already has, so
+                // it replaces the bubble and shows once.
+                final saved = snapshot.data ?? [];
+                final savedIds = {for (final m in saved) m.id};
+                _pending.removeWhere((p) => savedIds.contains(p.id));
+                _failedIds.removeAll(savedIds);
+                _unsentIds = {for (final p in _pending) p.id};
+                final messages = [...saved, ..._pending];
                 _currentMessagesList = messages;
 
                 if (messages.isEmpty) {
@@ -1239,6 +1326,12 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen>
                       showReadReceipt: true,
                       isRead: msg.isRead,
                       isDelivered: msg.isDelivered,
+                      sendState:
+                          _failedIds.contains(msg.id)
+                              ? MessageSendState.failed
+                              : _unsentIds.contains(msg.id)
+                              ? MessageSendState.sending
+                              : MessageSendState.sent,
                       reactionCounts: _reactionCounts(msg.id),
                       myReactionEmoji: _myReaction(msg.id),
                       onReactionTap: (emoji) => _toggleReaction(msg.id, emoji),
@@ -1256,7 +1349,9 @@ class _DmChatScreenState extends ConsumerState<DmChatScreen>
                       downloadProgress: _downloadProgress,
                       localFilesExist: _localFilesExist,
                       localPaths: _localPaths,
-                      onLongPress: () => ChatMessageOptions.show<DirectMessage>(
+                      onLongPress: () => _unsentIds.contains(msg.id)
+                          ? _showUnsentActions(msg)
+                          : ChatMessageOptions.show<DirectMessage>(
                         context,
                         message: msg,
                         isMe: isMe,

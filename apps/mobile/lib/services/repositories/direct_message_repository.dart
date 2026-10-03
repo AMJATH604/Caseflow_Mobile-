@@ -115,10 +115,12 @@ class DirectMessageRepository {
         );
   }
 
-  /// Send a 1-on-1 direct message.
+  /// Send a 1-on-1 direct message. [id], made on the phone, lets the screen
+  /// match the bubble it shows while sending to the saved row.
   static Future<void> sendDirectMessage(
     String conversationId,
     String message, {
+    String? id,
     String? attachmentUrl,
     String? attachmentType,
     String? replyToId,
@@ -129,6 +131,7 @@ class DirectMessageRepository {
 
     // Insert the message
     await _client.from('direct_messages').insert({
+      if (id != null) 'id': id,
       'conversation_id': conversationId,
       'sender_id': user.id,
       'message': message,

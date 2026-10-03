@@ -55,65 +55,103 @@ class DiscussionRepository {
     return Stream.value([]);
   }
 
-  /// Manual Realtime stream for firm notices.
-  /// Combines initial fetch + INSERT/DELETE channel events.
+  /// Manual Realtime stream for firm notices (Chambers).
+  ///
+  /// Like WhatsApp, the list stays complete and in order however the
+  /// connection behaves: every row is kept by id (a message can never appear
+  /// twice), edits and deletions arrive live, and each time the channel
+  /// (re)connects — after the phone sleeps or changes network — the thread is
+  /// fetched again so messages sent meanwhile are not missed.
   static Stream<List<CaseComment>> _firmNoticesStream(String firmId) {
     final controller = StreamController<List<CaseComment>>.broadcast();
-    List<CaseComment> messages = [];
+    final byId = <String, CaseComment>{};
+
+    void emit() {
+      if (controller.isClosed) return;
+      final list = byId.values.toList()
+        ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      controller.add(list);
+    }
+
+    Future<void> refetch() async {
+      try {
+        final data = await fetchDiscussions(firmId: firmId);
+        final fresh = {for (final m in data) m.id};
+        // Rows gone from the server were deleted while we were away.
+        byId.removeWhere((id, _) => !fresh.contains(id));
+        for (final m in data) {
+          byId[m.id] = m;
+        }
+        emit();
+      } catch (e) {
+        debugPrint('Firm notices fetch error: $e');
+        if (byId.isEmpty && !controller.isClosed) controller.addError(e);
+      }
+    }
+
+    bool isFirmNotice(Map<String, dynamic> row) =>
+        row['firm_id'] == firmId && row['case_id'] == null;
 
     // 1. Initial fetch
-    fetchDiscussions(firmId: firmId)
-        .then((data) {
-          messages = data;
-          if (!controller.isClosed) controller.add(List.from(messages));
-        })
-        .catchError((e) {
-          debugPrint('Firm notices initial fetch error: $e');
-          if (!controller.isClosed) controller.addError(e);
-        });
+    refetch();
 
-    // 2. Realtime subscription for new messages
-    final channelName = 'firm_notices_$firmId';
-    final channel = _client.channel(channelName);
+    // 2. Realtime: this firm's rows only, filtered by the server.
+    final channel = _client.channel('firm_notices_$firmId');
+    final firmFilter = PostgresChangeFilter(
+      type: PostgresChangeFilterType.eq,
+      column: 'firm_id',
+      value: firmId,
+    );
 
     channel
         .onPostgresChanges(
           event: PostgresChangeEvent.insert,
           schema: 'public',
           table: 'case_discussions',
+          filter: firmFilter,
           callback: (payload) {
             try {
-              final newRecord = payload.newRecord;
-              // Only add if it's a firm notice (case_id is null) for this firm
-              if (newRecord['firm_id'] == firmId &&
-                  newRecord['case_id'] == null) {
-                final comment = CaseComment.fromJson(newRecord);
-                // Avoid duplicates
-                if (!messages.any((m) => m.id == comment.id)) {
-                  messages.add(comment);
-                  if (!controller.isClosed) controller.add(List.from(messages));
-                }
-              }
+              if (!isFirmNotice(payload.newRecord)) return;
+              final comment = CaseComment.fromJson(payload.newRecord);
+              byId[comment.id] = comment;
+              emit();
             } catch (e) {
               debugPrint('Firm notice parse error: $e');
             }
           },
         )
         .onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'case_discussions',
+          filter: firmFilter,
+          callback: (payload) {
+            try {
+              if (!isFirmNotice(payload.newRecord)) return;
+              final comment = CaseComment.fromJson(payload.newRecord);
+              byId[comment.id] = comment; // An edit replaces the message.
+              emit();
+            } catch (e) {
+              debugPrint('Firm notice update error: $e');
+            }
+          },
+        )
+        .onPostgresChanges(
+          // Unfiltered: a deleted row carries only its id.
           event: PostgresChangeEvent.delete,
           schema: 'public',
           table: 'case_discussions',
           callback: (payload) {
-            try {
-              final oldId = payload.oldRecord['id'];
-              messages.removeWhere((m) => m.id == oldId);
-              if (!controller.isClosed) controller.add(List.from(messages));
-            } catch (e) {
-              debugPrint('Firm notice delete error: $e');
-            }
+            final oldId = payload.oldRecord['id'];
+            if (byId.remove(oldId) != null) emit();
           },
         )
-        .subscribe();
+        .subscribe((status, error) {
+          // On every (re)connect, catch up: the first time covers messages
+          // sent between the initial fetch and the channel opening; later
+          // times, whatever arrived while the phone was disconnected.
+          if (status == RealtimeSubscribeStatus.subscribed) refetch();
+        });
 
     // Cleanup on cancel
     controller.onCancel = () {

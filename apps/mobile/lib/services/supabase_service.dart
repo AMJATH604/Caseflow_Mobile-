@@ -489,6 +489,7 @@ class SupabaseService {
   static Future<void> sendDirectMessage(
     String conversationId,
     String message, {
+    String? id,
     String? attachmentUrl,
     String? attachmentType,
     String? replyToId,
@@ -497,6 +498,7 @@ class SupabaseService {
   }) => DirectMessageRepository.sendDirectMessage(
     conversationId,
     message,
+    id: id,
     attachmentUrl: attachmentUrl,
     attachmentType: attachmentType,
     replyToId: replyToId,
