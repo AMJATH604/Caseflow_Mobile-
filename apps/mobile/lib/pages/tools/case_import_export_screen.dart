@@ -1030,10 +1030,14 @@ class _CaseImportExportScreenState
       }
     }
 
-    return showDialog<Map<int, String>>(
-      context: context,
-      builder:
-          (ctx) => StatefulBuilder(
+    // A full screen, not a dialog: an eCourts export can hold dozens of
+    // cases, each needing a tick and a side, and a dialog showed only a few
+    // at a time.
+    return Navigator.of(context).push<Map<int, String>>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder:
+            (ctx) => StatefulBuilder(
             builder: (context, setDialogState) {
               final selectedCount = selectedCases.values.where((v) => v).length;
               final allSelected = selectedCount == cases.length;
@@ -1057,21 +1061,18 @@ class _CaseImportExportScreenState
                 });
               }
 
-              return AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.r),
+              return Scaffold(
+                appBar: AppBar(
+                  leading: IconButton(
+                    tooltip: 'Cancel',
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                  title: const Text('eCourts Import Preview'),
                 ),
-                title: Row(
-                  children: [
-                    Icon(Icons.account_balance, color: Color(0xFF2980b9)),
-                    SizedBox(width: 8.w),
-                    Text('eCourts Import Preview'),
-                  ],
-                ),
-                content: SizedBox(
-                  width: double.maxFinite,
+                body: Padding(
+                  padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 0),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Select All / Deselect All row
@@ -1217,10 +1218,9 @@ class _CaseImportExportScreenState
                         ),
                       ],
                       SizedBox(height: 10.h),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxHeight: 350),
+                      Expanded(
                         child: ListView.builder(
-                          shrinkWrap: true,
+                          padding: EdgeInsets.only(bottom: 16.h),
                           itemCount: cases.length,
                           itemBuilder: (_, i) {
                             final c = cases[i];
@@ -1479,36 +1479,52 @@ class _CaseImportExportScreenState
                     ],
                   ),
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text('Cancel'),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          canImport ? const Color(0xFF2980b9) : Colors.grey,
-                      foregroundColor: Colors.white,
+                bottomNavigationBar: SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
+                    child: Row(
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: const Text('Cancel'),
+                        ),
+                        SizedBox(width: 12.w),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  canImport
+                                      ? const Color(0xFF2980b9)
+                                      : Colors.grey,
+                              foregroundColor: Colors.white,
+                              minimumSize: Size(0, 48.h),
+                            ),
+                            onPressed:
+                                canImport
+                                    ? () {
+                                      // Only pass selected cases
+                                      final filteredRoles = <int, String>{};
+                                      for (final entry
+                                          in selectedRoles.entries) {
+                                        if (selectedCases[entry.key] == true) {
+                                          filteredRoles[entry.key] =
+                                              entry.value;
+                                        }
+                                      }
+                                      Navigator.pop(ctx, filteredRoles);
+                                    }
+                                    : null,
+                            child: Text('Import $selectedCount Case(s)'),
+                          ),
+                        ),
+                      ],
                     ),
-                    onPressed:
-                        canImport
-                            ? () {
-                              // Only pass selected cases
-                              final filteredRoles = <int, String>{};
-                              for (final entry in selectedRoles.entries) {
-                                if (selectedCases[entry.key] == true) {
-                                  filteredRoles[entry.key] = entry.value;
-                                }
-                              }
-                              Navigator.pop(ctx, filteredRoles);
-                            }
-                            : null,
-                    child: Text('Import $selectedCount Case(s)'),
                   ),
-                ],
+                ),
               );
             },
           ),
+      ),
     );
   }
 
@@ -1516,23 +1532,22 @@ class _CaseImportExportScreenState
     final caseData = data['case'] as Map<String, dynamic>;
     final summary = CaseImportService.getImportSummary(data);
 
-    return showDialog<bool>(
-      context: context,
-      builder:
-          (ctx) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.r),
+    // Full screen, like the eCourts preview, so both imports look alike.
+    return Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder:
+            (ctx) => Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              tooltip: 'Cancel',
+              icon: const Icon(Icons.close_rounded),
+              onPressed: () => Navigator.pop(ctx, false),
             ),
-            title: Row(
-              children: [
-                Icon(Icons.restore, color: Color(0xFF8e44ad)),
-                SizedBox(width: 8.w),
-                Text('Restore Preview'),
-              ],
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+            title: const Text('Restore Preview'),
+          ),
+          body: ListView(
+              padding: EdgeInsets.all(16.r),
               children: [
                 Container(
                   padding: EdgeInsets.all(14.r),
@@ -1588,21 +1603,33 @@ class _CaseImportExportScreenState
                 ),
               ],
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Cancel'),
+          bottomNavigationBar: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 12.h),
+              child: Row(
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: const Text('Cancel'),
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF8e44ad),
+                        foregroundColor: Colors.white,
+                        minimumSize: Size(0, 48.h),
+                      ),
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text('Restore Case'),
+                    ),
+                  ),
+                ],
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF8e44ad),
-                  foregroundColor: Colors.white,
-                ),
-                onPressed: () => Navigator.pop(ctx, true),
-                child: const Text('Restore Case'),
-              ),
-            ],
+            ),
           ),
+        ),
+      ),
     );
   }
 

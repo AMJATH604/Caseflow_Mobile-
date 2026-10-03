@@ -398,7 +398,15 @@ Guidelines:
 
   /// Send a message to Gemini via the secure Edge Function proxy.
   /// Optionally include an image file for multimodal analysis.
-  Future<String> sendMessage(String userMessage, {File? imageFile}) async {
+  ///
+  /// [isRetry] is set by [sendMessageStream] when it falls back here: the
+  /// question is already saved and titled, and saving it again showed it
+  /// twice when the conversation was reopened.
+  Future<String> sendMessage(
+    String userMessage, {
+    File? imageFile,
+    bool isRetry = false,
+  }) async {
     // Client-side validation before sending to proxy
     final validationError = validatePrompt(userMessage);
     if (validationError != null) {
@@ -435,16 +443,18 @@ Guidelines:
     );
     _history.add(userMsg);
 
-    // Persist user message
-    _persistMessage(
-      userMsg,
-      hasAttachment: imageFile != null,
-      attachmentType: attachmentType,
-    );
+    if (!isRetry) {
+      // Persist user message
+      _persistMessage(
+        userMsg,
+        hasAttachment: imageFile != null,
+        attachmentType: attachmentType,
+      );
 
-    // Auto-generate title from first message
-    if (isFirstMessage) {
-      _autoGenerateTitle(userMessage);
+      // Auto-generate title from first message
+      if (isFirstMessage) {
+        _autoGenerateTitle(userMessage);
+      }
     }
 
     // Add loading placeholder
@@ -462,10 +472,13 @@ Guidelines:
       }
 
       // Build conversation history for context (last 20 messages)
+      // The earlier conversation only: the last two entries are this
+      // question and its placeholder. gemini-proxy appends `prompt` as the
+      // final user turn, so including the question here sent it twice.
       final recentHistory =
           _history.length > 22
-              ? _history.sublist(_history.length - 22, _history.length - 1)
-              : _history.sublist(0, _history.length - 1);
+              ? _history.sublist(_history.length - 22, _history.length - 2)
+              : _history.sublist(0, _history.length - 2);
 
       final historyPayload = <Map<String, dynamic>>[];
 
@@ -645,10 +658,13 @@ Guidelines:
       }
 
       // Build conversation history for context
+      // The earlier conversation only: the last two entries are this
+      // question and its placeholder. gemini-proxy appends `prompt` as the
+      // final user turn, so including the question here sent it twice.
       final recentHistory =
           _history.length > 22
-              ? _history.sublist(_history.length - 22, _history.length - 1)
-              : _history.sublist(0, _history.length - 1);
+              ? _history.sublist(_history.length - 22, _history.length - 2)
+              : _history.sublist(0, _history.length - 2);
 
       final historyPayload = <Map<String, dynamic>>[];
       historyPayload.add({
@@ -706,7 +722,7 @@ Guidelines:
         // Fall back to non-streaming
         _history.removeLast();
         _history.removeLast(); // remove user msg too
-        return sendMessage(userMessage, imageFile: imageFile);
+        return sendMessage(userMessage, imageFile: imageFile, isRetry: true);
       }
 
       final fullBuffer = StringBuffer();
@@ -761,7 +777,7 @@ Guidelines:
       // Fall back to non-streaming on error
       _history.removeLast(); // remove loading
       _history.removeLast(); // remove user msg
-      return sendMessage(userMessage, imageFile: imageFile);
+      return sendMessage(userMessage, imageFile: imageFile, isRetry: true);
     }
   }
 

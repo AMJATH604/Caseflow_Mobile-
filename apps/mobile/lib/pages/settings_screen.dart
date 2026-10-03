@@ -9,7 +9,6 @@ import '../services/supabase_service.dart';
 import '../services/fcm_service.dart';
 import '../services/notification_prefs.dart';
 import '../components/profile_avatar.dart';
-import '../components/profile_detail_sheet.dart';
 import '../theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../components/feedback_sheet.dart';
@@ -554,25 +553,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   ),
                 ),
               ],
-            ),
-          ),
-          // Edit profile arrow
-          GestureDetector(
-            onTap: () => ProfileDetailSheet.show(context),
-            child: Container(
-              padding: EdgeInsets.all(10.r),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(14.r),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.1),
-                ),
-              ),
-              child: const Icon(
-                Icons.edit_rounded,
-                color: Colors.white70,
-                size: 18,
-              ),
             ),
           ),
         ],
