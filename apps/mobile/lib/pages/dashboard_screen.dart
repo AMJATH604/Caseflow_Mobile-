@@ -283,20 +283,26 @@ class DashboardScreen extends ConsumerWidget {
           child: Row(
             children: [
               Expanded(
-                child: StatChip(
-                  label: l10n.get('disposed'),
-                  value: stats['disposedCasesCount'] ?? 0,
-                  color: const Color(0xFF14B8A6),
-                  icon: Icons.done_all_rounded,
+                child: GestureDetector(
+                  onTap: () => context.go('/cases?status=disposed'),
+                  child: StatChip(
+                    label: l10n.get('disposed'),
+                    value: stats['disposedCasesCount'] ?? 0,
+                    color: const Color(0xFF14B8A6),
+                    icon: Icons.done_all_rounded,
+                  ),
                 ),
               ),
               SizedBox(width: 8.w),
               Expanded(
-                child: StatChip(
-                  label: l10n.get('dismissed'),
-                  value: stats['dismissedCasesCount'] ?? 0,
-                  color: const Color(0xFF64748B),
-                  icon: Icons.cancel_rounded,
+                child: GestureDetector(
+                  onTap: () => context.go('/cases?status=dismissed'),
+                  child: StatChip(
+                    label: l10n.get('dismissed'),
+                    value: stats['dismissedCasesCount'] ?? 0,
+                    color: const Color(0xFF64748B),
+                    icon: Icons.cancel_rounded,
+                  ),
                 ),
               ),
               SizedBox(width: 8.w),
@@ -967,20 +973,26 @@ class DashboardScreen extends ConsumerWidget {
         Row(
           children: [
             Expanded(
-              child: StatChip(
-                label: l10n.get('disposed'),
-                value: stats['disposedCasesCount'] ?? 0,
-                color: const Color(0xFF14B8A6),
-                icon: Icons.done_all_rounded,
+              child: GestureDetector(
+                onTap: () => context.go('/cases?status=disposed'),
+                child: StatChip(
+                  label: l10n.get('disposed'),
+                  value: stats['disposedCasesCount'] ?? 0,
+                  color: const Color(0xFF14B8A6),
+                  icon: Icons.done_all_rounded,
+                ),
               ),
             ),
             SizedBox(width: 10.w),
             Expanded(
-              child: StatChip(
-                label: l10n.get('dismissed'),
-                value: stats['dismissedCasesCount'] ?? 0,
-                color: const Color(0xFF64748B),
-                icon: Icons.cancel_rounded,
+              child: GestureDetector(
+                onTap: () => context.go('/cases?status=dismissed'),
+                child: StatChip(
+                  label: l10n.get('dismissed'),
+                  value: stats['dismissedCasesCount'] ?? 0,
+                  color: const Color(0xFF64748B),
+                  icon: Icons.cancel_rounded,
+                ),
               ),
             ),
             SizedBox(width: 10.w),

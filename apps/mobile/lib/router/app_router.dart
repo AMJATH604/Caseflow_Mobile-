@@ -176,7 +176,13 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: '/cases',
-          builder: (context, state) => const CasesScreen(),
+          builder:
+              (context, state) => CasesScreen(
+                // A new key per filter so /cases?status=disposed reopens
+                // filtered even when the list is already on screen.
+                key: ValueKey(state.uri.queryParameters['status']),
+                initialStatus: state.uri.queryParameters['status'],
+              ),
         ),
         GoRoute(
           path: '/cases/:id',

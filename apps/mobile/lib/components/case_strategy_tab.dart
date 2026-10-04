@@ -190,8 +190,9 @@ class _CaseStrategyTabState extends ConsumerState<CaseStrategyTab> {
           child: tasks.isEmpty ? _buildEmptyState() : _buildColumns(grouped),
         ),
 
-        // ─── Bottom action bar (Always visible so tasks can be added) ───
-        _buildBottomBar(),
+        // ─── Bottom action bar: the one way to add a task. The empty state
+        // has its own "Create First Task" button, so the bar waits for that.
+        if (tasks.isNotEmpty) _buildBottomBar(),
       ],
     );
   }
@@ -341,42 +342,6 @@ class _CaseStrategyTabState extends ConsumerState<CaseStrategyTab> {
                         },
                       ),
               ),
-
-              // Add task button per column
-              if (stage == TaskStage.todo)
-                GestureDetector(
-                  onTap: _createTask,
-                  child: Container(
-                    margin: EdgeInsets.all(8.w),
-                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: const Color(0xFFE2E8F0),
-                        style: BorderStyle.solid,
-                      ),
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.add,
-                          size: 14.sp,
-                          color: const Color(0xFF94A3B8),
-                        ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          'Add Task',
-                          style: GoogleFonts.inter(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w500,
-                            color: const Color(0xFF94A3B8),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
             ],
           ),
         );
