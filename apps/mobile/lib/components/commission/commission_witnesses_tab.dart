@@ -140,7 +140,7 @@ class CommissionWitnessesTab extends StatelessWidget {
               ),
               SizedBox(height: 2.h),
               Text(
-                '${w.idLabel}${w.idNumber != null ? ': ${w.idNumber}' : ''}',
+                '${w.idLabel}${w.displayIdNumber != null ? ': ${w.displayIdNumber}' : ''}',
                 style: GoogleFonts.inter(
                   fontSize: 11.sp,
                   color: isDark ? Colors.white54 : Colors.black45,

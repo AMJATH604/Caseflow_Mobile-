@@ -125,10 +125,11 @@ class CommissionService {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('Not authenticated');
 
-    // Get real GPS coordinates
+    // Real GPS coordinates, or none. A failed fix used to be saved as
+    // 0.000000, 0.000000 — a point in the Atlantic — and printed in reports.
     final position = await getCurrentLocation();
-    final lat = position?.latitude ?? 0.0;
-    final lng = position?.longitude ?? 0.0;
+    final lat = position?.latitude;
+    final lng = position?.longitude;
 
     final now = DateTime.now().toIso8601String();
     final response =
@@ -143,7 +144,7 @@ class CommissionService {
               'checkin_address':
                   address ??
                   (position != null
-                      ? 'GPS: ${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}'
+                      ? 'GPS: ${lat!.toStringAsFixed(6)}, ${lng!.toStringAsFixed(6)}'
                       : 'Location unavailable'),
               'visit_status': 'checked_in',
               'created_by': user.id,
@@ -151,8 +152,13 @@ class CommissionService {
             .select()
             .single();
 
-    // Update commission status to in_progress
-    await updateCommission(commissionId, {'status': 'in_progress'});
+    // A first visit moves a pending commission to In progress; a later visit
+    // must not pull a commission that is drafting or submitted back.
+    await _client
+        .from('commissions')
+        .update({'status': 'in_progress'})
+        .eq('id', commissionId)
+        .eq('status', 'pending');
 
     return CommissionVisit.fromJson(response);
   }
@@ -160,8 +166,8 @@ class CommissionService {
   /// GPS Check-out: Records REAL checkout GPS coordinates and time (Phase 2)
   static Future<void> checkOut(String visitId, {String? address}) async {
     final position = await getCurrentLocation();
-    final lat = position?.latitude ?? 0.0;
-    final lng = position?.longitude ?? 0.0;
+    final lat = position?.latitude;
+    final lng = position?.longitude;
 
     await _client
         .from('commission_visits')
@@ -172,7 +178,7 @@ class CommissionService {
           'checkout_address':
               address ??
               (position != null
-                  ? 'GPS: ${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}'
+                  ? 'GPS: ${lat!.toStringAsFixed(6)}, ${lng!.toStringAsFixed(6)}'
                   : 'Location unavailable'),
           'visit_status': 'completed',
         })

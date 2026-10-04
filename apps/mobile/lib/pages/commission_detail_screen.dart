@@ -91,18 +91,26 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   Future<void> _load() async {
     setState(() => _loading = true);
     try {
-      final c = await CommissionService.fetchCommissionById(
-        widget.commissionId,
-      );
-      final v = await CommissionService.fetchVisits(widget.commissionId);
-      final o = await CommissionService.fetchObservations(widget.commissionId);
-      final e = await CommissionService.fetchEvidence(widget.commissionId);
-      final ex = await CommissionService.fetchExpenses(widget.commissionId);
-      final w = await CommissionService.fetchWitnesses(widget.commissionId);
-      final sk = await CommissionService.fetchSketches(widget.commissionId);
-      final docs = await CommissionService.fetchCommissionDocuments(
-        widget.commissionId,
-      );
+      // All eight lists at once rather than one after another; a list that
+      // fails stays empty instead of reporting "Commission not found".
+      final id = widget.commissionId;
+      final cF = CommissionService.fetchCommissionById(id);
+      final vF = _orEmpty(CommissionService.fetchVisits(id));
+      final oF = _orEmpty(CommissionService.fetchObservations(id));
+      final eF = _orEmpty(CommissionService.fetchEvidence(id));
+      final exF = _orEmpty(CommissionService.fetchExpenses(id));
+      final wF = _orEmpty(CommissionService.fetchWitnesses(id));
+      final skF = _orEmpty(CommissionService.fetchSketches(id));
+      final docsF = _orEmpty(CommissionService.fetchCommissionDocuments(id));
+      final c = await cF;
+      final v = await vF;
+      final o = await oF;
+      final e = await eF;
+      final ex = await exF;
+      final w = await wF;
+      final sk = await skF;
+      final docs = await docsF;
+      if (!mounted) return;
       final active =
           v.where((vi) => vi.visitStatus == VisitStatus.checkedIn).toList();
       setState(() {
@@ -118,7 +126,16 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
         _loading = false;
       });
     } catch (e) {
-      setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  static Future<List<T>> _orEmpty<T>(Future<List<T>> f) async {
+    try {
+      return await f;
+    } catch (e) {
+      debugPrint('Commission detail: a list failed to load: $e');
+      return <T>[];
     }
   }
 
@@ -787,7 +804,9 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
                     ),
                   ),
                 ],
-                if (v.checkinLat != null && v.checkinLat != 0)
+                if (v.checkinLat != null &&
+                    v.checkinLng != null &&
+                    !(v.checkinLat == 0 && v.checkinLng == 0))
                   Text(
                     'GPS: ${v.checkinLat!.toStringAsFixed(6)}, ${v.checkinLng!.toStringAsFixed(6)}',
                     style: GoogleFonts.jetBrainsMono(
@@ -1487,7 +1506,9 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '✅ Checked in! GPS: ${visit.checkinLat?.toStringAsFixed(4)}, ${visit.checkinLng?.toStringAsFixed(4)}',
+              visit.checkinLat != null
+                  ? 'Checked in · GPS ${visit.checkinLat!.toStringAsFixed(4)}, ${visit.checkinLng!.toStringAsFixed(4)}'
+                  : 'Checked in · GPS unavailable — turn on location for an accurate record',
             ),
             backgroundColor: AppTheme.success,
           ),
