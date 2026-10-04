@@ -532,7 +532,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
           builder: (context, _) {
             return AnimatedContainer(
               duration: const Duration(milliseconds: 250),
-              transform: Matrix4.identity()..scale(isHovered ? 1.02 : 1.0),
+              transform: Matrix4.identity()..scaleByDouble(isHovered ? 1.02 : 1.0, isHovered ? 1.02 : 1.0, 1.0, 1.0),
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24.r),

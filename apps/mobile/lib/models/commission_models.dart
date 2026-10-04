@@ -665,6 +665,17 @@ class CommissionWitness {
     }
     return 'No GPS data';
   }
+
+  /// The ID number as it may appear in a report. An Aadhaar number is shown
+  /// masked to its last four digits, the form UIDAI prescribes for display.
+  String? get displayIdNumber {
+    final n = idNumber?.trim();
+    if (n == null || n.isEmpty) return null;
+    if (idType != 'aadhaar') return n;
+    final digits = n.replaceAll(RegExp(r'\D'), '');
+    if (digits.length < 4) return 'XXXX XXXX XXXX';
+    return 'XXXX XXXX ${digits.substring(digits.length - 4)}';
+  }
 }
 
 class CommissionSketch {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart'; // Import rootNavigatorKey
+import '../pages/account_screen.dart';
 import '../pages/app_shell.dart';
 import '../pages/dashboard_screen.dart';
 import '../pages/cases_screen.dart';
@@ -114,6 +115,12 @@ final appRouter = GoRouter(
       },
     ),
 
+    // ─── My Account (full-screen, outside the shell) ─────────
+    GoRoute(
+      path: '/account',
+      builder: (context, state) => const AccountScreen(),
+    ),
+
     // ─── Chat Routes (full-screen, outside the shell) ────────
     // These sit outside AppShell on purpose. Each declares its own header with
     // a back arrow, so inside the shell they rendered a second "CaseFlow" bar
@@ -176,7 +183,13 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: '/cases',
-          builder: (context, state) => const CasesScreen(),
+          builder:
+              (context, state) => CasesScreen(
+                // A new key per filter so /cases?status=disposed reopens
+                // filtered even when the list is already on screen.
+                key: ValueKey(state.uri.queryParameters['status']),
+                initialStatus: state.uri.queryParameters['status'],
+              ),
         ),
         GoRoute(
           path: '/cases/:id',

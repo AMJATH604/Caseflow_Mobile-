@@ -290,7 +290,9 @@ class SupabaseService {
         casesList.where((c) => c['status'] == 'disposed').length;
     final int dismissedCount =
         casesList
-            .where((c) => c['status'] == 'dismissed' || c['status'] == 'closed')
+            // Dismissed only: the chip opens /cases?status=dismissed, and its
+            // number must match that list. Closed cases sit under Closed.
+            .where((c) => c['status'] == 'dismissed')
             .length;
 
     // Step 2: Parallel fetch with error isolation — each query fails

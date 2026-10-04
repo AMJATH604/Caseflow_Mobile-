@@ -17,7 +17,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 /// Ultra-Modern Silicon Valley Grade Case Archive & Legal Intelligence Repository Screen.
 class CasesScreen extends ConsumerStatefulWidget {
-  const CasesScreen({super.key});
+  /// Opens the list already filtered, e.g. from the dashboard's Disposed and
+  /// Dismissed chips (`/cases?status=disposed`).
+  final String? initialStatus;
+
+  const CasesScreen({super.key, this.initialStatus});
+
+  static const statusFilters = {'all', 'active', 'closed', 'disposed', 'dismissed'};
 
   @override
   ConsumerState<CasesScreen> createState() => _CasesScreenState();
@@ -25,7 +31,10 @@ class CasesScreen extends ConsumerStatefulWidget {
 
 class _CasesScreenState extends ConsumerState<CasesScreen> {
   String _searchQuery = '';
-  String _statusFilter = 'all'; // all, active, closed
+  late String _statusFilter = // all, active, closed, disposed, dismissed
+      CasesScreen.statusFilters.contains(widget.initialStatus)
+          ? widget.initialStatus!
+          : 'all';
   String _sortBy = 'recent'; // recent, hearing, title
   bool _isGridView = false;
 
@@ -138,9 +147,10 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
       applySearch: !_showingServerResults,
     );
 
-    // Next Hearing orders across every case, not just the pages loaded so
-    // far, so pull in the rest before the order is meaningful.
-    if (_sortBy == 'hearing' &&
+    // Next Hearing orders across every case, and a status filter must see
+    // every case, not just the pages loaded so far — otherwise a disposed case
+    // on page three would not appear under Disposed. Pull in the rest first.
+    if ((_sortBy == 'hearing' || _statusFilter != 'all') &&
         !_inSearch &&
         paginatedState.hasMore &&
         !paginatedState.isLoading &&
@@ -436,6 +446,22 @@ class _CasesScreenState extends ConsumerState<CasesScreen> {
                   _sumOf(counts, const ['closed', 'disposed', 'dismissed']),
                   isDark,
                   activeColor: const Color(0xFF6366F1),
+                ),
+                SizedBox(width: 8.w),
+                _buildStatusChip(
+                  'disposed',
+                  'DISPOSED',
+                  _sumOf(counts, const ['disposed']),
+                  isDark,
+                  activeColor: const Color(0xFF14B8A6),
+                ),
+                SizedBox(width: 8.w),
+                _buildStatusChip(
+                  'dismissed',
+                  'DISMISSED',
+                  _sumOf(counts, const ['dismissed']),
+                  isDark,
+                  activeColor: const Color(0xFF64748B),
                 ),
               ],
             ),

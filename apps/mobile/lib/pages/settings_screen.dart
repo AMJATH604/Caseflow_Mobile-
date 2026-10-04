@@ -130,6 +130,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               child: _buildHeroHeader(context, profile, isDark),
             ),
 
+            // ─── Account ──────────────────────────────────────
+            SliverToBoxAdapter(
+              child: _buildSectionHeader(
+                isDark,
+                icon: Icons.person_rounded,
+                title: 'Account',
+                color: AppTheme.accent,
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: _buildSettingsCard(isDark, children: [
+                _buildActionTile(
+                  isDark,
+                  icon: Icons.manage_accounts_rounded,
+                  title: 'My account',
+                  subtitle: 'Edit your details, email, password, or delete your account',
+                  color: AppTheme.accent,
+                  onTap: () => context.push('/account'),
+                ),
+              ]),
+            ),
+
             // ─── Notification Settings ────────────────────────
             SliverToBoxAdapter(
               child: _buildSectionHeader(
@@ -256,7 +278,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                             .update({'is_public_directory_enabled': v}).eq(
                                 'id', userId);
                       }
-                    } catch (_) {}
+                    } catch (_) {
+                      // Not saved: put the switch back rather than show a
+                      // setting the directory does not have.
+                      if (!mounted) return;
+                      setState(() => _publicDirectory = !v);
+                      _saveBool('settings_public_directory', !v);
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Could not update the directory setting. '
+                            'Check your connection and try again.',
+                          ),
+                        ),
+                      );
+                    }
                   },
                 ),
               ]),

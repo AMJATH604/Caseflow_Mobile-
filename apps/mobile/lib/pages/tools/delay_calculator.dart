@@ -367,7 +367,7 @@ DEPONENT""";
                           scale: 0.85,
                           child: Switch(
                             value: _useCopyExclusion,
-                            activeColor: AppTheme.accent,
+                            activeThumbColor: AppTheme.accent,
                             onChanged: (v) {
                               setState(() {
                                 _useCopyExclusion = v;

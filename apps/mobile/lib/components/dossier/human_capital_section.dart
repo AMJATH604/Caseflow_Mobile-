@@ -45,6 +45,9 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
               ElevatedButton(
                 onPressed: () async {
                   if (email.isEmpty) return;
+                  // The page's messenger: this dialog's context is gone once
+                  // it closes, so a message shown through it never appeared.
+                  final messenger = ScaffoldMessenger.of(this.context);
                   Navigator.pop(context);
                   try {
                     await CollaboratorService.inviteCollaborator(
@@ -52,15 +55,15 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                       email,
                     );
                     if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      messenger.showSnackBar(
                         const SnackBar(content: Text('Invitation sent!')),
                       );
                     }
                   } catch (e) {
                     if (mounted) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                      messenger.showSnackBar(
+                        SnackBar(content: Text('Error: $e')),
+                      );
                     }
                   }
                 },
@@ -98,6 +101,8 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                         title: Text(member.memberName ?? member.memberEmail),
                         subtitle: Text(member.memberEmail),
                         onTap: () async {
+                          // The page's messenger, as in Share above.
+                          final messenger = ScaffoldMessenger.of(this.context);
                           Navigator.pop(context);
                           try {
                             await FirmService.assignCase(
@@ -105,7 +110,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                               member.memberId,
                             );
                             if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              messenger.showSnackBar(
                                 const SnackBar(
                                   content: Text('Case reassigned!'),
                                 ),
@@ -113,7 +118,7 @@ class _HumanCapitalSectionState extends ConsumerState<HumanCapitalSection> {
                             }
                           } catch (e) {
                             if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              messenger.showSnackBar(
                                 SnackBar(content: Text('Error: $e')),
                               );
                             }

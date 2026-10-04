@@ -226,7 +226,7 @@ class _StrategyCreateDialogState extends State<StrategyCreateDialog> {
                 _buildLabel('Assign to'),
                 SizedBox(height: 6.h),
                 DropdownButtonFormField<String?>(
-                  value: _assignedTo,
+                  initialValue: _assignedTo,
                   decoration: _inputDecoration('Select team member'),
                   style: GoogleFonts.inter(
                     fontSize: 13.sp,

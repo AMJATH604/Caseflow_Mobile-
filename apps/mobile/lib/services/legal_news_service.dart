@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'repositories/base_repository.dart';
 
 /// Model for a legal news article from LiveLaw or other sources.
 class LegalNewsArticle {
@@ -77,7 +78,10 @@ class LegalNewsService {
 
   /// Search articles by keyword in title or summary.
   static Future<List<LegalNewsArticle>> searchArticles(String query) async {
-    final sanitized = query.replaceAll(RegExp(r'[^\w\s]'), '');
+    // sanitizeFilterValue escapes the filter but keeps Tamil; the old
+    // [^\w\s] stripped every Tamil letter, leaving %% that matched all rows.
+    final sanitized = BaseRepository.sanitizeFilterValue(query);
+    if (sanitized.isEmpty) return [];
     final response = await _client
         .from('legal_news')
         .select()

@@ -909,6 +909,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
           if (!status.isGranted) {
             final storageStatus = await Permission.storage.request();
             if (!storageStatus.isGranted) {
+              if (!mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Permission denied to save media to gallery.'),
@@ -920,6 +921,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
         } else {
           final status = await Permission.storage.request();
           if (!status.isGranted) {
+            if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Permission denied to write to storage.'),
@@ -1349,7 +1351,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
                                           msg.id,
                                         );
                                         if (mounted) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                          ScaffoldMessenger.of(this.context).showSnackBar(
                                             const SnackBar(
                                               content: Text('Message deleted'),
                                             ),
@@ -1357,7 +1359,7 @@ class _ChambersChatScreenState extends ConsumerState<ChambersChatScreen>
                                         }
                                       } catch (e) {
                                         if (mounted) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                          ScaffoldMessenger.of(this.context).showSnackBar(
                                             SnackBar(
                                               content: Text('Delete failed: $e'),
                                             ),

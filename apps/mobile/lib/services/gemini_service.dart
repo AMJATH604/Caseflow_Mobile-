@@ -193,6 +193,15 @@ Guidelines:
     return totalChars ~/ 4;
   }
 
+  /// Drops the oldest turns (never the persona pair at the start) until the
+  /// payload fits [_maxContextTokens]. History is already capped at 20
+  /// messages; this guards against twenty very long ones.
+  static void _trimToBudget(List<Map<String, dynamic>> history) {
+    while (history.length > 2 && _estimateTokens(history) > _maxContextTokens) {
+      history.removeAt(2);
+    }
+  }
+
   // ─── SESSION MANAGEMENT ─────────────────────────────────
 
   /// Fetch all chat sessions for the current user.
@@ -510,6 +519,8 @@ Guidelines:
       }
 
       // Build request body
+      _trimToBudget(historyPayload);
+
       final body = <String, dynamic>{
         'prompt': userMessage,
         'history': historyPayload,
@@ -692,6 +703,8 @@ Guidelines:
           ],
         });
       }
+
+      _trimToBudget(historyPayload);
 
       final body = <String, dynamic>{
         'prompt': userMessage,

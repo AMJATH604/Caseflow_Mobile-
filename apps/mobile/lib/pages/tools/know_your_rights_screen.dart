@@ -164,7 +164,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFD4AF37).withOpacity(0.2),
+                    color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -191,7 +191,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                             'We explain complex statutes as if talking to a 10-year-old. Get remedies, helpline contacts, and share cards instantly.',
                             style: TextStyle(
                               fontSize: 13.sp,
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                               height: 1.4.h,
                             ),
                           ),
@@ -214,7 +214,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                   borderRadius: BorderRadius.circular(16.r),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
@@ -406,7 +406,7 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                   isSelected
                       ? [
                         BoxShadow(
-                          color: gradient[0].withOpacity(0.3),
+                          color: gradient[0].withValues(alpha: 0.3),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -458,13 +458,13 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
         border: Border.all(
           color:
               isExpanded
-                  ? category.gradient[0].withOpacity(0.3)
-                  : (isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
+                  ? category.gradient[0].withValues(alpha: 0.3)
+                  : (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05)),
           width: isExpanded ? 1.5 : 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isExpanded ? 0.08 : 0.02),
+            color: Colors.black.withValues(alpha: isExpanded ? 0.08 : 0.02),
             blurRadius: isExpanded ? 12 : 4,
             offset: const Offset(0, 4),
           ),
@@ -553,14 +553,14 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
                     decoration: BoxDecoration(
                       color:
                           isDark
-                              ? const Color(0xFF0F172A).withOpacity(0.4)
+                              ? const Color(0xFF0F172A).withValues(alpha: 0.4)
                               : const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(10.r),
                       border: Border.all(
                         color:
                             isDark
                                 ? Colors.white10
-                                : Colors.black.withOpacity(0.05),
+                                : Colors.black.withValues(alpha: 0.05),
                       ),
                     ),
                     child: Row(
@@ -677,14 +677,14 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
           decoration: BoxDecoration(
             color:
                 isDark
-                    ? const Color(0xFF0F172A).withOpacity(0.3)
+                    ? const Color(0xFF0F172A).withValues(alpha: 0.3)
                     : const Color(0xFFF8FAFC),
             borderRadius: BorderRadius.circular(12.r),
             border: Border.all(
               color:
                   isDark
-                      ? Colors.white.withOpacity(0.03)
-                      : Colors.black.withOpacity(0.03),
+                      ? Colors.white.withValues(alpha: 0.03)
+                      : Colors.black.withValues(alpha: 0.03),
             ),
           ),
           child: Text(
@@ -695,8 +695,8 @@ CaseFlow Legal Encyclopedia — Empowering Every Indian with Law.
               fontWeight: FontWeight.w500,
               color:
                   isDark
-                      ? Colors.white.withOpacity(0.85)
-                      : Colors.black.withOpacity(0.75),
+                      ? Colors.white.withValues(alpha: 0.85)
+                      : Colors.black.withValues(alpha: 0.75),
             ),
           ),
         ),

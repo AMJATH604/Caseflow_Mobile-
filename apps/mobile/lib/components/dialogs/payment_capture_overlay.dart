@@ -191,6 +191,29 @@ class _PaymentCaptureOverlayState extends ConsumerState<PaymentCaptureOverlay>
       String? receiptUrl;
       if (_receiptImage != null) {
         receiptUrl = await _uploadReceiptFile();
+        // A chosen receipt that did not upload used to be dropped silently,
+        // saving the payment as if it had one. Stop, so the advocate can
+        // retry or remove the receipt and save without it.
+        if (receiptUrl == null) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'The receipt could not be uploaded, so the payment was not '
+                  'saved. Check your connection and try again, or remove '
+                  'the receipt.',
+                  style: GoogleFonts.inter(fontSize: 13.sp),
+                ),
+                backgroundColor: AppTheme.error,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+              ),
+            );
+          }
+          return;
+        }
       }
 
       // Build the notes with challan info
@@ -854,7 +877,11 @@ class _PaymentCaptureOverlayState extends ConsumerState<PaymentCaptureOverlay>
                     )
                     : const Icon(Icons.sync_rounded, size: 18),
             label: Text(
-              _isSaving ? 'Syncing...' : 'Sync to Ledger',
+              _uploadingReceipt
+                  ? 'Uploading receipt...'
+                  : _isSaving
+                  ? 'Syncing...'
+                  : 'Sync to Ledger',
               style: GoogleFonts.inter(fontWeight: FontWeight.bold),
             ),
             style: ElevatedButton.styleFrom(

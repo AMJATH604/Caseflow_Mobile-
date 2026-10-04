@@ -84,6 +84,9 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                   ),
                   ElevatedButton(
                     onPressed: () async {
+                      // The page's messenger: the dialog's context is gone
+                      // once it closes, so the warning below never showed.
+                      final messenger = ScaffoldMessenger.of(this.context);
                       Navigator.pop(context);
                       try {
                         await SupabaseService.createHearing({
@@ -96,7 +99,7 @@ class _CaseHistorySectionState extends ConsumerState<CaseHistorySection> {
                         ref.invalidate(hearingsProvider);
                       } catch (e) {
                         if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          messenger.showSnackBar(
                             SnackBar(
                               content: Text(
                                 SupabaseService.isDuplicateHearing(e)
