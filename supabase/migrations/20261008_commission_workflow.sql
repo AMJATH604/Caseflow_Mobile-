@@ -1,7 +1,7 @@
 -- ═══════════════════════════════════════════════════════════════
 -- Advocate Commissioner: the steps of an Order XXVI CPC commission
 --
--- NOT YET APPLIED. Apply on its own in a transaction with
+-- Applied to production 2026-10-04, on its own in a transaction with
 -- `supabase db query --linked --file`, not `db push`.
 --
 -- Adds what the redesigned module records and the report prints:
