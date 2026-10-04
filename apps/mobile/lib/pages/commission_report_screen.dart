@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -10,6 +9,7 @@ import '../models/commission_models.dart';
 import '../services/commission_service.dart';
 import '../services/repositories/profile_repository.dart';
 import '../theme/app_theme.dart';
+import '../components/commission/cm_kit.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CommissionReportScreen extends ConsumerStatefulWidget {
@@ -29,6 +29,8 @@ class _CommissionReportScreenState
   List<CommissionExpense> _expenses = [];
   List<CommissionWitness> _witnesses = [];
   List<CommissionSketch> _sketches = [];
+  List<CommissionParty> _parties = [];
+  List<CommissionMeasurement> _measurements = [];
   bool _loading = true;
   bool _generating = false;
 
@@ -49,6 +51,8 @@ class _CommissionReportScreenState
       final exF = _orEmpty(CommissionService.fetchExpenses(id));
       final wF = _orEmpty(CommissionService.fetchWitnesses(id));
       final skF = _orEmpty(CommissionService.fetchSketches(id));
+      final pF = _orEmpty(CommissionService.fetchParties(id));
+      final mF = _orEmpty(CommissionService.fetchMeasurements(id));
       final c = await cF;
       final v = await vF;
       final o = await oF;
@@ -56,6 +60,8 @@ class _CommissionReportScreenState
       final ex = await exF;
       final w = await wF;
       final sk = await skF;
+      final parties = await pF;
+      final measurements = await mF;
       if (!mounted) return;
       setState(() {
         _commission = c;
@@ -65,6 +71,8 @@ class _CommissionReportScreenState
         _expenses = ex;
         _witnesses = w;
         _sketches = sk;
+        _parties = parties;
+        _measurements = measurements;
         _loading = false;
       });
     } catch (e) {
@@ -85,7 +93,6 @@ class _CommissionReportScreenState
 
   @override
   Widget build(BuildContext context) {
-    final dk = Theme.of(context).brightness == Brightness.dark;
     if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -97,195 +104,124 @@ class _CommissionReportScreenState
     }
     final c = _commission!;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Generate Report',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
-        ),
+    final site = c.commissionType.isSiteWork;
+    final checks = <(String, bool, String)>[
+      ('Appointment & warrant', c.warrantDate != null && c.courtName != null,
+          c.warrantDate == null ? 'Add the warrant date' : (c.courtName == null ? 'Add the court' : 'Ready')),
+      ('Notice to parties', _parties.isNotEmpty && c.inspectionAt != null && _parties.every((p) => p.noticeStatus.noticeGiven),
+          _parties.isEmpty
+              ? 'No parties yet'
+              : c.inspectionAt == null
+                  ? 'Date of inspection missing'
+                  : '${_parties.where((p) => p.noticeStatus.noticeGiven).length} of ${_parties.length} given notice'),
+      ('Memo of inspection', _visits.any((v) => v.checkoutTime != null),
+          _visits.isEmpty ? 'No visits yet' : '${_visits.length} ${_visits.length == 1 ? 'visit' : 'visits'}'),
+      ('Persons present', _visits.isNotEmpty && _visits.every((v) => v.personsPresent != null),
+          _visits.any((v) => v.personsPresent == null) ? 'Not recorded for every visit' : 'Recorded'),
+      if (site)
+        ('Boundaries & extent', _measurements.isNotEmpty && _measurements.every((m) => m.isComplete),
+            _measurements.isEmpty ? 'Nothing measured' : '${_measurements.where((m) => m.isComplete).length} of ${_measurements.length} complete'),
+      ('Observations', _observations.isNotEmpty, '${_observations.length} notes'),
+      ('Witness statements', _witnesses.every((w) => w.signatureUrl != null),
+          _witnesses.isEmpty ? 'None — fine if none were examined' : '${_witnesses.where((w) => w.signatureUrl == null).length} without signature'),
+      if (site) ('Sketch / plan', _sketches.isNotEmpty, _sketches.isEmpty ? 'No sketch yet' : '${_sketches.length} drawn'),
+      if (site) ('Photos (Annexure A)', _evidence.isNotEmpty, '${_evidence.length} photos'),
+      ('Fee & expense memo', c.feeFixed != null, c.feeFixed == null ? 'Fee not entered' : 'Ready'),
+    ];
+    final ready = checks.where((x) => x.$2).length;
+    return CmScaffold(
+      title: 'Commissioner’s report',
+      bottom: CmButton(
+        _generating ? 'Preparing the PDF…' : 'Preview & share PDF',
+        icon: Icons.picture_as_pdf_rounded,
+        busy: _generating,
+        onPressed: _generateReport,
       ),
       body: ListView(
-        padding: EdgeInsets.all(16.r),
+        padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 24.h),
         children: [
-          // Template selection
-          Container(
-            padding: EdgeInsets.all(16.r),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF0F172A), Color(0xFF1E3A5F)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16.r),
-            ),
+          CmCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Report Template',
-                  style: GoogleFonts.outfit(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  _getTemplateDescription(c.commissionType),
-                  style: GoogleFonts.inter(fontSize: 12.sp, color: Colors.white70),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('$ready of ${checks.length} sections ready', style: Cm.title(context, size: 16)),
+                          SizedBox(height: 2.h),
+                          Text(
+                            ready == checks.length
+                                ? 'Everything is in. Preview the report, then file it.'
+                                : 'You can preview at any time; the sections marked below are incomplete.',
+                            style: Cm.body(context),
+                          ),
+                        ],
+                      ),
+                    ),
+                    CmPill(c.commissionType.rule, tone: CmTone.violet),
+                  ],
                 ),
                 SizedBox(height: 12.h),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
-                  child: Text(
-                    c.commissionType.label.toUpperCase(),
-                    style: GoogleFonts.inter(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.success,
-                    ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: checks.isEmpty ? 0 : ready / checks.length,
+                    minHeight: 6.h,
+                    color: Cm.violet,
+                    backgroundColor: Cm.border(context),
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 16.h),
-
-          // Data summary cards
-          _summaryCard(
-            dk,
-            Icons.location_on,
-            'Site Visits',
-            '${_visits.length} recorded',
-            AppTheme.success,
-          ),
-          _summaryCard(
-            dk,
-            Icons.camera_alt,
-            'Evidence',
-            '${_evidence.length} photos',
-            AppTheme.info,
-          ),
-          _summaryCard(
-            dk,
-            Icons.note_alt,
-            'Observations',
-            '${_observations.length} notes',
-            AppTheme.accentViolet,
-          ),
-          _summaryCard(
-            dk,
-            Icons.person,
-            'Witnesses',
-            '${_witnesses.length} recorded',
-            AppTheme.warning,
-          ),
-          _summaryCard(
-            dk,
-            Icons.draw,
-            'Sketches',
-            '${_sketches.length} drawings',
-            const Color(0xFF8B5CF6),
-          ),
-          _summaryCard(
-            dk,
-            Icons.receipt,
-            'Expenses',
-            '₹${_expenses.fold<double>(0, (s, e) => s + e.amount).toStringAsFixed(0)}',
-            AppTheme.error,
-          ),
-          SizedBox(height: 24.h),
-
-          // Generate button
-          SizedBox(
-            height: 54.h,
-            child: ElevatedButton.icon(
-              onPressed: _generating ? null : _generateReport,
-              icon:
-                  _generating
-                      ? SizedBox(
-                        width: 20.w,
-                        height: 20.h,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
+          SizedBox(height: 12.h),
+          CmCard(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+            child: Column(
+              children: [
+                for (var i = 0; i < checks.length; i++) ...[
+                  if (i > 0) Divider(height: 1, color: Cm.border(context)),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 11.h),
+                    child: Row(
+                      children: [
+                        Icon(checks[i].$2 ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                            size: 20.r, color: checks[i].$2 ? AppTheme.success : AppTheme.warning),
+                        SizedBox(width: 10.w),
+                        Expanded(child: Text(checks[i].$1, style: Cm.title(context, size: 14))),
+                        Flexible(
+                          child: Text(checks[i].$3,
+                              textAlign: TextAlign.right,
+                              style: Cm.body(context, size: 12, color: checks[i].$2 ? Cm.sub(context) : AppTheme.warning)),
                         ),
-                      )
-                      : const Icon(Icons.picture_as_pdf),
-              label: Text(
-                _generating ? 'Generating...' : 'Generate & Preview PDF',
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15.sp,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.accent,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.r),
-                ),
-              ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
-          SizedBox(height: 60.h),
+          SizedBox(height: 12.h),
+          CmCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CmLabel('Signed by'),
+                SizedBox(height: 6.h),
+                Text('Your name and bar enrolment number from My account are printed under the signature.',
+                    style: Cm.body(context)),
+                SizedBox(height: 6.h),
+                Text(_getTemplateDescription(c.commissionType), style: Cm.body(context, size: 12, color: Cm.faint)),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
-
-  Widget _summaryCard(
-    bool dk,
-    IconData icon,
-    String title,
-    String value,
-    Color color,
-  ) => Container(
-    margin: EdgeInsets.only(bottom: 8.h),
-    padding: EdgeInsets.all(14.r),
-    decoration: BoxDecoration(
-      color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-      borderRadius: BorderRadius.circular(14.r),
-      border: Border.all(
-        color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
-      ),
-    ),
-    child: Row(
-      children: [
-        Container(
-          padding: EdgeInsets.all(8.r),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(10.r),
-          ),
-          child: Icon(icon, color: color, size: 20),
-        ),
-        SizedBox(width: 12.w),
-        Text(
-          title,
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w500,
-            color: dk ? Colors.white70 : Colors.black54,
-          ),
-        ),
-        const Spacer(),
-        Text(
-          value,
-          style: GoogleFonts.outfit(
-            fontWeight: FontWeight.w700,
-            color: dk ? Colors.white : const Color(0xFF1E293B),
-          ),
-        ),
-      ],
-    ),
-  );
 
   String _getTemplateDescription(CommissionType type) {
     switch (type) {
@@ -299,6 +235,12 @@ class _CommissionReportScreenState
         return 'Witness depositions, documentary evidence, cross-examination notes';
       case CommissionType.sale:
         return 'Valuation, bidding records, property condition, market analysis';
+      case CommissionType.accounts:
+        return 'Statement of accounts examined, entries objected to, findings';
+      case CommissionType.scientificInvestigation:
+        return 'Samples taken, method, results and expert opinion';
+      case CommissionType.ministerialAct:
+        return 'The act performed, how and when, persons present';
     }
   }
 
@@ -316,7 +258,6 @@ class _CommissionReportScreenState
       final enrolment = me.registrationNumber?.trim();
       final pdf = pw.Document();
       final fmt = DateFormat('dd-MM-yyyy');
-      final fmtLong = DateFormat('dd MMM yyyy');
 
       // ── Pre-download all images for embedding ──
       final photoData = <String, Uint8List>{};
@@ -377,8 +318,6 @@ class _CommissionReportScreenState
       );
       final smallStyle = pw.TextStyle(fontSize: 9);
 
-      // ── Track section numbering ──
-      const int sectionNum = 0;
 
       // ── Build the document ──
 
@@ -534,9 +473,11 @@ class _CommissionReportScreenState
                   ),
                   pw.SizedBox(height: 20),
                   _indexRow('1.', 'Commission Details & Background'),
-                  _indexRow('2.', 'Memo of Inspection / Site Visits'),
-                  _indexRow('3.', 'Observations & Findings'),
-                  _indexRow('4.', 'Certification & Oath'),
+                  _indexRow('2.', 'Notice to Parties'),
+                  _indexRow('3.', 'Memo of Inspection / Site Visits'),
+                  _indexRow('4.', 'Observations & Findings'),
+                  if (_measurements.isNotEmpty) _indexRow('5.', 'Boundaries & Extent'),
+                  _indexRow('', 'Certification & Oath'),
                   pw.SizedBox(height: 20),
                   pw.Text('ANNEXURES', style: smallBold),
                   pw.SizedBox(height: 10),
@@ -546,8 +487,8 @@ class _CommissionReportScreenState
                     _indexRow('B', 'Drawings & Sketches (Annexure-B)'),
                   if (_witnesses.isNotEmpty)
                     _indexRow('C', 'Witness Statements (Annexure-C)'),
-                  if (_expenses.isNotEmpty)
-                    _indexRow('D', 'Memo of Expenses (Annexure-D)'),
+                  if (_expenses.isNotEmpty || c.feeFixed != null)
+                    _indexRow('D', 'Memo of Fee & Expenses (Annexure-D)'),
                 ],
               ),
         ),
@@ -630,9 +571,59 @@ class _CommissionReportScreenState
 
                 pw.SizedBox(height: 20),
 
-                // ─── SECTION 2: MEMO OF INSPECTION ─────────────────
+                // ─── SECTION 2: NOTICE TO PARTIES ──────────────────
+                _courtSectionHeader('2. NOTICE TO PARTIES', sectionHeaderStyle),
+                pw.Text(
+                  c.inspectionAt != null
+                      ? 'Notice was given to the parties that the commission would be executed on '
+                          '${DateFormat('dd MMMM yyyy').format(c.inspectionAt!.toLocal())} at '
+                          '${DateFormat('hh:mm a').format(c.inspectionAt!.toLocal())}'
+                          '${c.inspectionPlace != null ? ' at ${c.inspectionPlace}' : ''}.'
+                      : 'The date of inspection was not recorded.',
+                  style: bodyStyle,
+                  textAlign: pw.TextAlign.justify,
+                ),
+                pw.SizedBox(height: 8),
+                if (_parties.isEmpty)
+                  pw.Text('No parties were recorded.', style: bodyStyle)
+                else
+                  pw.TableHelper.fromTextArray(
+                    headers: ['Sl', 'Party', 'Notice', 'On / how', 'Attended'],
+                    data: [
+                      for (var i = 0; i < _parties.length; i++)
+                        [
+                          '${i + 1}',
+                          '${_parties[i].name}\n${_parties[i].roleText}${_parties[i].advocate != null ? ' · ${_parties[i].advocate}' : ''}',
+                          _parties[i].noticeStatus.label,
+                          [
+                            if (_parties[i].servedOn != null) fmt.format(_parties[i].servedOn!),
+                            if (_parties[i].servedHow != null) _parties[i].servedHow!,
+                          ].join(' — '),
+                          _parties[i].attended == null ? '—' : (_parties[i].attended! ? 'Yes' : 'No'),
+                        ],
+                    ],
+                    cellStyle: pw.TextStyle(fontSize: 9),
+                    headerStyle: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold),
+                    columnWidths: {
+                      0: const pw.FixedColumnWidth(22),
+                      2: const pw.FixedColumnWidth(60),
+                      4: const pw.FixedColumnWidth(50),
+                    },
+                    border: pw.TableBorder.all(width: 0.5),
+                  ),
+                if (_parties.any((x) => x.attended == false && x.noticeStatus.noticeGiven)) ...[
+                  pw.SizedBox(height: 6),
+                  pw.Text(
+                    'Parties who were given notice but did not attend were proceeded against in their absence.',
+                    style: bodyStyle,
+                  ),
+                ],
+
+                pw.SizedBox(height: 20),
+
+                // ─── SECTION 3: MEMO OF INSPECTION ─────────────────
                 _courtSectionHeader(
-                  '2. MEMO OF INSPECTION / SITE VISITS',
+                  '3. MEMO OF INSPECTION / SITE VISITS',
                   sectionHeaderStyle,
                 ),
                 if (_visits.isEmpty)
@@ -655,7 +646,7 @@ class _CommissionReportScreenState
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
                         pw.Text(
-                          '2.${entry.key + 1}. SITE VISIT - ${fmt.format(v.visitDate)}',
+                          '3.${entry.key + 1}. SITE VISIT - ${fmt.format(v.visitDate)}',
                           style: smallBold,
                         ),
                         pw.SizedBox(height: 4),
@@ -719,9 +710,9 @@ class _CommissionReportScreenState
 
                 pw.SizedBox(height: 20),
 
-                // ─── SECTION 3: OBSERVATIONS & FINDINGS ────────────
+                // ─── SECTION 4: OBSERVATIONS & FINDINGS ────────────
                 _courtSectionHeader(
-                  '3. OBSERVATIONS & FINDINGS',
+                  '4. OBSERVATIONS & FINDINGS',
                   sectionHeaderStyle,
                 ),
                 if (_observations.isEmpty)
@@ -736,7 +727,7 @@ class _CommissionReportScreenState
                     child: pw.Row(
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
-                        pw.Text('3.${entry.key + 1}. ', style: labelStyle),
+                        pw.Text('4.${entry.key + 1}. ', style: labelStyle),
                         pw.Expanded(
                           child: pw.Text(
                             o.observationType == 'general'
@@ -752,6 +743,40 @@ class _CommissionReportScreenState
                 }),
 
                 pw.SizedBox(height: 20),
+
+                // ─── SECTION 5: BOUNDARIES & EXTENT ────────────────
+                if (_measurements.isNotEmpty) ...[
+                  _courtSectionHeader('5. BOUNDARIES & EXTENT', sectionHeaderStyle),
+                  for (final m in _measurements) ...[
+                    pw.Text(m.label, style: labelStyle),
+                    pw.SizedBox(height: 4),
+                    pw.TableHelper.fromTextArray(
+                      headers: ['Side', 'Bounded by (as found at site)', 'Length'],
+                      data: [
+                        ['North', m.northBy ?? '—', m.northLen ?? '—'],
+                        ['South', m.southBy ?? '—', m.southLen ?? '—'],
+                        ['East', m.eastBy ?? '—', m.eastLen ?? '—'],
+                        ['West', m.westBy ?? '—', m.westLen ?? '—'],
+                      ],
+                      cellStyle: pw.TextStyle(fontSize: 9.5),
+                      headerStyle: pw.TextStyle(fontSize: 9.5, fontWeight: pw.FontWeight.bold),
+                      columnWidths: {0: const pw.FixedColumnWidth(46), 2: const pw.FixedColumnWidth(70)},
+                      border: pw.TableBorder.all(width: 0.5),
+                    ),
+                    pw.SizedBox(height: 4),
+                    if (m.extent != null)
+                      pw.Text(
+                        'Extent found at site: ${_area(m.extent!)} ${m.unit.short}'
+                        '${m.unit != AreaUnit.cents ? ' (${_area(m.unit.convert(m.extent!, AreaUnit.cents))} cents)' : ''}'
+                        '${m.scheduleExtent != null ? '. As per schedule: ${_area(m.scheduleExtent!)} ${m.unit.short}'
+                            '${m.difference != 0 ? ' — ${_area(m.difference!.abs())} ${m.unit.short} ${m.difference! > 0 ? 'more' : 'less'} at site' : ', which tallies'}' : ''}.',
+                        style: bodyStyle,
+                      ),
+                    if (m.notes != null) pw.Text(m.notes!, style: bodyStyle),
+                    pw.SizedBox(height: 10),
+                  ],
+                  pw.SizedBox(height: 10),
+                ],
 
                 // ─── ANNEXURE A: PHOTOGRAPHIC EVIDENCE (continuous) ─
                 if (_evidence.isNotEmpty) ...[
@@ -915,13 +940,27 @@ class _CommissionReportScreenState
                   pw.SizedBox(height: 20),
                 ],
 
-                // ─── ANNEXURE D: MEMO OF EXPENSES (continuous) ──────
-                if (_expenses.isNotEmpty) ...[
+                // ─── ANNEXURE D: MEMO OF FEE & EXPENSES ────────────
+                if (_expenses.isNotEmpty || c.feeFixed != null) ...[
                   _courtSectionHeader(
-                    'ANNEXURE - D: MEMO OF EXPENSES',
+                    'ANNEXURE - D: MEMO OF FEE & EXPENSES',
                     sectionHeaderStyle,
                   ),
                   pw.SizedBox(height: 10),
+                  if (c.feeFixed != null) ...[
+                    _courtLabelValue('Fee fixed by Court:', 'INR ${c.feeFixed!.toStringAsFixed(2)}', labelStyle, valueStyle),
+                    if (c.feeDepositedBy != null)
+                      _courtLabelValue('Deposited by:', c.feeDepositedBy!, labelStyle, valueStyle),
+                    _courtLabelValue(
+                      'Received:',
+                      'INR ${(c.feeReceived ?? 0).toStringAsFixed(2)}${c.feeReceivedOn != null ? ' on ${fmt.format(c.feeReceivedOn!)}' : ''}',
+                      labelStyle,
+                      valueStyle,
+                    ),
+                    if ((c.feeBalance ?? 0) > 0)
+                      _courtLabelValue('Balance due:', 'INR ${c.feeBalance!.toStringAsFixed(2)}', labelStyle, valueStyle),
+                    pw.SizedBox(height: 10),
+                  ],
                   pw.TableHelper.fromTextArray(
                     headers: [
                       'Sl No',
@@ -930,6 +969,7 @@ class _CommissionReportScreenState
                       'Amount (INR)',
                     ],
                     data: [
+                      if (_expenses.isEmpty) ['', 'No expenses', '', '0.00'],
                       ..._expenses.asMap().entries.map(
                         (entry) => [
                           (entry.key + 1).toString(),
@@ -1057,15 +1097,6 @@ class _CommissionReportScreenState
     ],
   );
 
-  /// Horizontal divider between major sections
-  pw.Widget _courtDivider() => pw.Column(
-    children: [
-      pw.SizedBox(height: 6),
-      pw.Container(height: 0.5, color: PdfColors.grey300),
-      pw.SizedBox(height: 2),
-    ],
-  );
-
   /// Label: Value row in the formal style
   pw.Widget _courtLabelValue(
     String label,
@@ -1085,6 +1116,11 @@ class _CommissionReportScreenState
   );
 
   // No page numbers: they were fixed text that never matched the real pages.
+  static String _area(double v) {
+    final t = v.toStringAsFixed(v.abs() >= 100 ? 0 : 2);
+    return t.contains('.') ? t.replaceFirst(RegExp(r'\.?0+$'), '') : t;
+  }
+
   pw.Widget _indexRow(String sl, String title) => pw.Padding(
     padding: pw.EdgeInsets.symmetric(vertical: 4),
     child: pw.Row(

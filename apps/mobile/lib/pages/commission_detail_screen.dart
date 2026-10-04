@@ -18,9 +18,6 @@ import '../models/commission_models.dart';
 import '../services/commission_service.dart';
 import '../services/storage_links.dart';
 import '../theme/app_theme.dart';
-import 'commissions_screen.dart';
-import 'commission_report_screen.dart';
-import 'commission_field_visit_screen.dart';
 import 'commission_witness_screen.dart';
 import 'commission_sketch_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -43,7 +40,6 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   List<CommissionVisit> _visits = [];
   List<CommissionObservation> _observations = [];
   List<CommissionEvidence> _evidence = [];
-  List<CommissionExpense> _expenses = [];
   List<CommissionWitness> _witnesses = [];
   List<CommissionSketch> _sketches = [];
   List<Map<String, dynamic>> _documents = [];
@@ -62,7 +58,7 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   void initState() {
     super.initState();
     BackInterceptors.add(_handleBackPress);
-    _tabs = TabController(length: 8, vsync: this);
+    _tabs = TabController(length: 6, vsync: this);
     _load();
     _initSpeech();
   }
@@ -98,7 +94,6 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
       final vF = _orEmpty(CommissionService.fetchVisits(id));
       final oF = _orEmpty(CommissionService.fetchObservations(id));
       final eF = _orEmpty(CommissionService.fetchEvidence(id));
-      final exF = _orEmpty(CommissionService.fetchExpenses(id));
       final wF = _orEmpty(CommissionService.fetchWitnesses(id));
       final skF = _orEmpty(CommissionService.fetchSketches(id));
       final docsF = _orEmpty(CommissionService.fetchCommissionDocuments(id));
@@ -106,7 +101,6 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
       final v = await vF;
       final o = await oF;
       final e = await eF;
-      final ex = await exF;
       final w = await wF;
       final sk = await skF;
       final docs = await docsF;
@@ -118,7 +112,6 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
         _visits = v;
         _observations = o;
         _evidence = e;
-        _expenses = ex;
         _witnesses = w;
         _sketches = sk;
         _documents = docs;
@@ -151,37 +144,15 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
         body: const Center(child: Text('Commission not found')),
       );
     }
-    final c = _commission!;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          c.commissionType.label,
+          'The record',
           style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: _load),
-          PopupMenuButton<String>(
-            onSelected: (v) => _handleAction(v, c),
-            itemBuilder:
-                (_) => [
-                  const PopupMenuItem(
-                    value: 'edit_status',
-                    child: Text('Change Status'),
-                  ),
-                  const PopupMenuItem(
-                    value: 'generate_report',
-                    child: Text('Generate Report'),
-                  ),
-                  const PopupMenuItem(
-                    value: 'delete',
-                    child: Text(
-                      'Delete Commission',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-                ],
-          ),
+          IconButton(tooltip: 'Refresh', icon: const Icon(Icons.refresh), onPressed: _load),
         ],
         bottom: TabBar(
           controller: _tabs,
@@ -195,683 +166,150 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
             fontWeight: FontWeight.w600,
           ),
           tabs: [
-            const Tab(text: 'Overview'),
-            const Tab(text: 'Visits'),
-            const Tab(text: 'Evidence'),
-            const Tab(text: 'Notes'),
+            const Tab(text: 'By visit'),
+            Tab(text: 'Photos (${_evidence.length})'),
+            Tab(text: 'Notes (${_observations.length})'),
             Tab(text: 'Witnesses (${_witnesses.length})'),
             Tab(text: 'Sketches (${_sketches.length})'),
             Tab(text: 'Documents (${_documents.length})'),
-            const Tab(text: 'Expenses'),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabs,
         children: [
-          _overviewTab(dk, c),
-          _visitsTab(dk),
+          _byVisitTab(dk),
           _evidenceTab(dk),
           _notesTab(dk),
           _witnessesTab(dk),
           _sketchesTab(dk),
           _documentsTab(dk),
-          _expensesTab(dk),
         ],
       ),
     );
   }
 
-  // ─── OVERVIEW TAB ────────────────────────────────────────
-  Widget _overviewTab(bool dk, Commission c) => ListView(
-    padding: EdgeInsets.all(16.r),
-    children: [
-      // Start Field Visit Button (Phase 2)
-      if (_activeVisitId != null)
-        Container(
-          margin: EdgeInsets.only(bottom: 12.h),
+  // ─── BY VISIT ────────────────────────────────────────────
+  /// Everything recorded, grouped under the visit it belongs to, newest
+  /// visit first — the order the report's memo of inspection follows.
+  Widget _byVisitTab(bool dk) {
+    if (_visits.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.all(28.r),
+          child: Text(
+            'No visits yet. Start a site visit from the commission page — everything you record there appears here.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(color: dk ? Colors.white54 : Colors.black45),
+          ),
+        ),
+      );
+    }
+    final fmtT = DateFormat('hh:mm a');
+    final fmtD = DateFormat('dd MMM yyyy');
+    final n = _visits.length;
+    return ListView.builder(
+      padding: EdgeInsets.fromLTRB(16.w, 12.h, 16.w, 40.h),
+      itemCount: n,
+      itemBuilder: (_, i) {
+        final v = _visits[i];
+        final items = <(DateTime, IconData, Color, String, String)>[
+          for (final o in _observations.where((x) => x.visitId == v.id))
+            (o.createdAt, Icons.notes_rounded, const Color(0xFF334155),
+                o.observationType == 'general' ? 'Observation' : 'Observation · ${o.observationType}', o.content),
+          for (final e in _evidence.where((x) => x.visitId == v.id))
+            (e.createdAt, Icons.photo_camera_rounded, const Color(0xFF1D4ED8), 'Photo ${e.sequenceNumber}',
+                [if (e.caption != null) e.caption!, e.latitude != null ? 'GPS ${e.locationText}' : 'No GPS'].join(' · ')),
+          for (final w in _witnesses.where((x) => x.visitId == v.id))
+            (w.createdAt, Icons.record_voice_over_rounded, const Color(0xFF6D28D9), 'Witness: ${w.witnessName}',
+                [if (w.displayIdNumber != null) '${w.idLabel} ${w.displayIdNumber}', if (w.signatureUrl != null) 'signed'].join(' · ')),
+          for (final s in _sketches.where((x) => x.visitId == v.id))
+            (s.createdAt, Icons.draw_rounded, const Color(0xFFBE185D), 'Sketch: ${s.title}', s.sketchTypeLabel),
+        ]..sort((a, b) => a.$1.compareTo(b.$1));
+        return Container(
+          margin: EdgeInsets.only(bottom: 14.h),
+          padding: EdgeInsets.all(14.r),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF10B981), Color(0xFF059669)],
-            ),
+            color: dk ? const Color(0xFF111827) : Colors.white,
             borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(color: dk ? const Color(0xFF1F2937) : const Color(0xFFE2E8F0)),
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => _goFieldVisit(_activeVisitId!),
-              borderRadius: BorderRadius.circular(16.r),
-              child: Padding(
-                padding: EdgeInsets.all(16.r),
-                child: Row(
-                  children: [
-                    Icon(Icons.gps_fixed, color: Colors.white, size: 28),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Active Field Visit',
-                            style: GoogleFonts.outfit(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            'Tap to open field workspace',
-                            style: GoogleFonts.inter(
-                              fontSize: 12.sp,
-                              color: Colors.white70,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colors.white70,
-                      size: 16,
-                    ),
-                  ],
-                ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text('Visit ${n - i}', style: GoogleFonts.outfit(fontSize: 17.sp, fontWeight: FontWeight.w700, color: dk ? Colors.white : const Color(0xFF0F172A))),
+                  SizedBox(width: 8.w),
+                  Text(fmtD.format(v.visitDate), style: GoogleFonts.inter(fontSize: 12.sp, color: dk ? Colors.white54 : Colors.black45)),
+                  const Spacer(),
+                  Text(v.visitStatus.label,
+                      style: GoogleFonts.inter(fontSize: 11.sp, fontWeight: FontWeight.w700,
+                          color: v.visitStatus == VisitStatus.obstructed ? AppTheme.error : const Color(0xFF16A34A))),
+                ],
               ),
-            ),
-          ),
-        ),
-
-      // Commission Info
-      _infoCard(dk, 'Commission Info', [
-        _row('Type', c.commissionType.label, dk),
-        _row('Status', c.status.label, dk),
-        if (c.courtName != null) _row('Court', c.courtName!, dk),
-        if (c.caseNumberRef != null) _row('Case No.', c.caseNumberRef!, dk),
-        if (c.warrantDate != null)
-          _row(
-            'Warrant Date',
-            DateFormat('dd MMM yyyy').format(c.warrantDate!),
-            dk,
-          ),
-        if (c.deadlineDate != null)
-          _row(
-            'Deadline',
-            DateFormat('dd MMM yyyy').format(c.deadlineDate!),
-            dk,
-            highlight: c.isOverdue,
-          ),
-        if (c.daysRemaining != null)
-          _row(
-            'Days Left',
-            c.isOverdue
-                ? 'OVERDUE by ${(-c.daysRemaining!)} days'
-                : '${c.daysRemaining} days',
-            dk,
-            highlight: c.isOverdue,
-          ),
-      ]),
-      SizedBox(height: 12.h),
-
-      // Timeline (Phase 2)
-      _buildTimeline(dk, c),
-      SizedBox(height: 12.h),
-
-      _infoCard(dk, 'Property Details', [
-        if (c.propertyDescription != null)
-          _row('Description', c.propertyDescription!, dk),
-        if (c.surveyNumber != null) _row('Survey No.', c.surveyNumber!, dk),
-        _row('Location', c.locationSummary, dk),
-      ]),
-      SizedBox(height: 12.h),
-      if (c.partyPetitioner != null || c.partyRespondent != null)
-        _infoCard(dk, 'Parties', [
-          if (c.partyPetitioner != null)
-            _row('Petitioner', c.partyPetitioner!, dk),
-          if (c.partyRespondent != null)
-            _row('Respondent', c.partyRespondent!, dk),
-        ]),
-      SizedBox(height: 12.h),
-      if (c.scopeOfWork != null)
-        _infoCard(dk, 'Scope of Work', [
-          Padding(
-            padding: EdgeInsets.all(12.r),
-            child: Text(
-              c.scopeOfWork!,
-              style: GoogleFonts.inter(
-                fontSize: 13.sp,
-                color: dk ? Colors.white70 : Colors.black54,
-                height: 1.5.h,
+              SizedBox(height: 6.h),
+              Text(
+                [
+                  if (v.checkinTime != null) 'In ${fmtT.format(v.checkinTime!.toLocal())}',
+                  if (v.checkoutTime != null) 'out ${fmtT.format(v.checkoutTime!.toLocal())}',
+                  if (v.durationText != null) '(${v.durationText})',
+                  if (v.checkinLat != null && !(v.checkinLat == 0 && v.checkinLng == 0))
+                    'GPS ${v.checkinLat!.toStringAsFixed(5)}, ${v.checkinLng!.toStringAsFixed(5)}',
+                ].join(' · '),
+                style: GoogleFonts.inter(fontSize: 12.sp, color: dk ? Colors.white60 : Colors.black54),
               ),
-            ),
-          ),
-        ]),
-      SizedBox(height: 16.h),
-      // Quick Action Buttons
-      Row(
-        children: [
-          Expanded(
-            child: _actionBtn(
-              dk,
-              Icons.gps_fixed,
-              'Check In',
-              AppTheme.success,
-              () => _checkIn(),
-            ),
-          ),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: _actionBtn(
-              dk,
-              Icons.camera_alt,
-              'Capture',
-              AppTheme.info,
-              () => _captureEvidence(),
-            ),
-          ),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: _actionBtn(
-              dk,
-              Icons.note_add,
-              'Add Note',
-              AppTheme.accentViolet,
-              () => _addNote(),
-            ),
-          ),
-        ],
-      ),
-      SizedBox(height: 8.h),
-      Row(
-        children: [
-          Expanded(
-            child: _actionBtn(
-              dk,
-              Icons.person_add,
-              'Witness',
-              AppTheme.warning,
-              () => _goWitness(),
-            ),
-          ),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: _actionBtn(
-              dk,
-              Icons.picture_as_pdf,
-              'Report',
-              AppTheme.error,
-              () => _goReport(),
-            ),
-          ),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: _actionBtn(
-              dk,
-              Icons.gps_not_fixed,
-              'Check Out',
-              const Color(0xFF64748B),
-              () => _checkOut(),
-            ),
-          ),
-        ],
-      ),
-    ],
-  );
-
-  // ─── TIMELINE (Phase 2) ─────────────────────────────────
-  Widget _buildTimeline(bool dk, Commission c) {
-    final events = <_TimelineEvent>[];
-    if (c.warrantDate != null) {
-      events.add(
-        _TimelineEvent(
-          date: c.warrantDate!,
-          title: 'Warrant Received',
-          icon: Icons.description,
-          color: AppTheme.accent,
-          done: true,
-        ),
-      );
-    }
-    for (int i = 0; i < _visits.length; i++) {
-      final v = _visits[_visits.length - 1 - i]; // reverse to chronological
-      events.add(
-        _TimelineEvent(
-          date: v.visitDate,
-          title: 'Site Visit #${i + 1}',
-          subtitle:
-              '📸 ${_evidence.where((e) => e.visitId == v.id).length} photos, 📝 ${_observations.where((o) => o.visitId == v.id).length} notes',
-          icon: Icons.location_on,
-          color: AppTheme.success,
-          done: true,
-        ),
-      );
-    }
-    if (_witnesses.isNotEmpty) {
-      events.add(
-        _TimelineEvent(
-          date: _witnesses.first.createdAt,
-          title: '${_witnesses.length} Witness(es) Recorded',
-          icon: Icons.person,
-          color: AppTheme.warning,
-          done: true,
-        ),
-      );
-    }
-    if (_sketches.isNotEmpty) {
-      events.add(
-        _TimelineEvent(
-          date: _sketches.first.createdAt,
-          title: '${_sketches.length} Sketch(es) Created',
-          icon: Icons.draw,
-          color: const Color(0xFF8B5CF6),
-          done: true,
-        ),
-      );
-    }
-    if (c.status == CommissionStatus.reportDrafting ||
-        c.status == CommissionStatus.submitted) {
-      events.add(
-        _TimelineEvent(
-          date: DateTime.now(),
-          title: 'Report Generated',
-          icon: Icons.picture_as_pdf,
-          color: AppTheme.error,
-          done: true,
-        ),
-      );
-    }
-    if (c.deadlineDate != null) {
-      events.add(
-        _TimelineEvent(
-          date: c.deadlineDate!,
-          title: 'Deadline',
-          icon: Icons.flag,
-          color: c.isOverdue ? AppTheme.error : AppTheme.warning,
-          done:
-              c.status == CommissionStatus.submitted ||
-              c.status == CommissionStatus.closed,
-        ),
-      );
-    }
-
-    if (events.isEmpty) return const SizedBox.shrink();
-
-    return _infoCard(dk, 'Commission Timeline', [
-      Padding(
-        padding: EdgeInsets.all(12.r),
-        child: Column(
-          children:
-              events.asMap().entries.map((entry) {
-                final e = entry.value;
-                final isLast = entry.key == events.length - 1;
-                return IntrinsicHeight(
+              if (v.personsPresent != null) ...[
+                SizedBox(height: 4.h),
+                Text('Present: ${v.personsPresent}', style: GoogleFonts.inter(fontSize: 12.sp, color: dk ? Colors.white70 : Colors.black87)),
+              ],
+              if (v.obstructionDetails != null) ...[
+                SizedBox(height: 4.h),
+                Text('Obstruction: ${v.obstructionDetails}', style: GoogleFonts.inter(fontSize: 12.sp, color: AppTheme.error)),
+              ],
+              if (items.isNotEmpty) Divider(height: 18.h, color: dk ? const Color(0xFF1F2937) : const Color(0xFFF1F5F9)),
+              for (final it in items)
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5.h),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        children: [
-                          Container(
-                            width: 12.w,
-                            height: 12.h,
-                            decoration: BoxDecoration(
-                              color: e.done ? e.color : Colors.transparent,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: e.color, width: 2.w),
-                            ),
-                          ),
-                          if (!isLast)
-                            Expanded(
-                              child: Container(
-                                width: 2.w,
-                                margin: EdgeInsets.symmetric(vertical: 2.h),
-                                color:
-                                    dk
-                                        ? const Color(0xFF2D2D3F)
-                                        : AppTheme.borderLight,
-                              ),
-                            ),
-                        ],
+                      Container(
+                        padding: EdgeInsets.all(7.r),
+                        decoration: BoxDecoration(color: it.$3.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(9.r)),
+                        child: Icon(it.$2, size: 16.r, color: it.$3),
                       ),
                       SizedBox(width: 10.w),
                       Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(bottom: 16.h),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    DateFormat('dd MMM').format(e.date),
-                                    style: GoogleFonts.jetBrainsMono(
-                                      fontSize: 10.sp,
-                                      color:
-                                          dk ? Colors.white38 : Colors.black38,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  if (e.title == 'Deadline' && c.isOverdue)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 1,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppTheme.error.withValues(
-                                          alpha: 0.1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(4.r),
-                                      ),
-                                      child: Text(
-                                        'OVERDUE',
-                                        style: GoogleFonts.inter(
-                                          fontSize: 9.sp,
-                                          fontWeight: FontWeight.w800,
-                                          color: AppTheme.error,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              SizedBox(height: 2.h),
-                              Text(
-                                e.title,
-                                style: GoogleFonts.inter(
-                                  fontSize: 13.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color:
-                                      dk
-                                          ? Colors.white
-                                          : const Color(0xFF1E293B),
-                                ),
-                              ),
-                              if (e.subtitle != null)
-                                Text(
-                                  e.subtitle!,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 11.sp,
-                                    color: dk ? Colors.white54 : Colors.black45,
-                                  ),
-                                ),
-                            ],
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(child: Text(it.$4, style: GoogleFonts.inter(fontSize: 13.sp, fontWeight: FontWeight.w600, color: dk ? Colors.white : const Color(0xFF0F172A)))),
+                                Text(fmtT.format(it.$1.toLocal()), style: GoogleFonts.inter(fontSize: 11.sp, color: dk ? Colors.white38 : Colors.black38)),
+                              ],
+                            ),
+                            if (it.$5.isNotEmpty)
+                              Text(it.$5, style: GoogleFonts.inter(fontSize: 12.sp, color: dk ? Colors.white60 : Colors.black54)),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                );
-              }).toList(),
-        ),
-      ),
-    ]);
-  }
-
-  Widget _infoCard(bool dk, String title, List<Widget> children) => Container(
-    decoration: BoxDecoration(
-      color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-      borderRadius: BorderRadius.circular(16.r),
-      border: Border.all(
-        color: dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight,
-      ),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-          child: Text(
-            title,
-            style: GoogleFonts.outfit(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w600,
-              color: dk ? Colors.white : const Color(0xFF1E293B),
-            ),
-          ),
-        ),
-        Divider(height: 1.h),
-        ...children,
-      ],
-    ),
-  );
-
-  Widget _row(String label, String value, bool dk, {bool highlight = false}) =>
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 100.w,
-              child: Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 12.sp,
-                  color: dk ? Colors.white38 : Colors.black38,
                 ),
-              ),
-            ),
-            Expanded(
-              child: Text(
-                value,
-                style: GoogleFonts.inter(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w500,
-                  color:
-                      highlight
-                          ? AppTheme.error
-                          : (dk ? Colors.white : const Color(0xFF1E293B)),
+              if (items.isEmpty)
+                Padding(
+                  padding: EdgeInsets.only(top: 6.h),
+                  child: Text('Nothing recorded on this visit.', style: GoogleFonts.inter(fontSize: 12.sp, color: dk ? Colors.white38 : Colors.black38)),
                 ),
-              ),
-            ),
-          ],
-        ),
-      );
-
-  Widget _actionBtn(
-    bool dk,
-    IconData icon,
-    String label,
-    Color color,
-    VoidCallback onTap,
-  ) => Material(
-    color: color.withValues(alpha: 0.1),
-    borderRadius: BorderRadius.circular(12.r),
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12.r),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 14.h),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 22),
-            SizedBox(height: 6.h),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 11.sp,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-
-  // ─── VISITS TAB ──────────────────────────────────────────
-  Widget _visitsTab(bool dk) {
-    if (_visits.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.location_off,
-              size: 48,
-              color: dk ? Colors.white24 : Colors.black26,
-            ),
-            SizedBox(height: 12.h),
-            Text(
-              'No visits recorded yet',
-              style: GoogleFonts.inter(
-                color: dk ? Colors.white38 : Colors.black38,
-              ),
-            ),
-            SizedBox(height: 12.h),
-            ElevatedButton.icon(
-              onPressed: _checkIn,
-              icon: const Icon(Icons.gps_fixed, size: 18),
-              label: const Text('Check In Now'),
-            ),
-          ],
-        ),
-      );
-    }
-    return ListView.builder(
-      padding: EdgeInsets.all(16.r),
-      itemCount: _visits.length,
-      itemBuilder: (_, i) {
-        final v = _visits[i];
-        final sc =
-            v.visitStatus == VisitStatus.checkedIn
-                ? AppTheme.success
-                : v.visitStatus == VisitStatus.completed
-                ? AppTheme.info
-                : v.visitStatus == VisitStatus.obstructed
-                ? AppTheme.error
-                : AppTheme.warning;
-        return GestureDetector(
-          onTap:
-              v.visitStatus == VisitStatus.checkedIn
-                  ? () => _goFieldVisit(v.id)
-                  : null,
-          child: Container(
-            margin: EdgeInsets.only(bottom: 12.h),
-            padding: EdgeInsets.all(16.r),
-            decoration: BoxDecoration(
-              color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-              borderRadius: BorderRadius.circular(14.r),
-              border: Border.all(
-                color:
-                    v.visitStatus == VisitStatus.checkedIn
-                        ? AppTheme.success
-                        : (dk ? const Color(0xFF2D2D3F) : AppTheme.borderLight),
-                width: v.visitStatus == VisitStatus.checkedIn ? 2 : 1,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.location_on, color: sc, size: 20),
-                    SizedBox(width: 8.w),
-                    Text(
-                      DateFormat('dd MMM yyyy').format(v.visitDate),
-                      style: GoogleFonts.outfit(
-                        fontWeight: FontWeight.w600,
-                        color: dk ? Colors.white : const Color(0xFF1E293B),
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: sc.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: Text(
-                        v.visitStatus.label,
-                        style: GoogleFonts.inter(
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.w600,
-                          color: sc,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (v.checkinTime != null) ...[
-                  SizedBox(height: 8.h),
-                  Text(
-                    'Check-in: ${DateFormat('hh:mm a').format(v.checkinTime!.toLocal())}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12.sp,
-                      color: dk ? Colors.white54 : Colors.black45,
-                    ),
-                  ),
-                ],
-                if (v.checkinLat != null &&
-                    v.checkinLng != null &&
-                    !(v.checkinLat == 0 && v.checkinLng == 0))
-                  Text(
-                    'GPS: ${v.checkinLat!.toStringAsFixed(6)}, ${v.checkinLng!.toStringAsFixed(6)}',
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 10.sp,
-                      color: dk ? Colors.white38 : Colors.black38,
-                    ),
-                  ),
-                if (v.checkinAddress != null)
-                  Text(
-                    '📍 ${v.checkinAddress}',
-                    style: GoogleFonts.inter(
-                      fontSize: 11.sp,
-                      color: dk ? Colors.white38 : Colors.black38,
-                    ),
-                  ),
-                if (v.checkoutTime != null) ...[
-                  SizedBox(height: 4.h),
-                  Text(
-                    'Check-out: ${DateFormat('hh:mm a').format(v.checkoutTime!.toLocal())}${v.durationText != null ? ' (${v.durationText})' : ''}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12.sp,
-                      color: dk ? Colors.white54 : Colors.black45,
-                    ),
-                  ),
-                ],
-                if (v.personsPresent != null) ...[
-                  SizedBox(height: 4.h),
-                  Text(
-                    'Present: ${v.personsPresent}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12.sp,
-                      color: dk ? Colors.white54 : Colors.black45,
-                    ),
-                  ),
-                ],
-                if (v.obstructionDetails != null) ...[
-                  SizedBox(height: 4.h),
-                  Text(
-                    '⚠️ ${v.obstructionDetails}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12.sp,
-                      color: AppTheme.error,
-                    ),
-                  ),
-                ],
-                if (v.visitStatus == VisitStatus.checkedIn) ...[
-                  SizedBox(height: 8.h),
-                  Text(
-                    '🟢 Active — Tap to open Field Visit',
-                    style: GoogleFonts.inter(
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.success,
-                    ),
-                  ),
-                ],
-              ],
-            ),
+            ],
           ),
         );
       },
     );
   }
 
-  // ─── EVIDENCE TAB ────────────────────────────────────────
   Widget _evidenceTab(bool dk) => CommissionEvidenceTab(
     evidence: _evidence,
     isDark: dk,
@@ -1295,174 +733,6 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
     }
   }
 
-  // ─── EXPENSES TAB ────────────────────────────────────────
-  Widget _expensesTab(bool dk) {
-    final double total = _expenses.fold(0, (sum, e) => sum + e.amount);
-    return Column(
-      children: [
-        Container(
-          margin: EdgeInsets.all(16.r),
-          padding: EdgeInsets.all(16.r),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFFF59E0B), Color(0xFFEF4444)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.receipt_long, color: Colors.white, size: 28),
-              SizedBox(width: 12.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Total Expenses',
-                    style: GoogleFonts.inter(
-                      fontSize: 12.sp,
-                      color: Colors.white70,
-                    ),
-                  ),
-                  Text(
-                    '₹${total.toStringAsFixed(0)}',
-                    style: GoogleFonts.outfit(
-                      fontSize: 28.sp,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              IconButton(
-                onPressed: _addExpense,
-                icon: const Icon(
-                  Icons.add_circle,
-                  color: Colors.white,
-                  size: 32,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child:
-              _expenses.isEmpty
-                  ? Center(
-                    child: Text(
-                      'No expenses recorded',
-                      style: GoogleFonts.inter(
-                        color: dk ? Colors.white38 : Colors.black38,
-                      ),
-                    ),
-                  )
-                  : ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    itemCount: _expenses.length,
-                    itemBuilder: (_, i) {
-                      final e = _expenses[i];
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 8.h),
-                        padding: EdgeInsets.all(14.r),
-                        decoration: BoxDecoration(
-                          color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-                          borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(
-                            color:
-                                dk
-                                    ? const Color(0xFF2D2D3F)
-                                    : AppTheme.borderLight,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(8.r),
-                              decoration: BoxDecoration(
-                                color: AppTheme.warning.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(10.r),
-                              ),
-                              child: const Icon(
-                                Icons.receipt,
-                                color: AppTheme.warning,
-                                size: 20,
-                              ),
-                            ),
-                            SizedBox(width: 12.w),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    e.expenseType.label,
-                                    style: GoogleFonts.inter(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13.sp,
-                                      color:
-                                          dk
-                                              ? Colors.white
-                                              : const Color(0xFF1E293B),
-                                    ),
-                                  ),
-                                  if (e.description != null)
-                                    Text(
-                                      e.description!,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 11.sp,
-                                        color:
-                                            dk
-                                                ? Colors.white54
-                                                : Colors.black45,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  Text(
-                                    DateFormat(
-                                      'dd MMM yyyy',
-                                    ).format(e.expenseDate),
-                                    style: GoogleFonts.inter(
-                                      fontSize: 10.sp,
-                                      color:
-                                          dk ? Colors.white38 : Colors.black38,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Text(
-                              '₹${e.amount.toStringAsFixed(0)}',
-                              style: GoogleFonts.outfit(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w700,
-                                color:
-                                    dk ? Colors.white : const Color(0xFF1E293B),
-                              ),
-                            ),
-                            SizedBox(width: 4.w),
-                            IconButton(
-                              icon: Icon(
-                                Icons.delete_outline,
-                                size: 16,
-                                color: AppTheme.error.withValues(alpha: 0.6),
-                              ),
-                              onPressed: () async {
-                                await CommissionService.deleteExpense(e.id);
-                                _load();
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-        ),
-      ],
-    );
-  }
-
   // ─── AUDIO PLAYBACK ──────────────────────────────────────
 
   Future<void> _playWitnessAudio(CommissionWitness w) async {
@@ -1496,62 +766,6 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
   }
 
   // ─── ACTIONS ─────────────────────────────────────────────
-
-  Future<void> _checkIn() async {
-    try {
-      final visit = await CommissionService.checkIn(widget.commissionId);
-      setState(() => _activeVisitId = visit.id);
-      _load();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              visit.checkinLat != null
-                  ? 'Checked in · GPS ${visit.checkinLat!.toStringAsFixed(4)}, ${visit.checkinLng!.toStringAsFixed(4)}'
-                  : 'Checked in · GPS unavailable — turn on location for an accurate record',
-            ),
-            backgroundColor: AppTheme.success,
-          ),
-        );
-        // Auto-open field visit screen
-        _goFieldVisit(visit.id);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
-        );
-      }
-    }
-  }
-
-  Future<void> _checkOut() async {
-    if (_activeVisitId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No active visit to check out from')),
-      );
-      return;
-    }
-    try {
-      await CommissionService.checkOut(_activeVisitId!);
-      setState(() => _activeVisitId = null);
-      _load();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Checked out — GPS recorded'),
-            backgroundColor: AppTheme.success,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: AppTheme.error),
-        );
-      }
-    }
-  }
 
   Future<void> _captureEvidence() async {
     String? visitId = _activeVisitId;
@@ -2032,169 +1246,6 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
     );
   }
 
-  void _addExpense() {
-    final dk = Theme.of(context).brightness == Brightness.dark;
-    final amountCtrl = TextEditingController();
-    final descCtrl = TextEditingController();
-    ExpenseType selType = ExpenseType.travel;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder:
-          (ctx) => StatefulBuilder(
-            builder:
-                (ctx, ss) => Padding(
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(ctx).viewInsets.bottom,
-                  ),
-                  child: Container(
-                    padding: EdgeInsets.all(20.r),
-                    decoration: BoxDecoration(
-                      color: dk ? const Color(0xFF1E1E2E) : Colors.white,
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(24.r),
-                      ),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Add Expense',
-                          style: GoogleFonts.outfit(
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.w700,
-                            color: dk ? Colors.white : const Color(0xFF1E293B),
-                          ),
-                        ),
-                        SizedBox(height: 16.h),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children:
-                              ExpenseType.values
-                                  .map(
-                                    (t) => ChoiceChip(
-                                      label: Text(
-                                        t.label,
-                                        style: GoogleFonts.inter(fontSize: 11.sp),
-                                      ),
-                                      selected: selType == t,
-                                      onSelected: (v) => ss(() => selType = t),
-                                      selectedColor: AppTheme.warning
-                                          .withValues(alpha: 0.15),
-                                    ),
-                                  )
-                                  .toList(),
-                        ),
-                        SizedBox(height: 16.h),
-                        TextField(
-                          controller: amountCtrl,
-                          keyboardType: TextInputType.number,
-                          style: GoogleFonts.outfit(
-                            fontSize: 24.sp,
-                            fontWeight: FontWeight.w700,
-                          ),
-                          decoration: InputDecoration(
-                            prefixText: '₹ ',
-                            hintText: '0',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                              borderSide: const BorderSide(
-                                color: AppTheme.accent,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 12.h),
-                        TextField(
-                          controller: descCtrl,
-                          style: GoogleFonts.inter(fontSize: 14.sp),
-                          decoration: InputDecoration(
-                            hintText: 'Description (optional)',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                              borderSide: const BorderSide(
-                                color: AppTheme.accent,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 16.h),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48.h,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              final amt = double.tryParse(amountCtrl.text);
-                              if (amt == null || amt <= 0) return;
-                              await CommissionService.createExpense({
-                                'commission_id': widget.commissionId,
-                                'expense_type': selType.dbValue,
-                                'amount': amt,
-                                'description':
-                                    descCtrl.text.isNotEmpty
-                                        ? descCtrl.text
-                                        : null,
-                              });
-                              if (ctx.mounted) Navigator.pop(ctx);
-                              _load();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.accent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14.r),
-                              ),
-                            ),
-                            child: Text(
-                              'Add Expense',
-                              style: GoogleFonts.inter(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-          ),
-    );
-  }
-
-  void _goReport() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (_) => CommissionReportScreen(commissionId: widget.commissionId),
-      ),
-    );
-  }
-
-  void _goFieldVisit(String visitId) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (_) => CommissionFieldVisitScreen(
-              commissionId: widget.commissionId,
-              visitId: visitId,
-            ),
-      ),
-    );
-    if (result == true) _load();
-  }
-
   void _goWitness() async {
     String? visitId = _activeVisitId;
     if (visitId == null && _visits.isNotEmpty) visitId = _visits.first.id;
@@ -2272,97 +1323,4 @@ class _CommissionDetailScreenState extends ConsumerState<CommissionDetailScreen>
     );
   }
 
-  void _handleAction(String action, Commission c) async {
-    if (action == 'delete') {
-      final confirm = await showDialog<bool>(
-        context: context,
-        builder:
-            (ctx) => AlertDialog(
-              title: const Text('Delete Commission?'),
-              content: const Text(
-                'This will permanently delete all visits, evidence, notes, witnesses, sketches, and expenses.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text(
-                    'Delete',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
-              ],
-            ),
-      );
-      if (confirm == true) {
-        await CommissionService.deleteCommission(c.id);
-        ref.invalidate(commissionsProvider);
-        if (mounted) Navigator.pop(context);
-      }
-    } else if (action == 'edit_status') {
-      _showStatusPicker(c);
-    } else if (action == 'generate_report') {
-      _goReport();
-    }
-  }
-
-  void _showStatusPicker(Commission c) {
-    showModalBottomSheet(
-      context: context,
-      builder:
-          (ctx) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(height: 12.h),
-              Text(
-                'Change Status',
-                style: GoogleFonts.outfit(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: 12.h),
-              ...CommissionStatus.values.map(
-                (s) => ListTile(
-                  leading: Icon(
-                    Icons.circle,
-                    size: 12,
-                    color: s == c.status ? AppTheme.accent : Colors.grey,
-                  ),
-                  title: Text(s.label),
-                  selected: s == c.status,
-                  onTap: () async {
-                    Navigator.pop(ctx);
-                    await CommissionService.updateCommission(c.id, {
-                      'status': s.dbValue,
-                    });
-                    _load();
-                  },
-                ),
-              ),
-              SizedBox(height: 20.h),
-            ],
-          ),
-    );
-  }
-}
-
-class _TimelineEvent {
-  final DateTime date;
-  final String title;
-  final String? subtitle;
-  final IconData icon;
-  final Color color;
-  final bool done;
-  _TimelineEvent({
-    required this.date,
-    required this.title,
-    this.subtitle,
-    required this.icon,
-    required this.color,
-    this.done = false,
-  });
 }

@@ -9,7 +9,41 @@ enum CommissionType {
   partition,
   survey,
   recordingEvidence,
-  sale;
+  sale,
+  accounts,
+  scientificInvestigation,
+  ministerialAct;
+
+  /// The Order XXVI CPC rule each kind of commission is issued under.
+  String get rule {
+    switch (this) {
+      case CommissionType.recordingEvidence:
+        return 'O. XXVI r. 1–8';
+      case CommissionType.localInvestigation:
+        return 'O. XXVI r. 9';
+      case CommissionType.survey:
+        return 'O. XXVI r. 9';
+      case CommissionType.scientificInvestigation:
+        return 'O. XXVI r. 10A';
+      case CommissionType.ministerialAct:
+        return 'O. XXVI r. 10B';
+      case CommissionType.sale:
+        return 'O. XXVI r. 10C';
+      case CommissionType.accounts:
+        return 'O. XXVI r. 11';
+      case CommissionType.partition:
+        return 'O. XXVI r. 13';
+    }
+  }
+
+  /// Whether the work needs site visits and boundaries (as opposed to
+  /// examining witnesses or accounts at a table).
+  bool get isSiteWork =>
+      this == CommissionType.localInvestigation ||
+      this == CommissionType.partition ||
+      this == CommissionType.survey ||
+      this == CommissionType.scientificInvestigation ||
+      this == CommissionType.sale;
 
   String get label {
     switch (this) {
@@ -23,6 +57,12 @@ enum CommissionType {
         return 'Recording Evidence';
       case CommissionType.sale:
         return 'Sale of Property';
+      case CommissionType.accounts:
+        return 'Examination of Accounts';
+      case CommissionType.scientificInvestigation:
+        return 'Scientific Investigation';
+      case CommissionType.ministerialAct:
+        return 'Ministerial Act';
     }
   }
 
@@ -38,6 +78,12 @@ enum CommissionType {
         return 'recording_evidence';
       case CommissionType.sale:
         return 'sale';
+      case CommissionType.accounts:
+        return 'accounts';
+      case CommissionType.scientificInvestigation:
+        return 'scientific_investigation';
+      case CommissionType.ministerialAct:
+        return 'ministerial_act';
     }
   }
 
@@ -51,6 +97,12 @@ enum CommissionType {
         return CommissionType.recordingEvidence;
       case 'sale':
         return CommissionType.sale;
+      case 'accounts':
+        return CommissionType.accounts;
+      case 'scientific_investigation':
+        return CommissionType.scientificInvestigation;
+      case 'ministerial_act':
+        return CommissionType.ministerialAct;
       default:
         return CommissionType.localInvestigation;
     }
@@ -256,6 +308,15 @@ class Commission {
   final String createdBy;
   final String? firmId;
   final DateTime createdAt;
+  // The inspection fixed in the notice to parties.
+  final DateTime? inspectionAt;
+  final String? inspectionPlace;
+  // The commission fee (batta) fixed by the court.
+  final double? feeFixed;
+  final String? feeDepositedBy;
+  final double? feeReceived;
+  final DateTime? feeReceivedOn;
+  final DateTime? submittedOn;
   // Joined fields
   final String? caseTitle;
 
@@ -283,6 +344,13 @@ class Commission {
     required this.createdBy,
     this.firmId,
     required this.createdAt,
+    this.inspectionAt,
+    this.inspectionPlace,
+    this.feeFixed,
+    this.feeDepositedBy,
+    this.feeReceived,
+    this.feeReceivedOn,
+    this.submittedOn,
     this.caseTitle,
   });
 
@@ -315,8 +383,35 @@ class Commission {
     createdBy: json['created_by'] ?? '',
     firmId: json['firm_id'],
     createdAt: parseDateOr(json['created_at'], DateTime.now()),
+    inspectionAt: parseDateOrNull(json['inspection_at']),
+    inspectionPlace: json['inspection_place'],
+    feeFixed: (json['fee_fixed'] as num?)?.toDouble(),
+    feeDepositedBy: json['fee_deposited_by'],
+    feeReceived: (json['fee_received'] as num?)?.toDouble(),
+    feeReceivedOn: parseDateOrNull(json['fee_received_on']),
+    submittedOn: parseDateOrNull(json['submitted_on']),
     caseTitle: json['cases'] != null ? json['cases']['case_title'] : null,
   );
+
+  /// "O.S. 105/2020" or the court, whichever identifies it best.
+  String get displayRef {
+    final ref = caseNumberRef?.trim();
+    if (ref != null && ref.isNotEmpty) return ref;
+    return commissionType.label;
+  }
+
+  /// "Selvi vs Murugan" when both parties are known.
+  String? get partiesTitle {
+    final p = partyPetitioner?.trim() ?? '';
+    final r = partyRespondent?.trim() ?? '';
+    if (p.isEmpty && r.isEmpty) return null;
+    if (r.isEmpty) return p;
+    if (p.isEmpty) return r;
+    return '$p vs $r';
+  }
+
+  double? get feeBalance =>
+      feeFixed == null ? null : (feeFixed! - (feeReceived ?? 0));
 
   String get locationSummary {
     final parts = [
@@ -742,5 +837,308 @@ class CommissionSketch {
       default:
         return 'General';
     }
+  }
+}
+
+
+// ─── Notice to parties ────────────────────────────────────────
+
+enum NoticeStatus {
+  pending,
+  served,
+  refused,
+  informed,
+  notServed;
+
+  String get label {
+    switch (this) {
+      case NoticeStatus.pending:
+        return 'Not yet sent';
+      case NoticeStatus.served:
+        return 'Served';
+      case NoticeStatus.refused:
+        return 'Refused';
+      case NoticeStatus.informed:
+        return 'Informed';
+      case NoticeStatus.notServed:
+        return 'Not served';
+    }
+  }
+
+  String get dbValue => this == NoticeStatus.notServed ? 'not_served' : name;
+
+  /// Served, informed or refused all count as notice given: a party who
+  /// refuses to take notice is still bound by it.
+  bool get noticeGiven =>
+      this == NoticeStatus.served ||
+      this == NoticeStatus.informed ||
+      this == NoticeStatus.refused;
+
+  static NoticeStatus fromString(String? v) {
+    switch (v) {
+      case 'served':
+        return NoticeStatus.served;
+      case 'refused':
+        return NoticeStatus.refused;
+      case 'informed':
+        return NoticeStatus.informed;
+      case 'not_served':
+        return NoticeStatus.notServed;
+      default:
+        return NoticeStatus.pending;
+    }
+  }
+}
+
+class CommissionParty {
+  final String id;
+  final String commissionId;
+  final String name;
+  final String role; // plaintiff, petitioner, defendant, respondent, party, official, other
+  final String? roleLabel; // "1st Defendant", "Revenue Inspector"
+  final String? advocate;
+  final String? phone;
+  final NoticeStatus noticeStatus;
+  final DateTime? servedOn;
+  final String? servedHow;
+  final bool? attended;
+  final int sortOrder;
+
+  CommissionParty({
+    required this.id,
+    required this.commissionId,
+    required this.name,
+    this.role = 'party',
+    this.roleLabel,
+    this.advocate,
+    this.phone,
+    this.noticeStatus = NoticeStatus.pending,
+    this.servedOn,
+    this.servedHow,
+    this.attended,
+    this.sortOrder = 0,
+  });
+
+  factory CommissionParty.fromJson(Map<String, dynamic> json) => CommissionParty(
+        id: json['id'] ?? '',
+        commissionId: json['commission_id'] ?? '',
+        name: json['name'] ?? '',
+        role: json['role'] ?? 'party',
+        roleLabel: json['role_label'],
+        advocate: json['advocate'],
+        phone: json['phone'],
+        noticeStatus: NoticeStatus.fromString(json['notice_status']),
+        servedOn: parseDateOrNull(json['served_on']),
+        servedHow: json['served_how'],
+        attended: json['attended'],
+        sortOrder: json['sort_order'] ?? 0,
+      );
+
+  /// "1st Defendant" when given, else the role in words.
+  String get roleText {
+    if (roleLabel != null && roleLabel!.trim().isNotEmpty) return roleLabel!.trim();
+    switch (role) {
+      case 'plaintiff':
+        return 'Plaintiff';
+      case 'petitioner':
+        return 'Petitioner';
+      case 'defendant':
+        return 'Defendant';
+      case 'respondent':
+        return 'Respondent';
+      case 'official':
+        return 'Official';
+      case 'other':
+        return 'Other';
+      default:
+        return 'Party';
+    }
+  }
+}
+
+// ─── Boundaries and extent ────────────────────────────────────
+
+enum AreaUnit {
+  sqFt('sq_ft', 'sq ft'),
+  sqM('sq_m', 'sq m'),
+  cents('cents', 'cents'),
+  acres('acres', 'acres'),
+  hectares('hectares', 'ha');
+
+  const AreaUnit(this.dbValue, this.short);
+  final String dbValue;
+  final String short;
+
+  /// Square feet in one unit. 1 cent = 1/100 acre = 435.6 sq ft.
+  double get sqFtPerUnit {
+    switch (this) {
+      case AreaUnit.sqFt:
+        return 1;
+      case AreaUnit.sqM:
+        return 10.7639104;
+      case AreaUnit.cents:
+        return 435.6;
+      case AreaUnit.acres:
+        return 43560;
+      case AreaUnit.hectares:
+        return 107639.104;
+    }
+  }
+
+  static AreaUnit fromString(String? v) =>
+      AreaUnit.values.firstWhere((u) => u.dbValue == v, orElse: () => AreaUnit.sqFt);
+
+  /// [value] in this unit, converted to [to].
+  double convert(double value, AreaUnit to) => value * sqFtPerUnit / to.sqFtPerUnit;
+}
+
+class CommissionMeasurement {
+  final String id;
+  final String commissionId;
+  final String? visitId;
+  final String label;
+  final String? northBy, northLen, southBy, southLen, eastBy, eastLen, westBy, westLen;
+  final double? extent;
+  final AreaUnit unit;
+  final double? scheduleExtent;
+  final String? notes;
+  final int sortOrder;
+  final DateTime createdAt;
+
+  CommissionMeasurement({
+    required this.id,
+    required this.commissionId,
+    this.visitId,
+    required this.label,
+    this.northBy,
+    this.northLen,
+    this.southBy,
+    this.southLen,
+    this.eastBy,
+    this.eastLen,
+    this.westBy,
+    this.westLen,
+    this.extent,
+    this.unit = AreaUnit.sqFt,
+    this.scheduleExtent,
+    this.notes,
+    this.sortOrder = 0,
+    required this.createdAt,
+  });
+
+  factory CommissionMeasurement.fromJson(Map<String, dynamic> json) => CommissionMeasurement(
+        id: json['id'] ?? '',
+        commissionId: json['commission_id'] ?? '',
+        visitId: json['visit_id'],
+        label: json['label'] ?? 'Schedule property',
+        northBy: json['north_by'],
+        northLen: json['north_len'],
+        southBy: json['south_by'],
+        southLen: json['south_len'],
+        eastBy: json['east_by'],
+        eastLen: json['east_len'],
+        westBy: json['west_by'],
+        westLen: json['west_len'],
+        extent: (json['extent'] as num?)?.toDouble(),
+        unit: AreaUnit.fromString(json['extent_unit']),
+        scheduleExtent: (json['schedule_extent'] as num?)?.toDouble(),
+        notes: json['notes'],
+        sortOrder: json['sort_order'] ?? 0,
+        createdAt: parseDateOr(json['created_at'], DateTime.now()),
+      );
+
+  /// All four sides have something recorded.
+  bool get isComplete =>
+      [northBy, southBy, eastBy, westBy].every((v) => v != null && v.trim().isNotEmpty) &&
+      extent != null;
+
+  /// Found minus schedule, in this measurement's unit.
+  double? get difference =>
+      extent != null && scheduleExtent != null ? extent! - scheduleExtent! : null;
+}
+
+// ─── Where a commission stands ────────────────────────────────
+
+enum CommissionStage {
+  warrant('Warrant'),
+  notice('Notice'),
+  visit('Site visit'),
+  record('Record'),
+  report('Report'),
+  submitted('Submitted');
+
+  const CommissionStage(this.label);
+  final String label;
+}
+
+/// The commission's progress through its six stages, and the one thing to
+/// do next — worked out from what has actually been recorded.
+class CommissionProgress {
+  final CommissionStage current;
+  final String nextTitle;
+  final String nextDetail;
+  final String nextAction; // notice | visit | record | measure | report | fees | submit | none
+
+  const CommissionProgress(this.current, this.nextTitle, this.nextDetail, this.nextAction);
+
+  int get doneCount => current.index;
+
+  static CommissionProgress of({
+    required Commission c,
+    required List<CommissionParty> parties,
+    required List<CommissionVisit> visits,
+    required List<CommissionMeasurement> measurements,
+  }) {
+    if (c.status == CommissionStatus.submitted ||
+        c.status == CommissionStatus.objections ||
+        c.status == CommissionStatus.closed) {
+      if (c.status == CommissionStatus.objections) {
+        return const CommissionProgress(CommissionStage.submitted, 'Answer the objections',
+            'Objections were filed to the report. Record your reply or a further inquiry.', 'record');
+      }
+      return const CommissionProgress(CommissionStage.submitted, 'Report filed',
+          'Nothing left to do unless the court calls for more.', 'none');
+    }
+    final site = c.commissionType.isSiteWork;
+    if (parties.isEmpty) {
+      return const CommissionProgress(CommissionStage.notice, 'Add the parties to give notice',
+          'List each party and their advocate, then fix the date and place.', 'notice');
+    }
+    if (c.inspectionAt == null) {
+      return const CommissionProgress(CommissionStage.notice, 'Fix the date of inspection',
+          'Choose when and where you will execute the commission.', 'notice');
+    }
+    final pending = parties.where((p) => !p.noticeStatus.noticeGiven).length;
+    if (pending > 0) {
+      return CommissionProgress(CommissionStage.notice,
+          'Serve notice on $pending ${pending == 1 ? 'party' : 'parties'}',
+          'Mark each party served, refused or informed, with how and when.', 'notice');
+    }
+    final active = visits.where((v) => v.visitStatus == VisitStatus.checkedIn).toList();
+    if (active.isNotEmpty) {
+      return const CommissionProgress(CommissionStage.visit, 'Continue the site visit',
+          'A visit is open. Finish recording and check out.', 'visit');
+    }
+    final done = visits.where((v) => v.visitStatus == VisitStatus.completed || v.visitStatus == VisitStatus.obstructed);
+    if (done.isEmpty) {
+      return CommissionProgress(CommissionStage.visit, site ? 'Start the site visit' : 'Start the sitting',
+          site ? 'Check in at the property — time and GPS are recorded.' : 'Open the sitting to record what happens.',
+          'visit');
+    }
+    if (site && measurements.isEmpty) {
+      return const CommissionProgress(CommissionStage.record, 'Record boundaries and extent',
+          'North, south, east, west and the extent found at site.', 'measure');
+    }
+    final incomplete = measurements.where((m) => !m.isComplete).toList();
+    if (site && incomplete.isNotEmpty) {
+      return CommissionProgress(CommissionStage.record, 'Complete ${incomplete.first.label}',
+          'Some boundaries or the extent are still missing.', 'measure');
+    }
+    if (c.status != CommissionStatus.reportDrafting) {
+      return const CommissionProgress(CommissionStage.report, 'Prepare the report',
+          'Check each section, then preview the report.', 'report');
+    }
+    return const CommissionProgress(CommissionStage.report, 'File the report',
+        'Mark it submitted once it is filed in court.', 'submit');
   }
 }

@@ -27,7 +27,7 @@ import '../pages/collaborator_invitations_screen.dart';
 import '../pages/firm_management_screen.dart';
 import '../pages/tools/advocate_directory_screen.dart';
 import '../pages/commissions_screen.dart';
-import '../pages/commission_detail_screen.dart';
+import '../pages/commission/commission_home_screen.dart';
 import '../pages/ai_chat_screen.dart';
 import '../pages/caveats_screen.dart';
 import '../pages/legal_pulse_screen.dart';
@@ -248,7 +248,7 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/commissions/:id',
           builder:
-              (context, state) => CommissionDetailScreen(
+              (context, state) => CommissionHomeScreen(
                 commissionId: state.pathParameters['id']!,
               ),
         ),
