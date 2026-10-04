@@ -546,6 +546,11 @@ class UserProfile {
   final String? officeAddress;
   final bool isPublicDirectoryEnabled;
 
+  /// Set while the account waits out its 30-day deletion grace period; the
+  /// app then shows only the "scheduled for deletion" screen. Read-only here:
+  /// it changes through request/cancel_account_deletion().
+  final DateTime? deletionScheduledFor;
+
   UserProfile({
     required this.id,
     this.fullName,
@@ -562,6 +567,7 @@ class UserProfile {
     this.practiceDistrict,
     this.officeAddress,
     this.isPublicDirectoryEnabled = true,
+    this.deletionScheduledFor,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
@@ -582,6 +588,7 @@ class UserProfile {
     practiceDistrict: json['practice_district'],
     officeAddress: json['office_address'],
     isPublicDirectoryEnabled: json['is_public_directory_enabled'] ?? true,
+    deletionScheduledFor: parseDateOrNull(json['deletion_scheduled_for']),
   );
 
   /// Feature gating: Based on subscription tier from the database.
@@ -629,6 +636,8 @@ class UserProfile {
   }
 
   bool get isFirmOwner => firmId == null;
+
+  bool get isDeletionScheduled => deletionScheduledFor != null;
 
   // Data visibility: true if the user has joined someone else's firm
   bool get isFirmMember => firmId != null;

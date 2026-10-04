@@ -1,3 +1,5 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../models/models.dart';
 import 'base_repository.dart';
 
@@ -19,6 +21,56 @@ class ProfileRepository {
     final user = BaseRepository.requireAuth();
     await _client.from('profiles').update(updates).eq('id', user.id);
     BaseRepository.invalidateProfileCache();
+  }
+
+  // ─── Account ─────────────────────────────────────────────
+
+  /// Asks for the account to be deleted in 30 days. Throws
+  /// [TeamExistsException] while the user owns a firm with juniors or clerks.
+  /// Returns the date the account will be deleted.
+  static Future<DateTime> requestAccountDeletion() async {
+    BaseRepository.requireAuth();
+    try {
+      final due = await _client.rpc('request_account_deletion');
+      BaseRepository.invalidateProfileCache();
+      return DateTime.parse(due as String).toLocal();
+    } on PostgrestException catch (e) {
+      if (e.message.contains('CF_TEAM_EXISTS')) throw const TeamExistsException();
+      rethrow;
+    }
+  }
+
+  /// Keeps the account: clears a pending deletion.
+  static Future<void> cancelAccountDeletion() async {
+    BaseRepository.requireAuth();
+    await _client.rpc('cancel_account_deletion');
+    BaseRepository.invalidateProfileCache();
+  }
+
+  /// Confirms the password before a sensitive change by signing in again.
+  /// Returns false when the password is wrong.
+  static Future<bool> verifyPassword(String password) async {
+    final email = BaseRepository.requireAuth().email;
+    if (email == null) return false;
+    try {
+      await _client.auth.signInWithPassword(email: email, password: password);
+      return true;
+    } on AuthException {
+      return false;
+    }
+  }
+
+  /// Starts an email change. Supabase emails a confirmation link to the new
+  /// address (and, with secure email change on, to the old one); the login
+  /// email changes only after the link is opened.
+  static Future<void> requestEmailChange(String newEmail) async {
+    BaseRepository.requireAuth();
+    await _client.auth.updateUser(UserAttributes(email: newEmail.trim()));
+  }
+
+  static Future<void> changePassword(String newPassword) async {
+    BaseRepository.requireAuth();
+    await _client.auth.updateUser(UserAttributes(password: newPassword));
   }
 
   /// Display names for the given profile ids. Names only: other users'
@@ -43,4 +95,12 @@ class ProfileRepository {
     BaseRepository.invalidateProfileCache();
     return await getProfile();
   }
+}
+
+/// The account owns a firm that still has juniors or clerks.
+class TeamExistsException implements Exception {
+  const TeamExistsException();
+  @override
+  String toString() =>
+      'Remove your juniors and clerks from your team before deleting your account.';
 }

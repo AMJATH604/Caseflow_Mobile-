@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import 'account_deletion_pending_screen.dart';
 import '../components/mobile_bottom_nav.dart';
 import '../components/citizen_bottom_nav.dart';
 import '../components/app_sidebar.dart';
@@ -41,6 +42,15 @@ class _AppShellState extends ConsumerState<AppShell> {
       isCitizenMode =
           profileAsync.whenOrNull(data: (profile) => profile.isCitizen) ??
           false;
+    }
+
+    // An account waiting out its 30-day deletion shows only the screen that
+    // lets the user keep it or sign out.
+    if (!widget.isGuest) {
+      final scheduled = ref.watch(userProfileProvider).valueOrNull?.deletionScheduledFor;
+      if (scheduled != null) {
+        return AccountDeletionPendingScreen(scheduledFor: scheduled);
+      }
     }
 
     final appTitle = isCitizenMode ? 'CaseFlow' : 'CaseFlow';

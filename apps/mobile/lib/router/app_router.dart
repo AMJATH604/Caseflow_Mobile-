@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../main.dart'; // Import rootNavigatorKey
+import '../pages/account_screen.dart';
 import '../pages/app_shell.dart';
 import '../pages/dashboard_screen.dart';
 import '../pages/cases_screen.dart';
@@ -112,6 +113,12 @@ final appRouter = GoRouter(
         final role = state.uri.queryParameters['role'] ?? 'advocate';
         return LoginScreen(initialRole: role);
       },
+    ),
+
+    // ─── My Account (full-screen, outside the shell) ─────────
+    GoRoute(
+      path: '/account',
+      builder: (context, state) => const AccountScreen(),
     ),
 
     // ─── Chat Routes (full-screen, outside the shell) ────────

@@ -130,6 +130,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               child: _buildHeroHeader(context, profile, isDark),
             ),
 
+            // ─── Account ──────────────────────────────────────
+            SliverToBoxAdapter(
+              child: _buildSectionHeader(
+                isDark,
+                icon: Icons.person_rounded,
+                title: 'Account',
+                color: AppTheme.accent,
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: _buildSettingsCard(isDark, children: [
+                _buildActionTile(
+                  isDark,
+                  icon: Icons.manage_accounts_rounded,
+                  title: 'My account',
+                  subtitle: 'Edit your details, email, password, or delete your account',
+                  color: AppTheme.accent,
+                  onTap: () => context.push('/account'),
+                ),
+              ]),
+            ),
+
             // ─── Notification Settings ────────────────────────
             SliverToBoxAdapter(
               child: _buildSectionHeader(
