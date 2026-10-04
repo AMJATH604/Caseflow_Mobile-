@@ -1,7 +1,8 @@
 -- ═══════════════════════════════════════════════════════════════
 -- Account deletion with a 30-day grace period
 --
--- NOT YET APPLIED. Apply on its own in a transaction with
+-- Applied to production 2026-10-04 (edge function deployed the same day),
+-- on its own in a transaction with
 -- `supabase db query --linked --file`, then deploy the edge function
 -- `purge-deleted-accounts` (verify_jwt false; it uses verifyWebhookAuth).
 --
