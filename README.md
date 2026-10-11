@@ -16,14 +16,21 @@
     <img src="https://github.com/AMJATH604/Caseflow_Final/actions/workflows/ci.yml/badge.svg" alt="CI" />
   </a>
   <img src="https://img.shields.io/badge/Flutter-3.29+-02569B?logo=flutter&logoColor=white" alt="Flutter" />
+  <img src="https://img.shields.io/badge/React-Vite-61DAFB?logo=react&logoColor=black" alt="React" />
   <img src="https://img.shields.io/badge/Supabase-Backend-3FCF8E?logo=supabase&logoColor=white" alt="Supabase" />
   <img src="https://img.shields.io/badge/Gemini_AI-Powered-4285F4?logo=google&logoColor=white" alt="Gemini AI" />
   <img src="https://img.shields.io/badge/License-MIT-blue" alt="License" />
 </p>
 
 <p align="center">
-  <em>Production-grade mobile app powering legal case lifecycle management — from client onboarding to court hearings, evidence documentation, and AI-driven legal research.</em>
+  <em>Production-grade monorepo powering legal case lifecycle management — from client onboarding to court hearings, evidence documentation, and AI-driven legal research.</em>
 </p>
+
+---
+
+## Overview
+
+CaseFlow is a **monorepo** containing a mobile app, web dashboard, and shared packages — all backed by Supabase and designed specifically for the Indian legal ecosystem.
 
 ---
 
@@ -90,34 +97,67 @@
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Monorepo Structure
 
 ```
 caseflow/
 ├── apps/
-│   └── mobile/                     # Flutter mobile app (Android)
-│       ├── lib/
-│       │   ├── models/             # Data models (fromJson / toJson)
-│       │   ├── services/
-│       │   │   ├── repositories/   # Domain repositories (10 modules)
-│       │   │   ├── supabase_service.dart   # Facade pattern
-│       │   │   ├── providers.dart          # Riverpod state management
-│       │   │   └── fcm_service.dart        # Push notifications
-│       │   ├── pages/              # 36+ screens
-│       │   ├── components/         # 40+ reusable widgets
-│       │   ├── theme/              # App theme system
-│       │   └── utils/              # Responsive utilities, config
-│       └── android/                # Android platform config
+│   ├── mobile/                  # Flutter mobile app (Android + iOS)
+│   │   ├── lib/
+│   │   │   ├── models/          # Data models (fromJson / toJson)
+│   │   │   ├── services/
+│   │   │   │   ├── repositories/  # Domain repositories (10 modules)
+│   │   │   │   ├── supabase_service.dart
+│   │   │   │   ├── providers.dart
+│   │   │   │   └── fcm_service.dart
+│   │   │   ├── pages/           # 36+ screens
+│   │   │   ├── components/      # 40+ reusable widgets
+│   │   │   ├── theme/           # App theme system
+│   │   │   └── utils/           # Responsive utilities, config
+│   │   └── android/             # Android platform config
+│   │
+│   ├── dashboard/               # Vite + React web dashboard
+│   │   ├── src/
+│   │   └── tests/
+│   │
+│   └── bardesk/                 # BarDesk web app (Vite + React)
+│       └── src/
+│
+├── packages/
+│   ├── design-system/           # Shared UI tokens & Tailwind preset
+│   │   ├── tokens.css
+│   │   └── tailwind.preset.ts
+│   │
+│   └── legal-fixtures/          # Shared legal data & JSON fixtures
+│       ├── data/
+│       │   ├── legal/           # Bare acts (BNS, BSA, CPC, etc.)
+│       │   └── aggregates/      # Pre-processed dashboard data
+│       ├── ecourts_case_number.json
+│       └── ni_act_court_fee.json
+│
 ├── supabase/
+│   ├── migrations/              # Database migrations
 │   └── functions/
-│       ├── send-hearing-reminders/ # Cron: automated FCM push
-│       └── gemini-proxy/           # Server-side Gemini API proxy
-├── data/                           # Legal datasets (bare acts JSON)
-├── scripts/                        # DB migrations & admin tools
+│       ├── send-hearing-reminders/  # Cron: automated FCM push
+│       └── gemini-proxy/            # Server-side Gemini API proxy
+│
+├── scripts/                     # DB migrations & admin tools
+│   ├── db/                      # SQL migration scripts
+│   └── tools/                   # Utility scripts
+│
+├── docs/
+│   ├── product/                 # PRD, TRD, design briefs
+│   ├── store-listings/          # App Store & Play Store copy
+│   └── legal/                   # Privacy policy, terms
+│
 └── .github/workflows/
-    ├── build-apk.yml               # CI/CD: auto-build release APK
-    └── ci.yml                      # CI: analyze, test, lint
+    ├── build-apk.yml            # CI/CD: auto-build release APK
+    └── ci.yml                   # CI: analyze, test, lint
 ```
+
+---
+
+## 🧩 Architecture
 
 ### Service Layer — Repository Pattern
 
@@ -192,9 +232,9 @@ Tested across screen widths from 320dp (budget phones) to 430dp+ (flagships).
 |------|---------|
 | Flutter | ≥ 3.29 |
 | Dart | ≥ 3.7 |
+| Node.js | ≥ 20 |
 | Android SDK | API 21+ |
-| Node.js | ≥ 20 (for scripts) |
-| Supabase CLI | Latest (for Edge Functions) |
+| Supabase CLI | Latest |
 
 ### Setup
 
@@ -203,24 +243,21 @@ Tested across screen widths from 320dp (budget phones) to 430dp+ (flagships).
 git clone https://github.com/AMJATH604/Caseflow_Final.git
 cd Caseflow_Final
 
-# Install Flutter dependencies
+# ─── Mobile App ───────────────────────────
 cd apps/mobile
 flutter pub get
-
-# Run (with Supabase config)
 flutter run \
   --dart-define=SUPABASE_URL=<your-url> \
   --dart-define=SUPABASE_ANON_KEY=<your-key>
-```
 
-### Edge Functions
+# ─── Web Dashboard ───────────────────────
+cd apps/dashboard
+npm install
+npm run dev
 
-```bash
-# Deploy serverless functions
+# ─── Edge Functions ───────────────────────
 supabase functions deploy send-hearing-reminders
 supabase functions deploy gemini-proxy
-
-# Set secrets
 supabase secrets set GEMINI_API_KEY=<key>
 ```
 
@@ -229,9 +266,16 @@ supabase secrets set GEMINI_API_KEY=<key>
 ## 🧪 Testing & CI/CD
 
 ```bash
-flutter test              # Run unit tests
-flutter test --coverage   # With coverage report
-flutter analyze           # Static analysis
+# Mobile
+cd apps/mobile
+flutter test
+flutter test --coverage
+flutter analyze
+
+# Dashboard
+cd apps/dashboard
+npm run test
+npx playwright test
 ```
 
 ### Automated Pipeline
@@ -249,12 +293,13 @@ Every push to `main` triggers:
 | Layer | Technology |
 |-------|-----------|
 | **Mobile** | Flutter 3.29 · Dart 3.7 · Riverpod · GoRouter · ScreenUtil |
+| **Web** | React · Vite · TypeScript · Tailwind CSS · Capacitor |
 | **Backend** | Supabase (PostgreSQL · Auth · Storage · Realtime · Edge Functions) |
 | **AI** | Google Gemini 2.0 Flash (server-side proxy) |
 | **Notifications** | Firebase Cloud Messaging (FCM v1 HTTP API) |
 | **Analytics** | Firebase Analytics · Crashlytics |
 | **CI/CD** | GitHub Actions (auto-build APK on push) |
-| **Responsive UI** | flutter_screenutil (390×844 baseline) |
+| **Design System** | Shared tokens + Tailwind preset across web apps |
 
 ---
 
