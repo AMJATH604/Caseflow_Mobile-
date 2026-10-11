@@ -22,12 +22,14 @@ Thumbs.db
 **/firebase_credentials.json
 # Supabase
 supabase/.temp/
+
 # ─── IDE ──────────────────────────────────────────────────────
 .idea/
 .vscode/
 *.iml
 .mcp.json
 .agents/
+.claude/
 
 # ─── Flutter / Dart ───────────────────────────────────────────
 **/build/
@@ -65,18 +67,37 @@ yarn-debug.log*
 yarn-error.log*
 *.timestamp-*.mjs
 *.timestamp-*.js
+bun.lockb
 
-# ─── Build Artifacts ──────────────────────────────────────────
+# ─── Testing ──────────────────────────────────────────────────
+playwright-report/
+test-results/
+
+# ─── Build Artifacts & Binaries ──────────────────────────────
 *.apk
 *.aab
 *.ipa
+
+# ─── Binary Documents (keep in Google Drive, not Git) ────────
+*.pptx
+*.docx
+
+# ─── Media Dumps (never commit raw screenshots/wireframes) ───
+/phone_screenshots/
+/caseflow_screenshots/
+/caseflow_wireframes/
+/caseflow_real_screens/
+/caseflow_real_mobile_wireframes/
+/figma_assets/
 
 # ─── Project Clutter (never commit these) ─────────────────────
 /temp/
 /scratch/
 /releases/
 /caseflow_flutter/
+/data/
 
-# Local debug output (analyzer/build logs). A service_role key was once
-# committed here as logs/sr.txt — never track this directory again.
+# ─── Debug Output ─────────────────────────────────────────────
+# A service_role key was once committed as logs/sr.txt — never track again.
 apps/mobile/logs/
+

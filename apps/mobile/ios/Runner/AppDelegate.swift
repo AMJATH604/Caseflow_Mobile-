@@ -29,7 +29,7 @@ import UserNotifications
     _ application: UIApplication,
     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
   ) {
-    Messaging.messaging().apnsToken = deviceToken
+    Messaging.messaging().setAPNSToken(deviceToken, type: .unknown)
     super.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
   }
 }

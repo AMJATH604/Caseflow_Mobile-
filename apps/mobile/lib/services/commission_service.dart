@@ -91,6 +91,55 @@ class CommissionService {
     await _client.from('commissions').delete().eq('id', id);
   }
 
+  // ─── Parties given notice ──────────────────────────────────
+
+  static Future<List<CommissionParty>> fetchParties(String commissionId) async {
+    final rows = await _client
+        .from('commission_parties')
+        .select()
+        .eq('commission_id', commissionId)
+        .order('sort_order')
+        .order('created_at');
+    return (rows as List).map((j) => CommissionParty.fromJson(j)).toList();
+  }
+
+  /// Inserts when [id] is null, else updates that party.
+  static Future<void> saveParty(String commissionId, Map<String, dynamic> data, {String? id}) async {
+    if (id == null) {
+      await _client.from('commission_parties').insert({...data, 'commission_id': commissionId});
+    } else {
+      await _client.from('commission_parties').update(data).eq('id', id);
+    }
+  }
+
+  static Future<void> deleteParty(String id) async {
+    await _client.from('commission_parties').delete().eq('id', id);
+  }
+
+  // ─── Boundaries and extent ─────────────────────────────────
+
+  static Future<List<CommissionMeasurement>> fetchMeasurements(String commissionId) async {
+    final rows = await _client
+        .from('commission_measurements')
+        .select()
+        .eq('commission_id', commissionId)
+        .order('sort_order')
+        .order('created_at');
+    return (rows as List).map((j) => CommissionMeasurement.fromJson(j)).toList();
+  }
+
+  static Future<void> saveMeasurement(String commissionId, Map<String, dynamic> data, {String? id}) async {
+    if (id == null) {
+      await _client.from('commission_measurements').insert({...data, 'commission_id': commissionId});
+    } else {
+      await _client.from('commission_measurements').update(data).eq('id', id);
+    }
+  }
+
+  static Future<void> deleteMeasurement(String id) async {
+    await _client.from('commission_measurements').delete().eq('id', id);
+  }
+
   // ─── Visits CRUD ───────────────────────────────────────────
 
   static Future<List<CommissionVisit>> fetchVisits(String commissionId) async {

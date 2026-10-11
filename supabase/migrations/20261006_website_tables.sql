@@ -1,7 +1,7 @@
 -- ═══════════════════════════════════════════════════════════════
 -- Marketing website (repo caseflow_website): enquiries and editable content
 --
--- NOT YET APPLIED. Apply on its own in a transaction with
+-- Applied to production 2026-10-04, on its own in a transaction with
 -- `supabase db query --linked --file`, not `db push` (the remote history uses
 -- dashboard timestamps, so push would re-run every local migration).
 --
