@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import '../../models/title_search_models.dart';
 import '../../services/providers.dart';
 import '../../services/supabase_service.dart';
+import '../../services/title_report_pdf_service.dart';
 import '../../theme/app_theme.dart';
 
 class TitleSearchDetailScreen extends ConsumerStatefulWidget {
@@ -20,19 +21,81 @@ class TitleSearchDetailScreen extends ConsumerStatefulWidget {
 class _TitleSearchDetailScreenState extends ConsumerState<TitleSearchDetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late TextEditingController _opinionController;
   bool _isAnalyzing = false;
   bool _isUploading = false;
+  bool _isExportingPdf = false;
+  bool _isSavingOpinion = false;
+  bool _opinionLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _opinionController = TextEditingController();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _opinionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _exportPdf() async {
+    setState(() => _isExportingPdf = true);
+    try {
+      final search = await ref.read(titleSearchDetailProvider(widget.searchId).future);
+      final findings = await ref.read(titleFindingsProvider(widget.searchId).future);
+      final links = await ref.read(titleChainLinksProvider(widget.searchId).future);
+      final docs = await ref.read(titleDocumentsProvider(widget.searchId).future);
+      final profile = await SupabaseService.fetchProfile();
+
+      await TitleReportPdfService.generateAndExport(
+        search: search,
+        findings: findings,
+        chainLinks: links,
+        documents: docs,
+        advocateName: profile.fullName,
+        advocateOpinion: _opinionController.text.trim().isNotEmpty
+            ? _opinionController.text.trim()
+            : search.advocateOpinion,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to export PDF: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isExportingPdf = false);
+    }
+  }
+
+  Future<void> _saveAdvocateOpinion() async {
+    setState(() => _isSavingOpinion = true);
+    try {
+      await SupabaseService.updateTitleSearch(widget.searchId, {
+        'advocate_opinion': _opinionController.text.trim(),
+      });
+      ref.invalidate(titleSearchDetailProvider(widget.searchId));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Advocate title opinion saved successfully.'),
+            backgroundColor: Color(0xFF0D9488),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save opinion: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSavingOpinion = false);
+    }
   }
 
   Future<void> _runAnalysis() async {
@@ -113,6 +176,13 @@ class _TitleSearchDetailScreenState extends ConsumerState<TitleSearchDetailScree
   Widget build(BuildContext context) {
     final searchAsync = ref.watch(titleSearchDetailProvider(widget.searchId));
 
+    searchAsync.whenData((s) {
+      if (!_opinionLoaded && s.advocateOpinion != null) {
+        _opinionController.text = s.advocateOpinion!;
+        _opinionLoaded = true;
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppTheme.background,
       appBar: AppBar(
@@ -129,6 +199,18 @@ class _TitleSearchDetailScreenState extends ConsumerState<TitleSearchDetailScree
         foregroundColor: AppTheme.primary,
         actions: [
           IconButton(
+            tooltip: 'Export Title Health PDF',
+            icon: _isExportingPdf
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0D9488)),
+                  )
+                : const Icon(Icons.picture_as_pdf_outlined, color: Color(0xFF0D9488)),
+            onPressed: _isExportingPdf ? null : _exportPdf,
+          ),
+          IconButton(
+            tooltip: 'Refresh',
             icon: const Icon(Icons.refresh_rounded),
             onPressed: () {
               ref.invalidate(titleSearchDetailProvider(widget.searchId));
@@ -229,7 +311,7 @@ class _TitleSearchDetailScreenState extends ConsumerState<TitleSearchDetailScree
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossCrossCrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Health Score Hero Card
           Container(
@@ -271,7 +353,7 @@ class _TitleSearchDetailScreenState extends ConsumerState<TitleSearchDetailScree
                 const SizedBox(width: 20),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossCrossCrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         scoreStatus,
@@ -354,6 +436,146 @@ class _TitleSearchDetailScreenState extends ConsumerState<TitleSearchDetailScree
               );
             },
           ),
+          const SizedBox(height: 24),
+          _buildAdvocateOpinionSection(search),
+          const SizedBox(height: 16),
+          _buildExportPdfActionCard(search),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdvocateOpinionSection(TitleSearch search) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.gavel_rounded, color: Color(0xFF0D9488), size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  "Advocate's Final Title Opinion",
+                  style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 15),
+                ),
+              ),
+              TextButton.icon(
+                onPressed: _isSavingOpinion ? null : _saveAdvocateOpinion,
+                icon: _isSavingOpinion
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.check_circle_outline, size: 16),
+                label: Text(
+                  'Save',
+                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700),
+                ),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF0D9488),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Your professional conclusion to be presented in court or delivered to the client.',
+            style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade600),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _opinionController,
+            maxLines: 4,
+            style: GoogleFonts.inter(fontSize: 13, height: 1.4),
+            decoration: InputDecoration(
+              hintText: 'e.g. Verified 30-year chain. Current vendor has clear marketable title subject to obtaining registered mortgage discharge from Indian Bank...',
+              hintStyle: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade400),
+              contentPadding: const EdgeInsets.all(12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: Colors.grey.shade200),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Color(0xFF0D9488)),
+              ),
+              filled: true,
+              fillColor: const Color(0xFFF8FAFC),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExportPdfActionCard(TitleSearch search) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0FDFA),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF99F6E4)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0D9488).withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.picture_as_pdf_rounded, color: Color(0xFF0D9488), size: 24),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Export Title Health Report',
+                  style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 14, color: const Color(0xFF0F766E)),
+                ),
+                Text(
+                  'Court & Client-ready PDF with 30-year chain, 18 checks, and advocate opinion.',
+                  style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade700),
+                ),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            onPressed: _isExportingPdf ? null : _exportPdf,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF0D9488),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: _isExportingPdf
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : Text(
+                    'Export PDF',
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12, color: Colors.white),
+                  ),
+          ),
         ],
       ),
     );
@@ -393,10 +615,10 @@ class _TitleSearchDetailScreenState extends ConsumerState<TitleSearchDetailScree
         border: Border.all(color: bannerColor.withOpacity(0.3)),
       ),
       child: Column(
-        crossAxisAlignment: CrossCrossCrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossCrossCrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(icon, color: bannerColor, size: 20),
               const SizedBox(width: 8),
@@ -441,7 +663,7 @@ class _TitleSearchDetailScreenState extends ConsumerState<TitleSearchDetailScree
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
-                crossAxisAlignment: CrossCrossCrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Icon(Icons.lightbulb_outline_rounded, size: 16, color: Colors.blue),
                   const SizedBox(width: 6),
@@ -510,7 +732,7 @@ class _TitleSearchDetailScreenState extends ConsumerState<TitleSearchDetailScree
             final isLast = idx == links.length - 1;
 
             return Row(
-              crossAxisAlignment: CrossCrossCrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Timeline column
                 Column(
@@ -549,7 +771,7 @@ class _TitleSearchDetailScreenState extends ConsumerState<TitleSearchDetailScree
                       border: Border.all(color: AppTheme.border),
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossCrossCrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
@@ -741,7 +963,7 @@ class _TitleSearchDetailScreenState extends ConsumerState<TitleSearchDetailScree
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
-          crossAxisAlignment: CrossCrossCrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
@@ -749,7 +971,7 @@ class _TitleSearchDetailScreenState extends ConsumerState<TitleSearchDetailScree
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossCrossCrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         doc.documentLabel ?? doc.humanReadableType,

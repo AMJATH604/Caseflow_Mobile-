@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class TitleSearch {
   final String id;
   final String userId;

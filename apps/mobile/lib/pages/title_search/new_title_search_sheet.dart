@@ -98,7 +98,7 @@ class _NewTitleSearchSheetState extends State<NewTitleSearchSheet> {
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossCrossCrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
                 child: Container(

@@ -1,5 +1,5 @@
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/title_search_models.dart';
 import 'base_repository.dart';
 

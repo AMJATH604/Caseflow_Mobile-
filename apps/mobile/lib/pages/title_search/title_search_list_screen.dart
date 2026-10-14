@@ -60,7 +60,7 @@ class _TitleSearchListScreenState extends ConsumerState<TitleSearchListScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossCrossCrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'AI Property Due-Diligence',
@@ -185,14 +185,14 @@ class _TitleSearchListScreenState extends ConsumerState<TitleSearchListScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
-            crossAxisAlignment: CrossCrossCrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                crossAxisAlignment: CrossCrossCrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossCrossCrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           search.displayName,
