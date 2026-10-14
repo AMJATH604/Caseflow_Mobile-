@@ -684,9 +684,4 @@ class SupabaseService {
 
   static Future<List<TitleChainLink>> fetchTitleChainLinks(String searchId) =>
       TitleSearchRepository.fetchChainLinks(searchId);
-
-  static Future<void> updateTitleSearch(
-    String id,
-    Map<String, dynamic> updates,
-  ) => TitleSearchRepository.updateTitleSearch(id, updates);
 }

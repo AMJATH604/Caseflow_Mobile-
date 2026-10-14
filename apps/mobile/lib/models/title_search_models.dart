@@ -110,6 +110,9 @@ class TitleSearch {
           ? propertyName!
           : 'Sy. No. $surveyNumber, $village';
 
+  String get extentFormatted =>
+      extent != null ? '$extent $extentUnit' : '—';
+
   bool get isCompleted => status == 'completed';
   bool get hasIssues => (criticalCount > 0 || warningCount > 0);
 }
@@ -323,4 +326,5 @@ class TitleChainLink {
 
   String get fromName => fromParty?['name'] as String? ?? 'Original Owner';
   String get toName => toParty?['name'] as String? ?? 'Buyer';
+  String? get sro => subRegistrarOffice;
 }

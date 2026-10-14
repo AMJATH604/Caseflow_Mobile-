@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../models/title_search_models.dart';
 import '../../services/providers.dart';
-import '../../services/supabase_service.dart';
 import '../../theme/app_theme.dart';
 import 'title_search_detail_screen.dart';
 import 'new_title_search_sheet.dart';
