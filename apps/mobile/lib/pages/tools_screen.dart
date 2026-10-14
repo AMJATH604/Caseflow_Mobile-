@@ -36,6 +36,7 @@ import '../services/document_tools/server_tools_client.dart';
 import 'tools/document_tools/split_pdf_tool.dart';
 import 'tools/document_tools/watermark_tool.dart';
 import 'cross_exam_sessions_screen.dart';
+import 'title_search/title_search_list_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ToolsScreen extends ConsumerStatefulWidget {
@@ -232,6 +233,14 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
   ];
 
   final List<Map<String, dynamic>> _legalTools = [
+    {
+      'id': 'title_search',
+      'title': 'Title Chain AI',
+      'desc': '30-Yr Due-Diligence',
+      'icon': Icons.holiday_village_rounded,
+      'color': const Color(0xFF0D9488),
+      'plan': 'pro',
+    },
     {
       'id': 'cross_exam',
       'title': 'Cross-Exam Prep',
@@ -613,7 +622,11 @@ class _ToolsScreenState extends ConsumerState<ToolsScreen> {
     // Track tool usage in Firebase Analytics
     AnalyticsService.logToolUsed(tool['id'].toString());
 
-    if (tool['id'] == 'ai_chat') {
+    if (tool['id'] == 'title_search') {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const TitleSearchListScreen()),
+      );
+    } else if (tool['id'] == 'ai_chat') {
       context.push('/ai-chat');
     } else if (tool['id'] == 'cross_exam') {
       Navigator.of(context).push(

@@ -19,6 +19,8 @@ import 'repositories/discussion_repository.dart';
 import 'repositories/direct_message_repository.dart';
 import 'repositories/message_reaction_repository.dart';
 import 'repositories/notification_repository.dart';
+import 'repositories/title_search_repository.dart';
+import '../models/title_search_models.dart';
 
 /// Backward-compatible facade that delegates to domain repositories.
 ///
@@ -636,4 +638,50 @@ class SupabaseService {
 
   static Future<void> removeProfilePhoto(String userId) =>
       BaseRepository.removeProfilePhoto(userId);
+
+  // ─── Property Title Chain Inconsistency Detector ─────────
+
+  static Future<List<TitleSearch>> fetchTitleSearches() =>
+      TitleSearchRepository.fetchTitleSearches();
+
+  static Future<TitleSearch> fetchTitleSearchById(String id) =>
+      TitleSearchRepository.fetchTitleSearchById(id);
+
+  static Future<TitleSearch> createTitleSearch(Map<String, dynamic> data) =>
+      TitleSearchRepository.createTitleSearch(data);
+
+  static Future<void> updateTitleSearch(String id, Map<String, dynamic> updates) =>
+      TitleSearchRepository.updateTitleSearch(id, updates);
+
+  static Future<void> deleteTitleSearch(String id) =>
+      TitleSearchRepository.deleteTitleSearch(id);
+
+  static Future<List<TitleDocument>> fetchTitleDocuments(String searchId) =>
+      TitleSearchRepository.fetchDocuments(searchId);
+
+  static Future<TitleDocument> uploadTitleDocument({
+    required String searchId,
+    required String documentType,
+    required String documentLabel,
+    required Uint8List fileBytes,
+    required String fileName,
+  }) => TitleSearchRepository.uploadDocument(
+    searchId: searchId,
+    documentType: documentType,
+    documentLabel: documentLabel,
+    fileBytes: fileBytes,
+    fileName: fileName,
+  );
+
+  static Future<void> deleteTitleDocument(String docId, String filePath) =>
+      TitleSearchRepository.deleteDocument(docId, filePath);
+
+  static Future<Map<String, dynamic>> triggerTitleAnalysis(String searchId) =>
+      TitleSearchRepository.triggerAnalysis(searchId);
+
+  static Future<List<TitleFinding>> fetchTitleFindings(String searchId) =>
+      TitleSearchRepository.fetchFindings(searchId);
+
+  static Future<List<TitleChainLink>> fetchTitleChainLinks(String searchId) =>
+      TitleSearchRepository.fetchChainLinks(searchId);
 }

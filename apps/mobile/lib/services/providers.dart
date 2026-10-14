@@ -15,6 +15,7 @@ import '../models/caveat_models.dart';
 import '../models/notification_models.dart';
 import '../models/strategy_models.dart';
 import '../models/cross_exam_models.dart';
+import '../models/title_search_models.dart';
 import 'caveat_service.dart';
 import 'locale_service.dart';
 import 'repositories/strategy_repository.dart';
@@ -593,6 +594,47 @@ final crossExamQuestionsProvider =
       return RetryHelper.retry(
         () => CrossExamRepository.fetchQuestions(sessionId),
       );
+    });
+
+// ─── Property Title Chain Inconsistency Detector ─────────
+
+/// All property title searches for current user / firm.
+final titleSearchesProvider = FutureProvider<List<TitleSearch>>((ref) async {
+  ref.watch(authStateProvider);
+  ref.watch(dataRefreshProvider);
+  return RetryHelper.retry(() => SupabaseService.fetchTitleSearches());
+});
+
+/// Specific title search details.
+final titleSearchDetailProvider =
+    FutureProvider.family<TitleSearch, String>((ref, searchId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(() => SupabaseService.fetchTitleSearchById(searchId));
+    });
+
+/// Documents uploaded for a title search.
+final titleDocumentsProvider =
+    FutureProvider.family<List<TitleDocument>, String>((ref, searchId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(() => SupabaseService.fetchTitleDocuments(searchId));
+    });
+
+/// Inconsistency findings (Critical, Warning, Passed).
+final titleFindingsProvider =
+    FutureProvider.family<List<TitleFinding>, String>((ref, searchId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(() => SupabaseService.fetchTitleFindings(searchId));
+    });
+
+/// Ownership timeline links (Chain of Title).
+final titleChainLinksProvider =
+    FutureProvider.family<List<TitleChainLink>, String>((ref, searchId) async {
+      ref.watch(authStateProvider);
+      ref.watch(dataRefreshProvider);
+      return RetryHelper.retry(() => SupabaseService.fetchTitleChainLinks(searchId));
     });
 
 
