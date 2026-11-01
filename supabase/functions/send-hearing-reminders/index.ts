@@ -125,20 +125,61 @@ Deno.serve(async (req: Request) => {
 
     console.log(`[${executionId}] Target date for query: ${targetDate}`);
 
-    // Query hearings on the target date, joined with case info
+    // ─── Source 1: Explicit hearings rows ────────────────────
     const { data: hearingsData, error: hearingsError } = await supabase
       .from("hearings")
       .select("id, case_id, hearing_date, stage, purpose, created_by, cases(case_title, court_name, case_number, created_by, assigned_to, firm_id)")
       .eq("hearing_date", targetDate);
 
-    const hearings = hearingsData as any;
-    console.log(`[${executionId}] Hearings found in DB: ${hearings?.length || 0}`);
-
     if (hearingsError) {
       throw new Error(`Hearings query failed: ${hearingsError.message}`);
     }
 
-    if (!hearings || hearings.length === 0) {
+    const hearings: any[] = (hearingsData as any[]) || [];
+    const hearingCaseIds = new Set(hearings.map((h: any) => h.case_id));
+    console.log(`[${executionId}] Hearings table rows: ${hearings.length}`);
+
+    // ─── Source 2: Cases with next_hearing_date but NO hearings row ─
+    // Cases created via "New Case" dialog or imports that failed to create a
+    // hearing row only set cases.next_hearing_date. Without this fallback
+    // those cases never receive reminders.
+    const { data: orphanCases, error: orphanError } = await supabase
+      .from("cases")
+      .select("id, case_title, court_name, case_number, created_by, assigned_to, firm_id, stage")
+      .eq("next_hearing_date", targetDate)
+      .in("status", ["active", "pending"]);
+
+    if (orphanError) {
+      console.warn(`[${executionId}] Orphan-cases query failed (non-fatal): ${orphanError.message}`);
+    }
+
+    // Synthesise virtual hearing entries for cases absent from the hearings table
+    let orphanCount = 0;
+    if (orphanCases) {
+      for (const c of orphanCases) {
+        if (hearingCaseIds.has(c.id)) continue; // already covered by a real row
+        orphanCount++;
+        hearings.push({
+          id: `virtual-${c.id}`,            // distinguishable from real UUIDs
+          case_id: c.id,
+          hearing_date: targetDate,
+          stage: c.stage || null,
+          purpose: null,
+          created_by: c.created_by,
+          cases: {
+            case_title: c.case_title,
+            court_name: c.court_name,
+            case_number: c.case_number,
+            created_by: c.created_by,
+            assigned_to: c.assigned_to,
+            firm_id: c.firm_id,
+          },
+        });
+      }
+    }
+    console.log(`[${executionId}] Orphan cases added: ${orphanCount}, total entries: ${hearings.length}`);
+
+    if (hearings.length === 0) {
       return new Response(
         JSON.stringify({ message: "No hearings found for target date", targetDate }),
         { headers: { "Content-Type": "application/json" } }
@@ -383,6 +424,7 @@ Deno.serve(async (req: Request) => {
         reminder_type,
         targetDate,
         hearingsFound: hearings.length,
+        orphanCasesAdded: orphanCount,
         notificationsSent: sentCount,
         notificationsFailed: failCount,
         errors: errors.length > 0 ? errors.slice(0, 5) : undefined,
