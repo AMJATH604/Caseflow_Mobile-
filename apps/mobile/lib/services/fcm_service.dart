@@ -151,9 +151,9 @@ class FcmService {
   Future<void> _prepareIos() async {
     try {
       await _messaging.setForegroundNotificationPresentationOptions(
-        alert: false,
-        badge: false,
-        sound: false,
+        alert: true,
+        badge: true,
+        sound: true,
       );
     } catch (e) {
       debugPrint('FCM: iOS presentation options failed: $e');
@@ -436,7 +436,22 @@ class FcmService {
               : (isChat ? 'chat_${data['firm_id']}' : null),
     );
 
-    final details = NotificationDetails(android: androidDetails);
+        final darwinDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: prefs.sound,
+      threadIdentifier:
+          isDm
+              ? 'dm_${data['conversation_id']}'
+              : (isChat
+                  ? 'chat_${data['firm_id']}'
+                  : 'hearing_${data['hearing_id'] ?? data['case_id']}'),
+    );
+
+    final details = NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+    );
 
     // Use a unique ID based on conversation/channel/hearing
     final notifId =
