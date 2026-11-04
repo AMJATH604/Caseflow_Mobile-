@@ -42,11 +42,25 @@ class CaseImportService {
 
   /// Parses the mycases.txt or eCourts JSON exported from eCourts app.
   static List<Map<String, String>> parseECourtsTxt(String content) {
-    // 1. Try to parse as the new JSON array format provided by user
+    // 1. Try to parse as JSON (handles pure array, or string-wrapped JSON array)
     try {
-      final decoded = jsonDecode(content);
+      dynamic decoded = jsonDecode(content.trim());
+      // Handle string-escaped JSON (e.g. ""[{...}]"" from exported backups or shares)
+      while (decoded is String) {
+        final trimmed = (decoded as String).trim();
+        if ((trimmed.startsWith('[') && trimmed.endsWith(']')) ||
+            (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
+          decoded = jsonDecode(trimmed);
+        } else {
+          break;
+        }
+      }
+
       if (decoded is List) {
         return _parseECourtsJson(decoded);
+      } else if (decoded is Map<String, dynamic>) {
+        final mapped = _mapECourtsJsonFields(decoded);
+        if (mapped.isNotEmpty) return [mapped];
       }
     } catch (_) {
       // Not a pure JSON array, continue to line-by-line parsing
@@ -63,7 +77,16 @@ class CaseImportService {
     for (var line in lines) {
       // 2. Try to parse individual line as JSON (sometimes exports are line-by-line JSON)
       try {
-        final decoded = jsonDecode(line);
+        dynamic decoded = jsonDecode(line);
+        while (decoded is String) {
+          final trimmed = (decoded as String).trim();
+          if ((trimmed.startsWith('[') && trimmed.endsWith(']')) ||
+              (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
+            decoded = jsonDecode(trimmed);
+          } else {
+            break;
+          }
+        }
         if (decoded is Map<String, dynamic>) {
           final mapped = _mapECourtsJsonFields(decoded);
           if (mapped.isNotEmpty) cases.add(mapped);
@@ -107,7 +130,24 @@ class CaseImportService {
       try {
         Map<String, dynamic> data;
         if (item is String) {
-          data = jsonDecode(item) as Map<String, dynamic>;
+          dynamic decodedItem = jsonDecode(item.trim());
+          while (decodedItem is String) {
+            final t = (decodedItem as String).trim();
+            if ((t.startsWith('{') && t.endsWith('}')) ||
+                (t.startsWith('[') && t.endsWith(']'))) {
+              decodedItem = jsonDecode(t);
+            } else {
+              break;
+            }
+          }
+          if (decodedItem is Map<String, dynamic>) {
+            data = decodedItem;
+          } else if (decodedItem is List) {
+            result.addAll(_parseECourtsJson(decodedItem));
+            continue;
+          } else {
+            continue;
+          }
         } else if (item is Map<String, dynamic>) {
           data = item;
         } else {

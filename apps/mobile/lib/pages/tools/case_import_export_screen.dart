@@ -855,7 +855,7 @@ class _CaseImportExportScreenState
   Future<void> _importFromECourts() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['txt'],
+      allowedExtensions: ['txt', 'json'],
     );
     if (result == null ||
         result.files.isEmpty ||
@@ -1113,11 +1113,57 @@ class _CaseImportExportScreenState
                             SizedBox(width: 6.w),
                             Expanded(
                               child: Text(
-                                '${unanswered.length} case(s) still need a side',
+                                '${unanswered.length} case(s) need a side',
                                 style: TextStyle(
                                   fontSize: 11.sp,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.orange[800],
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                setDialogState(() {
+                                  for (int i = 0; i < cases.length; i++) {
+                                    if (selectedCases[i] == true && selectedRoles[i] == null) {
+                                      selectedRoles[i] = 'petitioner';
+                                    }
+                                  }
+                                });
+                              },
+                              style: TextButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
+                                padding: EdgeInsets.symmetric(horizontal: 4.w),
+                              ),
+                              child: Text(
+                                'Set as Petitioner',
+                                style: TextStyle(
+                                  fontSize: 10.5.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF2980b9),
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                setDialogState(() {
+                                  for (int i = 0; i < cases.length; i++) {
+                                    if (selectedCases[i] == true && selectedRoles[i] == null) {
+                                      selectedRoles[i] = 'respondent';
+                                    }
+                                  }
+                                });
+                              },
+                              style: TextButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
+                                padding: EdgeInsets.symmetric(horizontal: 4.w),
+                              ),
+                              child: Text(
+                                'Respondent',
+                                style: TextStyle(
+                                  fontSize: 10.5.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF2980b9),
                                 ),
                               ),
                             ),
